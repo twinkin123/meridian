@@ -4,7 +4,7 @@ import { tx, one } from '../../db.js';
 import { post } from '../../ledger/post.js';
 import { ensure } from '../../ledger/accounts.js';
 import { getTx } from '../../solana/rpc.js';
-import { matchDeposit, LAMPORTS } from '../../solana/match.js';
+import { matchDeposit, usdMicro } from '../../solana/match.js';
 
 export const webhooks = Router();
 
@@ -49,10 +49,7 @@ async function processSig(sig: string): Promise<void> {
     if (!m) continue;
 
     const qty = m.qty;
-    const usd =
-      m.asset === 'USDC'
-        ? qty
-        : (qty * BigInt(env.solPriceUsd) * 1_000_000n) / LAMPORTS;
+    const usd = usdMicro(m.asset, qty, BigInt(env.solPriceUsd));
 
     if (usd <= 0n) continue;
 

@@ -30,3 +30,7 @@ export function matchDeposit(tx: any, depositAddr: string): Match | null {
 
   return null;
 }
+
+export function usdMicro(asset: 'USDC' | 'SOL', qty: bigint, priceUsd: bigint): bigint {
+  return asset === 'USDC' ? qty : (qty * priceUsd * 1_000_000n) / LAMPORTS;
+}
