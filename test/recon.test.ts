@@ -6,22 +6,20 @@ test('clean books are ok', () => {
   assert.equal(verdictFor(0n, 0n), 'ok');
 });
 
-test('small drift under the threshold is ok', () => {
-  assert.equal(verdictFor(0n, DRIFT_FREEZE_USD - 1n), 'ok');
+test('drift inside the band is ok either way', () => {
+  assert.equal(verdictFor(0n, DRIFT_FREEZE_USD), 'ok');
+  assert.equal(verdictFor(0n, -DRIFT_FREEZE_USD), 'ok');
 });
 
-test('positive drift over the threshold freezes', () => {
-  assert.equal(verdictFor(0n, DRIFT_FREEZE_USD + 1n), 'drift');
+test('more coins than owed is a surplus, not a freeze', () => {
+  assert.equal(verdictFor(0n, DRIFT_FREEZE_USD + 1n), 'surplus');
 });
 
-test('negative drift over the threshold freezes', () => {
+test('fewer coins than owed is drift and freezes', () => {
   assert.equal(verdictFor(0n, -(DRIFT_FREEZE_USD + 1n)), 'drift');
 });
 
-test('negative margin outranks drift', () => {
+test('negative margin outranks everything', () => {
   assert.equal(verdictFor(-1n, DRIFT_FREEZE_USD * 100n), 'insolvent');
-});
-
-test('zero margin with no drift is ok', () => {
-  assert.equal(verdictFor(0n, 0n), 'ok');
+  assert.equal(verdictFor(-1n, -(DRIFT_FREEZE_USD * 100n)), 'insolvent');
 });

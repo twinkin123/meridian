@@ -29,9 +29,12 @@ export async function setFreeze(level: number, actor: string): Promise<void> {
   );
 }
 
-export function verdictFor(margin: bigint, drift: bigint): 'ok' | 'drift' | 'insolvent' {
+export type Verdict = 'ok' | 'surplus' | 'drift' | 'insolvent';
+
+export function verdictFor(margin: bigint, drift: bigint): Verdict {
   if (margin < 0n) return 'insolvent';
-  if (drift > DRIFT_FREEZE_USD || drift < -DRIFT_FREEZE_USD) return 'drift';
+  if (drift < -DRIFT_FREEZE_USD) return 'drift';
+  if (drift > DRIFT_FREEZE_USD) return 'surplus';
   return 'ok';
 }
 
@@ -98,7 +101,14 @@ export async function runRecon(actor = 'manual') {
   if (verdict === 'insolvent' && current < 2) await setFreeze(2, `recon:${actor}`);
   else if (verdict === 'drift' && current < 1) await setFreeze(1, `recon:${actor}`);
 
-  return { verdict, drift: drift.toString(), margin: margin.toString(), stuck, assets: assets.toString(), chainUsd: chainUsd.toString() };
+  return {
+    verdict,
+    drift: drift.toString(),
+    margin: margin.toString(),
+    stuck,
+    assets: assets.toString(),
+    chainUsd: chainUsd.toString(),
+  };
 }
 
 export async function latestRuns(limit = 20) {
