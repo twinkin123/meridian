@@ -15,6 +15,7 @@ import { pool, tx } from './db.js';
 import { post } from './ledger/post.js';
 import { ensure } from './ledger/accounts.js';
 import { treasuryKeypair, treasuryAddress } from './sweeps.js';
+import { solPriceMicro } from './price.js';
 
 export const MIN_WITHDRAW = 10_000_000n;
 export const NEW_ADDR_CAP = 500_000_000n;
@@ -41,8 +42,8 @@ export function computeCap(known: boolean, ageMs: number, balance: bigint): bigi
   return floored > CAP_CEIL ? CAP_CEIL : floored;
 }
 
-export function qtyFor(asset: Asset, usd: bigint, priceUsd: bigint): bigint {
-  return asset === 'USDC' ? usd : (usd * 1_000n) / priceUsd;
+export function qtyFor(asset: Asset, usd: bigint, priceMicro: bigint): bigint {
+  return asset === 'USDC' ? usd : (usd * 1_000_000_000n) / priceMicro;
 }
 
 export type RequestResult =
@@ -174,7 +175,9 @@ async function markFailed(id: string, msg: string): Promise<void> {
   ]);
 }
 
-async function finalize(id: string, sig: string, userId: string, address: string, usd: bigint, qty: bigint) {
+async function finalize(
+  id: string, sig: string, userId: string, address: string, usd: bigint, qty: bigint,
+) {
   await tx(async (conn) => {
     await conn.query(
       `update withdrawals set status = 'sent', sig = $2, qty_raw = $3, sent_at = now()
@@ -210,13 +213,12 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
   const c = new Connection(process.env.RPC_URL!, 'confirmed');
   const usd = BigInt(row.usd_amount);
 
-  // an earlier attempt may already be on chain
   if (row.sig) {
     const st = await c.getSignatureStatus(row.sig, { searchTransactionHistory: true }).catch(() => null);
     const cs = st?.value?.confirmationStatus;
     if (cs === 'confirmed' || cs === 'finalized') {
       await pool.query(`update withdrawals set status = 'sending' where id = $1`, [id]);
-      await finalize(id, row.sig, row.user_id, row.address, usd, BigInt(row.usd_amount));
+      await finalize(id, row.sig, row.user_id, row.address, usd, 0n);
       return { ok: true, sig: row.sig };
     }
   }
@@ -228,7 +230,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
   );
   if (claim.rowCount === 0) return { ok: false, error: 'race' };
 
-  const price = BigInt(process.env.SOL_PRICE_USD ?? '142');
+  const price = await solPriceMicro();
   const qty = qtyFor(row.asset, usd, price);
   const kp: Keypair = treasuryKeypair();
   const dest = new PublicKey(row.address);
@@ -281,7 +283,6 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
         await markFailed(id, `reverted:${lastSig}`);
         return { ok: false, error: 'reverted', sig: lastSig };
       }
-      // expired or timeout: fall through and rebuild with a fresh blockhash
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'payout_failed';
       if (attempt === MAX_ATTEMPTS) {
@@ -291,7 +292,6 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
     }
   }
 
-  // out of attempts: ask the chain one last time before declaring failure
   if (lastSig) {
     const st = await c.getSignatureStatus(lastSig, { searchTransactionHistory: true }).catch(() => null);
     const cs = st?.value?.confirmationStatus;

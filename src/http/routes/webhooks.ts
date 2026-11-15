@@ -6,6 +6,7 @@ import { ensure } from '../../ledger/accounts.js';
 import { getTx } from '../../solana/rpc.js';
 import { matchDeposit, usdMicro } from '../../solana/match.js';
 import { freezeLevel } from '../../recon.js';
+import { solPriceMicro } from '../../price.js';
 
 export const webhooks = Router();
 
@@ -39,6 +40,7 @@ async function processSig(sig: string): Promise<void> {
   if (!t) return;
 
   const frozen = (await freezeLevel()) >= 1;
+  const price = await solPriceMicro();
 
   const keys: string[] = (t.transaction?.message?.accountKeys ?? [])
     .map((k: any) => (typeof k === 'string' ? k : k?.pubkey))
@@ -52,7 +54,7 @@ async function processSig(sig: string): Promise<void> {
     if (!m) continue;
 
     const qty = m.qty;
-    const usd = usdMicro(m.asset, qty, BigInt(env.solPriceUsd));
+    const usd = usdMicro(m.asset, qty, price);
 
     if (usd <= 0n) continue;
 

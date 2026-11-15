@@ -3,8 +3,9 @@ import { getAssociatedTokenAddress, getAccount } from '@solana/spl-token';
 import { pool, one } from './db.js';
 import { usdMicro } from './solana/match.js';
 import { sweepDestination } from './sweeps.js';
+import { solPriceMicro } from './price.js';
 
-export const DRIFT_FREEZE_USD = 1_000_000n; // $1
+export const DRIFT_FREEZE_USD = 1_000_000n;
 
 const USDC_MINT = new PublicKey(
   process.env.USDC_MINT ?? 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
@@ -63,7 +64,7 @@ export async function chainTotals() {
 }
 
 export async function runRecon(actor = 'manual') {
-  const price = BigInt(process.env.SOL_PRICE_USD ?? '142');
+  const price = await solPriceMicro();
   const chain = await chainTotals();
   const chainUsd = usdMicro('SOL', chain.sol, price) + chain.usdc;
 

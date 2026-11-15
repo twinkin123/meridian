@@ -6,6 +6,7 @@ import {
 
 const OLD = ADDRESS_COOLDOWN_MS + 1;
 const YOUNG = ADDRESS_COOLDOWN_MS - 1;
+const P = 71_500_000n;
 
 test('unknown address gets the flat cap regardless of balance', () => {
   assert.equal(computeCap(false, 0, 900_000_000_000n), NEW_ADDR_CAP);
@@ -33,17 +34,17 @@ test('cap never falls below balance', () => {
 });
 
 test('usdc qty equals the usd amount', () => {
-  assert.equal(qtyFor('USDC', 14_200_000n, 142n), 14_200_000n);
+  assert.equal(qtyFor('USDC', 14_200_000n, P), 14_200_000n);
 });
 
-test('sol qty converts usd at price', () => {
-  assert.equal(qtyFor('SOL', 14_200_000n, 142n), 100_000_000n);
+test('sol qty converts usd at the micro price', () => {
+  assert.equal(qtyFor('SOL', 14_200_000n, P), 198_601_398n);
 });
 
 test('sol qty rounds down', () => {
-  assert.equal(qtyFor('SOL', 1n, 3n), 333n);
+  assert.equal(qtyFor('SOL', 1n, 3n), 333_333_333n);
 });
 
-test('sol qty of ten dollars at 142 is a tenth of a sol', () => {
-  assert.equal(qtyFor('SOL', 10_000_000n, 142n), 70_422_535n);
+test('ten dollars buys the right sol at 71.50', () => {
+  assert.equal(qtyFor('SOL', 10_000_000n, P), 139_860_139n);
 });

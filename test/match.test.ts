@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { matchDeposit, usdMicro, USDC_MINT } from '../src/solana/match.js';
 
 const addr = 'DepositAddr111';
+const P = 71_500_000n;
 
 function usdcTx(delta: string) {
   return {
@@ -50,15 +51,14 @@ test('detects native sol', () => {
 });
 
 test('usdc is already micro-dollars', () => {
-  assert.equal(usdMicro('USDC', 7_100_000n, 142n), 7_100_000n);
+  assert.equal(usdMicro('USDC', 7_100_000n, P), 7_100_000n);
 });
 
-test('sol converts lamports at price', () => {
-  assert.equal(usdMicro('SOL', 50_000_000n, 142n), 7_100_000n);
-  assert.equal(usdMicro('SOL', 100_000_000n, 142n), 14_200_000n);
-  assert.equal(usdMicro('SOL', 5_000_000n, 142n), 710_000n);
+test('sol converts lamports at the micro price', () => {
+  assert.equal(usdMicro('SOL', 100_000_000n, P), 7_150_000n);
+  assert.equal(usdMicro('SOL', 50_000_000n, P), 3_575_000n);
 });
 
-test('sol below one micro-dollar rounds to zero', () => {
+test('sol dust rounds to zero', () => {
   assert.equal(usdMicro('SOL', 1n, 1n), 0n);
 });
