@@ -5,6 +5,7 @@ import { auth } from './http/routes/auth.js';
 import { webhooks } from './http/routes/webhooks.js';
 import { wallet } from './http/routes/wallet.js';
 import { adminRouter } from './admin.js';
+import { runRecon } from './recon.js';
 import { requireUser } from './http/mw/session.js';
 import { one, close } from './db.js';
 
@@ -32,10 +33,15 @@ app.get('/me', requireUser, async (req, res) => {
   res.json({ email: u.email, depositAddress: u.deposit_addr });
 });
 
+const reconTimer = setInterval(() => {
+  runRecon('cron').catch((e) => console.error('recon', e));
+}, 15 * 60 * 1000);
+
 const server = app.listen(port, () => console.log(`listening on ${port}`));
 
 for (const sig of ['SIGTERM', 'SIGINT'] as const) {
   process.on(sig, async () => {
+    clearInterval(reconTimer);
     server.close();
     await close();
     process.exit(0);

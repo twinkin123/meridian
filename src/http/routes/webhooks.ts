@@ -5,6 +5,7 @@ import { post } from '../../ledger/post.js';
 import { ensure } from '../../ledger/accounts.js';
 import { getTx } from '../../solana/rpc.js';
 import { matchDeposit, usdMicro } from '../../solana/match.js';
+import { freezeLevel } from '../../recon.js';
 
 export const webhooks = Router();
 
@@ -37,6 +38,8 @@ async function processSig(sig: string): Promise<void> {
   const t = await getTx(sig);
   if (!t) return;
 
+  const frozen = (await freezeLevel()) >= 1;
+
   const keys: string[] = (t.transaction?.message?.accountKeys ?? [])
     .map((k: any) => (typeof k === 'string' ? k : k?.pubkey))
     .filter(Boolean);
@@ -64,7 +67,7 @@ async function processSig(sig: string): Promise<void> {
 
       await ensure(c, u.id);
 
-      const dest = usd >= MIN ? '2000' : '2050';
+      const dest = frozen || usd < MIN ? '2050' : '2000';
       await post(c, 'DepositCredited', sig, [
         { code: '1000', amount: usd },
         { code: dest, owner: u.id, amount: -usd },

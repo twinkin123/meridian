@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { runSweep, treasuryAddress, BATCH } from './sweeps.js';
 import { approveWithdrawal, payoutWithdrawal } from './withdrawals.js';
+import { runRecon, latestRuns, freezeLevel, setFreeze } from './recon.js';
 import { pool } from './db.js';
 
 export const adminRouter = Router();
@@ -56,4 +57,27 @@ adminRouter.post('/withdrawals/:id/approve', async (req, res) => {
 adminRouter.post('/withdrawals/:id/payout', async (req, res) => {
   const out = await payoutWithdrawal(req.params.id);
   res.status(out.ok ? 200 : 409).json(out);
+});
+
+adminRouter.post('/recon/run', async (req, res) => {
+  try {
+    res.json(await runRecon('admin'));
+  } catch (e) {
+    res.status(500).json({ error: e instanceof Error ? e.message : 'recon_failed' });
+  }
+});
+
+adminRouter.get('/recon/latest', async (_req, res) => {
+  res.json({ runs: await latestRuns(20), freeze: await freezeLevel() });
+});
+
+adminRouter.get('/freeze', async (_req, res) => {
+  res.json({ level: await freezeLevel() });
+});
+
+adminRouter.post('/freeze', async (req, res) => {
+  const level = Number(req.query.level);
+  if (![0, 1, 2].includes(level)) return res.status(400).json({ error: 'bad_level' });
+  await setFreeze(level, 'admin');
+  res.json({ level });
 });

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireUser } from '../mw/session.js';
 import { one, pool } from '../../db.js';
+import { freezeLevel } from '../../recon.js';
 import {
   requestWithdrawal, cancelWithdrawal, computeCap, MIN_WITHDRAW, NEW_ADDR_CAP,
 } from '../../withdrawals.js';
@@ -20,6 +21,7 @@ wallet.get('/balance', requireUser, async (req, res) => {
     held: r.h,
     minWithdraw: MIN_WITHDRAW.toString(),
     newAddressCap: NEW_ADDR_CAP.toString(),
+    freeze: await freezeLevel(),
   });
 });
 
@@ -34,6 +36,8 @@ wallet.get('/withdrawals', requireUser, async (req, res) => {
 
 wallet.post('/withdraw', requireUser, async (req, res) => {
   const uid = req.userId!;
+  if ((await freezeLevel()) >= 2) return res.status(503).json({ error: 'frozen' });
+
   const { asset, address, usd } = req.body ?? {};
   if (asset !== 'SOL' && asset !== 'USDC') return res.status(400).json({ error: 'bad_asset' });
   if (typeof address !== 'string') return res.status(400).json({ error: 'bad_address' });
