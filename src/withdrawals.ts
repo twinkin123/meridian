@@ -16,15 +16,17 @@ import { post } from './ledger/post.js';
 import { ensure } from './ledger/accounts.js';
 import { treasuryKeypair, treasuryAddress } from './sweeps.js';
 
-export const MIN_WITHDRAW = 10_000_000n;        // $10
-export const NEW_ADDR_CAP = 500_000_000n;       // $500 flat for a fresh address
+export const MIN_WITHDRAW = 10_000_000n;
+export const NEW_ADDR_CAP = 500_000_000n;
 export const CAP_FLOOR = 500_000_000n;
-export const CAP_CEIL = 25_000_000_000n;        // $25k
-export const AUTO_APPROVE_MAX = 1_000_000_000n; // $1k
+export const CAP_CEIL = 25_000_000_000n;
+export const AUTO_APPROVE_MAX = 1_000_000_000n;
 export const ADDRESS_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 export const USDC_DECIMALS = 6;
 export const RENT_EXEMPT = 2_039_280n;
-export const FEE_HEADROOM = 50_000n;
+export const FEE_HEADROOM = 100_000n;
+export const PRIORITY_MICRO = 200_000;
+export const MAX_ATTEMPTS = 3;
 
 const USDC_MINT = new PublicKey(
   process.env.USDC_MINT ?? 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
@@ -39,7 +41,6 @@ export function computeCap(known: boolean, ageMs: number, balance: bigint): bigi
   return floored > CAP_CEIL ? CAP_CEIL : floored;
 }
 
-// usd is micro-dollars; lamports = usd * 1e-6 USD * 1e9 / price
 export function qtyFor(asset: Asset, usd: bigint, priceUsd: bigint): bigint {
   return asset === 'USDC' ? usd : (usd * 1_000n) / priceUsd;
 }
@@ -118,7 +119,7 @@ export async function requestWithdrawal(
 export async function approveWithdrawal(id: string, approver: string): Promise<boolean> {
   const r = await pool.query(
     `update withdrawals set status = 'approved', approved_by = $2
-      where id = $1 and status = 'requested'`,
+      where id = $1 and status in ('requested','failed')`,
     [id, approver],
   );
   return (r.rowCount ?? 0) > 0;
@@ -128,7 +129,8 @@ export async function cancelWithdrawal(id: string, userId: string): Promise<bool
   return tx(async (c) => {
     const w = await c.query<{ usd_amount: string }>(
       `select usd_amount from withdrawals
-        where id = $1 and user_id = $2 and status = 'requested' for update`,
+        where id = $1 and user_id = $2 and status in ('requested','approved','failed')
+        for update`,
       [id, userId],
     );
     if (w.rowCount === 0) return false;
@@ -143,15 +145,49 @@ export async function cancelWithdrawal(id: string, userId: string): Promise<bool
   });
 }
 
-async function refund(id: string, userId: string, usd: bigint, msg: string): Promise<void> {
-  await tx(async (c) => {
-    await c.query(`update withdrawals set status = 'failed', error = $2 where id = $1`, [
-      id,
-      msg.slice(0, 400),
-    ]);
-    await post(c, 'WithdrawalFailed', id, [
+type Conf = 'confirmed' | 'reverted' | 'expired' | 'timeout';
+
+async function confirmSig(
+  c: Connection,
+  sig: string,
+  lastValidBlockHeight: number,
+): Promise<Conf> {
+  const deadline = Date.now() + 90_000;
+  while (Date.now() < deadline) {
+    const st = await c.getSignatureStatus(sig, { searchTransactionHistory: true }).catch(() => null);
+    if (st?.value) {
+      const cs = st.value.confirmationStatus;
+      if (cs === 'confirmed' || cs === 'finalized') return 'confirmed';
+      if (st.value.err) return 'reverted';
+    }
+    const h = await c.getBlockHeight('confirmed').catch(() => 0);
+    if (h > lastValidBlockHeight) return 'expired';
+    await new Promise((r) => setTimeout(r, 1_500));
+  }
+  return 'timeout';
+}
+
+async function markFailed(id: string, msg: string): Promise<void> {
+  await pool.query(`update withdrawals set status = 'failed', error = $2 where id = $1`, [
+    id,
+    msg.slice(0, 400),
+  ]);
+}
+
+async function finalize(id: string, sig: string, userId: string, address: string, usd: bigint, qty: bigint) {
+  await tx(async (conn) => {
+    await conn.query(
+      `update withdrawals set status = 'sent', sig = $2, qty_raw = $3, sent_at = now()
+        where id = $1 and status = 'sending'`,
+      [id, sig, qty.toString()],
+    );
+    await conn.query(
+      `update withdrawal_addresses set last_used = now() where user_id = $1 and address = $2`,
+      [userId, address],
+    );
+    await post(conn, 'WithdrawalSent', id, [
       { code: '2010', owner: userId, amount: usd },
-      { code: '2000', owner: userId, amount: -usd },
+      { code: '1000', amount: -usd },
     ]);
   });
 }
@@ -160,84 +196,113 @@ export type PayoutResult = { ok: boolean; error?: string; sig?: string };
 
 export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
   const w = await pool.query<{
-    id: string; user_id: string; asset: Asset; address: string; usd_amount: string; status: string;
+    id: string; user_id: string; asset: Asset; address: string;
+    usd_amount: string; status: string; sig: string | null;
   }>(`select * from withdrawals where id = $1`, [id]);
 
   const row = w.rows[0];
   if (!row) return { ok: false, error: 'not_found' };
-  if (row.status !== 'approved') return { ok: false, error: `status_${row.status}` };
+  if (row.status === 'sent') return { ok: true, sig: row.sig ?? undefined };
+  if (row.status !== 'approved' && row.status !== 'failed' && row.status !== 'sending') {
+    return { ok: false, error: `status_${row.status}` };
+  }
+
+  const c = new Connection(process.env.RPC_URL!, 'confirmed');
+  const usd = BigInt(row.usd_amount);
+
+  // an earlier attempt may already be on chain
+  if (row.sig) {
+    const st = await c.getSignatureStatus(row.sig, { searchTransactionHistory: true }).catch(() => null);
+    const cs = st?.value?.confirmationStatus;
+    if (cs === 'confirmed' || cs === 'finalized') {
+      await pool.query(`update withdrawals set status = 'sending' where id = $1`, [id]);
+      await finalize(id, row.sig, row.user_id, row.address, usd, BigInt(row.usd_amount));
+      return { ok: true, sig: row.sig };
+    }
+  }
 
   const claim = await pool.query(
-    `update withdrawals set status = 'sending' where id = $1 and status = 'approved'`,
+    `update withdrawals set status = 'sending', error = null
+      where id = $1 and status in ('approved','failed','sending')`,
     [id],
   );
   if (claim.rowCount === 0) return { ok: false, error: 'race' };
 
-  const usd = BigInt(row.usd_amount);
   const price = BigInt(process.env.SOL_PRICE_USD ?? '142');
   const qty = qtyFor(row.asset, usd, price);
-
-  const c = new Connection(process.env.RPC_URL!, 'confirmed');
   const kp: Keypair = treasuryKeypair();
   const dest = new PublicKey(row.address);
 
-  try {
-    const txn = new Transaction();
-    txn.feePayer = kp.publicKey;
+  let lastSig: string | null = null;
 
-    if (row.asset === 'SOL') {
-      const bal = BigInt(await c.getBalance(kp.publicKey, 'confirmed'));
-      if (bal - qty - FEE_HEADROOM - RENT_EXEMPT < 0n) {
-        await refund(id, row.user_id, usd, 'treasury_short_sol');
-        return { ok: false, error: 'treasury_short' };
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const txn = new Transaction();
+      txn.feePayer = kp.publicKey;
+
+      if (row.asset === 'SOL') {
+        const bal = BigInt(await c.getBalance(kp.publicKey, 'confirmed'));
+        if (bal - qty - FEE_HEADROOM - RENT_EXEMPT < 0n) {
+          await markFailed(id, 'treasury_short_sol');
+          return { ok: false, error: 'treasury_short' };
+        }
+        txn.add(
+          ComputeBudgetProgram.setComputeUnitPrice({ microLamports: PRIORITY_MICRO }),
+          SystemProgram.transfer({ fromPubkey: kp.publicKey, toPubkey: dest, lamports: qty }),
+        );
+      } else {
+        const from = await getAssociatedTokenAddress(USDC_MINT, kp.publicKey);
+        const to = await getOrCreateAssociatedTokenAccount(c, kp, USDC_MINT, dest);
+        txn.add(
+          ComputeBudgetProgram.setComputeUnitPrice({ microLamports: PRIORITY_MICRO }),
+          createTransferCheckedInstruction(from, USDC_MINT, to.address, kp.publicKey, qty, USDC_DECIMALS),
+        );
       }
-      txn.add(
-        ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 50_000 }),
-        SystemProgram.transfer({ fromPubkey: kp.publicKey, toPubkey: dest, lamports: qty }),
-      );
-    } else {
-      const from = await getAssociatedTokenAddress(USDC_MINT, kp.publicKey);
-      const to = await getOrCreateAssociatedTokenAccount(c, kp, USDC_MINT, dest);
-      txn.add(
-        ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 50_000 }),
-        createTransferCheckedInstruction(from, USDC_MINT, to.address, kp.publicKey, qty, USDC_DECIMALS),
-      );
+
+      const { blockhash, lastValidBlockHeight } = await c.getLatestBlockhash('confirmed');
+      txn.recentBlockhash = blockhash;
+
+      const sim = await c.simulateTransaction(txn);
+      if (sim.value.err) {
+        await markFailed(id, `sim:${JSON.stringify(sim.value.err)}`);
+        return { ok: false, error: 'sim_failed' };
+      }
+
+      txn.sign(kp);
+      lastSig = await c.sendRawTransaction(txn.serialize(), { skipPreflight: true, maxRetries: 3 });
+      await pool.query(`update withdrawals set sig = $2 where id = $1`, [id, lastSig]);
+
+      const conf = await confirmSig(c, lastSig, lastValidBlockHeight);
+      if (conf === 'confirmed') {
+        await finalize(id, lastSig, row.user_id, row.address, usd, qty);
+        return { ok: true, sig: lastSig };
+      }
+      if (conf === 'reverted') {
+        await markFailed(id, `reverted:${lastSig}`);
+        return { ok: false, error: 'reverted', sig: lastSig };
+      }
+      // expired or timeout: fall through and rebuild with a fresh blockhash
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'payout_failed';
+      if (attempt === MAX_ATTEMPTS) {
+        await markFailed(id, msg);
+        return { ok: false, error: msg, sig: lastSig ?? undefined };
+      }
     }
-
-    const { blockhash, lastValidBlockHeight } = await c.getLatestBlockhash('confirmed');
-    txn.recentBlockhash = blockhash;
-
-    const sim = await c.simulateTransaction(txn);
-    if (sim.value.err) {
-      await refund(id, row.user_id, usd, `sim:${JSON.stringify(sim.value.err)}`);
-      return { ok: false, error: 'sim_failed' };
-    }
-
-    txn.sign(kp);
-    const sig = await c.sendRawTransaction(txn.serialize(), { skipPreflight: true, maxRetries: 3 });
-    await c.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, 'confirmed');
-
-    await tx(async (conn) => {
-      await conn.query(
-        `update withdrawals set status = 'sent', sig = $2, qty_raw = $3, sent_at = now() where id = $1`,
-        [id, sig, qty.toString()],
-      );
-      await conn.query(
-        `update withdrawal_addresses set last_used = now() where user_id = $1 and address = $2`,
-        [row.user_id, row.address],
-      );
-      await post(conn, 'WithdrawalSent', id, [
-        { code: '2010', owner: row.user_id, amount: usd },
-        { code: '1000', amount: -usd },
-      ]);
-    });
-
-    return { ok: true, sig };
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : 'payout_failed';
-    await refund(id, row.user_id, usd, msg);
-    return { ok: false, error: msg };
   }
+
+  // out of attempts: ask the chain one last time before declaring failure
+  if (lastSig) {
+    const st = await c.getSignatureStatus(lastSig, { searchTransactionHistory: true }).catch(() => null);
+    const cs = st?.value?.confirmationStatus;
+    if (cs === 'confirmed' || cs === 'finalized') {
+      await finalize(id, lastSig, row.user_id, row.address, usd, qty);
+      return { ok: true, sig: lastSig };
+    }
+  }
+
+  await markFailed(id, 'not_confirmed_after_attempts');
+  return { ok: false, error: 'not_confirmed', sig: lastSig ?? undefined };
 }
 
 export function treasury(): string {
