@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 import { health } from './http/health.js';
 import { auth } from './http/routes/auth.js';
 import { webhooks } from './http/routes/webhooks.js';
+import { adminRouter } from './admin.js';
 import { requireUser } from './http/mw/session.js';
 import { one, close } from './db.js';
 
@@ -19,6 +20,7 @@ app.get('/health', async (_req, res) => {
 
 app.use('/auth', auth);
 app.use('/webhooks', webhooks);
+app.use('/admin', adminRouter);
 
 app.get('/me', requireUser, async (req, res) => {
   const u = await one<{ email: string; deposit_addr: string }>(
