@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { one, none } from '../../db.js';
 import { address } from '../../solana/derive.js';
 import { hashPw, checkPw, issueSession, throttle, revokeSession } from '../../auth.js';
@@ -39,6 +39,7 @@ auth.post('/signup', async (req, res) => {
 
   const addr = address(row.deposit_index);
   await none(`update users set deposit_addr = $1 where id = $2`, [addr, row.id]);
+  await none(`insert into accounts (code, kind, owner_type, owner_id) select c, 'liability', 'user', $1 from unnest(array['2000','2010','2020','2050']) c`, [row.id]);
 
   const token = await issueSession(row.id);
   res.cookie('sid', token, COOKIE);

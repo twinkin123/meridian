@@ -1,0 +1,9 @@
+import 'dotenv/config';
+import pg from 'pg';
+const c = new pg.Client({ connectionString: process.env.DATABASE_URL });
+await c.connect();
+const u = await c.query('select id, email from users order by created_at desc limit 3');
+console.log('users', u.rows);
+const a = await c.query("select code, owner_id from accounts where code in ('1000','2000')");
+console.log('accounts', a.rows);
+await c.end();

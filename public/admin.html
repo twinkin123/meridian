@@ -1,0 +1,244 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meridian - Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="/"><span class="mark">A</span>Meridian admin</a>
+  <div style="display:flex;gap:8px">
+    <a class="btn" href="/app.html">Dashboard</a>
+    <button class="btn" id="lock" type="button">Lock</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="gate" id="gate">
+    <h1>Admin token</h1>
+    <p class="lede">Sent as the <span class="mono">x-admin-token</span> header. Held in this tab only.</p>
+    <div class="field">
+      <label for="tok">Token</label>
+      <input id="tok" type="password" spellcheck="false">
+    </div>
+    <div class="msg" id="gateMsg"></div>
+    <div class="row"><button class="btn p" id="gateGo" type="button">Unlock</button></div>
+  </div>
+
+  <div class="hide" id="panel">
+
+    <div class="grid2">
+      <div class="card">
+        <span class="mono">Freeze switch</span>
+        <p class="lede" style="margin-top:8px">Level 0 normal. Level 1 holds deposit crediting. Level 2 stops payouts.</p>
+        <div class="big" id="lvl">0</div>
+        <p class="sub" id="lvlReason">no reason recorded</p>
+        <div class="row">
+          <button class="btn" data-lvl="0" type="button">Level 0</button>
+          <button class="btn" data-lvl="1" type="button">Level 1</button>
+          <button class="btn d" data-lvl="2" type="button">Level 2</button>
+        </div>
+        <div class="msg" id="fMsg"></div>
+      </div>
+
+      <div class="card">
+        <span class="mono">Reconciliation</span>
+        <p class="lede" style="margin-top:8px">Chain against book. Negative drift and insolvency freeze.</p>
+        <div class="msg" id="rMsg"></div>
+        <div class="row">
+          <button class="btn p" id="recon" type="button">Run recon now</button>
+        </div>
+        <ul class="list" id="reconOut"></ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="mono">Withdrawal queue</span>
+      <div class="msg" id="wMsg"></div>
+      <ul class="list" id="queue"><li class="empty">Loading...</li></ul>
+    </div>
+
+    <div class="card">
+      <span class="mono">Sweeps</span>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="dry" type="button">Dry run</button>
+        <button class="btn p" id="sweep" type="button">Sweep now</button>
+      </div>
+      <div class="msg" id="sMsg"></div>
+      <ul class="list" id="sweeps"><li class="empty">Loading...</li></ul>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var token = sessionStorage.getItem('admin_token') || '';
+  var panel = document.getElementById('panel');
+  var gate = document.getElementById('gate');
+
+  function h(extra){
+    var o = { 'x-admin-token': token };
+    if (extra) for (var k in extra) o[k] = extra[k];
+    return o;
+  }
+
+  function msg(id, text, kind){
+    var el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'msg ' + (kind || '');
+    setTimeout(function(){ if (el.textContent === text) el.className = 'msg'; }, 6000);
+  }
+
+  function money(m){
+    if (!isFinite(Number(m))) return '-'; return '$' + (Number(m) / 1e6).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  async function unlock(){
+    var t = document.getElementById('tok').value.trim();
+    if (!t) return msg('gateMsg', 'Enter the token.', 'err');
+    token = t;
+    sessionStorage.setItem('admin_token', t);
+    var ok = await loadFreeze();
+    if (ok) { gate.classList.add('hide'); panel.classList.remove('hide'); loadQueue(); loadSweeps(); loadRuns(); }
+    else msg('gateMsg', 'Token rejected.', 'err');
+  }
+
+  async function loadFreeze(){
+    try {
+      var r = await fetch('/admin/freeze', { headers: h() });
+      if (r.status === 401) return false;
+      var j = await r.json();
+      document.getElementById('lvl').textContent = j.level;
+      document.getElementById('lvlReason').textContent = j.reason || 'no reason recorded';
+      return true;
+    } catch (_) { return false; }
+  }
+
+  document.querySelectorAll('[data-lvl]').forEach(function(b){
+    b.addEventListener('click', async function(){
+      var r = await fetch('/admin/freeze?level=' + b.dataset.lvl, { method: 'POST', headers: h() });
+      var j = await r.json().catch(function(){ return {}; });
+      if (!r.ok) return msg('fMsg', j.error || 'Failed.', 'err');
+      msg('fMsg', 'Freeze level set to ' + j.level + '.', 'ok');
+      loadFreeze(); loadRuns();
+    });
+  });
+
+  document.getElementById('recon').onclick = async function(){
+    var btn = this;
+    btn.disabled = true;
+    try {
+      var r = await fetch('/admin/recon/run', { method: 'POST', headers: h() });
+      var j = await r.json().catch(function(){ return {}; });
+      if (!r.ok) { msg('rMsg', j.error || 'Recon failed.', 'err'); return; }
+      msg('rMsg', 'Verdict: ' + j.verdict, j.verdict === 'ok' || j.verdict === 'surplus' ? 'ok' : 'err');
+      var rows = [
+        ['Chain', money(j.chainUsd)],
+        ['Ledger assets', money(j.assets)],
+        ['Liabilities', money(j.liabilities)],
+        ['Margin', money(j.margin)]
+      ];
+      document.getElementById('reconOut').innerHTML = rows.map(function(x){
+        return '<li><div>' + x[0] + '</div><div>' + x[1] + '</div></li>';
+      }).join('');
+      loadFreeze(); loadRuns();
+    } finally { btn.disabled = false; }
+  };
+
+  async function loadQueue(){
+    var el = document.getElementById('queue');
+    try {
+      var r = await fetch('/admin/withdrawals', { headers: h() });
+      var j = await r.json();
+      var rows = j.withdrawals || [];
+      if (!rows.length) { el.innerHTML = '<li class="empty">No withdrawals.</li>'; return; }
+      el.innerHTML = rows.map(function(w){
+        var cls = w.status === 'paid' ? 'ok' : (w.status === 'failed' || w.status === 'cancelled') ? 'bad' : 'warn';
+        return '<li><div><b>' + money(w.usd_amount) + '</b> ' + w.asset +
+          '<span class="sub">' + (w.address || '') + '</span>' +
+          '<span class="sub">' + new Date(w.created_at).toLocaleString() + '</span></div>' +
+          '<div style="text-align:right"><span class="pill ' + cls + '">' + w.status + '</span>' +
+          (w.status === 'pending' ? '<div class="row" style="margin-top:6px;justify-content:flex-end"><button class="btn" data-approve="' + w.id + '">Approve</button></div>' : '') +
+          (w.status === 'approved' ? '<div class="row" style="margin-top:6px;justify-content:flex-end"><button class="btn p" data-pay="' + w.id + '">Pay</button></div>' : '') +
+          '</div></li>';
+      }).join('');
+
+      el.querySelectorAll('[data-approve]').forEach(function(b){
+        b.onclick = function(){ act('approve', b.dataset.approve); };
+      });
+      el.querySelectorAll('[data-pay]').forEach(function(b){
+        b.onclick = function(){ act('payout', b.dataset.pay); };
+      });
+    } catch (_) { el.innerHTML = '<li class="empty">Could not load.</li>'; }
+  }
+
+  async function act(what, id){
+    var r = await fetch('/admin/withdrawals/' + id + '/' + what, { method: 'POST', headers: h() });
+    var j = await r.json().catch(function(){ return {}; });
+    msg('wMsg', r.ok ? (what === 'approve' ? 'Approved.' : 'Paid: ' + (j.sig || 'sent')) : (j.error || 'Failed.'), r.ok ? 'ok' : 'err');
+    loadQueue();
+  }
+
+  async function loadSweeps(){
+    var el = document.getElementById('sweeps');
+    try {
+      var r = await fetch('/admin/sweep/status', { headers: h() });
+      var j = await r.json();
+      var rows = j.sweeps || [];
+      el.innerHTML = rows.length
+        ? rows.map(function(s){
+            return '<li><div>' + s.deposit_address + '<span class="sub">' + s.asset + ' ' + s.amount_raw + '</span></div><span class="pill">' + s.status + '</span></li>';
+          }).join('')
+        : '<li class="empty">No sweeps.</li>';
+    } catch (_) { el.innerHTML = '<li class="empty">Could not load.</li>'; }
+  }
+
+  document.getElementById('dry').onclick = function(){ runSweep(true); };
+  document.getElementById('sweep').onclick = function(){ runSweep(false); };
+
+  async function runSweep(dry){
+    var r = await fetch('/admin/sweep' + (dry ? '?dryRun=1' : ''), { method: 'POST', headers: h() });
+    var j = await r.json().catch(function(){ return {}; });
+    msg('sMsg', r.ok ? 'Scanned ' + (j.scanned || 0) + ', swept ' + (j.sweptCount || 0) + '.' : (j.error || 'Failed.'), r.ok ? 'ok' : 'err');
+    loadSweeps();
+  }
+
+  async function loadRuns(){
+    try {
+      var r = await fetch('/admin/recon/latest', { headers: h() });
+      var j = await r.json();
+      document.getElementById('lvl').textContent = j.freeze;
+      var rows = j.runs || [];
+      document.getElementById('reconOut').innerHTML = rows.length ? rows.map(function(x){
+        var cls = (x.verdict === 'ok' || x.verdict === 'surplus') ? 'ok' : 'bad';
+        return '<li><div>' + new Date(x.created_at).toLocaleString() + '<span class="sub">drift ' + money(x.drift) + '</span></div><span class="pill ' + cls + '">' + x.verdict + '</span></li>';
+      }).join('') : '<li class="empty">No runs yet.</li>';
+    } catch (_) {}
+  }
+
+  document.getElementById('gateGo').onclick = unlock;
+  document.getElementById('tok').addEventListener('keydown', function(e){ if (e.key === 'Enter') unlock(); });
+  document.getElementById('lock').onclick = function(){
+    sessionStorage.removeItem('admin_token');
+    token = '';
+    panel.classList.add('hide');
+    gate.classList.remove('hide');
+  };
+
+  if (token) unlock();
+})();
+</script>
+</body>
+</html>
+
+
+
+

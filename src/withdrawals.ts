@@ -1,4 +1,4 @@
-import {
+﻿import {
   Connection,
   Keypair,
   PublicKey,
@@ -169,10 +169,19 @@ async function confirmSig(
 }
 
 async function markFailed(id: string, msg: string): Promise<void> {
-  await pool.query(`update withdrawals set status = 'failed', error = $2 where id = $1`, [
-    id,
-    msg.slice(0, 400),
-  ]);
+  const dup = await pool.query(`select 1 from transactions where kind = 'WithdrawalFailed' and external_ref = $1`, [id]);
+  if (dup.rowCount) return;
+  const r = await pool.query(`select user_id, usd_amount from withdrawals where id = $1`, [id]);
+  const w = r.rows[0];
+  if (!w) return;
+  const usd = BigInt(w.usd_amount);
+  await tx(async (c) => {
+    await c.query(`update withdrawals set status = 'failed', error = $2 where id = $1`, [id, msg.slice(0, 400)]);
+    await post(c, 'WithdrawalFailed', id, [
+      { code: '2010', owner: w.user_id, amount: usd },
+      { code: '2000', owner: w.user_id, amount: -usd },
+    ]);
+  });
 }
 
 async function finalize(
@@ -308,3 +317,4 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
 export function treasury(): string {
   return treasuryAddress();
 }
+

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -357,12 +357,12 @@
     var comp = dSw.classList.contains('on');
     var gross = a * (Math.pow(1.01, 30) - 1);
     var net = comp ? a * (Math.pow(1.0085, 30) - 1) : a * 0.0085 * 30;
-    document.getElementById('dFirst').textContent = money(a * 0.0085);
-    document.getElementById('dNet').textContent = money(net);
-    document.getElementById('dNet2').textContent = money(net);
-    document.getElementById('dBal').textContent = money(a + net);
-    document.getElementById('dGross').textContent = money(gross);
-    document.getElementById('dFee').textContent = money(gross * 0.15);
+    document.getElementById('dFirst').textContent = usd(a * 0.0085);
+    document.getElementById('dNet').textContent = usd(net);
+    document.getElementById('dNet2').textContent = usd(net);
+    document.getElementById('dBal').textContent = usd(a + net);
+    document.getElementById('dGross').textContent = usd(gross);
+    document.getElementById('dFee').textContent = usd(gross * 0.15);
     var top = a + net, p1 = [], p2 = [];
     for (var i = 0; i <= 30; i++){
       var x = 8 + (i / 30) * 584;
@@ -401,6 +401,7 @@
   var v = document.querySelector('.robot-card video');
   if (v) { v.play().catch(function(){}); v.addEventListener('ended', function(){ v.play().catch(function(){}); }); }
 
+  function usd(n){ return '\u0024' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   load(); dRun(); tick();
   setInterval(tick, 1000);
   setInterval(load, 30000);
@@ -408,3 +409,5 @@
 </script>
 </body>
 </html>
+
+
