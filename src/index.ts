@@ -1,20 +1,32 @@
-﻿import { createServer } from 'node:http';
+﻿import express from 'express';
+import cookieParser from 'cookie-parser';
 import { health } from './http/health.js';
-import { close } from './db.js';
+import { auth } from './http/routes/auth.js';
+import { requireUser } from './http/mw/session.js';
+import { one, close } from './db.js';
 
 const port = Number(process.env.PORT ?? 3000);
+const app = express();
 
-const server = createServer(async (req, res) => {
-  if ((req.url ?? '/') === '/health') {
-    const h = await health();
-    res.writeHead(h.ok ? 200 : 503, { 'content-type': 'application/json' });
-    return res.end(JSON.stringify(h));
-  }
-  res.writeHead(404, { 'content-type': 'application/json' });
-  res.end(JSON.stringify({ error: 'not_found' }));
+app.use(express.json());
+app.use(cookieParser());
+
+app.get('/health', async (_req, res) => {
+  const h = await health();
+  res.status(h.ok ? 200 : 503).json(h);
 });
 
-server.listen(port, () => console.log(`listening on ${port}`));
+app.use('/auth', auth);
+
+app.get('/me', requireUser, async (req, res) => {
+  const u = await one<{ email: string; deposit_addr: string }>(
+    `select email, deposit_addr from users where id = $1`,
+    [req.userId],
+  );
+  res.json({ email: u.email, depositAddress: u.deposit_addr });
+});
+
+const server = app.listen(port, () => console.log(`listening on ${port}`));
 
 for (const sig of ['SIGTERM', 'SIGINT'] as const) {
   process.on(sig, async () => {
