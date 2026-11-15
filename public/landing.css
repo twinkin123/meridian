@@ -113,9 +113,9 @@ img,video{display:block;max-width:100%}
 .robot-stage{
   position:fixed;
   left:50%;
-  top:61%;
+  top:67%;
   z-index:5;
-  width:min(29vw,372px);
+  width:min(26vw,300px);
   pointer-events:none;
   transform:
     translate(-50%,-50%)
@@ -486,3 +486,5 @@ img,video{display:block;max-width:100%}
 .tier em{color:var(--ink-3)}
 .tier i{color:#0d9b63}
 .ref-note{border-color:var(--line);color:var(--ink-3)}
+
+
