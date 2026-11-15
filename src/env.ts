@@ -12,4 +12,7 @@ export const env = {
     process.env.NODE_ENV === 'test' ? need('TEST_DATABASE_URL') : need('DATABASE_URL'),
   masterMnemonic: need('MASTER_MNEMONIC'),
   sessionSecret: process.env.SESSION_SECRET ?? 'dev-secret',
+  rpcUrl: process.env.RPC_URL ?? 'https://api.mainnet-beta.solana.com',
+  webhookSecret: process.env.WEBHOOK_SECRET ?? 'dev-webhook',
+  solPriceUsd: process.env.SOL_PRICE_USD ?? '142',
 };
