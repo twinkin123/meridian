@@ -5,6 +5,7 @@ RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src
 COPY scripts ./scripts
+COPY public ./public
 RUN npx tsc
 
 FROM node:22-alpine
@@ -13,7 +14,8 @@ ENV NODE_ENV=production
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
-COPY migrations ./migrations
+COPY --from=build /app/public ./public
+COPY --from=build /app/migrations ./migrations
 USER node
 EXPOSE 3000
 CMD ["node", "dist/src/index.js"]
