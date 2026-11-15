@@ -1,5 +1,6 @@
 ﻿import express from 'express';
 import cookieParser from 'cookie-parser';
+import { join } from 'node:path';
 import { health } from './http/health.js';
 import { auth } from './http/routes/auth.js';
 import { webhooks } from './http/routes/webhooks.js';
@@ -31,6 +32,13 @@ app.get('/me', requireUser, async (req, res) => {
     [req.userId],
   );
   res.json({ email: u.email, depositAddress: u.deposit_addr });
+});
+
+const publicDir = join(process.cwd(), 'public');
+app.use(express.static(publicDir, { extensions: ['html'] }));
+
+app.use((_req, res) => {
+  res.status(404).sendFile(join(publicDir, 'index.html'));
 });
 
 const reconTimer = setInterval(() => {

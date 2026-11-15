@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meridian - Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/auth.css">
+</head>
+<body>
+<div class="shell">
+
+  <aside class="aside">
+    <a class="brand" href="/"><span class="brand-mark"></span>Meridian</a>
+    <div class="aside-art">
+      <video src="/img/robot.mp4" poster="/img/robot.png" muted loop playsinline autoplay preload="auto"></video>
+    </div>
+    <div class="aside-foot">
+      <span class="lab">Onboarding</span>
+      <h2>Your address is generated the second you sign up.</h2>
+      <p>Deposits are swept and re-verified on-chain before a cent is credited.</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="panel">
+
+      <div id="formView">
+        <span class="lab" id="lab">Step 01</span>
+        <h1 id="title">Open an account</h1>
+        <p class="lede" id="lede">An email and a password. That is it.</p>
+
+        <div class="msg" id="msg"></div>
+
+        <form id="form" novalidate>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="At least 8 characters" required>
+            <p class="hint" id="pwHint">Minimum 8 characters.</p>
+          </div>
+          <button class="btn" id="submit" type="submit">Create account</button>
+        </form>
+
+        <p class="switch" id="switch"></p>
+      </div>
+
+      <div class="done" id="doneView">
+        <span class="lab">Step 02</span>
+        <h1>You are in</h1>
+        <p class="lede">This is your personal USDC deposit address. Send at least $10 on Solana.</p>
+        <div class="addr">
+          <code id="addr"></code>
+          <button class="copy" id="copy" type="button">Copy</button>
+        </div>
+        <p class="note">Deposits under $10 are held and combined with your next one.</p>
+        <a class="btn" href="/app.html">Go to dashboard</a>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  var params = new URLSearchParams(location.search);
+  var mode = params.get('mode') === 'login' ? 'login' : 'signup';
+  var form = document.getElementById('form');
+  var msg = document.getElementById('msg');
+  var submit = document.getElementById('submit');
+  var pwHint = document.getElementById('pwHint');
+  var pw = document.getElementById('password');
+
+  var errors = {
+    bad_email: 'That email address does not look right.',
+    weak_password: 'Password needs at least 8 characters.',
+    email_taken: 'That email is already registered. Try logging in.',
+    too_many_attempts: 'Too many attempts. Wait a minute and try again.',
+    invalid_credentials: 'Email or password is wrong.',
+    bad_credentials: 'Email or password is wrong.'
+  };
+
+  function setMode(m){
+    mode = m;
+    var signup = m === 'signup';
+    document.getElementById('lab').textContent = signup ? 'Step 01' : 'Return';
+    document.getElementById('title').textContent = signup ? 'Open an account' : 'Welcome back';
+    document.getElementById('lede').textContent = signup ? 'An email and a password. That is it.' : 'Log in to reach your dashboard.';
+    submit.textContent = signup ? 'Create account' : 'Log in';
+    pw.setAttribute('autocomplete', signup ? 'new-password' : 'current-password');
+    pwHint.style.display = signup ? 'block' : 'none';
+    document.getElementById('switch').innerHTML = signup
+      ? 'Already have an account? <a href="/auth.html?mode=login">Log in</a>'
+      : 'No account yet? <a href="/auth.html">Open one</a>';
+    history.replaceState(null, '', signup ? '/auth.html' : '/auth.html?mode=login');
+  }
+
+  function show(text){
+    msg.textContent = text;
+    msg.className = 'msg err';
+  }
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    msg.className = 'msg';
+    var email = document.getElementById('email').value.trim();
+    var password = pw.value;
+
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return show(errors.bad_email);
+    if (mode === 'signup' && password.length < 8) return show(errors.weak_password);
+
+    submit.disabled = true;
+    submit.textContent = mode === 'signup' ? 'Creating...' : 'Logging in...';
+
+    try {
+      var res = await fetch('/auth/' + mode, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ email: email, password: password })
+      });
+      var data = {};
+      try { data = await res.json(); } catch (_) {}
+
+      if (!res.ok) {
+        show(errors[data.error] || 'Something went wrong. Try again.');
+        submit.disabled = false;
+        submit.textContent = mode === 'signup' ? 'Create account' : 'Log in';
+        return;
+      }
+
+      if (mode === 'login') { location.href = '/app.html'; return; }
+
+      var address = data.depositAddress || data.deposit_addr || '';
+      if (address) {
+        document.getElementById('formView').style.display = 'none';
+        document.getElementById('doneView').classList.add('show');
+        document.getElementById('addr').textContent = address;
+      } else {
+        location.href = '/app.html';
+      }
+    } catch (_) {
+      show('Network error. Try again.');
+      submit.disabled = false;
+      submit.textContent = mode === 'signup' ? 'Create account' : 'Log in';
+    }
+  });
+
+  document.getElementById('copy').addEventListener('click', function(){
+    var text = document.getElementById('addr').textContent;
+    var btn = this;
+    (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+      .then(function(){ btn.textContent = 'Copied'; })
+      .catch(function(){ btn.textContent = 'Select it'; })
+      .finally(function(){ setTimeout(function(){ btn.textContent = 'Copy'; }, 1800); });
+  });
+
+  var v = document.querySelector('.aside-art video');
+  if (v) { v.play().catch(function(){}); v.addEventListener('ended', function(){ v.play().catch(function(){}); }); }
+
+  setMode(mode);
+})();
+</script>
+</body>
+</html>

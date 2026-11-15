@@ -39,13 +39,28 @@ export function verdictFor(margin: bigint, drift: bigint): Verdict {
   return 'ok';
 }
 
+export function isValidAddress(a: string): boolean {
+  try {
+    new PublicKey(a);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function chainTotals() {
   const c = new Connection(process.env.RPC_URL!, 'confirmed');
   const { rows } = await pool.query<{ deposit_addr: string }>(
     'select deposit_addr from users where deposit_addr is not null limit 1000',
   );
 
-  const addrs = [...rows.map((r) => r.deposit_addr), sweepDestination().toBase58()];
+  const addrs = [...rows.map((r) => r.deposit_addr), sweepDestination().toBase58()]
+    .filter((a) => {
+      const ok = isValidAddress(a);
+      if (!ok) console.warn('recon: skipping invalid address', a);
+      return ok;
+    });
+
   let sol = 0n;
   let usdc = 0n;
 
