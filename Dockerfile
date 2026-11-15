@@ -5,6 +5,7 @@ RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src
 COPY scripts ./scripts
+COPY migrations ./migrations
 COPY public ./public
 RUN npx tsc
 
