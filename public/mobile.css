@@ -718,3 +718,11 @@ html body .res-total{
   html body .side{ padding-right:14px!important; }
   html body .tickers{ width:100%!important; max-width:100%!important; }
 }
+
+@media (max-width: 900px){
+  html body .main{
+    border-left:1px solid rgba(45,226,214,.16)!important;
+    border-right:1px solid rgba(45,226,214,.16)!important;
+    padding:12px 14px 96px!important;
+  }
+}
