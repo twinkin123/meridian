@@ -577,3 +577,7 @@ html.boot body{visibility:hidden}
 
 
 @media (max-width:900px){ .shell .side .robot-card{display:none !important} }
+
+@media (max-width: 900px){
+  .rainbow::before{ background:#000!important; }
+}
