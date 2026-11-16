@@ -58,29 +58,26 @@
     var rate = offset === 0 ? rateNow() : +(1 + r() * 2.5).toFixed(2);
     var n = 4 + Math.floor(r() * 3);
     var picks = pick(n, r);
-    var want = picks.map(function(){ return rate / n + (r() - 0.5) * 1.6; });
+    var raw = [], rsum = 0, i;
+    for (i = 0; i < n; i++){ raw[i] = +(r() * 1.5 - 0.45).toFixed(3); rsum += raw[i]; }
+    if (rsum <= 0.05){ var bump = (0.4 - rsum) / n; for (i = 0; i < n; i++) raw[i] += bump; rsum = 0.4; }
+    var k = rate / rsum;
 
     var opens = [], closes = [], shorts = [], actuals = [];
-    for (var i = 0; i < n; i++){
-      opens[i] = r4(picks[i][1] * (0.97 + r() * 0.06));
+    for (i = 0; i < n; i++){
+      actuals[i] = +(raw[i] * k).toFixed(2);
+      opens[i] = r4(picks[i][1] * (0.997 + r() * 0.006));
       shorts[i] = r() < 0.45;
-      closes[i] = r4(shorts[i] ? opens[i] * (1 - want[i] / 100) : opens[i] * (1 + want[i] / 100));
-      actuals[i] = shorts[i] ? (1 - closes[i] / opens[i]) * 100 : (closes[i] / opens[i] - 1) * 100;
+      closes[i] = r4(shorts[i] ? opens[i] * (1 - actuals[i] / 100) : opens[i] * (1 + actuals[i] / 100));
     }
 
-    var need = rate - sum(actuals), guard = 0;
-    while (Math.abs(need) > 0.005 && guard++ < 500){
-      var j = n - 1, o = opens[j], t = step(o);
-      var per = (t / o) * 100 * (shorts[j] ? -1 : 1);
-      var steps = Math.max(1, Math.round(Math.abs(need) / Math.abs(per)));
-      closes[j] = r4(closes[j] + Math.sign(need) * Math.sign(per) * t * steps);
-      actuals[j] = shorts[j] ? (1 - closes[j] / o) * 100 : (closes[j] / o - 1) * 100;
-      need = rate - sum(actuals);
+    var drift = +(rate - sum(actuals)).toFixed(2);
+    if (drift !== 0){
+      var bi = 0;
+      for (i = 1; i < n; i++) if (Math.abs(actuals[i]) > Math.abs(actuals[bi])) bi = i;
+      actuals[bi] = +(actuals[bi] + drift).toFixed(2);
+      closes[bi] = r4(shorts[bi] ? opens[bi] * (1 - actuals[bi] / 100) : opens[bi] * (1 + actuals[bi] / 100));
     }
-
-    actuals = actuals.map(function(x){ return +x.toFixed(2); });
-    actuals[n - 1] = +(rate - sum(actuals.slice(0, n - 1))).toFixed(2);
-    closes[n - 1] = r4(shorts[n - 1] ? opens[n - 1] * (1 - actuals[n - 1] / 100) : opens[n - 1] * (1 + actuals[n - 1] / 100));
     var tot = +sum(actuals).toFixed(2);
 
     var rows = picks.map(function(c, i){
