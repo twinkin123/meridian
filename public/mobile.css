@@ -8,9 +8,20 @@
 .main .card:last-child, .main .stats:last-child{ margin-bottom:0 !important; }
 .stats{ margin-bottom:10px !important; }
 
+/* sidebar pinned to the viewport so the robot never moves between tabs */
+@media (min-width: 901px){
+  .side{
+    position:sticky !important; top:0 !important;
+    height:100vh !important; max-height:100vh !important;
+    display:flex !important; flex-direction:column !important;
+    overflow-y:auto !important; overflow-x:hidden !important;
+  }
+  .side .robot-card{ margin-top:auto !important; flex:0 0 auto !important; }
+}
+
 /* results table: separate the columns */
-.res{ width:100%; border-collapse:collapse; table-layout:auto !important; }
-.res th, .res td{ padding:6px 12px !important; white-space:nowrap; }
+.res{ width:100%; border-collapse:collapse; table-layout:auto !important; font-size:11px; }
+.res th, .res td{ padding:6px 8px !important; white-space:nowrap; }
 .res th:first-child, .res td:first-child{ padding-left:0 !important; }
 .res th:last-child, .res td:last-child{ padding-right:0 !important; text-align:right; }
 .res th{ font-weight:400; opacity:.5; }
@@ -64,6 +75,7 @@
     display:flex !important; flex-wrap:nowrap !important; align-items:stretch;
     gap:0 !important; width:100%; max-width:none;
     padding:0 8px !important; margin:0 !important;
+    height:auto !important; max-height:none !important;
     overflow-x:auto; overflow-y:hidden;
     border:0 !important; border-bottom:1px solid rgba(255,255,255,.12) !important;
     background:#07070b;
