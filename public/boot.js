@@ -19,7 +19,8 @@
   function reveal(){
     document.documentElement.classList.remove('boot');
   }
-  requestAnimationFrame(function(){ requestAnimationFrame(reveal); });
+  (function w(){ if (document.querySelector('.res-head') || performance.now() > 1600){ document.documentElement.classList.remove('boot'); return; } setTimeout(w, 60); })();
 })();/* no stale poster: reveal the video only once it has a frame */
 (function(){ var v = document.querySelector(".robot-card video"); if (!v) return; v.removeAttribute("poster"); var live = function(){ v.classList.add("live"); }; if (v.readyState >= 2) live(); v.addEventListener("loadeddata", live); v.addEventListener("playing", live); setTimeout(live, 1200); })();
+
 
