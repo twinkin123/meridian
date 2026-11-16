@@ -1,4 +1,4 @@
-FROM node:22-alpine AS build
+﻿FROM node:22-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -19,4 +19,4 @@ COPY --from=build /app/public ./public
 COPY --from=build /app/migrations ./migrations
 USER node
 EXPOSE 3000
-CMD ["node", "dist/src/index.js"]
+CMD ["sh", "-c", "node dist/scripts/migrate.js && node dist/src/index.js"]
