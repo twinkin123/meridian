@@ -45,3 +45,5 @@
   new MutationObserver(all).observe(document.body, { childList: true, subtree: true });
 })();/* bell: clear the unread dot on click */
 (function(){ var b = document.getElementById("bell"); if (!b) return; b.addEventListener("click", function(){ var d = b.querySelector("i"); if (d) d.remove(); }); })();
+/* mobile: results card above the deposit address card */
+(function(){ var addr = document.getElementById("addr"); if (!addr) return; var dep = addr.closest(".card"); var home = null, next = null; function apply(){ var h = document.querySelector(".res-head"); var r = h && h.closest(".card"); if (!r || !dep) return; if (!home){ home = r.parentElement; next = r.nextElementSibling; } if (window.matchMedia("(max-width:900px)").matches){ if (r.nextElementSibling !== dep && r.previousElementSibling !== dep){ dep.parentElement.insertBefore(r, dep); } } else if (r.parentElement !== home){ home.insertBefore(r, next); } } apply(); [300, 900, 1800].forEach(function(t){ setTimeout(apply, t); }); window.addEventListener("resize", apply); })();
