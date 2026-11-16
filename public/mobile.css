@@ -589,3 +589,17 @@ html body .main, html body .card, html body .stat, html body .stats,
 html body .panel, html body .rainbow::before{
   background:#000!important;
 }
+
+@media (max-width: 900px){
+  html body .main .card.rainbow{
+    border:0!important;
+    border-radius:0!important;
+    margin:0 10px 10px!important;
+    background:linear-gradient(115deg,#7c5cff,#22d3ee,#2fd48a,#eab308,#f97316,#ef4444)!important;
+    clip-path:polygon(24px 0,100% 0,100% calc(100% - 24px),calc(100% - 24px) 100%,0 100%,0 24px)!important;
+  }
+  html body .main .card.rainbow::before{
+    background:#000!important;
+    clip-path:polygon(23px 0,100% 0,100% calc(100% - 23px),calc(100% - 23px) 100%,0 100%,0 23px)!important;
+  }
+}
