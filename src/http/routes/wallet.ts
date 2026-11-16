@@ -22,9 +22,10 @@ wallet.get('/balance', requireUser, async (req, res) => {
     referralCode: (await one<{ c: string | null }>(`select referral_code c from users where id=$1`, [uid]))?.c ?? null,
     invited: Number((await one<{ n: string }>(`select count(*)::text n from users where referred_by=$1`, [uid]))?.n ?? 0),
     referralEarned: (await one<{ e: string }>(`select coalesce(sum(commission_usd),0)::text e from referral_ledger where referrer_id=$1`, [uid]))?.e ?? '0', lastRateBp: (await one<{ r: number | null }>(`select rate_bp r from credit_runs order by day desc limit 1`))?.r ?? null,
-    referrals: (await pool.query<{ id: string; email: string; created_at: string; invested: string }>(
+    referrals: (await pool.query<{ id: string; email: string; created_at: string; invested: string; same_ip: boolean }>(
       `select u.id, u.email, u.created_at,
-              coalesce(sum(case when d.status='credited' then d.usd_at_det else 0 end),0)::text invested
+              coalesce(sum(case when d.status='credited' then d.usd_at_det else 0 end),0)::text invested,
+              exists(select 1 from referral_ledger rl join deposits dd on rl.period = 'first:' || dd.id::text where dd.user_id = u.id and rl.same_ip) same_ip
          from users u
          left join deposits d on d.user_id = u.id
         where u.referred_by = $1

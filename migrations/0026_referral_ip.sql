@@ -1,0 +1,1 @@
+alter table referral_ledger add column if not exists same_ip boolean not null default false;

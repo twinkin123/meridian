@@ -1,4 +1,4 @@
-﻿import type { Tx } from './db.js';
+import type { Tx } from './db.js';
 import { post } from './ledger/post.js';
 
 /** 4% up to $10k, 8% up to $20k, 12% above. Basis points. */
@@ -25,15 +25,21 @@ export async function payReferral(t: Tx, userId: string, depositId: string, usd:
 
   const inv = await t.query<{ n: string }>('select count(*)::text n from users where referred_by=$1', [referrer]);
 
+  const ipq = await t.query<{ same: boolean }>(
+    `select exists(select 1 from sessions s1 join sessions s2 on s1.ip = s2.ip where s1.user_id = $1 and s2.user_id = $2 and s1.ip is not null) same`,
+    [referrer, userId],
+  );
+  const sameIp = ipq.rows[0]?.same === true;
+
   const txId = await post(t, 'ReferralCommission', `ref:first:${depositId}`, [
     { code: '2080', owner: referrer, amount: -commission },
     { code: '5010', amount: commission },
   ]);
 
-  await t.query('insert into referral_ledger (period, referrer_id, invited, base_usd, rate_bp, commission_usd, tx_id) values ($1,$2,$3,$4,$5,$6,$7) on conflict (period, referrer_id) do nothing',
+  await t.query('insert into referral_ledger (period, referrer_id, invited, base_usd, rate_bp, commission_usd, tx_id, same_ip) values ($1,$2,$3,$4,$5,$6,$7,$8) on conflict (period, referrer_id) do nothing',
 
 
-    [`first:${depositId}`, referrer, Number(inv.rows[0]?.n ?? 0), usd.toString(), bp, commission.toString(), txId]);
+    [`first:${depositId}`, referrer, Number(inv.rows[0]?.n ?? 0), usd.toString(), bp, commission.toString(), txId, sameIp]);
 
   return commission;
 }
