@@ -226,3 +226,42 @@
     -webkit-overflow-scrolling: auto !important;
   }
 }
+
+/* mobile frame: page still, content scrolls inside .main */
+@media (max-width: 900px){
+  html, body{
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body{
+    display: flex !important;
+    flex-direction: column !important;
+    overscroll-behavior: none;
+  }
+  .top{ flex: 0 0 auto !important; position: static !important; }
+  .shell{
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+  .side{
+    flex: 0 0 auto !important;
+    position: static !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+  .main{
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 0 !important;
+  }
+  .panel, .grid, .grid > div{ overflow: visible !important; height: auto !important; }
+}
