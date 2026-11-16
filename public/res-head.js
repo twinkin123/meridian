@@ -18,4 +18,16 @@
 
   fix();
   new MutationObserver(fix).observe(document.body, { childList: true, subtree: true });
+})();/* move the credit countdown into the top note line */
+(function(){
+  "use strict";
+  function move(){
+    var note = document.querySelector(".res-note");
+    var note = document.querySelector(".res-note");
+    var clock = document.querySelector(".res-clock");
+    if (!note || !clock || clock.parentElement === note) return;
+    note.appendChild(clock);
+  }
+  move();
+  new MutationObserver(move).observe(document.body, { childList: true, subtree: true });
 })();
