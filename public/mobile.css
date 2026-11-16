@@ -685,3 +685,14 @@ html.boot body{visibility:hidden}
   html body .top, html body .side{ background:#0a0a0b!important; }
   html body .main .card, html body .main .stat{ background:#0a0a0b!important; }
 }
+
+@media (max-width: 900px){
+  html body .main .card, html body .main .stat{
+    background:linear-gradient(#0a0a0b,#0a0a0b) padding-box, var(--rim) border-box!important;
+    border:1px solid transparent!important;
+  }
+  html body .main [data-results]{
+    background:linear-gradient(#0a0a0b,#0a0a0b) padding-box, var(--rim) border-box!important;
+    border:1px solid transparent!important;
+  }
+}
