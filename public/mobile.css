@@ -567,3 +567,6 @@ html.boot body{visibility:hidden}
 .top-right a.ghost{display:none !important}
 .res th,.res td{padding-right:12px !important}
 .res th:last-child,.res td:last-child{padding-right:0 !important}
+
+.navbox .robot-card video{display:none !important}
+.navbox .robot-card img.robot-still{width:100%;height:auto;display:block;border-radius:10px}
