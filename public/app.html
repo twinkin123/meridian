@@ -299,7 +299,9 @@
 
   async function load(){
     try {
-      var me = await fetch('/me').then(function(r){ return r.json(); });
+      var mr = await fetch('/me');
+      if (mr.status === 401) { location.replace('/auth.html'); return; }
+      var me = await mr.json();
       document.getElementById('who').textContent = me.email || '';
       document.getElementById('setEmail').textContent = me.email || '';
       document.getElementById('addr').textContent = me.depositAddress || '';
@@ -551,6 +553,7 @@ setInterval(tickPend, 1000);
 
   function usd(n){ return '\u0024' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   load(); dRun(); tick();
+  window.addEventListener('pageshow', function(e){ if (e.persisted) load(); });
   setInterval(tick, 1000);
   setInterval(load, 30000);
 })();
