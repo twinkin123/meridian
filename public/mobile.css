@@ -825,3 +825,7 @@ html body .res-total{
 @media (max-width: 900px){
   html body .main{ padding-top:22px!important; }
 }
+
+@media (max-width: 900px){
+  html body .side{ margin-bottom:12px!important; }
+}
