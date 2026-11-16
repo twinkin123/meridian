@@ -26,7 +26,7 @@
   setInterval(clock, 1000);
 
   /* results table */
-  var card = document.getElementById('resCard') ||
+  var card = document.getElementById('resCard') || (document.querySelectorAll('.grid > div')[1] || { querySelector: function(){ return null; } }).querySelector('.card') ||
     Array.prototype.find.call(document.querySelectorAll('.card'), function(c){ return /next credit/i.test(c.textContent); });
   if (!card) return;
   card.id = 'resCard';
@@ -194,6 +194,7 @@
   el.textContent = seen ? 'Welcome back' : 'Welcome';
   try { localStorage.setItem('mrd_seen', '1'); } catch (_) {}
 })();
+
 
 
 
