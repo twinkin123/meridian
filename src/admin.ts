@@ -81,3 +81,9 @@ adminRouter.post('/freeze', async (req, res) => {
   await setFreeze(level, 'admin');
   res.json({ level });
 });
+adminRouter.post('/credit/run', async (req, res) => {
+  if (req.header('x-admin-token') !== process.env.ADMIN_TOKEN) return res.status(401).json({ error: 'bad_admin_token' });
+  const day = req.query.day ? new Date(String(req.query.day)) : new Date();
+  const { runDailyCredit } = await import('./jobs/daily.js');
+  res.json(await runDailyCredit(day));
+});

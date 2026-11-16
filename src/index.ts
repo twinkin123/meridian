@@ -7,6 +7,7 @@ import { webhooks } from './http/routes/webhooks.js';
 import { wallet } from './http/routes/wallet.js';
 import { adminRouter } from './admin.js';
 import { runRecon } from './recon.js';
+import { runDailyCredit } from './jobs/daily.js';
 import { requireUser } from './http/mw/session.js';
 import { one, close } from './db.js';
 
@@ -41,6 +42,11 @@ app.use((_req, res) => {
   res.status(404).sendFile(join(publicDir, 'index.html'));
 });
 
+const creditTimer = setInterval(() => {
+  const now = new Date();
+  if (now.getUTCHours() === 0) runDailyCredit(now).catch((e) => console.error('credit', e));
+}, 5 * 60 * 1000);
+
 const reconTimer = setInterval(() => {
   runRecon('cron').catch((e) => console.error('recon', e));
 }, 15 * 60 * 1000);
@@ -55,3 +61,4 @@ for (const sig of ['SIGTERM', 'SIGINT'] as const) {
     process.exit(0);
   });
 }
+

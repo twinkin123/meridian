@@ -31,10 +31,12 @@ auth.post('/signup', async (req, res) => {
   if (exists) return res.status(409).json({ error: 'email_taken' });
 
   const pwHash = await hashPw(pw);
+  const ref = String(req.body?.ref ?? '').trim().toUpperCase();
+  const referrer = ref ? await one<{ id: string }>(`select id from users where referral_code = $1`, [ref]) : null;
   const row = await one<{ id: string; deposit_index: number }>(
-    `insert into users (email, pw_hash, deposit_addr)
-     values ($1, $2, 'pending') returning id, deposit_index`,
-    [email, pwHash],
+    `insert into users (email, pw_hash, deposit_addr, referral_code, referred_by)
+     values ($1, $2, 'pending', upper(substr(md5(random()::text),1,8)), $3) returning id, deposit_index`,
+    [email, pwHash, referrer?.id ?? null],
   );
 
   const addr = address(row.deposit_index);
@@ -77,3 +79,7 @@ auth.post('/logout', requireUser, async (req, res) => {
   res.clearCookie('sid', { path: '/' });
   res.json({ ok: true });
 });
+
+
+
+

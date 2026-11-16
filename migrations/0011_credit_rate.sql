@@ -1,0 +1,1 @@
+alter table credit_runs add column rate_bp int not null default 0;

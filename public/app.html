@@ -54,7 +54,7 @@
           <div class="stats">
             <div class="stat"><span class="lbl">Available</span><b id="avail">$0.00</b></div>
             <div class="stat"><span class="lbl">Held</span><b id="held">$0.00</b></div>
-            <div class="stat"><span class="lbl">Daily rate</span><b>1.00%</b></div>
+            <div class="stat"><span class="lbl">Last rate</span><b id="rate">-</b></div>
           </div>
 
           <div class="card">
@@ -68,7 +68,7 @@
 
           <div class="card">
             <span class="lbl">Calculator</span>
-            <p class="hint">30-day projection at the current 1% daily rate, less the 15% fee. An illustration, not advice.</p>
+            <p class="hint" id="calcHint">30-day projection at the current 1% daily rate, less the 15% fee. An illustration, not advice.</p>
 
             <div class="calc-amount">
               <span>$</span>
@@ -87,7 +87,7 @@
             <div class="calc-sw">
               <div>
                 <b>Auto-compound</b>
-                <p class="hint" style="margin-top:2px">Net yield is added daily</p>
+                <p class="hint" style="margin-top:2px">Credited daily and earns from the next day. Solid line compounds; dashed assumes you withdraw the yield daily.</p>
               </div>
               <button class="sw2 on" id="dSw" type="button"></button>
             </div>
@@ -97,7 +97,7 @@
               <div class="calc-out"><span class="lbl">30-day net</span><b class="g" id="dNet">$289</b></div>
             </div>
 
-            <div class="calc-chart">
+            <div class="calc-total"><span class="lbl">Total balance at day 30</span><b id="dTotal">-</b></div><div class="calc-chart">
               <span class="lbl">Balance at day 30</span>
               <b id="dBal">$1,289</b>
               <svg viewBox="0 0 600 100" preserveAspectRatio="none">
@@ -134,6 +134,25 @@
           <div class="card robot-card">
             <video src="/img/robot.mp4" poster="/img/robot.png" muted loop playsinline autoplay preload="auto"></video>
             <p>Engine online. Settling daily.</p>
+          </div>
+          <div class="card ref-card">
+            <span class="lbl">Referral</span>
+            <p class="hint">Share your link. You earn commission on what the people you invite deposit, paid monthly.</p>
+            <div class="addr">
+              <code id="refLink">-</code>
+              <button class="btn ghost" id="refCopy" type="button" onclick="var b=this;navigator.clipboard.writeText(document.getElementById('refLink').textContent);b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1400)">Copy</button>
+            </div>
+            <div class="ref-stats">
+              <div><span class="lbl">Invited</span><b id="refCount">0</b></div>
+              <div><span class="lbl">Your code</span><b id="refCode">-</b></div>
+            </div>
+            <div class="ref-ladder">
+              <span class="lbl">Commission tiers</span>
+              <div><div><span class="t">1-4 invited</span><span class="s">Entry</span></div><b>5%</b></div>
+              <div><div><span class="t">5-9 invited</span><span class="s">Growing</span></div><b>8%</b></div>
+              <div><div><span class="t">10-19 invited</span><span class="s">Established</span></div><b>11%</b></div>
+              <div><div><span class="t">20+ invited</span><span class="s">Top tier</span></div><b>15%</b></div>
+            </div>
           </div>
         </div>
       </div>
@@ -218,7 +237,7 @@
   function money(m){
     return '$' + (Number(m) / 1e6).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
-  var state = { balance: '0', held: '0' };
+  var state = { balance: '0', held: '0', rateBp: 100 };
 
   document.querySelectorAll('[data-panel]').forEach(function(b){
     b.addEventListener('click', function(){ go(b.dataset.panel); });
@@ -265,6 +284,13 @@
       var b = await fetch('/wallet/balance').then(function(r){ return r.json(); });
       state.balance = b.balance || '0';
       state.held = b.held || '0';
+      state.refCode = b.referralCode || '';
+      var rl = document.getElementById('refLink');
+      if (rl) rl.textContent = state.refCode ? location.origin + '/auth.html?ref=' + state.refCode : '-';
+      var rcode = document.getElementById('refCode');
+      if (rcode) rcode.textContent = state.refCode || '-';
+      var rcnt = document.getElementById('refCount');
+      if (rcnt) rcnt.textContent = b.invited ?? 0;
       document.getElementById('avail').textContent = money(state.balance);
       document.getElementById('held').textContent = money(state.held);
       document.getElementById('total').textContent = money((BigInt(state.balance) + BigInt(state.held)).toString());
@@ -272,6 +298,11 @@
       if (BigInt(state.held) > 0n) note = money(state.held) + ' held until it reaches $10';
       if (BigInt(state.balance) > 0n && BigInt(state.balance) < 10000000n) note = 'Below $10. Withdraw the exact balance to close.';
       document.getElementById('heldNote').textContent = note;
+      document.getElementById('rate').textContent = b.lastRateBp ? (b.lastRateBp / 100).toFixed(2) + '%' : '-';
+      state.rateBp = b.lastRateBp || 100;
+      var rh = document.getElementById('calcHint');
+      if (rh) rh.textContent = '30-day projection at the last applied rate of ' + (state.rateBp / 100).toFixed(2) + '%, less the 15% fee. An illustration, not advice.';
+      dRun();
     } catch (_) {}
   }
 
@@ -354,20 +385,21 @@
 
   function dRun(){
     var a = Math.min(250000, Math.max(10, Number(dAmt.value) || 10));
-    var comp = dSw.classList.contains('on');
-    var gross = a * (Math.pow(1.01, 30) - 1);
-    var net = comp ? a * (Math.pow(1.0085, 30) - 1) : a * 0.0085 * 30;
-    document.getElementById('dFirst').textContent = usd(a * 0.0085);
+    var comp = true;
+    var r = (state.rateBp || 100) / 10000, rn = r * 0.85; dRng.style.setProperty("--p", ((a - 10) / 249990 * 100).toFixed(2) + "%"); var gross = a * (Math.pow(1 + r, 30) - 1);
+    var net = comp ? a * (Math.pow(1 + rn, 30) - 1) : a * rn * 30;
+    document.getElementById('dFirst').textContent = usd(a * rn);
     document.getElementById('dNet').textContent = usd(net);
     document.getElementById('dNet2').textContent = usd(net);
     document.getElementById('dBal').textContent = usd(a + net);
+    document.getElementById('dTotal').textContent = usd(a + net);
     document.getElementById('dGross').textContent = usd(gross);
     document.getElementById('dFee').textContent = usd(gross * 0.15);
     var top = a + net, p1 = [], p2 = [];
     for (var i = 0; i <= 30; i++){
       var x = 8 + (i / 30) * 584;
-      var v1 = a * Math.pow(1.0085, i);
-      var v2 = a * (1 + 0.0085 * i);
+      var v1 = a * Math.pow(1 + rn, i);
+      var v2 = a * (1 + rn * i);
       p1.push(x + ',' + (92 - ((v1 - a) / (top - a)) * 78).toFixed(1));
       p2.push(x + ',' + (92 - ((v2 - a) / (top - a)) * 78).toFixed(1));
     }
@@ -409,5 +441,24 @@
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

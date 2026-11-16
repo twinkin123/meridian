@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { requireUser } from '../mw/session.js';
 import { one, pool } from '../../db.js';
 import { freezeLevel } from '../../recon.js';
@@ -18,6 +18,8 @@ wallet.get('/balance', requireUser, async (req, res) => {
   );
   res.json({
     balance: r.b,
+    referralCode: (await one<{ c: string | null }>(`select referral_code c from users where id=$1`, [uid]))?.c ?? null,
+    invited: Number((await one<{ n: string }>(`select count(*)::text n from users where referred_by=$1`, [uid]))?.n ?? 0), lastRateBp: (await one<{ r: number | null }>(`select rate_bp r from credit_runs order by day desc limit 1`))?.r ?? null,
     held: r.h,
     minWithdraw: MIN_WITHDRAW.toString(),
     newAddressCap: NEW_ADDR_CAP.toString(),
@@ -71,3 +73,4 @@ wallet.get('/cap', requireUser, async (req, res) => {
   const age = known ? Date.now() - new Date(seen.first_seen).getTime() : 0;
   res.json({ cap: computeCap(known, age, BigInt(r.b)).toString() });
 });
+
