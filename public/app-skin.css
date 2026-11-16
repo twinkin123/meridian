@@ -384,3 +384,5 @@ table.res th{padding-right:9px}
 .top-right a.ghost{display:none}
 .top-right #logout{background:transparent !important;border:1px solid #e5484d !important;color:#e5484d !important;font-weight:600}
 .top-right #logout:hover{background:rgba(229,72,77,.12) !important;border-color:#ff6b6b !important;color:#ff6b6b !important}
+.top-right #who{cursor:pointer}
+.top-right #who:hover{border-color:#3a3a44 !important;background:#1c1c22 !important}
