@@ -330,3 +330,16 @@
 @media (max-width: 480px){
   .welcome{ flex:0 0 auto; font-size:9px; letter-spacing:.14em; }
 }
+
+/* greeting sits above the ticker, aligned to its left edge */
+.welcome{
+  display:block !important;
+  flex:none !important;
+  margin:0 0 10px !important;
+  padding:0 !important;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:#6b6b85;
+}
