@@ -457,3 +457,29 @@
 @media (max-width: 900px){
   .side .navbox{ display:contents; }
 }
+
+/* nav frame: full height, flush, robot inside at the bottom */
+@media (min-width: 901px){
+  .side{ padding:0 !important; border-right:0 !important; }
+  .side .navbox{
+    flex:1 1 auto !important;
+    height:100% !important;
+    border:0 !important;
+    border-right:1px solid rgba(255,255,255,.14) !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    padding:16px 12px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    overflow-y:auto !important;
+  }
+  .side .robot-card{
+    margin-top:auto !important;
+    flex:0 0 auto !important;
+    border:0 !important;
+    background:transparent !important;
+    padding:10px 0 0 !important;
+  }
+  .side .robot-card::after{ display:none !important; }
+}
