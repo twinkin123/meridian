@@ -96,12 +96,12 @@
 
     card.innerHTML =
       '' +
-      '<div class="res-head"><div><div class="res-title">Trade results - ' + day + '</div>' +
+      '<div class="res-head"><div><div class="res-title">Trade results<div class="res-date">' + day + '</div></div>' +
       '</div>' +
       '<div class="res-total' + (tot < 0 ? ' dn' : '') + '">' + (tot >= 0 ? '+' : '') + tot.toFixed(2) + '%</div>' +
       '<div class="res-nav"><button type="button" data-o="1">&lt;</button><button type="button" data-o="-1">&gt;</button></div></div>' +
       '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-      '<div class="res-clock">next credit in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
+      '<div class="'';
 
     card.querySelectorAll('.res-nav button').forEach(function(b){
       b.addEventListener('click', function(){
@@ -194,6 +194,7 @@
   el.textContent = seen ? 'Welcome back' : 'Welcome';
   try { localStorage.setItem('mrd_seen', '1'); } catch (_) {}
 })();
+
 
 
 
