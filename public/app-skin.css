@@ -431,3 +431,32 @@ table.res th{padding-right:9px}
 .ref-card .hint{font-size:13px !important}
 
 
+
+.notes-card.flash{outline:2px solid var(--grn);outline-offset:3px;transition:outline-color .2s}
+
+.notif-pop{position:absolute;top:calc(100% + 10px);right:0;width:330px;max-height:380px;overflow:auto;background:var(--card,#12121a);border:1px solid var(--line,#26262f);border-radius:10px;padding:12px 14px;z-index:80;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.notif-pop .list{list-style:none;padding:0;margin:10px 0 0}
+.notif-pop .list li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#26262f);font-size:12.5px}
+.notif-pop .list li:last-child{border-bottom:0}
+.notif-pop .list li>div{flex:1;min-width:0}
+.notif-pop .list .sub{display:block;font-size:11px;color:var(--mut2,#8a8a9d);margin-top:2px}
+.notif-pop .notif-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.notif-pop .notif-head .btn{width:auto;padding:2px 9px;font-size:11px}
+.top-right{position:relative}
+
+.notif-pop{position:absolute;top:calc(100% + 10px);right:0;width:330px;max-height:380px;overflow:auto;background:var(--card,#12121a);border:1px solid var(--line,#26262f);border-radius:10px;padding:12px 14px;z-index:80;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.notif-pop .list{list-style:none;padding:0;margin:10px 0 0}
+.notif-pop .list li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#26262f);font-size:12.5px}
+.notif-pop .list li:last-child{border-bottom:0}
+.notif-pop .list li>div{flex:1;min-width:0}
+.notif-pop .list .sub{display:block;font-size:11px;color:var(--mut2,#8a8a9d);margin-top:2px}
+.notif-pop .notif-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.notif-pop .notif-head .btn{width:auto;padding:2px 9px;font-size:11px}
+.top-right{position:relative}
+
+.notes-inline{margin-top:18px;padding-top:16px;border-top:1px solid var(--line,#26262f)}
+.notes-inline .list{list-style:none;padding:0;margin:8px 0 0}
+.notes-inline .list li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#26262f);font-size:12.5px}
+.notes-inline .list li:last-child{border-bottom:0}
+.notes-inline .list li>div{flex:1;min-width:0}
+.notes-inline .list .sub{display:block;font-size:11px;color:var(--mut2,#8a8a9d);margin-top:2px}

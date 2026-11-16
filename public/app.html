@@ -8,13 +8,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/app.css">
-<link rel="stylesheet" href="/theme-dark.css"><link rel="stylesheet" href="/app-skin.css?v=38"><link rel="stylesheet" href="mobile.css?v=24"></head>
+<link rel="stylesheet" href="/theme-dark.css"><link rel="stylesheet" href="/app-skin.css?v=41"><link rel="stylesheet" href="mobile.css?v=24"></head>
 <body>
 
 <header class="top">
   <a class="brand" href="/"><span class="brand-mark">M</span>Meridian</a><span class="welcome" id="welcome"></span>
   <div class="top-right">
     <button class="bell" id="bell" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><i></i></button><span class="who" id="who"></span>
+    <div class="notif-pop" id="notifPop" hidden>
+      <div class="notif-head"><span class="lbl">Notifications</span><button class="btn line" id="notifClose" type="button">Close</button></div>
+      <ul class="list" id="notesPop"><li class="empty">Nothing yet.</li></ul>
+    </div>
     <button class="ghost" id="logout" type="button">Log out</button>
     <a class="ghost" href="/admin.html">Admin</a>
   </div>
@@ -49,11 +53,6 @@
               <button class="btn" data-goto="p-withdraw" type="button">Withdraw</button>
               <button class="btn" data-goto="p-history" type="button">History</button>
             </div>
-          </div>
-
-          <div class="card">
-            <span class="lbl">Notifications</span>
-            <ul class="list" id="notes"><li class="empty">Loading...</li></ul>
           </div>
 
           <div class="stats">
@@ -159,7 +158,13 @@
             <span class="lbl">People you referred</span>
             <p class="hint">Paid once, on their first deposit. Later deposits earn nothing.</p>
             <ul class="list" id="refList"><li class="empty">No referrals yet.</li></ul>
+            <div class="notes-inline">
+              <span class="lbl">Notifications</span>
+              <p class="hint" id="notesHint">Approvals, declines and unlocks appear here.</p>
+              <ul class="list" id="notes"><li class="empty">Nothing yet.</li></ul>
+            </div>
           </div>
+
         </div>
       </div>
     </section>
@@ -229,6 +234,14 @@
       </div>
     </section>
 
+    <section class="panel" id="p-notifications">
+      <div class="card">
+        <span class="lbl">Notifications</span>
+        <p class="hint">Approvals, declines and unlocks appear here.</p>
+        <ul class="list" id="notesFull"><li class="empty">Loading...</li></ul>
+      </div>
+    </section>
+
     <section class="panel" id="p-settings">
       <div class="card">
         <span class="lbl">Account</span>
@@ -290,6 +303,7 @@
     document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.toggle('on', n.dataset.panel === id); });
     if (id === 'p-history') { loadHistory(); loadSettlements(); loadDeposits(); }
     if (id === 'p-addresses') loadAddresses();
+    if (id === 'p-notifications') loadNotesFull();
   }
 
   function copy(t, btn){
@@ -428,6 +442,33 @@ setInterval(tickPend, 1000);
     try {
       var r = await fetch('/wallet/notifications').then(function(x){ return x.json(); });
       var rows = (r.notifications || []).slice(0, 5);
+      if (!rows.length) { el.innerHTML = '<li class="empty">Nothing yet.</li>'; return; }
+      el.innerHTML = rows.map(function(n){ return '<li><div>' + n.body + '<span class="sub">' + new Date(n.created_at).toLocaleString() + '</span></div>' + (n.read_at ? '' : '<span class="pill">new</span>') + '</li>'; }).join('');
+      if (rows.some(function(n){ return !n.read_at; })) fetch('/wallet/notifications/read', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+    } catch (_) { el.innerHTML = '<li class="empty">Could not load.</li>'; }
+  }
+
+
+  var bell = document.getElementById('bell');
+  var pop = document.getElementById('notifPop');
+  if (bell && pop) bell.addEventListener('click', function(e){
+    e.stopPropagation();
+    pop.hidden = !pop.hidden;
+    if (!pop.hidden) loadNotesFull();
+  });
+  var popClose = document.getElementById('notifClose');
+  if (popClose && pop) popClose.addEventListener('click', function(){ pop.hidden = true; });
+  document.addEventListener('click', function(e){
+    if (pop && !pop.hidden && !pop.contains(e.target) && e.target.id !== 'bell') pop.hidden = true;
+  });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && pop) pop.hidden = true; });
+
+  async function loadNotesFull(){
+    var el = document.getElementById('notesPop');
+    if (!el) return;
+    try {
+      var r = await fetch('/wallet/notifications').then(function(x){ return x.json(); });
+      var rows = r.notifications || [];
       if (!rows.length) { el.innerHTML = '<li class="empty">Nothing yet.</li>'; return; }
       el.innerHTML = rows.map(function(n){ return '<li><div>' + n.body + '<span class="sub">' + new Date(n.created_at).toLocaleString() + '</span></div>' + (n.read_at ? '' : '<span class="pill">new</span>') + '</li>'; }).join('');
       if (rows.some(function(n){ return !n.read_at; })) fetch('/wallet/notifications/read', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
