@@ -631,3 +631,9 @@ html.boot body{visibility:hidden}
     box-shadow:0 8px 18px -14px rgba(120,205,255,.7)!important;
   }
 }
+
+@media (max-width: 900px){
+  .main .card, .main .stat{
+    background-color:#0f1117!important;
+  }
+}
