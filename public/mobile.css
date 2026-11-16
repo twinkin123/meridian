@@ -876,3 +876,32 @@ html body .res-total{
     margin-right:-18px!important;
   }
 }
+
+@media (max-width: 900px){
+  html body #claimBtn, html body #rwOut{
+    display:block!important;
+    width:auto!important;
+    margin-left:18px!important;
+    margin-right:18px!important;
+    text-align:center!important;
+  }
+  html body .main .stats{
+    width:auto!important;
+    margin-left:18px!important;
+    margin-right:18px!important;
+  }
+}
+
+/* v80 - align claim/withdraw bars and stats to value card inset, centre labels */
+html body #claimBtn,
+html body #rwOut {
+  display: block !important;
+  width: auto !important;
+  margin-left: 18px !important;
+  margin-right: 18px !important;
+  text-align: center !important;
+}
+html body .main .stats {
+  margin-left: 18px !important;
+  margin-right: 18px !important;
+}
