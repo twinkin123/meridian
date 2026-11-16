@@ -680,3 +680,41 @@ html body .res-total{
     box-shadow:0 0 26px -8px rgba(45,226,214,.32), 0 0 60px -30px rgba(45,226,214,.24)!important;
   }
 }
+
+@media (max-width: 900px){
+  html body .main{
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+    padding:0 12px 96px!important;
+    overflow-x:hidden!important;
+  }
+  html body .grid{ display:block!important; }
+  html body .grid > div{ width:100%!important; display:block!important; }
+  html body .main .card, html body .main .stat, html body .main .stats{
+    width:auto!important;
+    margin:0 0 14px!important;
+  }
+  html body .top{ padding-right:14px!important; }
+  html body .side{ padding-right:14px!important; }
+  html body .tickers{ width:100%!important; max-width:100%!important; }
+}
+
+@media (max-width: 900px){
+  html body .main{
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+    padding:0 12px 96px!important;
+    overflow-x:hidden!important;
+  }
+  html body .grid{ display:block!important; }
+  html body .grid > div{ width:100%!important; display:block!important; }
+  html body .main .card, html body .main .stat, html body .main .stats{
+    width:auto!important;
+    margin:0 0 14px!important;
+  }
+  html body .top{ padding-right:14px!important; }
+  html body .side{ padding-right:14px!important; }
+  html body .tickers{ width:100%!important; max-width:100%!important; }
+}
