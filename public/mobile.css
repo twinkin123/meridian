@@ -736,3 +736,10 @@ html body .res-total{
     border:0!important;
   }
 }
+
+@media (max-width: 900px){
+  html body .main{
+    border:1px solid rgba(45,226,214,.18)!important;
+    padding:22px 22px 100px!important;
+  }
+}
