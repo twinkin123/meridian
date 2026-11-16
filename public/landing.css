@@ -536,3 +536,5 @@ img,video{display:block;max-width:100%}
 @media (max-width:860px){.robot-stage.is-docked{transform:translate(-50%,-50%) translate(calc(50vw - 76px),calc(50vh - 76px)) scale(.3) !important}}
 .robot-stage.is-docked{left:auto !important;right:26px !important;top:auto !important;bottom:26px !important;transform:scale(.26) !important;transform-origin:100% 100% !important}
 @media (max-width:860px){.robot-stage.is-docked{right:12px !important;bottom:12px !important;transform:scale(.3) !important}}
+.robot-frame{mix-blend-mode:normal !important;filter:contrast(1.07) saturate(1.06) !important}
+.robot-stage{will-change:auto !important}
