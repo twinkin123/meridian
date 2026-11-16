@@ -166,3 +166,14 @@
 .side a{ touch-action:manipulation; -webkit-tap-highlight-color:transparent; pointer-events:auto !important; }
 
 .side a{ touch-action:manipulation; -webkit-tap-highlight-color:transparent; pointer-events:auto !important; }
+
+/* panels: only the active one shows */
+@media (max-width: 900px){
+  .panel{ display:none !important; }
+  .panel.on{ display:block !important; }
+}
+
+/* header: give the controls room */
+@media (max-width: 480px){
+  .top-right .who{ display:none !important; }
+}
