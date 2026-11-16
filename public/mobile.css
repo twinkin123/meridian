@@ -786,3 +786,12 @@ html body .res-total{
   }
   html body .big{ font-size:30px!important; }
 }
+
+@media (max-width: 900px){
+  html body .main .card, html body .main .stat, html body .main .stats{
+    width:auto!important;
+    margin-left:18px!important;
+    margin-right:18px!important;
+  }
+  html body .big{ font-size:30px!important; }
+}
