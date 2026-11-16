@@ -726,3 +726,13 @@ html body .res-total{
     padding:12px 14px 96px!important;
   }
 }
+
+@media (max-width: 900px){
+  html body .main{
+    border-left:0!important;
+    border-right:0!important;
+  }
+  html body .main .card, html body .main .stat, html body .main .stats{
+    border:0!important;
+  }
+}
