@@ -400,3 +400,8 @@ table.res th{padding-right:9px}
 .ref-ladder{display:block !important}
 .ref-ladder > div{padding:8px 0 !important;border-bottom:1px solid var(--line) !important}
 .ref-ladder > div:last-child{border-bottom:0 !important}
+
+/* right column: stretch to the row, last card fills the gap */
+.grid{align-items:stretch !important}
+.grid > div:last-child{display:flex !important;flex-direction:column !important}
+.grid > div:last-child > .card:last-child{flex:1 1 auto !important}
