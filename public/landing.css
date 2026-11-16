@@ -499,3 +499,4 @@ img,video{display:block;max-width:100%}
 .robot-stage{position:absolute !important;top:50vh !important;left:50% !important;transform:translate(-50%,-50%) !important;opacity:1 !important}
 .robot-corner{position:fixed;right:14px;bottom:14px;width:clamp(84px,16vw,120px);z-index:6;opacity:0;transform:translateY(12px);transition:opacity .28s ease,transform .28s ease;pointer-events:none;mix-blend-mode:multiply}
 .robot-corner.on{opacity:1;transform:none}
+.robot-corner{mix-blend-mode:normal !important;object-fit:contain;border-radius:0}
