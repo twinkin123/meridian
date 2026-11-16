@@ -132,7 +132,7 @@
             <video src="/img/robot.mp4" poster="/img/robot.png" muted loop playsinline autoplay preload="auto"></video>
             <p>Engine online. Settling daily.</p>
           </div>
-                    <div class="card" id="resCard"></div>
+                    <div class="card" data-results></div>
 
           <div class="card ref-card">
             <span class="lbl">Referral</span>
@@ -884,7 +884,8 @@ setInterval(tickPend, 1000);
   window.addEventListener('focus', guard);
   document.addEventListener('visibilitychange', guard);
 })();
-</script></body>
+</script><script src="/results.js?v=2" defer></script>
+</body>
 </html>
 
 
