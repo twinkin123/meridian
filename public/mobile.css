@@ -673,3 +673,15 @@ html.boot body{visibility:hidden}
   html body .top, html body .side{ background:#0a0a0b!important; }
   html body .main .card, html body .main .stat{ background-color:#0a0a0b!important; }
 }
+
+@media (max-width: 900px){
+  html body{ background:#0a0a0b!important; }
+  html body .top, html body .side{ background:#0a0a0b!important; }
+  html body .main .card, html body .main .stat{ background:#0a0a0b!important; }
+}
+
+@media (max-width: 900px){
+  html body{ background:#0a0a0b!important; }
+  html body .top, html body .side{ background:#0a0a0b!important; }
+  html body .main .card, html body .main .stat{ background:#0a0a0b!important; }
+}
