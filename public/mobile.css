@@ -15,12 +15,24 @@
 .res th:last-child, .res td:last-child{ padding-right:0 !important; text-align:right; }
 .res th{ font-weight:400; opacity:.5; }
 
-/* results header: title takes the room, total and arrows stay put */
-.res-head{ display:flex !important; align-items:flex-start; gap:10px; flex-wrap:nowrap !important; }
-.res-head > div:first-child{ flex:1 1 auto !important; min-width:0 !important; }
-.res-total{ flex:0 0 auto !important; white-space:nowrap; }
-.res-nav{ flex:0 0 auto !important; display:flex; gap:6px; }
-.res-nav button{ min-width:26px; font-family:inherit; }
+/* results header: fixed columns, title gets the rest */
+.res-head{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto auto !important;
+  align-items:start !important; gap:10px !important;
+  flex-direction:row !important;
+}
+.res-head > div:first-child{ grid-column:1 !important; min-width:0 !important; }
+.res-title{ white-space:normal; }
+.res-total{ grid-column:2 !important; white-space:nowrap !important; }
+.res-nav{ grid-column:3 !important; display:flex !important; gap:6px !important; }
+.res-nav button{
+  width:26px; height:26px; padding:0;
+  display:grid; place-items:center;
+  border:1px solid rgba(255,255,255,.18);
+  background:transparent; color:#fff;
+  font:inherit; font-size:14px; line-height:1; cursor:pointer;
+}
 
 @media (max-width: 900px){
 
