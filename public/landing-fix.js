@@ -64,3 +64,5 @@
 
 /* corner robot once the hero robot leaves the viewport */
 (function(){ var stage = document.getElementById("robotStage"); if (!stage) return; var img = document.createElement("img"); img.src = "/img/robot.webp"; img.alt = ""; img.className = "robot-corner"; document.body.appendChild(img); var io = new IntersectionObserver(function(es){ es.forEach(function(e){ img.classList.toggle("on", !e.isIntersecting); }); }, { threshold: 0 }); io.observe(stage); })();
+/* corner robot only while the hero robot is fully above the fold */
+(function(){ var stage = document.getElementById("robotStage"); var img = document.querySelector(".robot-corner"); if (!stage || !img) return; function upd(){ var r = stage.getBoundingClientRect(); img.classList.toggle("on", r.bottom < 0); } window.addEventListener("scroll", upd, { passive: true }); window.addEventListener("resize", upd); upd(); })();
