@@ -577,25 +577,3 @@ html.boot body{visibility:hidden}
 
 
 @media (max-width:900px){ .shell .side .robot-card{display:none !important} }
-
-@media (max-width: 900px){
-  .top{ border-bottom:1px solid rgba(45,226,214,.45)!important; }
-  .side{
-    border-top:0!important;
-    border-left:0!important;
-    border-right:0!important;
-    border-bottom:1px solid rgba(45,226,214,.45)!important;
-  }
-  .side > a + a{ border-top:0!important; border-left:1px solid rgba(45,226,214,.13)!important; }
-}
-
-@media (max-width: 900px){
-  .top{ border-bottom:1px solid rgba(45,226,214,.45)!important; }
-  .side{
-    border-top:0!important;
-    border-left:0!important;
-    border-right:0!important;
-    border-bottom:1px solid rgba(45,226,214,.45)!important;
-  }
-  .side > a + a{ border-top:0!important; border-left:1px solid rgba(45,226,214,.13)!important; }
-}
