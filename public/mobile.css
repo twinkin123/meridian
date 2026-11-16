@@ -777,3 +777,19 @@ html body .res-total{
     padding:20px 20px 100px!important;
   }
 }
+
+@media (max-width: 900px){
+  html body{
+    border:1px solid rgba(45,226,214,.18)!important;
+    padding:18px 18px 100px!important;
+    box-sizing:border-box!important;
+  }
+  html body .layout, html body .main, html body .grid, html body .grid > div{
+    margin:0!important;
+    padding-left:0!important;
+    padding-right:0!important;
+    width:auto!important;
+    max-width:100%!important;
+  }
+  html body .main::before{ content:none!important; }
+}
