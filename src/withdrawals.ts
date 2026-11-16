@@ -1,4 +1,4 @@
-﻿import {
+import {
   Connection,
   Keypair,
   PublicKey,
@@ -107,10 +107,10 @@ export async function requestWithdrawal(
     const status = source === 'rewards' ? 'approved' : 'requested';
 
     const row = await c.query<{ id: string }>(
-      `insert into withdrawals (user_id, asset, address, usd_amount, fee, status, requested_by, approved_by)
-       values ($1, $2, $3, $4, $5, $6, $1, $7)
+      `insert into withdrawals (user_id, asset, address, usd_amount, fee, status, requested_by, approved_by, source)
+       values ($1, $2, $3, $4, $5, $6, $1, $7, $8)
        returning id`,
-      [userId, asset, address, net.toString(), fee.toString(), status, status === 'approved' ? 'auto' : null],
+      [userId, asset, address, net.toString(), fee.toString(), status, status === 'approved' ? 'auto' : null, source],
     );
     const id = row.rows[0].id;
 
@@ -135,19 +135,21 @@ export async function approveWithdrawal(id: string, approver: string): Promise<b
 
 export async function cancelWithdrawal(id: string, userId: string): Promise<boolean> {
   return tx(async (c) => {
-    const w = await c.query<{ usd_amount: string }>(
-      `select usd_amount from withdrawals
-        where id = $1 and user_id = $2 and status in ('requested','approved','failed')
-        for update`,
+    const w = await c.query<{ usd_amount: string; fee: string; source: string }>(
+      `select usd_amount, fee, source from withdrawals
+        where id = $1 and user_id = $2 and status = 'requested' for update`,
       [id, userId],
     );
     if (w.rowCount === 0) return false;
 
-    const usd = BigInt(w.rows[0].usd_amount);
+    const r = w.rows[0];
+    const net = BigInt(r.usd_amount);
+    const fee = BigInt(r.fee);
     await c.query(`update withdrawals set status = 'cancelled' where id = $1`, [id]);
-    await post(c, 'WithdrawalCancelled', id, [
-      { code: '2010', owner: userId, amount: usd },
-      { code: '2000', owner: userId, amount: -usd },
+    await post(c, 'WithdrawalCancelled', `${id}#c${Date.now()}`, [
+      { code: '2010', owner: userId, amount: net },
+      { code: r.source === 'rewards' ? '2080' : '2000', owner: userId, amount: -(net + fee) },
+      { code: '4000', amount: fee },
     ]);
     return true;
   });
@@ -175,18 +177,24 @@ async function confirmSig(
   return 'timeout';
 }
 
-async function markFailed(id: string, msg: string): Promise<void> {
-  const dup = await pool.query(`select 1 from transactions where kind = 'WithdrawalFailed' and external_ref = $1`, [id]);
-  if (dup.rowCount) return;
-  const r = await pool.query(`select user_id, usd_amount from withdrawals where id = $1`, [id]);
+async function failAndRefund(id: string, msg: string): Promise<void> {
+  const r = await pool.query<{
+    user_id: string; usd_amount: string; fee: string; source: string; status: string;
+  }>(`select user_id, usd_amount, fee, source, status from withdrawals where id = $1`, [id]);
+
   const w = r.rows[0];
   if (!w) return;
-  const usd = BigInt(w.usd_amount);
+  if (w.status === 'failed' || w.status === 'sent' || w.status === 'paid' || w.status === 'cancelled') return;
+
+  const net = BigInt(w.usd_amount);
+  const fee = BigInt(w.fee);
+
   await tx(async (c) => {
     await c.query(`update withdrawals set status = 'failed', error = $2 where id = $1`, [id, msg.slice(0, 400)]);
-    await post(c, 'WithdrawalFailed', id, [
-      { code: '2010', owner: w.user_id, amount: usd },
-      { code: '2000', owner: w.user_id, amount: -usd },
+    await post(c, 'WithdrawalFailed', `${id}#f${Date.now()}`, [
+      { code: '2010', owner: w.user_id, amount: net },
+      { code: w.source === 'rewards' ? '2080' : '2000', owner: w.user_id, amount: -(net + fee) },
+      { code: '4000', amount: fee },
     ]);
   });
 }
@@ -239,12 +247,30 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
     }
   }
 
-  const claim = await pool.query(
-    `update withdrawals set status = 'sending', error = null
-      where id = $1 and status in ('approved','failed','sending')`,
-    [id],
-  );
-  if (claim.rowCount === 0) return { ok: false, error: 'race' };
+  const claimed = await tx(async (c) => {
+    const w = await c.query<{
+      user_id: string; usd_amount: string; fee: string; source: string; status: string;
+    }>(`select user_id, usd_amount, fee, source, status from withdrawals where id = $1 for update`, [id]);
+
+    const cur = w.rows[0];
+    if (!cur) return false;
+    if (!['approved', 'failed', 'sending'].includes(cur.status)) return false;
+
+    // a failed row was already refunded, so retrying must reserve it again
+    if (cur.status === 'failed') {
+      const net = BigInt(cur.usd_amount);
+      const fee = BigInt(cur.fee);
+      await post(c, 'WithdrawalRequested', `${id}#r${Date.now()}`, [
+        { code: cur.source === 'rewards' ? '2080' : '2000', owner: cur.user_id, amount: net + fee },
+        { code: '2010', owner: cur.user_id, amount: -net },
+        { code: '4000', amount: -fee },
+      ]);
+    }
+
+    await c.query(`update withdrawals set status = 'sending', error = null where id = $1`, [id]);
+    return true;
+  });
+  if (!claimed) return { ok: false, error: 'race' };
 
   const price = await solPriceMicro();
   const qty = qtyFor(row.asset, usd, price);
@@ -294,14 +320,14 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
         return { ok: true, sig: lastSig };
       }
       if (conf === 'reverted') {
-        await markFailed(id, `reverted:${lastSig}`);
+        await failAndRefund(id, `reverted:${lastSig}`);
         await pool.query('update withdrawals set sig = null where id = $1', [id]);
         return { ok: false, error: 'reverted', sig: lastSig };
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'payout_failed';
       if (attempt === MAX_ATTEMPTS) {
-        await markFailed(id, msg);
+        await failAndRefund(id, msg);
         return { ok: false, error: msg, sig: lastSig ?? undefined };
       }
     }
@@ -316,7 +342,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
     }
   }
 
-  await markFailed(id, 'not_confirmed_after_attempts');
+  await failAndRefund(id, 'not_confirmed_after_attempts');
   return { ok: false, error: 'not_confirmed', sig: lastSig ?? undefined };
 }
 
