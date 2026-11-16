@@ -557,3 +557,6 @@
 .bell i{position:absolute;top:6px;right:6px;width:5px;height:5px;border-radius:50%;background:#ff4d6d}
 @media (max-width:400px){.bell{width:28px;height:28px}}
 @media (max-width:900px){#resCard{display:block !important;position:static !important;width:100% !important;height:auto !important;max-height:none !important;min-height:0 !important;overflow:visible !important;margin:0 0 10px !important;padding:16px 14px !important;border-radius:0 !important;border-left:0 !important;border-right:0 !important;border-top:0 !important}}
+html.boot{background:#0a0a0b}
+html.boot body{visibility:hidden}
+@media (max-width:900px){.side .robot-card{display:flex !important;flex:0 0 auto !important;align-items:center !important;padding:6px 10px !important;margin:0 !important;border:0 !important;border-left:1px solid rgba(255,255,255,.1) !important;border-radius:0 !important;background:transparent !important}.side .robot-card video{width:44px !important;height:44px !important;object-fit:cover;border-radius:6px}.side .robot-card p{display:none !important}}
