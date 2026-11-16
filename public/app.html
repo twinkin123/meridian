@@ -51,6 +51,11 @@
             </div>
           </div>
 
+          <div class="card">
+            <span class="lbl">Notifications</span>
+            <ul class="list" id="notes"><li class="empty">Loading...</li></ul>
+          </div>
+
           <div class="stats">
             <div class="stat"><span class="lbl">Available</span><b id="avail">$0.00</b></div>
             <div class="stat"><span class="lbl">Pending</span><b id="pend">$0.00</b></div><div class="stat"><span class="lbl">Locked</span><b id="locked">$0.00</b></div><div class="stat"><span class="lbl">Rewards</span><b id="rw">$0.00</b></div>
@@ -271,6 +276,15 @@
   document.querySelectorAll('[data-goto]').forEach(function(b){
     b.addEventListener('click', function(){ go(b.dataset.goto); });
   });
+  document.querySelectorAll('.side a').forEach(function(a){
+    a.addEventListener('click', function(){
+      var id = 'p-' + (a.getAttribute('href') || '').replace('#', '');
+      if (id === 'p-history') { loadHistory(); loadSettlements(); loadDeposits(); }
+      if (id === 'p-addresses') loadAddresses();
+      if (id === 'p-dashboard') loadNotes();
+    });
+  });
+
   function go(id){
     document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('on', p.id === id); });
     document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.toggle('on', n.dataset.panel === id); });
@@ -351,6 +365,7 @@
       var rh = document.getElementById('calcHint');
       if (rh) rh.textContent = '30-day projection at the last applied rate of ' + (state.rateBp / 100).toFixed(2) + '%, less the 15% fee. An illustration, not advice.';
       dRun();
+      loadNotes();
     } catch (_) {}
   }
 
@@ -407,6 +422,19 @@ setInterval(tickPend, 1000);
     } catch (_) { el.innerHTML = '<li class="empty">Could not load settlements.</li>'; }
   }
 
+  async function loadNotes(){
+    var el = document.getElementById('notes');
+    if (!el) return;
+    try {
+      var r = await fetch('/wallet/notifications').then(function(x){ return x.json(); });
+      var rows = (r.notifications || []).slice(0, 5);
+      if (!rows.length) { el.innerHTML = '<li class="empty">Nothing yet.</li>'; return; }
+      el.innerHTML = rows.map(function(n){ return '<li><div>' + n.body + '<span class="sub">' + new Date(n.created_at).toLocaleString() + '</span></div>' + (n.read_at ? '' : '<span class="pill">new</span>') + '</li>'; }).join('');
+      if (rows.some(function(n){ return !n.read_at; })) fetch('/wallet/notifications/read', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+    } catch (_) { el.innerHTML = '<li class="empty">Could not load.</li>'; }
+  }
+
+
   async function loadDeposits(){
     var el = document.getElementById('deps');
     if (!el) return;
@@ -418,7 +446,7 @@ setInterval(tickPend, 1000);
       el.innerHTML = rows.map(function(d){
         var out;
         if (d.released_at) out = '<span class="pill ok">released</span>';
-        else if (d.claim_requested_at) out = '<span class="pill">awaiting approval</span>';
+        else if (d.claim_requested_at) out = '<span class="pill">awaiting approval</span> <button class="btn line" data-claim-cancel=' + d.id + ' type="button" style="width:auto;padding:4px 12px">Cancel</button>';
         else if (new Date(d.unlock_at) <= new Date()) out = '<button class="btn line" data-claim=' + d.id + ' type="button">Claim</button>';
         else out = '<span class="pill">locked</span>';
         return '<li><div><b>' + money(d.usd_at_det) + '</b> ' + d.asset + '<span class="sub">unlocks ' + new Date(d.unlock_at).toLocaleString() + '</span></div>' + out + '</li>';
@@ -454,6 +482,15 @@ setInterval(tickPend, 1000);
 
   document.addEventListener('click', function(e){
     var b = e.target.closest('[data-claim]');
+    var c = e.target.closest('[data-claim-cancel]');
+    if (c) {
+      c.disabled = true; c.textContent = 'Cancelling...';
+      fetch('/wallet/deposits/' + c.dataset.claimCancel + '/claim/cancel', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })
+        .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ return { ok: r.ok, j: j }; }); })
+        .then(function(res){ if (!res.ok) { c.textContent = res.j.error || 'failed'; c.disabled = false; return; } loadDeposits(); })
+        .catch(function(){ c.textContent = 'failed'; c.disabled = false; });
+      return;
+    }
     if (!b) return;
     b.disabled = true; b.textContent = 'Requesting...';
     fetch('/wallet/deposits/' + b.dataset.claim + '/claim', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })
@@ -559,10 +596,11 @@ setInterval(tickPend, 1000);
     var now = new Date();
     var next = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1);
     var left = Math.max(0, next - now.getTime());
-    document.getElementById('cH').textContent = String(Math.floor(left / 3600000)).padStart(2, '0');
-    document.getElementById('cM').textContent = String(Math.floor(left / 60000) % 60).padStart(2, '0');
-    document.getElementById('cS').textContent = String(Math.floor(left / 1000) % 60).padStart(2, '0');
-    document.getElementById('ringProg').setAttribute('stroke-dashoffset', String(327 * (1 - left / 86400000)));
+    var h = document.getElementById('cH'), m = document.getElementById('cM'), s = document.getElementById('cS'), ring = document.getElementById('ringProg');
+    if (h) h.textContent = String(Math.floor(left / 3600000)).padStart(2, '0');
+    if (m) m.textContent = String(Math.floor(left / 60000) % 60).padStart(2, '0');
+    if (s) s.textContent = String(Math.floor(left / 1000) % 60).padStart(2, '0');
+    if (ring) ring.setAttribute('stroke-dashoffset', String(327 * (1 - left / 86400000)));
   }
 
   var v = document.querySelector('.robot-card video');

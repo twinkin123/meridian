@@ -12,6 +12,7 @@ import { runReferral } from './jobs/referral.js';
 import { releaseDue } from './vesting.js';
 import { requireUser } from './http/mw/session.js';
 import { pruneAuth } from './auth.js';
+import { expireClaims } from './locks.js';
 import { one, close } from './db.js';
 
 const port = Number(process.env.PORT ?? 3000);
@@ -80,6 +81,7 @@ const reconTimer = setInterval(() => {
 
 const pruneTimer = setInterval(() => {
   pruneAuth().catch((e) => console.error('prune', e));
+  expireClaims().catch((e) => console.error('expireClaims', e));
 }, 6 * 60 * 60 * 1000);
 
 const server = app.listen(port, () => console.log(`listening on ${port}`));

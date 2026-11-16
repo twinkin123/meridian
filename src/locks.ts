@@ -1,3 +1,4 @@
+import type { Client } from 'pg';
 import { pool, tx } from './db.js';
 import { post } from './ledger/post.js';
 
@@ -44,8 +45,55 @@ export async function approveClaim(depositId: string): Promise<boolean> {
       { code: '2070', owner: row.user_id, amount },
       { code: '2000', owner: row.user_id, amount: -amount },
     ]);
+    await notify(c, row.user_id, 'claim_approved', (Number(amount) / 1e6).toFixed(2) + ' USD unlocked and available to withdraw.');
     return true;
   });
+}
+
+async function notify(c: Client, userId: string, kind: string, body: string): Promise<void> {
+  await c.query(`insert into notifications (user_id, kind, body) values ($1, $2, $3)`, [userId, kind, body]);
+}
+
+/** How long a claim request stands before it lapses back to claimable. */
+export const CLAIM_TTL_HOURS = 72;
+
+/** User withdraws their own pending claim request. */
+export async function cancelClaim(userId: string, depositId: string): Promise<boolean> {
+  const r = await pool.query(
+    `update deposits set claim_requested_at = null
+      where id = $1 and user_id = $2 and status = 'locked'
+        and released_at is null and claim_requested_at is not null returning id`,
+    [depositId, userId],
+  );
+  return (r.rowCount ?? 0) > 0;
+}
+
+/** Admin rejects a pending claim, with an optional reason shown to the user. */
+export async function rejectClaim(depositId: string, reason: string | null): Promise<boolean> {
+  return tx(async (c) => {
+    const r = await c.query<{ user_id: string; usd_at_det: string }>(
+      `update deposits
+          set claim_requested_at = null, claim_rejected_at = now(), claim_reject_reason = $2
+        where id = $1 and status = 'locked' and released_at is null
+          and claim_requested_at is not null returning user_id, usd_at_det`,
+      [depositId, reason],
+    );
+    if (r.rowCount === 0) return false;
+    const row = r.rows[0];
+    await notify(c, row.user_id, 'claim_rejected',
+      `Your unlock request for ${(Number(row.usd_at_det) / 1e6).toFixed(2)} USD was declined${reason ? ': ' + reason : ''}.`);
+    return true;
+  });
+}
+
+/** Lapsed claim requests fall back to claimable so nothing hangs forever. */
+export async function expireClaims(): Promise<number> {
+  const r = await pool.query(
+    `update deposits set claim_requested_at = null
+      where claim_requested_at is not null and released_at is null
+        and claim_requested_at < now() - interval '72 hours'`,
+  );
+  return r.rowCount ?? 0;
 }
 
 export type CombineResult =

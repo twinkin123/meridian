@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { runSweep, treasuryAddress, BATCH } from './sweeps.js';
-import { approveClaim } from './locks.js';
+import { approveClaim, rejectClaim } from './locks.js';
 import { approveWithdrawal, payoutWithdrawal } from './withdrawals.js';
 import { runRecon, latestRuns, freezeLevel, setFreeze } from './recon.js';
 import { pool } from './db.js';
@@ -83,6 +83,21 @@ adminRouter.post('/claims/:id/approve', async (req, res) => {
   const ok = await approveClaim(req.params.id);
   if (!ok) return res.status(409).json({ error: 'not_pending' });
   res.json({ ok: true });
+});
+
+adminRouter.post('/claims/:id/reject', async (req, res) => {
+  const reason = typeof req.body?.reason === 'string' ? req.body.reason.slice(0, 200) : null;
+  const ok = await rejectClaim(req.params.id, reason);
+  if (!ok) return res.status(409).json({ error: 'not_pending' });
+  res.json({ ok: true });
+});
+
+adminRouter.get('/deposits', async (_req, res) => {
+  const { rows } = await pool.query(
+    `select id, user_id, asset, usd_at_det, status, unlock_at, claim_requested_at, released_at, created_at
+       from deposits order by created_at desc limit 100`,
+  );
+  res.json({ deposits: rows });
 });
 
 adminRouter.post('/withdrawals/:id/approve', async (req, res) => {

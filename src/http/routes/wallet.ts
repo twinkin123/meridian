@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { requireUser } from '../mw/session.js';
 import { one, pool, tx } from '../../db.js';
 import { freezeLevel } from '../../recon.js';
-import { requestClaim, combineHeld, MIN_DEPOSIT } from '../../locks.js';
+import { requestClaim, cancelClaim, combineHeld, MIN_DEPOSIT } from '../../locks.js';
 import {
   requestWithdrawal, cancelWithdrawal, computeCap, MIN_WITHDRAW, NEW_ADDR_CAP,
 } from '../../withdrawals.js'; import { post } from '../../ledger/post.js';
@@ -82,6 +82,27 @@ wallet.post('/claim', requireUser, async (req, res) => {
   }
   res.json({ ok: true, locked: out.amount.toString() });
 });
+  wallet.post('/deposits/:id/claim/cancel', requireUser, async (req, res) => {
+    const ok = await cancelClaim(req.userId!, req.params.id);
+    if (!ok) return res.status(409).json({ error: 'not_pending' });
+    res.json({ ok: true });
+  });
+
+  wallet.get('/notifications', requireUser, async (req, res) => {
+    const { rows } = await pool.query(
+      `select id, kind, body, created_at, read_at from notifications
+        where user_id = $1 order by created_at desc limit 20`,
+      [req.userId!],
+    );
+    res.json({ notifications: rows });
+  });
+
+  wallet.post('/notifications/read', requireUser, async (req, res) => {
+    await pool.query(`update notifications set read_at = now() where user_id = $1 and read_at is null`, [req.userId!]);
+    res.json({ ok: true });
+  });
+
+
 wallet.post('/withdraw', requireUser, async (req, res) => {
   const uid = req.userId!;
   if ((await freezeLevel()) >= 2) return res.status(503).json({ error: 'frozen' });
