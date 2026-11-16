@@ -382,3 +382,5 @@ table.res th{padding-right:9px}
 .top-right #logout{background:#6d3bf5;border-color:#6d3bf5;color:#fff;font-weight:600}
 .top-right #logout:hover{background:#7d4dff;border-color:#7d4dff;color:#fff}
 .top-right a.ghost{display:none}
+.top-right #logout{background:transparent !important;border:1px solid #e5484d !important;color:#e5484d !important;font-weight:600}
+.top-right #logout:hover{background:rgba(229,72,77,.12) !important;border-color:#ff6b6b !important;color:#ff6b6b !important}
