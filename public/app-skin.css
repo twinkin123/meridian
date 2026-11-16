@@ -460,3 +460,11 @@ table.res th{padding-right:9px}
 .notes-inline .list li:last-child{border-bottom:0}
 .notes-inline .list li>div{flex:1;min-width:0}
 .notes-inline .list .sub{display:block;font-size:11px;color:var(--mut2,#8a8a9d);margin-top:2px}
+
+/* everything black */
+html body,
+html body .top, html body .side, html body .tickers, html body .tk,
+html body .main, html body .card, html body .stat, html body .stats,
+html body .panel, html body .rainbow::before{
+  background:#000!important;
+}

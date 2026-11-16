@@ -581,3 +581,11 @@ html.boot body{visibility:hidden}
 @media (max-width: 900px){
   .rainbow::before{ background:#000!important; }
 }
+
+/* everything black */
+html body,
+html body .top, html body .side, html body .tickers, html body .tk,
+html body .main, html body .card, html body .stat, html body .stats,
+html body .panel, html body .rainbow::before{
+  background:#000!important;
+}
