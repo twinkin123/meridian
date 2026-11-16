@@ -905,3 +905,16 @@ html body .main .stats {
   margin-left: 18px !important;
   margin-right: 18px !important;
 }
+
+/* v81 - buttons full width to match the card row, stats back to column edge */
+html body .main .stats {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+html body #claimBtn,
+html body #rwOut {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 0 10px 0 !important;
+  text-align: center !important;
+}
