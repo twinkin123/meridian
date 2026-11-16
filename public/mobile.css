@@ -280,3 +280,18 @@
   }
   .side a{ touch-action: pan-x !important; }
 }
+
+/* claim button */
+.claim{
+  display:block; width:100%;
+  margin:0 0 10px !important;
+  padding:13px 16px;
+  border:1px solid #6d3bf5;
+  border-radius:8px;
+  background:#6d3bf5;
+  color:#0a0a0b;
+  font:inherit; font-size:13px; font-weight:700; letter-spacing:.02em;
+  cursor:pointer;
+}
+.claim:hover{ filter:brightness(1.08); }
+.claim:disabled{ opacity:.55; cursor:not-allowed; }

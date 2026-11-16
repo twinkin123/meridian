@@ -154,3 +154,23 @@
     window.scrollTo(0, 0);
   }, true);
 })();
+
+/* claim button */
+(function(){
+  var b = document.getElementById('claimBtn');
+  if (!b) return;
+  var note = document.getElementById('heldNote');
+  b.addEventListener('click', function(){
+    var label = b.textContent;
+    b.disabled = true;
+    b.textContent = 'Claiming...';
+    fetch('/wallet/claim', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ return { ok: r.ok, j: j }; }); })
+      .then(function(res){
+        if (note) note.textContent = res.ok ? 'Claimed to your balance.' : 'Nothing to claim yet.';
+        if (res.ok) setTimeout(function(){ location.reload(); }, 800);
+      })
+      .catch(function(){ if (note) note.textContent = 'Network error. Try again.'; })
+      .finally(function(){ b.disabled = false; b.textContent = label; });
+  });
+})();
