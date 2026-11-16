@@ -1,4 +1,4 @@
-/* mobile.css - global fixes + small-screen layout. Loaded last. */
+﻿/* mobile.css - global fixes + small-screen layout. Loaded last. */
 
 /* nav icons: glyph coverage is unreliable, go text-only */
 .side a .ico, .side .ico{ display:none !important; }
@@ -538,7 +538,7 @@
     overflow:hidden;
   }
 }
-@media (min-width:901px){html,body{height:100%!important;overflow:hidden!important}body{display:flex!important;flex-direction:column!important}.top{position:static!important;flex:0 0 auto!important}.shell{flex:1 1 auto!important;min-height:0!important;height:auto!important;overflow:hidden!important;align-items:stretch!important}.side{position:static!important;top:auto!important;height:auto!important;align-self:stretch!important;overflow-y:auto!important;overflow-x:hidden!important}.main{height:auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain}}
+@media (min-width:901px){html,body{height:100%!important;overflow:hidden!important}body{display:flex!important;flex-direction:column!important}.top{position:relative!important;flex:0 0 auto!important}.shell{flex:1 1 auto!important;min-height:0!important;height:auto!important;overflow:hidden!important;align-items:stretch!important}.side{position:static!important;top:auto!important;height:auto!important;align-self:stretch!important;overflow-y:auto!important;overflow-x:hidden!important}.main{height:auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain}}
 .res-sub{display:none !important}
 .res-date{display:block;margin-top:3px;font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#8a8a9d}
 .res-head{align-items:start !important}
@@ -562,3 +562,4 @@ html.boot body{visibility:hidden}
 @media (max-width:900px){.side .robot-card{display:flex !important;flex:0 0 auto !important;align-items:center !important;padding:6px 10px !important;margin:0 !important;border:0 !important;border-left:1px solid rgba(255,255,255,.1) !important;border-radius:0 !important;background:transparent !important}.side .robot-card video{width:44px !important;height:44px !important;object-fit:cover;border-radius:6px}.side .robot-card p{display:none !important}}
 .robot-card video{opacity:0;transition:opacity .22s ease}
 .robot-card video.live{opacity:1}
+
