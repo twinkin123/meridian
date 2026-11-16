@@ -1,10 +1,11 @@
-import express from 'express';
+﻿import express from 'express';
 import cookieParser from 'cookie-parser';
 import { join } from 'node:path';
 import { health } from './http/health.js';
 import { auth } from './http/routes/auth.js';
 import { webhooks } from './http/routes/webhooks.js';
 import { wallet } from './http/routes/wallet.js';
+import { results } from './http/routes/results.js';
 import { adminRouter } from './admin.js';
 import { runRecon } from './recon.js';
 import { runDailyCredit } from './jobs/daily.js';
@@ -18,8 +19,11 @@ import { one, close } from './db.js';
 const port = Number(process.env.PORT ?? 3000);
 const app = express();
 
+app.set('trust proxy', 1);
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
+
+app.use('/results', results);
 
 app.get('/health', async (_req, res) => {
   const h = await health();
@@ -32,67 +36,62 @@ app.use('/wallet', wallet);
 app.use('/admin', adminRouter);
 
 app.get('/me', requireUser, async (req, res) => {
-  const u = await one<{
-    email: string;
-    deposit_addr: string;
-    is_admin: boolean;
-    must_change_pw: boolean;
-  }>('select email, deposit_addr, is_admin, must_change_pw from users where id = $1', [req.userId]);
-  res.json({
-    email: u.email,
-    depositAddress: u.deposit_addr,
-    isAdmin: u.is_admin === true,
-    mustChange: u.must_change_pw === true,
-  });
+  const u = await one<{ email: string; deposit_addr: string }>(
+    `select email, deposit_addr from users where id = $1`,
+    [req.userId],
+  );
+  res.json({ email: u.email, depositAddress: u.deposit_addr });
 });
 
-const publicDir = join(process.cwd(), 'public');
-// HTML must revalidate on every navigation, including Back, or a stale dashboard
-// renders over a dead session. send() leaves an existing Cache-Control alone.
+const pub = join(process.cwd(), 'public');
+app.use(express.static(pub, { extensions: ['html'], maxAge: '5m' }));
+
 app.use((req, res, next) => {
-  if (req.path === '/' || req.path.endsWith('.html')) {
-    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
-  }
-  next();
-});
-app.use(express.static(publicDir, { extensions: ['html'] }));
-
-app.use((_req, res) => {
-  res.status(404).sendFile(join(publicDir, 'index.html'));
+  if (req.method !== 'GET') return next();
+  if (req.path.startsWith('/api')) return next();
+  res.sendFile(join(pub, 'index.html'));
 });
 
-const referralTimer = setInterval(() => {
+const timers: NodeJS.Timeout[] = [];
+
+function every(ms: number, fn: () => Promise<unknown>, label: string): void {
+  const tick = () => {
+    void fn().catch((e) => console.error(label, e instanceof Error ? e.message : e));
+  };
+  timers.push(setInterval(tick, ms));
+}
+
+function scheduleDailyCredit(): void {
   const now = new Date();
-  if (now.getUTCDate() === 0 && now.getUTCHours() === 0) runReferral().catch((e) => console.error('referral', e));
-}, 30 * 60 * 1000);
+  const next = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    0, 15, 0, 0,
+  ));
+  if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
 
-const creditTimer = setInterval(() => {
-  const now = new Date();
-  if (now.getUTCHours() === 0) runDailyCredit(now).catch((e) => console.error('credit', e));
-}, 5 * 60 * 1000);
+  setTimeout(() => {
+    void runDailyCredit().catch((e) => console.error('credit', e));
+    timers.push(setInterval(() => {
+      void runDailyCredit().catch((e) => console.error('credit', e));
+    }, 24 * 60 * 60 * 1000));
+  }, next.getTime() - now.getTime());
+}
 
-const vestTimer = setInterval(() => {
-  releaseDue().catch((e) => console.error('vesting', e));
-}, 60 * 1000);
-
-const reconTimer = setInterval(() => {
-  runRecon('cron').catch((e) => console.error('recon', e));
-}, 15 * 60 * 1000);
-
-const pruneTimer = setInterval(() => {
-  pruneAuth().catch((e) => console.error('prune', e));
-  expireClaims().catch((e) => console.error('expireClaims', e));
-}, 6 * 60 * 60 * 1000);
-
-const server = app.listen(port, () => console.log(`listening on ${port}`));
+const server = app.listen(port, () => {
+  console.log(`listening on ${port}`);
+  every(15 * 60 * 1000, runRecon, 'recon');
+  every(60 * 1000, releaseDue, 'vesting');
+  every(60 * 1000, expireClaims, 'claims');
+  every(5 * 60 * 1000, runReferral, 'referral');
+  every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
+  scheduleDailyCredit();
+});
 
 for (const sig of ['SIGTERM', 'SIGINT'] as const) {
   process.on(sig, async () => {
-    clearInterval(vestTimer);
-    clearInterval(reconTimer);
-    clearInterval(pruneTimer);
-    clearInterval(creditTimer);
-    clearInterval(referralTimer);
+    for (const t of timers) clearInterval(t);
     server.close();
     await close();
     process.exit(0);
