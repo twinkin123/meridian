@@ -468,3 +468,15 @@ html body .main, html body .card, html body .stat, html body .stats,
 html body .panel, html body .rainbow::before{
   background:#000!important;
 }
+
+/* rainbow rim wins over the black fill */
+html body .card.rainbow{
+  background:linear-gradient(115deg,#7c5cff,#22d3ee,#2fd48a,#eab308,#f97316,#ef4444)!important;
+}
+html body .card.rainbow::before{ background:#000!important; }
+
+/* rainbow rim wins over the black fill */
+html body .card.rainbow{
+  background:linear-gradient(115deg,#7c5cff,#22d3ee,#2fd48a,#eab308,#f97316,#ef4444)!important;
+}
+html body .card.rainbow::before{ background:#000!important; }
