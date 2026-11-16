@@ -575,3 +575,5 @@ html.boot body{visibility:hidden}
 @media (min-width:901px){ .navbox .robot-card video{display:block !important} }
 @media (max-width:900px){ .navbox .robot-card img.robot-still{width:100%;height:auto;display:block;border-radius:10px} }
 
+
+@media (max-width:900px){ .shell .side .robot-card{display:none !important} }
