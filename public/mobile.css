@@ -265,3 +265,18 @@
   }
   .panel, .grid, .grid > div{ overflow: visible !important; height: auto !important; }
 }
+
+/* nav strip scrolls sideways on its own */
+@media (max-width: 900px){
+  .side{
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+    white-space: nowrap !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .side a{ touch-action: pan-x !important; }
+}
