@@ -507,3 +507,4 @@ img,video{display:block;max-width:100%}
 .robot-corner{mix-blend-mode:normal !important}
 .robot-corner img{filter:drop-shadow(0 6px 16px rgba(0,0,0,.55))}
 .robot-corner{-webkit-mask-image:radial-gradient(ellipse 46% 50% at 50% 52%,#000 62%,transparent 96%) !important;mask-image:radial-gradient(ellipse 46% 50% at 50% 52%,#000 62%,transparent 96%) !important}
+.robot-corner{-webkit-mask-image:radial-gradient(ellipse 58% 58% at 50% 46%,#000 84%,transparent 100%) !important;mask-image:radial-gradient(ellipse 58% 58% at 50% 46%,#000 84%,transparent 100%) !important}
