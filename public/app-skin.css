@@ -405,3 +405,9 @@ table.res th{padding-right:9px}
 .grid{align-items:stretch !important}
 .grid > div:last-child{display:flex !important;flex-direction:column !important}
 .grid > div:last-child > .card:last-child{flex:1 1 auto !important}
+
+/* referral stats: three across, no orphan row */
+.ref-stats{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+.ref-stats > div{padding:10px !important}
+.ref-stats b{font-size:14px !important}
+.ref-card .ref-ladder{margin-top:2px !important}
