@@ -58,14 +58,14 @@
             <div class="stat"><span class="lbl">Last rate</span><b id="rate">-</b></div>
           </div>
 
-          <button class="btn claim" id="claimBtn" type="button">Claim</button>
+          <button class="btn claim" id="claimBtn" type="button" disabled>Claim held</button>
         <button class="btn line" id="rwOut" type="button" style="display:none;width:100%;margin-bottom:10px">Withdraw rewards</button>
 
 
 
           <div class="card">
             <span class="lbl">Your deposit address</span>
-            <p class="hint">USDC or SOL on Solana only. $10 minimum, anything under is held.</p>
+            <p class="hint">USDC or SOL on Solana only. $10 minimum, anything under $10 is held until it reaches $10, then locks for 30 days.</p>
             <div class="addr">
               <code id="addr"></code>
               <button class="btn" id="copy" type="button">Copy</button>
@@ -331,7 +331,10 @@
       document.getElementById('rwOut').style.display = BigInt(state.rw) > 0n ? 'block' : 'none';
       document.getElementById('total').textContent = money((BigInt(state.balance) + BigInt(state.held) + BigInt(state.pend) + BigInt(state.locked) + BigInt(state.rw)).toString());
       var note = 'No held deposits';
-      if (BigInt(state.held) > 0n) note = money(state.held) + ' held until it reaches $10';
+      var cb = document.getElementById('claimBtn');
+      if (BigInt(state.held) > 0n && BigInt(state.held) < 10000000n) note = money(state.held) + ' held - needs $10 in total before it can lock';
+      if (BigInt(state.held) >= 10000000n) note = money(state.held) + ' held - claim to lock it for 30 days';
+      if (cb) cb.disabled = BigInt(state.held) < 10000000n;
       if (BigInt(state.balance) > 0n && BigInt(state.balance) < 10000000n) note = 'Below $10. Withdraw the exact balance to close.';
       if (BigInt(state.pend) > 0n) {
         var ms = new Date(state.nextRel).getTime() - Date.now();
@@ -359,6 +362,19 @@
   document.getElementById('heldNote').textContent = money(state.pend) + ' releasing over 24h - next slice in ' + (mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm');
 }
 setInterval(tickPend, 1000);
+
+  var claimBtn = document.getElementById('claimBtn');
+  if (claimBtn) claimBtn.addEventListener('click', async function(){
+    claimBtn.disabled = true;
+    var note = document.getElementById('heldNote');
+    try {
+      var r = await fetch('/wallet/claim', { method: 'POST', headers: { 'content-type': 'application/json' } }).then(function(x){ return x.json(); });
+      if (r.ok) note.textContent = 'Locked ' + money(r.locked) + ' for 30 days';
+      else if (r.error === 'below_min') note.textContent = money(r.held) + ' held - needs ' + money(r.min) + ' total before it can lock';
+      else note.textContent = 'Nothing held to claim';
+    } catch (_) { note.textContent = 'failed'; }
+    await load();
+  });
 
   async function loadHistory(){
     var el = document.getElementById('hist');

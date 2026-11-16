@@ -1,8 +1,8 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import { requireUser } from '../mw/session.js';
 import { one, pool, tx } from '../../db.js';
 import { freezeLevel } from '../../recon.js';
-import { requestClaim } from '../../locks.js';
+import { requestClaim, combineHeld, MIN_DEPOSIT } from '../../locks.js';
 import {
   requestWithdrawal, cancelWithdrawal, computeCap, MIN_WITHDRAW, NEW_ADDR_CAP,
 } from '../../withdrawals.js'; import { post } from '../../ledger/post.js';
@@ -74,7 +74,14 @@ wallet.post('/deposits/:id/claim', requireUser, async (req, res) => {
   res.json({ ok: true });
 });
 
-wallet.post('/claim', requireUser, async (req, res) => { const uid = req.userId!; const out = await tx(async (t) => { const r = await t.query(`select coalesce((select balance from v_balance where user_id=$1 and code='2050'),0)::text h`, [uid]); const held = BigInt(r.rows[0].h); if (held <= 0n) return { moved: 0n }; await post(t, 'claim', uid, [{ code: '2050', owner: uid, amount: -held }, { code: '2000', owner: uid, amount: held }]); return { moved: held }; }); if (out.moved === 0n) return res.status(400).json({ error: 'nothing_to_claim' }); res.json({ claimed: out.moved.toString() }); });
+wallet.post('/claim', requireUser, async (req, res) => {
+  const out = await combineHeld(req.userId!);
+  if (out.state === 'nothing') return res.status(400).json({ error: 'nothing_to_claim' });
+  if (out.state === 'below_min') {
+    return res.status(400).json({ error: 'below_min', held: out.held.toString(), min: MIN_DEPOSIT.toString() });
+  }
+  res.json({ ok: true, locked: out.amount.toString() });
+});
 wallet.post('/withdraw', requireUser, async (req, res) => {
   const uid = req.userId!;
   if ((await freezeLevel()) >= 2) return res.status(503).json({ error: 'frozen' });
