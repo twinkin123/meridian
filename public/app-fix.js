@@ -135,3 +135,22 @@
     window.scrollTo(0, 0);
   }, true);
 })();
+
+/* belt-and-braces nav: capture taps so a reload can never swallow them */
+(function(){
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('.side a');
+    if (!a) return;
+    var h = a.getAttribute('href') || '';
+    var i = h.indexOf('#');
+    if (i < 0) return;
+    var id = 'p-' + h.slice(i + 1);
+    var t = document.getElementById(id);
+    if (!t) return;
+    e.preventDefault();
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('on', p.id === id); });
+    document.querySelectorAll('.side a').forEach(function(x){ x.classList.remove('on'); });
+    a.classList.add('on');
+    window.scrollTo(0, 0);
+  }, true);
+})();
