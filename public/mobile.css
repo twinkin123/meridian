@@ -565,3 +565,5 @@ html.boot body{visibility:hidden}
 
 @media (max-width:900px){.side .robot-card img.robot-still{position:static !important;width:44px !important;height:44px !important;object-fit:cover;border-radius:6px;opacity:1 !important}}
 .top-right a.ghost{display:none !important}
+.res th,.res td{padding-right:12px !important}
+.res th:last-child,.res td:last-child{padding-right:0 !important}

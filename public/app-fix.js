@@ -37,7 +37,7 @@
   function pick(n, r){ var a = COINS.slice(), o = []; for (var i=0;i<n;i++){ o.push(a.splice(Math.floor(r()*a.length),1)[0]); } return o; }
   function dec(v){ var d = 3 - Math.floor(Math.log10(Math.abs(v))); return Math.max(0, Math.min(8, d)); }
   function r4(v){ return +v.toFixed(dec(v)); }
-  function fmt(v){ return v.toFixed(dec(v)); }
+  function fmt(v){ if (v < 0.0001) return v.toExponential(2); return v.toFixed(dec(v)); }
   function step(v){ return Math.pow(10, -dec(v)); }
   function hhmm(m){ return pad(Math.floor(m/60)) + ':' + pad(m%60); }
   function sum(a){ return a.reduce(function(x, y){ return x + y; }, 0); }
@@ -194,6 +194,7 @@
   el.textContent = seen ? 'Welcome back' : 'Welcome';
   try { localStorage.setItem('mrd_seen', '1'); } catch (_) {}
 })();
+
 
 
 
