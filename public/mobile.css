@@ -825,21 +825,3 @@ html body .res-total{
 @media (max-width: 900px){
   html body .main{ padding-top:22px!important; }
 }
-
-@media (max-width: 900px){
-  html body .side{
-    padding:11px 14px!important;
-    min-height:54px!important;
-    align-items:center!important;
-  }
-  html body .tickers{ margin-bottom:14px!important; }
-  html body #claimBtn, html body #rwOut{
-    display:block!important;
-    width:auto!important;
-    margin:12px 18px!important;
-  }
-}
-
-@media (max-width: 900px){
-  html body .side{ margin-bottom:12px!important; }
-}
