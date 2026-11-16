@@ -81,3 +81,5 @@
 
 
 
+/* dock the hero robot into the corner instead of a second element */
+(function(){ var s = document.getElementById("robotStage"); if (!s) return; (function loop(){ s.classList.toggle("is-docked", window.scrollY > 220); requestAnimationFrame(loop); })(); })();
