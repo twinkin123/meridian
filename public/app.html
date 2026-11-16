@@ -826,14 +826,14 @@
 <script>
 (function(){
   var rc = document.querySelector('.robot-card');
-  var side = document.querySelector('.side');
+  var side = document.querySelector('.navbox');
   if (rc && side) side.appendChild(rc);
 })();
 </script>
 <script>
 (function(){
   var rc = document.querySelector('.robot-card');
-  var side = document.querySelector('.side');
+  var side = document.querySelector('.navbox');
   if (rc && side && rc.parentElement !== side) side.appendChild(rc);
 })();
 </script>
@@ -843,7 +843,7 @@
   if (t){ var c = t.closest('.card'); if (c) c.classList.add('rainbow'); }
 })();
 </script>
-<script src="app-fix.js?v=21" defer></script></body>
+<script src="app-fix.js?v=22" defer></script></body>
 </html>
 
 
