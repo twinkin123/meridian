@@ -501,3 +501,4 @@ img,video{display:block;max-width:100%}
 .robot-corner.on{opacity:1;transform:none}
 .robot-corner{mix-blend-mode:normal !important;object-fit:contain;border-radius:0}
 .robot-corner{mix-blend-mode:multiply !important;object-fit:cover !important;object-position:50% 42% !important;-webkit-mask-image:radial-gradient(ellipse 48% 48% at 50% 50%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse 48% 48% at 50% 50%,#000 72%,transparent 100%)}
+.robot-corner{mix-blend-mode:normal !important}
