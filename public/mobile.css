@@ -416,3 +416,15 @@
 
 /* greeting: align to the content column */
 .top .welcome{ left:240px !important; }
+
+/* claim button back to a normal button */
+.claim{
+  border:1px solid rgba(255,255,255,.22) !important;
+  border-radius:8px !important;
+  background:transparent !important;
+  color:#e9e6f5 !important;
+  font-weight:700 !important;
+}
+.claim:hover{ background:rgba(255,255,255,.06) !important; }
+.claim:active{ background:rgba(255,255,255,.1) !important; }
+.claim:disabled{ opacity:.55 !important; }
