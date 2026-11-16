@@ -609,3 +609,25 @@ html.boot body{visibility:hidden}
   .main .stat{ border-bottom:1px solid rgba(255,255,255,.07)!important; }
   [data-results]{ border:1px solid rgba(45,226,214,.35)!important; }
 }
+
+@media (max-width: 900px){
+  .main .card, .main .stat{
+    box-shadow:0 10px 22px -16px rgba(45,226,214,.55)!important;
+    border-left:1px solid rgba(45,226,214,.12)!important;
+    border-right:1px solid rgba(45,226,214,.12)!important;
+  }
+  #claimBtn, #rwOut{
+    box-shadow:0 8px 18px -14px rgba(120,205,255,.7)!important;
+  }
+}
+
+@media (max-width: 900px){
+  .main .card, .main .stat{
+    box-shadow:0 10px 22px -16px rgba(45,226,214,.55)!important;
+    border-left:1px solid rgba(45,226,214,.12)!important;
+    border-right:1px solid rgba(45,226,214,.12)!important;
+  }
+  #claimBtn, #rwOut{
+    box-shadow:0 8px 18px -14px rgba(120,205,255,.7)!important;
+  }
+}
