@@ -37,7 +37,7 @@ wallet.get('/withdrawals', requireUser, async (req, res) => {
   res.json({ withdrawals: rows });
 });
 
-wallet.post('/claim', requireUser, async (req, res) => { const uid = req.userId!; const out = await tx(async (t) => { const r = await t.query(`select coalesce((select balance from v_balance where user_id=$1 and code='2050'),0)::text h`, [uid]); const held = BigInt(r.rows[0].h); if (held <= 0n) return { moved: 0n }; await post(t, 'claim', uid, [{ code: '2050', owner: uid, amount: -held }, { code: '2000', owner: uid, amount: held }]); return { moved: held }; }); if (out.moved === 0n) return res.status(400).json({ error: 'nothing_to_claim' }); res.json({ claimed: out.moved.toString() }); });
+wallet.post('/claim', requireUser, async (req, res) => { const uid = req.userId!; const out = await tx(async (t) => { const r = await t.query(`select coalesce((select balance from v_balance where user_id=$1 and code='2050'),0)::text h`, [uid]); const held = BigInt(r.rows[0].h); if (held < MIN_WITHDRAW) return { moved: 0n }; await post(t, 'claim', uid, [{ code: '2050', owner: uid, amount: -held }, { code: '2000', owner: uid, amount: held }]); return { moved: held }; }); if (out.moved === 0n) return res.status(400).json({ error: 'nothing_to_claim' }); res.json({ claimed: out.moved.toString() }); });
 wallet.post('/withdraw', requireUser, async (req, res) => {
   const uid = req.userId!;
   if ((await freezeLevel()) >= 2) return res.status(503).json({ error: 'frozen' });
@@ -75,6 +75,7 @@ wallet.get('/cap', requireUser, async (req, res) => {
   const age = known ? Date.now() - new Date(seen.first_seen).getTime() : 0;
   res.json({ cap: computeCap(known, age, BigInt(r.b)).toString() });
 });
+
 
 
 
