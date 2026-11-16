@@ -393,3 +393,12 @@ table.res th{padding-right:9px}
 .tk .ic img{width:30px;height:30px;border-radius:50%;display:block}
 @keyframes tk-slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){.tickers-track{animation:none}}
+
+/* right column: compact referral card, no stretch */
+.grid{align-items:start!important}
+.grid>div{min-width:0!important}
+.ref-card{height:auto!important}
+.ref-ladder{display:flex!important;flex-direction:column!important;gap:6px!important;margin-top:6px}
+.ref-ladder>div{padding:10px 12px!important;border:1px solid var(--line)!important;border-radius:9px!important;background:var(--panel2)!important;align-items:center!important}
+.ref-ladder .t{color:var(--txt)!important;font-weight:600}
+.ref-ladder .s{color:var(--mut2)!important}
