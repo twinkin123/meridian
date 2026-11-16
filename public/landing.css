@@ -502,3 +502,4 @@ img,video{display:block;max-width:100%}
 .robot-corner{mix-blend-mode:normal !important;object-fit:contain;border-radius:0}
 .robot-corner{mix-blend-mode:multiply !important;object-fit:cover !important;object-position:50% 42% !important;-webkit-mask-image:radial-gradient(ellipse 48% 48% at 50% 50%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse 48% 48% at 50% 50%,#000 72%,transparent 100%)}
 .robot-corner{mix-blend-mode:normal !important}
+.robot-corner{-webkit-mask-image:radial-gradient(ellipse 58% 58% at 50% 46%,#000 84%,transparent 100%) !important;mask-image:radial-gradient(ellipse 58% 58% at 50% 46%,#000 84%,transparent 100%) !important;object-position:50% 50% !important}
