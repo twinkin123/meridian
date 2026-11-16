@@ -1,4 +1,4 @@
-/* landing-fix.js - keep the hero robot playing on iOS and Android. */
+﻿/* landing-fix.js - keep the hero robot playing on iOS and Android. */
 (function(){
   'use strict';
   var stage = document.getElementById('robotStage');
@@ -14,7 +14,7 @@
     v.setAttribute('muted', '');
     v.playsInline = true;
     v.setAttribute('playsinline', '');
-    v.setAttribute('webkit-playsinline', '');
+    v.setAttribute('webkit-playsinline', ''); v.setAttribute('autoplay', '');
     v.setAttribute('autoplay', '');
     v.loop = true;
     v.setAttribute('preload', 'auto');
@@ -44,7 +44,7 @@
     v.addEventListener('pause', function(){ setTimeout(go, 300); });
   });
 
-  go();
+  go(); setTimeout(go, 200); setTimeout(go, 700);
   requestAnimationFrame(go);
   setTimeout(go, 200);
   setTimeout(go, 700);
@@ -52,6 +52,6 @@
   document.addEventListener('touchstart', go, { passive: true });
   document.addEventListener('click', go);
   document.addEventListener('scroll', go, { passive: true });
-  document.addEventListener('visibilitychange', function(){ if (!document.hidden) go(); });
-  setInterval(function(){ if (!document.hidden) go(); }, 1500);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) go(); setTimeout(go, 200); setTimeout(go, 700); });
+  setInterval(function(){ if (!document.hidden) go(); setTimeout(go, 200); setTimeout(go, 700); }, 1500);
 })();
