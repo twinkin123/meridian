@@ -213,3 +213,16 @@
     overflow: visible !important;
   }
 }
+
+/* scroll: nothing on html/body is a scroll container */
+@media (max-width: 900px){
+  html, body{
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+  }
+  .side, .tickers{
+    -webkit-overflow-scrolling: auto !important;
+  }
+}
