@@ -795,3 +795,13 @@ html body .res-total{
   }
   html body .big{ font-size:30px!important; }
 }
+
+@media (max-width: 900px){
+  html body .main .card, html body .main .stat, html body .main .stats{
+    width:auto!important;
+    margin:12px 18px!important;
+    border-radius:10px!important;
+    border:1px solid rgba(255,255,255,.1)!important;
+    background:#0d0d10!important;
+  }
+}
