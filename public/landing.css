@@ -490,3 +490,4 @@ img,video{display:block;max-width:100%}
 
 
 
+.robot-frame video{pointer-events:auto;cursor:pointer}
