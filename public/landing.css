@@ -500,3 +500,4 @@ img,video{display:block;max-width:100%}
 .robot-corner{position:fixed;right:14px;bottom:14px;width:clamp(84px,16vw,120px);z-index:6;opacity:0;transform:translateY(12px);transition:opacity .28s ease,transform .28s ease;pointer-events:none;mix-blend-mode:multiply}
 .robot-corner.on{opacity:1;transform:none}
 .robot-corner{mix-blend-mode:normal !important;object-fit:contain;border-radius:0}
+.robot-corner{mix-blend-mode:multiply !important;object-fit:cover !important;object-position:50% 42% !important;-webkit-mask-image:radial-gradient(ellipse 48% 48% at 50% 50%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse 48% 48% at 50% 50%,#000 72%,transparent 100%)}
