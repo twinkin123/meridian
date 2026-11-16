@@ -1,0 +1,80 @@
+/* auth-skin.css — larger casing, thin border kept */
+
+.card,.panel,.box,.auth-card,.form-card,.form-wrap{
+  width:100%!important;
+  max-width:560px!important;
+  margin:0 auto!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+form{
+  width:100%!important;
+  max-width:560px!important;
+  margin:0 auto!important;
+  padding:48px 44px 44px!important;
+  border:1px solid var(--line)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
+  display:block!important;
+}
+
+form > *{max-width:100%!important;box-sizing:border-box!important}
+
+form .field,
+form > div{margin-bottom:24px!important}
+
+form label{
+  display:block!important;
+  margin:0 0 11px!important;
+  line-height:1.45!important;
+}
+
+/* bigger inner casings */
+form input,
+form select{
+  display:block!important;
+  width:100%!important;
+  height:60px!important;
+  padding:0 20px!important;
+  margin:0!important;
+  font-size:14.5px!important;
+  border-radius:12px!important;
+  box-sizing:border-box!important;
+}
+
+form input::placeholder{font-size:14.5px!important}
+
+/* helper line under a field */
+form .hint,
+form .small,
+form .muted{
+  display:block!important;
+  margin:10px 0 0!important;
+  font-size:12px!important;
+}
+
+form button,
+form .btn{
+  display:block!important;
+  width:100%!important;
+  height:58px!important;
+  margin-top:20px!important;
+  border-radius:12px!important;
+  font-size:14.5px!important;
+}
+
+form .foot,
+form .alt,
+form > small:last-child{
+  display:block!important;
+  margin:28px 0 0!important;
+  text-align:center!important;
+}

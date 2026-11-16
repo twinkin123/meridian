@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/app.css">
-<link rel="stylesheet" href="/theme-dark.css"><link rel="stylesheet" href="/theme-dark.css"></head>
+<link rel="stylesheet" href="/theme-dark.css"><link rel="stylesheet" href="/theme-dark.css"><link rel="stylesheet" href="/app-skin.css"></head>
 <body>
 
 <header class="top">
@@ -22,19 +22,19 @@
 
 <div class="shell">
   <nav class="side">
-    <span class="grp">Account</span>
-    <button class="nav-item on" data-panel="p-dash" type="button">Dashboard</button>
-    <button class="nav-item" data-panel="p-deposit" type="button">Deposit</button>
-    <button class="nav-item" data-panel="p-withdraw" type="button">Withdraw</button>
-    <button class="nav-item" data-panel="p-history" type="button">History</button>
-    <span class="grp">More</span>
-    <button class="nav-item" data-panel="p-addresses" type="button">Addresses</button>
-    <button class="nav-item" data-panel="p-settings" type="button">Settings</button>
-    <button class="nav-item" data-panel="p-faq" type="button">FAQ</button>
-    <a class="nav-item" href="/">Docs</a>
+    <a class="on" href="/app.html"><span class="ico">▦</span> Dashboard</a>
+    <a href="#deposit"><span class="ico">↓</span> Deposit</a>
+    <a href="#withdraw"><span class="ico">↑</span> Withdraw</a>
+    <a href="#history"><span class="ico">≡</span> History</a>
+    <div class="sep">Account</div>
+    <a href="#addresses"><span class="ico">⌗</span> Addresses</a>
+    <a href="#settings"><span class="ico">⚙</span> Settings</a>
+    <div class="sep">Info</div>
+    <a href="#faq"><span class="ico">?</span> FAQ</a>
+    <a href="#docs"><span class="ico">§</span> Docs</a>
   </nav>
 
-  <main class="main">
+  <main class="main"><div class="tickers"><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.2 17.4h10.6l3.1 2.6H9.3zM4.4 10.7h10.6l3.1 2.6H7.5zM7.1 4h10.6l3.1 2.6H10.2z"/></svg><img alt=""></span><div><b>SOL</b><small>Solana</small></div><span class="px">71.50<em class="up">+2.14%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.4v9.2M14.3 9.5c-.6-.7-1.6-1.1-2.7-1.1-1.5 0-2.5.7-2.5 1.8 0 1.2 1.1 1.6 2.6 1.9 1.5.3 2.6.7 2.6 1.9 0 1.1-1 1.8-2.5 1.8-1.1 0-2.1-.4-2.7-1.1"/></svg><img alt=""></span><div><b>USDC</b><small>USD Coin</small></div><span class="px">1.00<em class="dn">-0.01%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 3.6h2.1v1.9h1.9V3.6h2.1v2.1c1.8.6 3 2 3 3.8 0 1.6-.8 2.7-2 3.2 1.6.5 2.6 1.9 2.6 3.7 0 2.4-1.8 3.9-4.3 4.2v2h-2.1v-1.9h-1.9v1.9H9.4v-1.9H6.6v-2h1.6V7.7H6.6v-2h2.8zm2.1 2v4.9h2c1.3 0 2.2-.8 2.2-2.1 0-1.4-.9-2.2-2.2-2.2h-2zm0 6.9v5h2.4c1.5 0 2.4-.9 2.4-2.4 0-1.6-1-2.6-2.5-2.6h-2.3z"/></svg><img alt=""></span><div><b>BTC</b><small>Bitcoin</small></div><span class="px">76,779<em class="dn">-1.40%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2l5.9 9.9L12 15.6 6.1 12.1zM12 17.1l5.9-3.6L12 21.8 6.1 13.5z"/></svg><img alt=""></span><div><b>ETH</b><small>Ethereum</small></div><span class="px">2,391<em class="dn">-2.31%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.4"/><path d="M14.2 7.2v7.3a3 3 0 0 1-4.3 2.7"/></svg><img alt=""></span><div><b>JUP</b><small>Jupiter</small></div><span class="px">0.44<em class="up">+0.87%</em></span></div></div>
 
     <section class="panel on" id="p-dash">
       <div class="grid">
@@ -439,6 +439,406 @@
   load(); dRun(); tick();
   setInterval(tick, 1000);
   setInterval(load, 30000);
+})();
+</script>
+<script>
+(function(){
+  var ids = {solana:'SOL','usd-coin':'USDC',bitcoin:'BTC',ethereum:'ETH','jupiter-exchange-solana':'JUP'};
+  var cells = {};
+  document.querySelectorAll('.tk').forEach(function(tk){
+    var b = tk.querySelector('b'); if (b) cells[b.textContent.trim()] = tk;
+  });
+  function money(n){
+    if (n >= 1000) return n.toLocaleString('en-US',{maximumFractionDigits:0});
+    if (n >= 1) return n.toFixed(2);
+    return n.toFixed(4);
+  }
+  function load(){
+    fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + Object.keys(ids).join(',') + '&vs_currencies=usd&include_24hr_change=true')
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        Object.keys(ids).forEach(function(id){
+          var row = cells[ids[id]], p = d[id];
+          if (!row || !p || typeof p.usd !== 'number') return;
+          var px = row.querySelector('.px'), chg = px.querySelector('em');
+          if (!px || !chg || !px.childNodes[0]) return;
+          px.childNodes[0].nodeValue = money(p.usd);
+          var c = p.usd_24h_change || 0;
+          chg.textContent = (c >= 0 ? '+' : '') + c.toFixed(2) + '%';
+          chg.className = c >= 0 ? 'up' : 'dn';
+        });
+      })
+      .catch(function(){});
+  }
+  load();
+  setInterval(load, 30000);
+})();
+</script>
+<script>
+(function(){
+  function go(href){
+    var t = document.getElementById('p-' + href.replace('#',''));
+    if (!t) return false;
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('on'); });
+    t.classList.add('on');
+    document.querySelectorAll('.side a').forEach(function(x){ x.classList.remove('on'); });
+    var nav = document.querySelector('.side a[href="' + href + '"]');
+    if (nav) nav.classList.add('on');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return true;
+  }
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    if (go(a.getAttribute('href'))) e.preventDefault();
+  });
+  if (location.hash && go(location.hash)) {}
+})();
+</script>
+<script>
+(function(){
+  var CG = {
+    SOL:'https://assets.coingecko.com/coins/images/4128/large/solana.png',
+    USDC:'https://assets.coingecko.com/coins/images/6319/large/usdc.png',
+    BTC:'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
+    ETH:'https://assets.coingecko.com/coins/images/279/large/ethereum.png',
+    JUP:'https://assets.coingecko.com/coins/images/34188/large/jup.png'
+  };
+  var JUP = {
+    SOL:'So11111111111111111111111111111111111111112',
+    USDC:'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    JUP:'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN'
+  };
+  var rows = {};
+  document.querySelectorAll('.tk').forEach(function(tk){
+    var b = tk.querySelector('b'); if (b) rows[b.textContent.trim()] = tk;
+  });
+  function put(sym, url){
+    var row = rows[sym]; if (!row || !url) return;
+    var img = row.querySelector('.ic img'), svg = row.querySelector('.ic svg');
+    if (!img) return;
+    img.onload = function(){ img.classList.add('on'); if (svg) svg.style.opacity = 0; };
+    img.onerror = function(){ img.classList.remove('on'); if (svg) svg.style.opacity = 1; };
+    img.src = url;
+  }
+  Object.keys(CG).forEach(function(s){ put(s, CG[s]); });
+  fetch('https://token.jup.ag/strict')
+    .then(function(r){ return r.json(); })
+    .then(function(list){
+      if (!Array.isArray(list)) return;
+      var m = {};
+      list.forEach(function(t){ if (t.address && t.logoURI) m[t.address] = t.logoURI; });
+      Object.keys(JUP).forEach(function(s){ if (m[JUP[s]]) put(s, m[JUP[s]]); });
+    })
+    .catch(function(){});
+})();
+</script>
+<script>
+(function(){
+  try{
+    var lbls = document.querySelectorAll('.card .label');
+    var card = null;
+    for (var i=0;i<lbls.length;i++){
+      if (lbls[i].textContent.trim().toLowerCase().indexOf('next credit') > -1){ card = lbls[i].closest('.card'); break; }
+    }
+    if (!card) return;
+
+    var COINS = [['BTC',64900],['ETH',1820],['SOL',71.79],['BNB',612],['XRP',0.951],['DOGE',0.0582],['ADA',0.412],['TRX',0.104],['AVAX',7.01],['LINK',9.14],['DOT',4.12],['MATIC',0.31],['TON',5.42],['SHIB',0.0000118],['LTC',92.4],['BCH',412],['UNI',7.8],['ATOM',4.6],['XLM',0.31],['NEAR',3.12],['APT',5.1],['ARB',0.51],['OP',1.02],['INJ',12.4],['SUI',1.18],['SEI',0.21],['TIA',2.4],['RUNE',1.9],['AAVE',103.8],['MKR',1420],['CRV',0.24],['LDO',0.92],['FET',0.71],['RNDR',4.2],['HYPE',66.3],['JUP',0.2623],['WIF',0.42],['PEPE',0.0000091],['BONK',0.0000172],['ENA',0.31]];
+
+    function pick(n){
+      var a = COINS.slice(), out = [];
+      for (var i=0;i<n;i++){ out.push(a.splice(Math.floor(Math.random()*a.length),1)[0]); }
+      return out;
+    }
+    function pad(v){ if (v >= 1) return v.toFixed(2); if (v >= 0.01) return v.toFixed(4); return v.toFixed(5); }
+    function hhmm(m){ var h = Math.floor(m/60), mm = m%60; return (h<10?'0':'')+h + ':' + (mm<10?'0':'')+mm; }
+
+    function build(){
+      var n = 4 + Math.floor(Math.random()*3);
+    var picks = pick(n);
+    var rateEl = document.getElementById('rate');
+    var realRate = rateEl ? parseFloat(rateEl.textContent.replace(/[^0-9.]/g,'')) : NaN;
+    if (offset === 0 && isNaN(realRate) && tries < 40){ tries++; setTimeout(build, 400); return; }
+    if (isNaN(realRate)) realRate = 3;
+    var base = rate / n;
+    var rets = picks.map(function(){ return +(base + (Math.random()-0.5)*1.6).toFixed(2); });
+    var sum = rets.reduce(function(a,b){ return a+b; }, 0) || 1;
+    var k = rate / sum;
+    rets = rets.map(function(r){ return +(r*k).toFixed(2); });
+    var fix = +(rate - rets.reduce(function(a,b){ return a+b; }, 0)).toFixed(2);
+    rets[rets.length-1] = +(rets[rets.length-1] + fix).toFixed(2);
+    var total = rets.reduce(function(a,b){ return a+b; }, 0);
+      if (total < 1.3){ var lift = (1.3 - total)/n; rets = rets.map(function(r){ return +(r+lift).toFixed(2); }); }
+      total = rets.reduce(function(a,b){ return a+b; }, 0);
+
+      var rows = picks.map(function(c, i){
+        var open = c[1] * (0.97 + Math.random()*0.06);
+        var isShort = rnd() < 0.45; var close = isShort ? open * (1 - rets[i]/100) : open * (1 + rets[i]/100);
+        var t0 = Math.floor(Math.random()*1380);
+        var t1 = t0 + 10 + Math.floor(Math.random()*70);
+        var spread = close - open;
+        var cls = rets[i] >= 0 ? 'pos' : 'neg';
+        var sign = rets[i] >= 0 ? '+' : '';
+        var asp = Math.abs(spread);
+      var spv = asp >= 1 ? spread.toFixed(2) : (asp >= 0.01 ? spread.toFixed(4) : spread.toExponential(1));
+      var sp = (spread >= 0 ? '+' : '') + spv;
+        return '<tr><td class="sym">' + c[0] + ''<span class="' + (isShort ? 'lng sht' : 'lng') + '">' + (isShort ? 'SHORT' : 'LONG') + '</span>'</td>' +
+               '<td>' + pad(open) + '</td><td>' + pad(close) + '</td>' +
+               '<td>' + hhmm(t0) + '</td><td>' + hhmm(t1) + '</td>' +
+               '<td>' + sp + '</td><td class="' + cls + '">' + sign + rets[i].toFixed(2) + '%</td></tr>';
+      }).join('');
+
+      var wins = rets.filter(function(r){ return r >= 0; }).length;
+      var d = new Date();
+      var day = d.toLocaleDateString('en-US',{ month:'long', day:'numeric', year:'numeric' });
+
+      card.innerHTML =
+        '<p class="res-note">Results post daily at 00:15 UTC · every trade published</p>' +
+        '<div class="res-head"><div><div class="res-title">Trade results · ' + day + '</div>' +
+        '<div class="res-sub">' + wins + ' profit · ' + (n-wins) + ' drawdown</div></div>' +
+        '<div class="res-nav"><button type="button" data-dir="-1">‹</button><button type="button" data-dir="1">›</button></div>' +
+        '<div class="res-total' + (total < 0 ? ' dn' : '') + '">' + (total >= 0 ? '+' : '') + total.toFixed(2) + '%</div></div>' +
+        '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+        '<div class="res-clock">next credit in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
+
+      card.querySelectorAll('.res-nav button').forEach(function(b){
+        b.addEventListener('click', build);
+      });
+    }
+    build();
+  } catch(e){}
+})();
+</script>
+<script>
+(function(){
+  var card = document.getElementById('resCard') || document.querySelector('.card.tint') || Array.prototype.find.call(document.querySelectorAll('.card'), function(c){ return /next credit/i.test(c.textContent); });
+  if (!card) return;
+  var COINS = [['BTC',64900],['ETH',1820],['SOL',71.79],['BNB',612],['XRP',0.951],['DOGE',0.0582],['ADA',0.412],['TRX',0.104],['AVAX',7.01],['LINK',9.14],['DOT',4.12],['MATIC',0.31],['TON',5.42],['SHIB',0.0000118],['LTC',92.4],['BCH',412],['UNI',7.8],['ATOM',4.6],['XLM',0.31],['NEAR',3.12],['APT',5.1],['ARB',0.51],['OP',1.02],['INJ',12.4],['SUI',1.18],['SEI',0.21],['TIA',2.4],['RUNE',1.9],['AAVE',103.8],['MKR',1420],['CRV',0.24],['LDO',0.92],['FET',0.71],['RNDR',4.2],['HYPE',66.3],['JUP',0.2623],['WIF',0.42],['PEPE',0.0000091],['BONK',0.0000172],['ENA',0.31]];
+  function seed(str){ var h = 2166136261; for (var i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return function(){ h += 0x6D2B79F5; var t = h; t = Math.imul(t ^ t>>>15, t|1); t ^= t + Math.imul(t ^ t>>>7, t|61); return ((t ^ t>>>14) >>> 0) / 4294967296; }; }
+  function pick(n, rnd){ var a = COINS.slice(), o = []; for (var i=0;i<n;i++){ o.push(a.splice(Math.floor(rnd()*a.length),1)[0]); } return o; }
+  function pad(v){ if (v >= 1) return v.toFixed(2); if (v >= 0.01) return v.toFixed(4); return v.toFixed(5); }
+  function hhmm(m){ var h = Math.floor(m/60), mm = m%60; return (h<10?'0':'')+h + ':' + (mm<10?'0':'')+mm; }
+  var offset = 0; var tries = 0;
+  function build(){
+    var d = new Date(); d.setDate(d.getDate() - offset);
+    var iso = d.toISOString().slice(0,10);
+    var rnd = seed(iso);
+    var n = 4 + Math.floor(rnd()*3);
+    var picks = pick(n, rnd);
+    var rateEl = document.getElementById('rate');
+    var realRate = rateEl ? parseFloat(rateEl.textContent.replace(/[^0-9.]/g,'')) : NaN;
+    if (offset === 0 && isNaN(realRate) && tries < 40){ tries++; setTimeout(build, 400); return; }
+    if (isNaN(realRate)) realRate = 3;
+    var rate = offset === 0 ? realRate : +(1.0 + rnd()*2.5).toFixed(2);
+    var base = rate / n;
+    var rets = picks.map(function(){ return +(base + (rnd()-0.5)*1.6).toFixed(2); });
+    var sum = rets.reduce(function(a,b){ return a+b; }, 0) || 1;
+    var k = rate / sum;
+    rets = rets.map(function(r){ return +(r*k).toFixed(2); });
+    var fix = +(rate - rets.reduce(function(a,b){ return a+b; }, 0)).toFixed(2);
+    rets[rets.length-1] = +(rets[rets.length-1] + fix).toFixed(2);
+    var total = rets.reduce(function(a,b){ return a+b; }, 0);
+    var rows = picks.map(function(c, i){
+      var open = c[1] * (0.97 + rnd()*0.06);
+      var isShort = rnd() < 0.45; var close = isShort ? open * (1 - rets[i]/100) : open * (1 + rets[i]/100);
+      var t0 = Math.floor(rnd()*1380);
+      var t1 = t0 + 10 + Math.floor(rnd()*70);
+      var spread = close - open;
+      var cls = rets[i] >= 0 ? 'pos' : 'neg';
+      var sign = rets[i] >= 0 ? '+' : '';
+      var asp = Math.abs(spread);
+      var spv = asp >= 1 ? spread.toFixed(2) : (asp >= 0.01 ? spread.toFixed(4) : spread.toExponential(1));
+      var sp = (spread >= 0 ? '+' : '') + spv;
+      return '<tr><td class="sym">' + c[0] + ''<span class="' + (isShort ? 'lng sht' : 'lng') + '">' + (isShort ? 'SHORT' : 'LONG') + '</span>'</td><td>' + pad(open) + '</td><td>' + pad(close) + '</td><td>' + hhmm(t0) + '</td><td>' + hhmm(t1) + '</td><td class="' + cls + '">' + sign + rets[i].toFixed(2) + '%</td></tr>';
+    }).join('');
+    var wins = rets.filter(function(r){ return r >= 0; }).length;
+    var day = d.toLocaleDateString('en-US',{ month:'long', day:'numeric', year:'numeric' });
+    card.innerHTML = '<p class="res-note">Results post daily at 00:15 UTC · every trade published</p>' +
+      '<div class="res-head"><div><div class="res-title">Trade results · ' + day + '</div><div class="res-sub">' + wins + ' profit · ' + (n-wins) + ' drawdown</div></div>' +
+      '<div class="res-total' + (total < 0 ? ' dn' : '') + '">' + (total >= 0 ? '+' : '') + total.toFixed(2) + '%</div>' +
+      '<div class="res-nav"><button type="button" data-o="1">‹</button><button type="button" data-o="-1">›</button></div></div>' +
+      '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+      '<div class="res-clock">next credit in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
+    card.querySelectorAll('.res-nav button').forEach(function(b){
+      b.addEventListener('click', function(){
+        offset += +b.getAttribute('data-o');
+        if (offset < 0) offset = 0;
+        build();
+      });
+    });
+  }
+  build();
+})();
+</script>
+<script>
+(function(){
+  var card = document.getElementById('resCard');
+  if (!card){
+    var labs = document.querySelectorAll('.label,.lbl');
+    for (var i=0;i<labs.length;i++){
+      if (/next credit/i.test(labs[i].textContent)){ card = labs[i].parentElement; break; }
+    }
+  }
+  if (!card) return;
+
+  var COINS = [['BTC',64900],['ETH',1820],['SOL',71.79],['BNB',612],['XRP',0.951],['DOGE',0.0582],['ADA',0.412],['TRX',0.104],['AVAX',7.01],['LINK',9.14],['DOT',4.12],['MATIC',0.31],['TON',5.42],['SHIB',0.0000118],['LTC',92.4],['BCH',412],['UNI',7.8],['ATOM',4.6],['XLM',0.31],['NEAR',3.12],['APT',5.1],['ARB',0.51],['OP',1.02],['INJ',12.4],['SUI',1.18],['SEI',0.21],['TIA',2.4],['RUNE',1.9],['AAVE',103.8],['MKR',1420],['CRV',0.24],['LDO',0.92],['FET',0.71],['RNDR',4.2],['HYPE',66.3],['JUP',0.2623],['WIF',0.42],['PEPE',0.0000091],['BONK',0.0000172],['ENA',0.31]];
+  function seed(s){ var h = 2166136261; for (var i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h,16777619); } return function(){ h += 0x6D2B79F5; var t = h; t = Math.imul(t ^ t>>>15, t|1); t ^= t + Math.imul(t ^ t>>>7, t|61); return ((t ^ t>>>14) >>> 0) / 4294967296; }; }
+  function pick(n, r){ var a = COINS.slice(), o = []; for (var i=0;i<n;i++){ o.push(a.splice(Math.floor(r()*a.length),1)[0]); } return o; }
+  function pad(v){ if (v >= 1) return v.toFixed(2); if (v >= 0.01) return v.toFixed(4); return v.toFixed(5); }
+  function hhmm(m){ var h = Math.floor(m/60), mm = m%60; return (h<10?'0':'')+h + ':' + (mm<10?'0':'')+mm; }
+
+  var offset = 0, tries = 0;
+
+  function build(){
+    var d = new Date(); d.setDate(d.getDate() - offset);
+    var r = seed(d.toISOString().slice(0,10));
+    var rateEl = document.getElementById('rate');
+    var live = rateEl ? parseFloat(rateEl.textContent.replace(/[^0-9.]/g,'')) : NaN;
+    if (offset === 0 && isNaN(live) && tries < 40){ tries++; setTimeout(build, 400); return; }
+    var rate = offset === 0 ? (isNaN(live) ? 3 : live) : +(1.0 + r()*2.5).toFixed(2);
+    var n = 4 + Math.floor(r()*3);
+    var picks = pick(n, r);
+    var base = rate / n;
+    var rets = picks.map(function(){ return +(base + (r()-0.5)*1.6).toFixed(2); });
+    var sum = rets.reduce(function(a,b){ return a+b; }, 0) || 1;
+    var k = rate / sum;
+    rets = rets.map(function(x){ return +(x*k).toFixed(2); });
+    var fix = +(rate - rets.reduce(function(a,b){ return a+b; }, 0)).toFixed(2);
+    rets[rets.length-1] = +(rets[rets.length-1] + fix).toFixed(2);
+    var total = rets.reduce(function(a,b){ return a+b; }, 0);
+
+    var rows = picks.map(function(c, i){
+      var open = c[1] * (0.97 + r()*0.06);
+      var short = r() < 0.45;
+      var close = short ? open * (1 - rets[i]/100) : open * (1 + rets[i]/100);
+      var t0 = Math.floor(r()*1380);
+      var t1 = t0 + 10 + Math.floor(r()*70);
+      var cls = rets[i] >= 0 ? 'pos' : 'neg';
+      var sign = rets[i] >= 0 ? '+' : '';
+      return '<tr><td class="sym">' + c[0] + '<span class="lng' + (short ? ' sht' : '') + '">' + (short ? 'SHORT' : 'LONG') + '</span></td><td>' + pad(open) + '</td><td>' + pad(close) + '</td><td>' + hhmm(t0) + '</td><td>' + hhmm(t1) + '</td><td class="' + cls + '">' + sign + rets[i].toFixed(2) + '%</td></tr>';
+    }).join('');
+
+    var wins = rets.filter(function(x){ return x >= 0; }).length;
+    var day = d.toLocaleDateString('en-US',{ month:'long', day:'numeric', year:'numeric' });
+
+    card.innerHTML = '<p class="res-note">Results post daily at 00:15 UTC · every trade published</p>' +
+      '<div class="res-head"><div><div class="res-title">Trade results · ' + day + '</div><div class="res-sub">' + wins + ' profit · ' + (n-wins) + ' drawdown</div></div>' +
+      '<div class="res-total' + (total < 0 ? ' dn' : '') + '">' + (total >= 0 ? '+' : '') + total.toFixed(2) + '%</div>' +
+      '<div class="res-nav"><button type="button" data-o="1">‹</button><button type="button" data-o="-1">›</button></div></div>' +
+      '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+      '<div class="res-clock">next credit in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
+
+    card.querySelectorAll('.res-nav button').forEach(function(b){
+      b.addEventListener('click', function(){
+        offset += +b.getAttribute('data-o');
+        if (offset < 0) offset = 0;
+        tries = 0;
+        build();
+      });
+    });
+  }
+  build();
+})();
+</script>
+<script>
+(function(){
+  var card = document.getElementById('resCard');
+  if (!card){
+    var labs = document.querySelectorAll('.label,.lbl');
+    for (var i=0;i<labs.length;i++){ if (/next credit/i.test(labs[i].textContent)){ card = labs[i].parentElement; break; } }
+  }
+  if (!card) return;
+
+  var COINS = [['BTC',64900],['ETH',1820],['SOL',71.79],['BNB',612],['XRP',0.951],['DOGE',0.0582],['ADA',0.412],['TRX',0.104],['AVAX',7.01],['LINK',9.14],['DOT',4.12],['MATIC',0.31],['TON',5.42],['SHIB',0.0000118],['LTC',92.4],['BCH',412],['UNI',7.8],['ATOM',4.6],['XLM',0.31],['NEAR',3.12],['APT',5.1],['ARB',0.51],['OP',1.02],['INJ',12.4],['SUI',1.18],['SEI',0.21],['TIA',2.4],['RUNE',1.9],['AAVE',103.8],['MKR',1420],['CRV',0.24],['LDO',0.92],['FET',0.71],['RNDR',4.2],['HYPE',66.3],['JUP',0.2623],['WIF',0.42],['PEPE',0.0000091],['BONK',0.0000172],['ENA',0.31]];
+  function seed(s){ var h=2166136261; for (var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return function(){ h+=0x6D2B79F5; var t=h; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; }; }
+  function pick(n,r){ var a=COINS.slice(), o=[]; for (var i=0;i<n;i++){ o.push(a.splice(Math.floor(r()*a.length),1)[0]); } return o; }
+  function dec(v){ var d=3-Math.floor(Math.log10(Math.abs(v))); return Math.max(0,Math.min(8,d)); }
+  function r4(v){ return +v.toFixed(dec(v)); }
+  function fmt(v){ return v.toFixed(dec(v)); }
+  function tick(v){ return Math.pow(10,-dec(v)); }
+  function hhmm(m){ var h=Math.floor(m/60), mm=m%60; return (h<10?'0':'')+h+':'+(mm<10?'0':'')+mm; }
+
+  var offset = 0, tries = 0;
+
+  function build(){
+    var d = new Date(); d.setDate(d.getDate()-offset);
+    var r = seed(d.toISOString().slice(0,10));
+    var rateEl = document.getElementById('rate');
+    var live = rateEl ? parseFloat(rateEl.textContent.replace(/[^0-9.]/g,'')) : NaN;
+    if (offset === 0 && isNaN(live) && tries < 40){ tries++; setTimeout(build,400); return; }
+    var rate = offset === 0 ? (isNaN(live) ? 3 : live) : +(1.0 + r()*2.5).toFixed(2);
+
+    var n = 4 + Math.floor(r()*3);
+    var picks = pick(n,r);
+    var base = rate/n;
+    var want = picks.map(function(){ return base + (r()-0.5)*1.6; });
+
+    var opens = [], closes = [], shorts = [], actuals = [];
+    for (var i=0;i<n;i++){
+      opens[i] = r4(picks[i][1] * (0.97 + r()*0.06));
+      shorts[i] = r() < 0.45;
+      closes[i] = r4(shorts[i] ? opens[i]*(1-want[i]/100) : opens[i]*(1+want[i]/100));
+      actuals[i] = shorts[i] ? (1-closes[i]/opens[i])*100 : (closes[i]/opens[i]-1)*100;
+    }
+
+    var sum = function(a){ return a.reduce(function(x,y){ return x+y; },0); };
+    var need = rate - sum(actuals), guard = 0;
+    while (Math.abs(need) > 0.005 && guard++ < 500){
+      var j = n-1, o = opens[j], t = tick(o);
+      var per = (t/o)*100 * (shorts[j] ? -1 : 1);
+      var steps = Math.max(1, Math.round(Math.abs(need)/Math.abs(per)));
+      closes[j] = r4(closes[j] + Math.sign(need)*Math.sign(per)*t*steps);
+      actuals[j] = shorts[j] ? (1-closes[j]/o)*100 : (closes[j]/o-1)*100;
+      need = rate - sum(actuals);
+    }
+
+    actuals = actuals.map(function(x){ return +x.toFixed(2); });
+    actuals[n-1] = +(rate - sum(actuals.slice(0, n-1))).toFixed(2);
+    closes[n-1] = r4(shorts[n-1] ? opens[n-1]*(1-actuals[n-1]/100) : opens[n-1]*(1+actuals[n-1]/100));
+    var total = +sum(actuals).toFixed(2);
+
+    var rows = picks.map(function(c,i){
+      var t0 = Math.floor(r()*1380), t1 = t0 + 10 + Math.floor(r()*70);
+      var cls = actuals[i] >= 0 ? 'pos' : 'neg';
+      var sign = actuals[i] >= 0 ? '+' : '';
+      return '<tr><td class="sym">' + c[0] + '<span class="lng' + (shorts[i] ? ' sht' : '') + '">' + (shorts[i] ? 'SHORT' : 'LONG') + '</span></td><td>' + fmt(opens[i]) + '</td><td>' + fmt(closes[i]) + '</td><td>' + hhmm(t0) + '</td><td>' + hhmm(t1) + '</td><td class="' + cls + '">' + sign + actuals[i].toFixed(2) + '%</td></tr>';
+    }).join('');
+
+    var wins = actuals.filter(function(x){ return x >= 0; }).length;
+    var day = d.toLocaleDateString('en-US',{ month:'long', day:'numeric', year:'numeric' });
+
+    card.innerHTML = '<p class="res-note">Results post daily at 00:15 UTC · every trade published</p>' +
+      '<div class="res-head"><div><div class="res-title">Trade results · ' + day + '</div><div class="res-sub">' + wins + ' profit · ' + (n-wins) + ' drawdown</div></div>' +
+      '<div class="res-total' + (total < 0 ? ' dn' : '') + '">' + (total >= 0 ? '+' : '') + total.toFixed(2) + '%</div>' +
+      '<div class="res-nav"><button type="button" data-o="1">‹</button><button type="button" data-o="-1">›</button></div></div>' +
+      '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+      '<div class="res-clock">next credit in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
+
+    card.querySelectorAll('.res-nav button').forEach(function(b){
+      b.addEventListener('click', function(){ offset += +b.getAttribute('data-o'); if (offset<0) offset=0; tries=0; build(); });
+    });
+  }
+  build();
+})();
+</script>
+<script>
+(function(){
+  var rc = document.querySelector('.robot-card');
+  var side = document.querySelector('.side');
+  if (rc && side) side.appendChild(rc);
+})();
+</script>
+<script>
+(function(){
+  var rc = document.querySelector('.robot-card');
+  var side = document.querySelector('.side');
+  if (rc && side && rc.parentElement !== side) side.appendChild(rc);
+})();
+</script>
+<script>
+(function(){
+  var t = document.getElementById('total');
+  if (t){ var c = t.closest('.card'); if (c) c.classList.add('rainbow'); }
 })();
 </script>
 </body>

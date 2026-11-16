@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meridian — Dashboard</title>
+<link rel="stylesheet" href="/dash.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="/" aria-label="Meridian"></a>
+  <nav class="tnav"><a href="#">Tools</a><a href="#">Developers</a><a href="#">$MER</a></nav>
+  <label class="search"><input placeholder="Search tools and pages"><kbd>⌘K</kbd></label>
+  <div class="tright">
+    <button class="gift" aria-label="Rewards">◈</button>
+    <a class="signin" href="/auth.html">Sign in</a>
+  </div>
+</header>
+
+<div class="shell">
+
+  <aside class="rail">
+    <a class="on" href="/dash.html" title="Dashboard">▤</a>
+    <a href="/app.html" title="Deposit">↓</a>
+    <a href="/app.html" title="Withdraw">↑</a>
+    <a href="/app.html" title="History">≡</a>
+    <a href="#" title="Addresses">◉</a>
+    <a href="#" title="Settings">⚙</a>
+    <div class="spacer"></div>
+    <a href="#" title="Support">?</a>
+  </aside>
+
+  <main class="main">
+
+    <div class="tickers">
+      <div class="tk"><span class="ic" style="background:#141b17;color:#2fd48a">S</span><div><div class="nm">SOL</div><div class="sub">Solana</div></div><div class="px">71.50<div class="chg up"><b>+2.14%</b><span class="h">24h</span></div></div></div>
+      <div class="tk"><span class="ic" style="background:#141b17;color:#2fd48a">$</span><div><div class="nm">USDC</div><div class="sub">USD Coin</div></div><div class="px">1.00<div class="chg dn"><b>-0.01%</b><span class="h">24h</span></div></div></div>
+      <div class="tk"><span class="ic" style="background:#1b1714;color:#f97316">B</span><div><div class="nm">BTC</div><div class="sub">Bitcoin</div></div><div class="px">76,779<div class="chg dn"><b>-1.40%</b><span class="h">24h</span></div></div></div>
+      <div class="tk"><span class="ic" style="background:#14161b;color:#3b82f6">E</span><div><div class="nm">ETH</div><div class="sub">Ethereum</div></div><div class="px">2,391<div class="chg dn"><b>-2.31%</b><span class="h">24h</span></div></div></div>
+      <div class="tk"><span class="ic" style="background:#1b1a14;color:#eab308">J</span><div><div class="nm">JUP</div><div class="sub">Jupiter</div></div><div class="px">0.44<div class="chg up"><b>+0.87%</b><span class="h">24h</span></div></div></div>
+    </div>
+
+    <div class="cols">
+
+      <section>
+        <div class="sechead">
+          <h2>Meridian Signals <span class="chev">›</span></h2>
+          <button class="round">›</button>
+        </div>
+
+        <div class="alerts">
+          <article class="al">
+            <div class="row1"><span class="tk-ic">S</span><span class="tag">SOL</span><span class="bull">↗ Bullish</span></div>
+            <h3>SOL — relative move 2.75σ against 30-day mean</h3>
+            <div class="age">10 hours ago</div>
+          </article>
+          <article class="al">
+            <div class="row1"><span class="tk-ic">J</span><span class="tag">JUP</span><span class="bull">↗ Bullish</span></div>
+            <h3>JUP — open interest up 14% with flat price</h3>
+            <div class="age">10 hours ago</div>
+          </article>
+          <article class="al">
+            <div class="row1"><span class="tk-ic">U</span><span class="tag">USDC</span><span class="bull">↗ Bullish</span></div>
+            <h3>USDC — stablecoin supply on Solana at 30-day high</h3>
+            <div class="age">10 hours ago</div>
+          </article>
+        </div>
+
+        <p class="disclaimer">Not financial advice. Signals can be wrong.</p>
+
+        <div class="hub">
+          <h2>Hub Suggestions</h2>
+          <button class="pill">How does the daily credit work?</button>
+          <button class="pill">What happens if the bot has a bad week?</button>
+        </div>
+
+        <div class="metrics">
+          <div class="mt">
+            <div class="lab">Total liabilities <span class="q">?</span></div>
+            <div class="big">$2.65M</div>
+            <div class="foot"><span class="up">↗ 0.61%</span><span class="h">24h</span></div>
+            <svg class="spark" viewBox="0 0 300 74" preserveAspectRatio="none"><path class="ar" fill="#2fd48a" d="M0,58 L25,44 L50,52 L75,33 L100,41 L125,22 L150,34 L175,18 L200,30 L225,14 L250,26 L275,12 L300,20 L300,74 L0,74 Z"/><path class="ln" stroke="#2fd48a" d="M0,58 L25,44 L50,52 L75,33 L100,41 L125,22 L150,34 L175,18 L200,30 L225,14 L250,26 L275,12 L300,20"/></svg>
+          </div>
+          <div class="mt">
+            <div class="lab">Stablecoin inflow <span class="q">?</span></div>
+            <div class="big">$340M</div>
+            <div class="foot"><span class="up">↗ 0.11%</span><span class="h">24h</span></div>
+            <svg class="spark" viewBox="0 0 300 74" preserveAspectRatio="none"><path class="ar" fill="#2fd48a" d="M0,50 L25,56 L50,38 L75,48 L100,30 L125,40 L150,24 L175,36 L200,20 L225,32 L250,16 L275,28 L300,10 L300,74 L0,74 Z"/><path class="ln" stroke="#2fd48a" d="M0,50 L25,56 L50,38 L75,48 L100,30 L125,40 L150,24 L175,36 L200,20 L225,32 L250,16 L275,28 L300,10"/></svg>
+          </div>
+          <div class="mt">
+            <div class="lab">Open positions <span class="q">?</span></div>
+            <div class="big">1.75M</div>
+            <div class="foot"><span class="dn">0%</span><span class="h">24h</span></div>
+            <svg class="spark" viewBox="0 0 300 74" preserveAspectRatio="none"><path class="ar" fill="#f2665c" d="M0,26 L60,30 L120,42 L180,58 L240,70 L300,74 L300,74 L0,74 Z"/><path class="ln" stroke="#f2665c" d="M0,26 L60,30 L120,42 L180,58 L240,70 L300,74"/></svg>
+          </div>
+          <div class="mt">
+            <div class="lab">Withdrawals settled <span class="q">?</span></div>
+            <div class="big">$18.5M</div>
+            <div class="foot"><span class="dn">↓ 0.9%</span><span class="h">24h</span></div>
+            <svg class="spark" viewBox="0 0 300 74" preserveAspectRatio="none"><path class="ar" fill="#f2665c" d="M0,64 L40,60 L80,50 L120,54 L160,40 L200,46 L240,32 L280,38 L300,26 L300,74 L0,74 Z"/><path class="ln" stroke="#f2665c" d="M0,64 L40,60 L80,50 L120,54 L160,40 L200,46 L240,32 L280,38 L300,26"/></svg>
+          </div>
+        </div>
+
+        <div class="themes">
+          <h2>Top prediction themes</h2>
+          <div class="th-grid">
+            <div class="th"><b>Solana DeFi TVL</b><span>+18% this week</span></div>
+            <div class="th"><b>Stablecoin yield</b><span>+12% this week</span></div>
+            <div class="th"><b>RWA on Solana</b><span>+6% this week</span></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="news">
+        <div class="sechead">
+          <h2>Web3 News</h2>
+          <button class="round">›</button>
+        </div>
+
+        <article class="nw">
+          <div class="meta"><span class="h">#Security</span><span class="h">#Solana</span><span class="age">3 hours ago</span></div>
+          <h3>Accounting bug in near-empty market drains $55M — not an infinite mint</h3>
+          <p>An attacker exploited a rounding path in a low-liquidity pool on November 14. The pool had less than $2M of depth, which let the attacker repeat the same withdrawal step until the accounting drifted far enough to release funds the market never held.</p>
+          <div class="share">Share on: <b>𝕏</b><b>✈</b></div>
+        </article>
+
+        <article class="nw">
+          <div class="meta"><span class="h">#Market analysis</span><span class="age">3 hours ago</span></div>
+          <h3>Did prediction markets call the midterms? What the data says</h3>
+          <p>Prediction markets have been a recurring topic through the cycle. This looks at what the pricing actually did in the final week, and where it diverged from the result.</p>
+          <div class="share">Share on: <b>𝕏</b><b>✈</b></div>
+        </article>
+      </aside>
+
+    </div>
+
+    <div class="tools">
+      <button class="tool">▤ Token analysis</button>
+      <button class="tool">≡ Latest news</button>
+      <button class="tool">◉ Analyze my wallet</button>
+      <button class="tool">⇄ Swap</button>
+      <button class="tool">↗ Trending</button>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>
