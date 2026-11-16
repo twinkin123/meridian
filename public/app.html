@@ -144,7 +144,7 @@
             </div>
             <div class="ref-stats">
               <div><span class="lbl">Invited</span><b id="refCount">0</b></div>
-              <div><span class="lbl">Your code</span><b id="refCode">-</b></div>
+              <div><span class="lbl">Your code</span><b id="refCode">-</b></div><div><span class="lbl">Earned</span><b id="refEarned">$0.00</b></div>
             </div>
             <div class="ref-ladder">
               <span class="lbl">Commission tiers</span>
@@ -291,6 +291,8 @@
       if (rcode) rcode.textContent = state.refCode || '-';
       var rcnt = document.getElementById('refCount');
       if (rcnt) rcnt.textContent = b.invited ?? 0;
+      var re = document.getElementById('refEarned');
+      if (re) re.textContent = usd((b.referralEarned || 0) / 1e6);
       document.getElementById('avail').textContent = money(state.balance);
       document.getElementById('held').textContent = money(state.held);
       document.getElementById('total').textContent = money((BigInt(state.balance) + BigInt(state.held)).toString());
@@ -441,6 +443,9 @@
 </script>
 </body>
 </html>
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import cookieParser from 'cookie-parser';
 import { join } from 'node:path';
 import { health } from './http/health.js';
@@ -8,6 +8,7 @@ import { wallet } from './http/routes/wallet.js';
 import { adminRouter } from './admin.js';
 import { runRecon } from './recon.js';
 import { runDailyCredit } from './jobs/daily.js';
+import { runReferral } from './jobs/referral.js';
 import { requireUser } from './http/mw/session.js';
 import { one, close } from './db.js';
 
@@ -41,6 +42,11 @@ app.use(express.static(publicDir, { extensions: ['html'] }));
 app.use((_req, res) => {
   res.status(404).sendFile(join(publicDir, 'index.html'));
 });
+
+const referralTimer = setInterval(() => {
+  const now = new Date();
+  if (now.getUTCDate() === 1 && now.getUTCHours() === 0) runReferral().catch((e) => console.error('referral', e));
+}, 30 * 60 * 1000);
 
 const creditTimer = setInterval(() => {
   const now = new Date();

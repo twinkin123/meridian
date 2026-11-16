@@ -87,3 +87,22 @@ adminRouter.post('/credit/run', async (req, res) => {
   const { runDailyCredit } = await import('./jobs/daily.js');
   res.json(await runDailyCredit(day));
 });
+
+adminRouter.post('/referral/run', async (req, res) => {
+  if (!authed((k) => req.header(k))) return res.status(401).json({ error: 'bad_admin_token' });
+  const period = req.query.period ? String(req.query.period) : undefined;
+  try {
+    const { runReferral } = await import('./jobs/referral.js');
+    res.json(await runReferral(period));
+  } catch (e: any) {
+    res.status(500).json({ error: String(e?.message ?? e) });
+  }
+});
+
+adminRouter.get('/referral/runs', async (req, res) => {
+  if (!authed((k) => req.header(k))) return res.status(401).json({ error: 'bad_admin_token' });
+  const { rows } = await (await import('./db.js')).pool.query(
+    `select period, payouts, total_usd, ran_at from referral_runs order by period desc limit 24`,
+  );
+  res.json({ runs: rows });
+});
