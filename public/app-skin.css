@@ -386,3 +386,10 @@ table.res th{padding-right:9px}
 .top-right #logout:hover{background:rgba(229,72,77,.12) !important;border-color:#ff6b6b !important;color:#ff6b6b !important}
 .top-right #who{cursor:pointer}
 .top-right #who:hover{border-color:#3a3a44 !important;background:#1c1c22 !important}
+.tickers{display:flex !important;overflow:hidden !important;gap:0 !important;grid-template-columns:none !important}
+.tickers-track{display:flex;gap:12px;width:max-content;animation:tk-slide 70s linear infinite}
+.tickers:hover .tickers-track{animation-play-state:paused}
+.tickers .tk{flex:none;width:186px}
+.tk .ic img{width:30px;height:30px;border-radius:50%;display:block}
+@keyframes tk-slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.tickers-track{animation:none}}
