@@ -696,3 +696,23 @@ html.boot body{visibility:hidden}
     border:1px solid transparent!important;
   }
 }
+
+@media (max-width: 900px){
+  html body .main .card, html body .main .stat{
+    margin:0 10px 10px!important;
+    border-radius:6px!important;
+    border:1px solid transparent!important;
+    background:linear-gradient(#0a0a0b,#0a0a0b) padding-box, var(--rim) border-box!important;
+    box-shadow:0 10px 22px -16px rgba(45,226,214,.55)!important;
+  }
+  html body .main .stats{
+    margin:0 10px 10px!important;
+    border-radius:6px!important;
+  }
+  html body .main [data-results]{
+    margin:0 10px 10px!important;
+    border-radius:6px!important;
+    border:1px solid transparent!important;
+    background:linear-gradient(#0a0a0b,#0a0a0b) padding-box, var(--rim) border-box!important;
+  }
+}
