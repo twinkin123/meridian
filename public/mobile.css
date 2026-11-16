@@ -805,3 +805,19 @@ html body .res-total{
     background:#0d0d10!important;
   }
 }
+
+@media (max-width: 900px){
+  html body #claimBtn, html body #rwOut{
+    width:auto!important;
+    margin:12px 18px!important;
+  }
+  html body .main .card.rainbow{ margin-top:16px!important; }
+}
+
+@media (max-width: 900px){
+  html body #claimBtn, html body #rwOut{
+    width:auto!important;
+    margin:12px 18px!important;
+  }
+  html body .main .card.rainbow{ margin-top:16px!important; }
+}
