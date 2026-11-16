@@ -839,3 +839,7 @@ html body .res-total{
     margin:12px 18px!important;
   }
 }
+
+@media (max-width: 900px){
+  html body .side{ margin-bottom:12px!important; }
+}
