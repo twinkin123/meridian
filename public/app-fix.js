@@ -95,11 +95,11 @@
     var day = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
     card.innerHTML =
-      '<p class="res-note">Results post daily at 00:15 UTC &middot; every trade published</p>' +
-      '<div class="res-head"><div><div class="res-title">Trade results &middot; ' + day + '</div>' +
-      '<div class="res-sub">' + wins + ' profit &middot; ' + (n - wins) + ' drawdown</div></div>' +
+      '<p class="res-note">Results post daily at 00:15 UTC - every trade published</p>' +
+      '<div class="res-head"><div><div class="res-title">Trade results - ' + day + '</div>' +
+      '<div class="res-sub">' + wins + ' profit - ' + (n - wins) + ' drawdown</div></div>' +
       '<div class="res-total' + (tot < 0 ? ' dn' : '') + '">' + (tot >= 0 ? '+' : '') + tot.toFixed(2) + '%</div>' +
-      '<div class="res-nav"><button type="button" data-o="1">&lsaquo;</button><button type="button" data-o="-1">&rsaquo;</button></div></div>' +
+      '<div class="res-nav"><button type="button" data-o="1">&lt;</button><button type="button" data-o="-1">&gt;</button></div></div>' +
       '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>' +
       '<div class="res-clock">next credit in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
 

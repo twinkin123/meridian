@@ -3,18 +3,24 @@
 /* nav icons: glyph coverage is unreliable, go text-only */
 .side a .ico, .side .ico{ display:none !important; }
 
+/* section rhythm */
+.main .card{ margin-bottom:10px !important; }
+.main .card:last-child, .main .stats:last-child{ margin-bottom:0 !important; }
+.stats{ margin-bottom:10px !important; }
+
 /* results table: separate the columns */
-.res{ width:100%; border-collapse:collapse; }
-.res th, .res td{ padding:6px 9px; white-space:nowrap; }
-.res th:first-child, .res td:first-child{ padding-left:0; }
-.res th:last-child, .res td:last-child{ padding-right:0; text-align:right; }
+.res{ width:100%; border-collapse:collapse; table-layout:auto !important; }
+.res th, .res td{ padding:6px 12px !important; white-space:nowrap; }
+.res th:first-child, .res td:first-child{ padding-left:0 !important; }
+.res th:last-child, .res td:last-child{ padding-right:0 !important; text-align:right; }
 .res th{ font-weight:400; opacity:.5; }
 
-/* results header: arrows stay on the title row */
+/* results header: title takes the room, total and arrows stay put */
 .res-head{ display:flex !important; align-items:flex-start; gap:10px; flex-wrap:nowrap !important; }
-.res-head > div:first-child{ flex:1 1 auto; min-width:0; }
-.res-total{ flex:0 0 auto; }
-.res-nav{ flex:0 0 auto; display:flex; gap:6px; }
+.res-head > div:first-child{ flex:1 1 auto !important; min-width:0 !important; }
+.res-total{ flex:0 0 auto !important; white-space:nowrap; }
+.res-nav{ flex:0 0 auto !important; display:flex; gap:6px; }
+.res-nav button{ min-width:26px; font-family:inherit; }
 
 @media (max-width: 900px){
 
@@ -100,7 +106,6 @@
     border-left-width:1px !important; border-right-width:1px !important;
     border-top-width:1px !important; border-bottom-width:1px !important;
   }
-  .main .card:last-child, .main .stats:last-child{ margin-bottom:0 !important; }
 
   .stats{
     display:grid !important; grid-template-columns:repeat(3,1fr) !important;
@@ -118,7 +123,7 @@
   .addr code{ word-break:break-all; }
 
   .res{ display:block !important; overflow-x:auto; font-size:12px; -webkit-overflow-scrolling:touch; }
-  .res thead, .res tbody{ display:table; width:100%; min-width:560px; }
+  .res thead, .res tbody{ display:table; width:100%; min-width:600px; }
   .res-title{ font-size:14px; }
 
   .calc-amount input{ font-size:26px; }
