@@ -371,7 +371,7 @@
       }
       document.getElementById('heldNote').textContent = note;
       document.getElementById('rate').textContent = b.lastRateBp ? (b.lastRateBp / 100).toFixed(2) + '%' : '-';
-      state.rateBp = b.lastRateBp || 100;
+      state.rateBp = b.lastRateBp || 100; window.RES_RATE = b.lastRateBp ? b.lastRateBp / 100 : null; document.dispatchEvent(new Event('rate'));
       var rl2 = document.getElementById('refList');
       if (rl2 && Array.isArray(b.referrals) && b.referrals.length){
         rl2.innerHTML = b.referrals.map(function(x){ return '<li><div><b>' + (x.email || 'anon') + '</b><span class="sub">' + new Date(x.created_at).toLocaleDateString() + '</span></div><span class="pill">' + usd((x.invested || 0) / 1e6) + '</span></li>'; }).join('');

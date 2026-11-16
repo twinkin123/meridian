@@ -1,4 +1,4 @@
-﻿/* app-fix.js - nav wiring, clock guard, authoritative results table. Loaded last. */
+/* app-fix.js - nav wiring, clock guard, authoritative results table. Loaded last. */
 (function(){
   'use strict';
 
@@ -45,10 +45,12 @@
   var offset = 0;
 
   function rateNow(){
+    if (typeof window.RES_RATE === 'number' && window.RES_RATE > 0) return window.RES_RATE;
     var el = document.getElementById('rate');
     var v = el ? parseFloat(el.textContent.replace(/[^0-9.]/g, '')) : NaN;
-    return (isNaN(v) || v <= 0) ? 3 : v;
+    return (isNaN(v) || v <= 0) ? 2.25 : v;
   }
+  document.addEventListener('rate', function(){ if (offset === 0) build(); });
 
   function build(){
     var d = new Date(); d.setDate(d.getDate() - offset);
