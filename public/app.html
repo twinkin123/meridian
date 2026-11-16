@@ -12,7 +12,7 @@
 <body>
 
 <header class="top">
-  <a class="brand" href="/"><span class="brand-mark">M</span>Meridian</a>
+  <a class="brand" href="/"><span class="brand-mark">M</span>Meridian</a><span class="welcome" id="welcome"></span>
   <div class="top-right">
     <span class="who" id="who"></span>
     <button class="ghost" id="logout" type="button">Log out</button>
@@ -34,7 +34,7 @@
     <a href="#docs"><span class="ico">§</span> Docs</a>
   </nav>
 
-  <main class="main"><p class="welcome" id="welcome"></p><div class="tickers"><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.2 17.4h10.6l3.1 2.6H9.3zM4.4 10.7h10.6l3.1 2.6H7.5zM7.1 4h10.6l3.1 2.6H10.2z"/></svg><img alt=""></span><div><b>SOL</b><small>Solana</small></div><span class="px">71.50<em class="up">+2.14%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.4v9.2M14.3 9.5c-.6-.7-1.6-1.1-2.7-1.1-1.5 0-2.5.7-2.5 1.8 0 1.2 1.1 1.6 2.6 1.9 1.5.3 2.6.7 2.6 1.9 0 1.1-1 1.8-2.5 1.8-1.1 0-2.1-.4-2.7-1.1"/></svg><img alt=""></span><div><b>USDC</b><small>USD Coin</small></div><span class="px">1.00<em class="dn">-0.01%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 3.6h2.1v1.9h1.9V3.6h2.1v2.1c1.8.6 3 2 3 3.8 0 1.6-.8 2.7-2 3.2 1.6.5 2.6 1.9 2.6 3.7 0 2.4-1.8 3.9-4.3 4.2v2h-2.1v-1.9h-1.9v1.9H9.4v-1.9H6.6v-2h1.6V7.7H6.6v-2h2.8zm2.1 2v4.9h2c1.3 0 2.2-.8 2.2-2.1 0-1.4-.9-2.2-2.2-2.2h-2zm0 6.9v5h2.4c1.5 0 2.4-.9 2.4-2.4 0-1.6-1-2.6-2.5-2.6h-2.3z"/></svg><img alt=""></span><div><b>BTC</b><small>Bitcoin</small></div><span class="px">76,779<em class="dn">-1.40%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2l5.9 9.9L12 15.6 6.1 12.1zM12 17.1l5.9-3.6L12 21.8 6.1 13.5z"/></svg><img alt=""></span><div><b>ETH</b><small>Ethereum</small></div><span class="px">2,391<em class="dn">-2.31%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.4"/><path d="M14.2 7.2v7.3a3 3 0 0 1-4.3 2.7"/></svg><img alt=""></span><div><b>JUP</b><small>Jupiter</small></div><span class="px">0.44<em class="up">+0.87%</em></span></div></div>
+  <main class="main"><div class="tickers"><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.2 17.4h10.6l3.1 2.6H9.3zM4.4 10.7h10.6l3.1 2.6H7.5zM7.1 4h10.6l3.1 2.6H10.2z"/></svg><img alt=""></span><div><b>SOL</b><small>Solana</small></div><span class="px">71.50<em class="up">+2.14%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.4v9.2M14.3 9.5c-.6-.7-1.6-1.1-2.7-1.1-1.5 0-2.5.7-2.5 1.8 0 1.2 1.1 1.6 2.6 1.9 1.5.3 2.6.7 2.6 1.9 0 1.1-1 1.8-2.5 1.8-1.1 0-2.1-.4-2.7-1.1"/></svg><img alt=""></span><div><b>USDC</b><small>USD Coin</small></div><span class="px">1.00<em class="dn">-0.01%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 3.6h2.1v1.9h1.9V3.6h2.1v2.1c1.8.6 3 2 3 3.8 0 1.6-.8 2.7-2 3.2 1.6.5 2.6 1.9 2.6 3.7 0 2.4-1.8 3.9-4.3 4.2v2h-2.1v-1.9h-1.9v1.9H9.4v-1.9H6.6v-2h1.6V7.7H6.6v-2h2.8zm2.1 2v4.9h2c1.3 0 2.2-.8 2.2-2.1 0-1.4-.9-2.2-2.2-2.2h-2zm0 6.9v5h2.4c1.5 0 2.4-.9 2.4-2.4 0-1.6-1-2.6-2.5-2.6h-2.3z"/></svg><img alt=""></span><div><b>BTC</b><small>Bitcoin</small></div><span class="px">76,779<em class="dn">-1.40%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2l5.9 9.9L12 15.6 6.1 12.1zM12 17.1l5.9-3.6L12 21.8 6.1 13.5z"/></svg><img alt=""></span><div><b>ETH</b><small>Ethereum</small></div><span class="px">2,391<em class="dn">-2.31%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.4"/><path d="M14.2 7.2v7.3a3 3 0 0 1-4.3 2.7"/></svg><img alt=""></span><div><b>JUP</b><small>Jupiter</small></div><span class="px">0.44<em class="up">+0.87%</em></span></div></div>
 
     <section class="panel on" id="p-dash">
       <div class="grid">
@@ -843,7 +843,7 @@
   if (t){ var c = t.closest('.card'); if (c) c.classList.add('rainbow'); }
 })();
 </script>
-<script src="app-fix.js?v=13" defer></script></body>
+<script src="app-fix.js?v=14" defer></script></body>
 </html>
 
 
