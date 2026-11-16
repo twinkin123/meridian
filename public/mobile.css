@@ -655,3 +655,15 @@ html.boot body{visibility:hidden}
   .top, .side{ background:#0a0a0b!important; }
   .main .card, .main .stat{ background-color:#101012!important; }
 }
+
+@media (max-width: 900px){
+  html, body{ background:#060607!important; }
+  .top, .side{ background:#060607!important; }
+  .main .card, .main .stat{ background-color:#0d0d0f!important; }
+}
+
+@media (max-width: 900px){
+  html, body{ background:#0a0a0b!important; }
+  .top, .side{ background:#0a0a0b!important; }
+  .main .card, .main .stat{ background-color:#0a0a0b!important; }
+}
