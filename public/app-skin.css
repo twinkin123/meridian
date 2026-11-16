@@ -417,3 +417,15 @@ table.res th{padding-right:9px}
 .ref-list-card{display:flex !important;flex-direction:column !important}
 .ref-list-card .list{flex:1 1 auto !important;display:flex !important;flex-direction:column !important;justify-content:center !important}
 .ref-list-card .list li.empty{text-align:center !important;padding:0 !important;border:0 !important;color:var(--mut2) !important;font-size:12px !important}
+
+/* referral: larger content to fill the column */
+.ref-stats > div{padding:14px !important}
+.ref-stats .lbl{font-size:9.5px !important;letter-spacing:.16em !important}
+.ref-stats b{font-size:19px !important}
+.ref-ladder{margin-top:6px !important}
+.ref-ladder > div{padding:15px 0 !important;align-items:center !important}
+.ref-ladder .t{font-size:13.5px !important}
+.ref-ladder .s{font-size:12px !important}
+.ref-ladder b{font-size:15px !important}
+.ref-card .addr code{font-size:12.5px !important;padding:14px 13px !important}
+.ref-card .hint{font-size:13px !important}
