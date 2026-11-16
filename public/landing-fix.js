@@ -71,3 +71,4 @@
 (function(){ var stage = document.getElementById("robotStage"); var img = document.querySelector(".robot-corner"); if (!stage || !img) return; (function loop(){ var r = stage.getBoundingClientRect(); img.classList.toggle("on", r.bottom < 0 && window.scrollY > 200); requestAnimationFrame(loop); })(); })();
 
 
+
