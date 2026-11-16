@@ -516,3 +516,10 @@
   .side{ padding-top:22px !important; padding-bottom:14px !important; }
   .top .welcome{ left:340px !important; }
 }
+
+/* greeting to the content edge, nav top level with the ticker */
+@media (min-width: 901px){
+  .main{ padding-top:24px !important; }
+  .side{ padding-top:24px !important; }
+  .top .welcome{ left:252px !important; }
+}
