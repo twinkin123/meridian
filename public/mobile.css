@@ -549,3 +549,5 @@
 .res-total.dn{background-image:linear-gradient(100deg,#ff4d6d,#ff9f43 52%,#ffd166) !important}
 .res-clock{margin-top:0 !important;display:inline !important}
 .res-note .res-clock::before{content:" - "}
+.card.has-clock{position:relative}
+.card.has-clock .res-clock{position:absolute !important;top:16px !important;right:18px !important;margin:0 !important;display:block !important;font-size:11px !important;color:#8a8a9d !important;white-space:nowrap}

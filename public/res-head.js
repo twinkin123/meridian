@@ -1,4 +1,4 @@
-/* res-head.js - date under the title, drop the profit/drawdown line. Loaded last. */
+/* res-head.js - date under the title, drop the drawdown line, countdown in the balance card. Loaded last. */
 (function(){
   'use strict';
 
@@ -16,18 +16,17 @@
     if (s) s.style.display = 'none';
   }
 
-  fix();
-  new MutationObserver(fix).observe(document.body, { childList: true, subtree: true });
-})();/* move the credit countdown into the top note line */
-(function(){
-  "use strict";
-  function move(){
-    var note = document.querySelector(".res-note");
-    var note = document.querySelector(".res-note");
-    var clock = document.querySelector(".res-clock");
-    if (!note || !clock || clock.parentElement === note) return;
-    note.appendChild(clock);
+  function clock(){
+    var c = document.querySelector('.res-clock');
+    var total = document.getElementById('total');
+    var card = total && total.closest('.card');
+    if (!c || !card || c.parentElement === card) return;
+    card.classList.add('has-clock');
+    card.appendChild(c);
   }
-  move();
-  new MutationObserver(move).observe(document.body, { childList: true, subtree: true });
+
+  function all(){ fix(); clock(); }
+
+  all();
+  new MutationObserver(all).observe(document.body, { childList: true, subtree: true });
 })();
