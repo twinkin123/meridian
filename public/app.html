@@ -490,9 +490,10 @@ setInterval(tickPend, 1000);
     finally { btn.disabled = false; }
   };
 
-  function logout(){ fetch('/auth/logout', { method: 'POST' }).finally(function(){ location.href = '/'; }); }
+  function logout(){ fetch('/auth/logout', { method: 'POST' }).finally(function(){ location.href = '/auth.html'; }); }
   document.getElementById('logout').onclick = logout;
   document.getElementById('logout2').onclick = logout;
+  window.__logout = logout;
 
   var dAmt = document.getElementById('dAmount');
   var dRng = document.getElementById('dRange');
@@ -709,7 +710,7 @@ setInterval(tickPend, 1000);
     if (rev) {
       rev.disabled = true;
       var r = await fetch('/auth/sessions/' + rev.dataset.rev, { method: 'DELETE' });
-      if (!r.ok) { rev.disabled = false; return; } if (rev.dataset.cur === '1') location.replace('/auth.html'); else loadSessions();
+      if (!r.ok) { rev.disabled = false; return; } if (rev.dataset.cur === '1') { window.__logout ? window.__logout() : location.replace('/auth.html'); } else loadSessions();
     }
   });
   if (location.hash === '#settings') loadSessions();
