@@ -867,3 +867,12 @@ html body .res-total{
     margin:10px 0!important;
   }
 }
+
+@media (max-width: 900px){
+  html body #claimBtn, html body #rwOut{
+    display:block!important;
+    width:auto!important;
+    margin-left:-18px!important;
+    margin-right:-18px!important;
+  }
+}
