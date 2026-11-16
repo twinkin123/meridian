@@ -312,3 +312,21 @@
 .claim:hover{ background:#352761 !important; }
 .claim:active{ background:#3f2d73 !important; }
 .claim:disabled{ opacity:.6 !important; cursor:not-allowed; }
+
+/* header greeting */
+.welcome{
+  flex:1 1 auto;
+  min-width:0;
+  margin-left:8px;
+  font-family:"Space Mono",monospace;
+  font-size:10px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:#6b6b85;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+@media (max-width: 480px){
+  .welcome{ flex:0 0 auto; font-size:9px; letter-spacing:.14em; }
+}

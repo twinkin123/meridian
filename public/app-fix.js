@@ -174,3 +174,23 @@
       .finally(function(){ b.disabled = false; b.textContent = label; });
   });
 })();
+
+/* header greeting: first visit vs returning */
+(function(){
+  var el = document.getElementById('welcome');
+  if (!el) return;
+  var seen = false;
+  try { seen = localStorage.getItem('mrd_seen') === '1'; } catch (_) {}
+  el.textContent = seen ? 'Welcome back' : 'Welcome';
+  try { localStorage.setItem('mrd_seen', '1'); } catch (_) {}
+})();
+
+/* header greeting: first visit vs returning */
+(function(){
+  var el = document.getElementById('welcome');
+  if (!el) return;
+  var seen = false;
+  try { seen = localStorage.getItem('mrd_seen') === '1'; } catch (_) {}
+  el.textContent = seen ? 'Welcome back' : 'Welcome';
+  try { localStorage.setItem('mrd_seen', '1'); } catch (_) {}
+})();
