@@ -76,3 +76,5 @@
 
 
 
+/* corner robot: same construction as the hero */
+(function(){ var stage = document.getElementById("robotStage"); if (!stage) return; Array.prototype.forEach.call(document.querySelectorAll(".robot-corner"), function(n){ n.remove(); }); var box = document.createElement("div"); box.className = "robot-frame robot-corner"; box.style.display = "none"; var img = document.createElement("img"); img.src = "/img/robot.webp"; img.alt = ""; img.className = "robot-still"; img.style.opacity = "1"; img.style.pointerEvents = "none"; box.appendChild(img); document.body.appendChild(box); (function loop(){ var r = stage.getBoundingClientRect(); box.style.display = (r.bottom < 0 && window.scrollY > 200) ? "block" : "none"; requestAnimationFrame(loop); })(); })();
