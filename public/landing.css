@@ -493,3 +493,6 @@ img,video{display:block;max-width:100%}
 .robot-frame video{pointer-events:auto;cursor:pointer}
 .robot-still{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .4s ease;pointer-events:auto;cursor:pointer}
 .robot-frame video.is-active + .robot-still{opacity:1}
+.robot-stage{transform:translate(-50%,-50%) !important;opacity:1 !important}
+.robot-frame video:first-child{opacity:1 !important}
+.robot-frame video:not(:first-child){opacity:0 !important}
