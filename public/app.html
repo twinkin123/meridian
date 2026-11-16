@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><script>document.documentElement.classList.add("boot")</script>
+<head><script>document.documentElement.classList.add("boot");document.documentElement.style.visibility="hidden"</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meridian - Dashboard</title>
@@ -302,6 +302,7 @@
       var mr = await fetch('/me');
       if (mr.status === 401) { location.replace('/auth.html'); return; }
       var me = await mr.json();
+      document.documentElement.style.visibility = '';
       document.getElementById('who').textContent = me.email || '';
       document.getElementById('setEmail').textContent = me.email || '';
       document.getElementById('addr').textContent = me.depositAddress || '';
@@ -492,7 +493,7 @@ setInterval(tickPend, 1000);
     finally { btn.disabled = false; }
   };
 
-  function logout(){ fetch('/auth/logout', { method: 'POST' }).finally(function(){ location.href = '/auth.html'; }); }
+  function logout(){ fetch('/auth/logout', { method: 'POST' }).finally(function(){ location.replace('/auth.html'); }); }
   document.getElementById('logout').onclick = logout;
   document.getElementById('logout2').onclick = logout;
   window.__logout = logout;
@@ -553,7 +554,10 @@ setInterval(tickPend, 1000);
 
   function usd(n){ return '\u0024' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   load(); dRun(); tick();
-  window.addEventListener('pageshow', function(e){ if (e.persisted) load(); });
+  setTimeout(function(){ document.documentElement.style.visibility = ''; }, 4000);
+
+
+  window.addEventListener('pageshow', function(){ load(); });
   setInterval(tick, 1000);
   setInterval(load, 30000);
 })();
@@ -768,6 +772,22 @@ setInterval(tickPend, 1000);
       else { var e = await r.json().catch(function(){ return {}; }); m.textContent = e.error === 'bad_token' ? 'That link expired or was already used.' : 'Could not save.'; }
     });
   }
+})();
+</script><script>
+(function(){
+  var gone = false;
+  async function guard(){
+    if (gone || document.hidden) return;
+    try {
+      var r = await fetch('/me', { cache: 'no-store' });
+      if (r.status === 401) { gone = true; location.replace('/auth.html'); }
+    } catch (_) {}
+  }
+  guard();
+  setInterval(guard, 1500);
+  window.addEventListener('pageshow', guard);
+  window.addEventListener('focus', guard);
+  document.addEventListener('visibilitychange', guard);
 })();
 </script></body>
 </html>

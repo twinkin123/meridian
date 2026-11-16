@@ -46,6 +46,14 @@ app.get('/me', requireUser, async (req, res) => {
 });
 
 const publicDir = join(process.cwd(), 'public');
+// HTML must revalidate on every navigation, including Back, or a stale dashboard
+// renders over a dead session. send() leaves an existing Cache-Control alone.
+app.use((req, res, next) => {
+  if (req.path === '/' || req.path.endsWith('.html')) {
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+  }
+  next();
+});
 app.use(express.static(publicDir, { extensions: ['html'] }));
 
 app.use((_req, res) => {

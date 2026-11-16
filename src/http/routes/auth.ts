@@ -94,7 +94,7 @@ auth.post('/login', async (req, res) => {
   res.json({ ok: true, mustChange: u.must_change_pw === true });
 });
 
-auth.post('/logout', requireUser, async (req, res) => {
+auth.post('/logout', async (req, res) => {
   const token = req.cookies?.sid;
   if (token) await revokeSession(token);
   res.clearCookie('sid', { path: '/' });
