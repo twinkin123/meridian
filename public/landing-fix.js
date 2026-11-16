@@ -31,4 +31,5 @@
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) go(); });
   v.addEventListener('pause', function(){ setTimeout(go, 300); });
   setInterval(function(){ if (v.paused && !document.hidden) go(); }, 2000);
-})();
+})();/* iOS decides eligibility at load time: re-assert the flags, then reload */
+(function(){ var v = document.querySelector(".mascot"); if (!v || v.tagName !== "VIDEO") return; var s = v.getAttribute("src"); if (!s) return; v.muted = true; v.setAttribute("muted",""); v.setAttribute("playsinline",""); v.setAttribute("webkit-playsinline",""); v.setAttribute("autoplay",""); v.setAttribute("preload","auto"); v.setAttribute("src", s); v.load(); var p = v.play(); if (p && p.catch) p.catch(function(){}); })();
