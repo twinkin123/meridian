@@ -103,6 +103,8 @@
       '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>' +
       '<div class="res-clock">next credit in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
 
+    if (window.matchMedia("(max-width:900px)").matches){ var _a = document.getElementById("addr"); var _d = _a && _a.closest(".card"); if (_d && _d.parentElement) _d.parentElement.insertBefore(card, _d); }
+
     card.querySelectorAll('.res-nav button').forEach(function(b){
       b.addEventListener('click', function(){
         offset += +b.getAttribute('data-o');
