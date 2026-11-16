@@ -753,3 +753,19 @@ html body .res-total{
     margin-right:0!important;
   }
 }
+
+@media (max-width: 900px){
+  html body .layout::before, html body .layout::after{ display:none!important; }
+  html body .main{
+    border:0!important;
+    padding:20px 20px 100px!important;
+    position:relative!important;
+  }
+  html body .main::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border:1px solid rgba(45,226,214,.18);
+    pointer-events:none;
+  }
+}
