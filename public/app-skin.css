@@ -460,3 +460,153 @@ table.res th{padding-right:9px}
 .notes-inline .list li:last-child{border-bottom:0}
 .notes-inline .list li>div{flex:1;min-width:0}
 .notes-inline .list .sub{display:block;font-size:11px;color:var(--mut2,#8a8a9d);margin-top:2px}
+
+/* trade results casing */
+[data-results]{
+  border:1px solid rgba(45,226,214,.45)!important;
+  box-shadow:0 0 0 1px rgba(45,226,214,.12) inset, 0 0 24px -6px rgba(45,226,214,.4)!important;
+}
+
+/* underglow on every card */
+.main .card, .main .stats{
+  box-shadow:0 16px 34px -20px rgba(45,226,214,.6)!important;
+}
+[data-results]{
+  box-shadow:0 0 0 1px rgba(45,226,214,.12) inset, 0 16px 34px -20px rgba(45,226,214,.6)!important;
+}
+
+/* underglow on ticker and nav */
+.tickers, .side{
+  box-shadow:0 16px 34px -20px rgba(45,226,214,.6)!important;
+}
+
+/* underglow on header, nav rail gets an edge glow */
+.top{
+  box-shadow:0 16px 34px -20px rgba(45,226,214,.6)!important;
+}
+.side{
+  box-shadow:0 16px 34px -20px rgba(45,226,214,.6), 0 0 26px -12px rgba(45,226,214,.5)!important;
+}
+
+/* glow removed from header, ticker, nav */
+.top, .tickers, .side{ box-shadow:none!important; }
+
+/* glow under each stat box and control */
+.main .stat, .main .btn, .main .row button{
+  box-shadow:0 16px 30px -20px rgba(45,226,214,.8)!important;
+}
+
+/* claim held + withdraw rewards: purple casing and text */
+.main .card > .btn{
+  border:1px solid rgba(168,85,247,.55)!important;
+  color:#c084fc!important;
+  box-shadow:0 16px 30px -20px rgba(168,85,247,.85)!important;
+}
+.main .card > .btn:hover{
+  border-color:rgba(192,132,252,.9)!important;
+  color:#ddb6ff!important;
+}
+
+/* claim held + withdraw rewards: neon purple casing and letters */
+#claimBtn, #rwOut{
+  border:1px solid rgba(192,60,255,.75)!important;
+  color:#d98bff!important;
+  background:transparent!important;
+  text-shadow:0 0 12px rgba(192,60,255,.6)!important;
+  box-shadow:0 0 18px -6px rgba(192,60,255,.9), 0 16px 30px -20px rgba(192,60,255,.9)!important;
+}
+#claimBtn:hover, #rwOut:hover{
+  border-color:#e0a6ff!important;
+  color:#f0d4ff!important;
+  box-shadow:0 0 26px -6px rgba(192,60,255,1), 0 16px 30px -20px rgba(192,60,255,1)!important;
+}
+#claimBtn:disabled{ opacity:.5; }
+
+/* brighter */
+#claimBtn, #rwOut{
+  border-color:rgba(216,116,255,.95)!important;
+  color:#f0c6ff!important;
+  box-shadow:0 0 24px -4px rgba(216,116,255,1), 0 16px 34px -18px rgba(216,116,255,1)!important;
+}
+#claimBtn:hover, #rwOut:hover{
+  border-color:#f2d6ff!important;
+  color:#ffffff!important;
+}
+
+/* light blue */
+#claimBtn, #rwOut{
+  border-color:rgba(120,205,255,.95)!important;
+  color:#bfe6ff!important;
+  box-shadow:0 0 24px -4px rgba(120,205,255,1), 0 16px 34px -18px rgba(120,205,255,1)!important;
+}
+#claimBtn:hover, #rwOut:hover{
+  border-color:#dcf1ff!important;
+  color:#ffffff!important;
+}
+
+/* normalise both: identical, no purple hover */
+#claimBtn, #rwOut{
+  background:transparent!important;
+  background-image:none!important;
+  color:#bfe6ff!important;
+  border:1px solid rgba(120,205,255,.95)!important;
+  font-weight:600!important;
+  filter:none!important;
+  text-shadow:0 0 12px rgba(120,205,255,.65)!important;
+  box-shadow:0 0 24px -4px rgba(120,205,255,.95), 0 16px 34px -18px rgba(120,205,255,.95)!important;
+}
+#claimBtn:hover, #rwOut:hover{
+  background:transparent!important;
+  background-image:none!important;
+  color:#ffffff!important;
+  border-color:#dcf1ff!important;
+  filter:none!important;
+  box-shadow:0 0 30px -4px rgba(120,205,255,1), 0 16px 34px -18px rgba(120,205,255,1)!important;
+}
+
+/* unify chrome */
+.top, .side{
+  background:#08090d!important;
+  border-color:rgba(255,255,255,.07)!important;
+}
+.side a{ color:#9aa0b4!important; }
+.side a:hover{ color:#ffffff!important; }
+.side a.on, .side a.active{ color:#ffffff!important; background:rgba(255,255,255,.06)!important; }
+
+/* lit hairlines on chrome */
+.top{ border-bottom:1px solid rgba(120,205,255,.22)!important; }
+.side{ border-right:1px solid rgba(120,205,255,.18)!important; }
+
+/* hairline on nav: match header, both edges */
+.side{
+  border-right:1px solid rgba(120,205,255,.22)!important;
+  border-left:1px solid rgba(120,205,255,.1)!important;
+}
+
+/* dividers between nav items */
+.side > a + a{ border-top:1px solid rgba(120,205,255,.13)!important; }
+
+/* nav casing matches divider */
+.side{
+  border-right:1px solid rgba(120,205,255,.13)!important;
+  border-left:1px solid rgba(120,205,255,.13)!important;
+}
+
+/* turquoise casing on nav */
+.side{
+  border-right:1px solid rgba(45,226,214,.45)!important;
+  border-left:1px solid rgba(45,226,214,.45)!important;
+}
+/* re-assert results casing */
+[data-results]{
+  border:1px solid rgba(45,226,214,.45)!important;
+  box-shadow:0 0 0 1px rgba(45,226,214,.12) inset, 0 16px 34px -20px rgba(45,226,214,.6)!important;
+}
+
+/* turquoise chrome edges */
+.top{ border-bottom:1px solid rgba(45,226,214,.45)!important; }
+.side{
+  border-left:1px solid rgba(45,226,214,.45)!important;
+  border-right:1px solid rgba(45,226,214,.45)!important;
+  border-bottom:1px solid rgba(45,226,214,.45)!important;
+}
