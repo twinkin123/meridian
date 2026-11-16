@@ -647,3 +647,16 @@ html body .res-total{
     box-shadow:0 0 26px -8px rgba(45,226,214,.32), 0 0 60px -30px rgba(45,226,214,.24)!important;
   }
 }
+
+@media (max-width: 900px){
+  html body .main .card, html body .main .stat, html body .main .stats{
+    margin-bottom:12px!important;
+  }
+}
+
+@media (max-width: 900px){
+  html body .main .card, html body .main .stat, html body .main .stats{
+    box-shadow:0 0 26px -8px rgba(45,226,214,.32), 0 0 60px -30px rgba(45,226,214,.24)!important;
+    margin-bottom:12px!important;
+  }
+}
