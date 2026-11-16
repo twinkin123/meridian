@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head><script>document.documentElement.classList.add("boot")</script>
 <meta charset="utf-8">
@@ -53,6 +53,7 @@
 
           <div class="stats">
             <div class="stat"><span class="lbl">Available</span><b id="avail">$0.00</b></div>
+            <div class="stat"><span class="lbl">Pending</span><b id="pend">$0.00</b></div>
             <div class="stat"><span class="lbl">Held</span><b id="held">$0.00</b></div>
             <div class="stat"><span class="lbl">Last rate</span><b id="rate">-</b></div>
           </div>
@@ -236,7 +237,7 @@
   function money(m){
     return '$' + (Number(m) / 1e6).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
-  var state = { balance: '0', held: '0', rateBp: 100 };
+  var state = { balance: '0', held: '0', pend: '0', nextRel: null, rateBp: 100 };
 
   document.querySelectorAll('[data-panel]').forEach(function(b){
     b.addEventListener('click', function(){ go(b.dataset.panel); });
@@ -282,6 +283,7 @@
     try {
       var b = await fetch('/wallet/balance').then(function(r){ return r.json(); });
       state.balance = b.balance || '0';
+      state.pend = b.pending || '0'; state.nextRel = b.nextRelease || null;
       state.held = b.held || '0';
       state.refCode = b.referralCode || '';
       var rl = document.getElementById('refLink');
@@ -294,10 +296,16 @@
       if (re) re.textContent = usd((b.referralEarned || 0) / 1e6);
       document.getElementById('avail').textContent = money(state.balance);
       document.getElementById('held').textContent = money(state.held);
-      document.getElementById('total').textContent = money((BigInt(state.balance) + BigInt(state.held)).toString());
+      document.getElementById('pend').textContent = money(state.pend);
+      document.getElementById('total').textContent = money((BigInt(state.balance) + BigInt(state.held) + BigInt(state.pend)).toString());
       var note = 'No held deposits';
       if (BigInt(state.held) > 0n) note = money(state.held) + ' held until it reaches $10';
       if (BigInt(state.balance) > 0n && BigInt(state.balance) < 10000000n) note = 'Below $10. Withdraw the exact balance to close.';
+      if (BigInt(state.pend) > 0n) {
+        var ms = new Date(state.nextRel).getTime() - Date.now();
+        var mins = Math.max(0, Math.round(ms / 60000));
+        note = money(state.pend) + ' releasing - next slice in ' + (mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm');
+      }
       document.getElementById('heldNote').textContent = note;
       document.getElementById('rate').textContent = b.lastRateBp ? (b.lastRateBp / 100).toFixed(2) + '%' : '-';
       state.rateBp = b.lastRateBp || 100;
@@ -554,7 +562,6 @@
 </script>
 <script src="app-fix.js?v=34" defer></script><script src="profile-chip.js?v=2" defer></script><script src="ticker.js?v=1" defer></script><script src="res-head.js?v=13" defer></script><script>setTimeout(function(){document.documentElement.classList.remove("boot")},2500)</script><script src="boot.js?v=5" defer></script></body>
 </html>
-
 
 
 

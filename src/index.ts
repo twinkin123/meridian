@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import cookieParser from 'cookie-parser';
 import { join } from 'node:path';
 import { health } from './http/health.js';
@@ -9,6 +9,7 @@ import { adminRouter } from './admin.js';
 import { runRecon } from './recon.js';
 import { runDailyCredit } from './jobs/daily.js';
 import { runReferral } from './jobs/referral.js';
+import { releaseDue } from './vesting.js';
 import { requireUser } from './http/mw/session.js';
 import { one, close } from './db.js';
 
@@ -53,6 +54,10 @@ const creditTimer = setInterval(() => {
   if (now.getUTCHours() === 0) runDailyCredit(now).catch((e) => console.error('credit', e));
 }, 5 * 60 * 1000);
 
+const vestTimer = setInterval(() => {
+  releaseDue().catch((e) => console.error('vesting', e));
+}, 5 * 60 * 1000);
+
 const reconTimer = setInterval(() => {
   runRecon('cron').catch((e) => console.error('recon', e));
 }, 15 * 60 * 1000);
@@ -61,6 +66,7 @@ const server = app.listen(port, () => console.log(`listening on ${port}`));
 
 for (const sig of ['SIGTERM', 'SIGINT'] as const) {
   process.on(sig, async () => {
+    clearInterval(vestTimer);
     clearInterval(reconTimer);
     server.close();
     await close();
