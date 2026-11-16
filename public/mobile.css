@@ -428,3 +428,16 @@
 .claim:hover{ background:rgba(255,255,255,.06) !important; }
 .claim:active{ background:rgba(255,255,255,.1) !important; }
 .claim:disabled{ opacity:.55 !important; }
+
+/* cards: top sheen and brighter edge */
+.main .card{ position:relative !important; border-color:rgba(255,255,255,.14) !important; }
+.main .card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,0) 45%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09);
+}
+.stats .stat{ border-color:rgba(255,255,255,.14) !important; }
