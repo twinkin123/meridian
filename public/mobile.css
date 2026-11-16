@@ -177,3 +177,18 @@
 @media (max-width: 480px){
   .top-right .who{ display:none !important; }
 }
+
+/* scrolling: the desktop shell locks the body, restore document scroll */
+@media (max-width: 900px){
+  html, body{
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    height:auto !important;
+    max-height:none !important;
+  }
+  .shell, .main, .panel{
+    height:auto !important;
+    max-height:none !important;
+    overflow:visible !important;
+  }
+}
