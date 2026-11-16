@@ -411,3 +411,9 @@ table.res th{padding-right:9px}
 .ref-stats > div{padding:10px !important}
 .ref-stats b{font-size:14px !important}
 .ref-card .ref-ladder{margin-top:2px !important}
+
+.ref-ladder > div{padding:6px 0 !important}
+.ref-ladder .t{font-size:12px !important}
+.ref-list-card{display:flex !important;flex-direction:column !important}
+.ref-list-card .list{flex:1 1 auto !important;display:flex !important;flex-direction:column !important;justify-content:center !important}
+.ref-list-card .list li.empty{text-align:center !important;padding:0 !important;border:0 !important;color:var(--mut2) !important;font-size:12px !important}
