@@ -24,4 +24,5 @@
   who.addEventListener('keydown', function(e){
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); who.click(); }
   });
-})();
+})();/* greeting */
+(function(){ var el = document.getElementById("welcome"); if (!el) return; var seen = false; try { seen = localStorage.getItem("mrd_seen") === "1"; } catch (e) {} el.textContent = seen ? "Welcome back" : "Welcome"; try { localStorage.setItem("mrd_seen", "1"); } catch (e) {} })();
