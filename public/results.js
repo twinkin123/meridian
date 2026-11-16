@@ -104,7 +104,7 @@
       var b = buildRows(entry.day, entry.rate);
       card.innerHTML = note + head +
         '<div class="res-sub">' + b.wins + ' profit &middot; ' + (b.n - b.wins) + ' drawdown</div></div>' +
-        '<div class="res-total' + (b.total < 0 ? ' dn' : '') + '">' + (b.total >= 0 ? '+' : '') + b.total.toFixed(2) + '%</div>' +
+        '<div class="res-total' + (b.total < 0 ? ' dn' : '') + '" style="color:' + (b.total < 0 ? '#ff5c6e' : '#1bff80') + ';-webkit-text-fill-color:' + (b.total < 0 ? '#ff5c6e' : '#1bff80') + ';background:none">' + (b.total >= 0 ? '+' : '') + b.total.toFixed(2) + '%</div>' +
         '<div class="res-nav">' + nav() + '</div></div>' +
         tableOpen + b.rows + '</tbody></table>' + clock();
     }

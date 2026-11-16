@@ -603,3 +603,23 @@ html body .panel, html body .rainbow::before{
     clip-path:polygon(23px 0,100% 0,100% calc(100% - 23px),calc(100% - 23px) 100%,0 100%,0 23px)!important;
   }
 }
+
+html body .res-total{
+  background-image:none!important;
+  background-clip:border-box!important;
+  -webkit-background-clip:border-box!important;
+  -webkit-text-fill-color:#2bf07a!important;
+  color:#2bf07a!important;
+}
+html body .res-total.dn{
+  -webkit-text-fill-color:var(--red)!important;
+  color:var(--red)!important;
+}
+
+html body .res-total{
+  background-image:none!important;
+  background-clip:border-box!important;
+  -webkit-background-clip:border-box!important;
+  -webkit-text-fill-color:#1bff80!important;
+  color:#1bff80!important;
+}

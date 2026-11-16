@@ -480,3 +480,24 @@ html body .card.rainbow{
   background:linear-gradient(115deg,#7c5cff,#22d3ee,#2fd48a,#eab308,#f97316,#ef4444)!important;
 }
 html body .card.rainbow::before{ background:#000!important; }
+
+/* total: green throughout, matching the plus */
+html body .res-total, html body .res-total *{ color:var(--grn)!important; }
+html body .res-total.dn, html body .res-total.dn *{ color:var(--red)!important; }
+
+html body .res-total, html body .res-total *{
+  color:var(--grn)!important;
+  background:none!important;
+  -webkit-text-fill-color:var(--grn)!important;
+}
+
+/* total: bright green */
+html body .res-total, html body .res-total *{
+  color:#2bf07a!important;
+  -webkit-text-fill-color:#2bf07a!important;
+  background:none!important;
+}
+html body .res-total.dn, html body .res-total.dn *{
+  color:var(--red)!important;
+  -webkit-text-fill-color:var(--red)!important;
+}
