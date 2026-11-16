@@ -43,4 +43,5 @@
 
   all();
   new MutationObserver(all).observe(document.body, { childList: true, subtree: true });
-})();
+})();/* bell: clear the unread dot on click */
+(function(){ var b = document.getElementById("bell"); if (!b) return; b.addEventListener("click", function(){ var d = b.querySelector("i"); if (d) d.remove(); }); })();

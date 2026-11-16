@@ -551,3 +551,8 @@
 .res-note .res-clock::before{content:" - "}
 .card.has-clock{position:relative}
 .card.has-clock .res-clock{position:absolute !important;top:16px !important;right:18px !important;margin:0 !important;display:block !important;font-size:11px !important;color:#8a8a9d !important;white-space:nowrap}
+.bell{position:relative;flex:0 0 auto;display:grid;place-items:center;width:32px;height:32px;padding:0;border:1px solid rgba(255,255,255,.22);border-radius:7px;background:transparent;color:#e9e6f5;cursor:pointer}
+.bell:hover{background:rgba(255,255,255,.06)}
+.bell svg{display:block}
+.bell i{position:absolute;top:6px;right:6px;width:5px;height:5px;border-radius:50%;background:#ff4d6d}
+@media (max-width:400px){.bell{width:28px;height:28px}}
