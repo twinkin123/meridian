@@ -1,4 +1,4 @@
-/* res-head.js - date under the title, drop the drawdown line, countdown in the balance card. Loaded last. */
+/* res-head.js - date under the title, drop the note and drawdown line, single countdown in the balance card. */
 (function(){
   'use strict';
 
@@ -14,15 +14,29 @@
     }
     var s = document.querySelector('.res-sub');
     if (s) s.style.display = 'none';
+    var n = document.querySelector('.res-note');
+    if (n) n.remove();
   }
 
   function clock(){
-    var c = document.querySelector('.res-clock');
     var total = document.getElementById('total');
     var card = total && total.closest('.card');
-    if (!c || !card || c.parentElement === card) return;
-    card.classList.add('has-clock');
-    card.appendChild(c);
+    if (!card) return;
+    var list = document.querySelectorAll('.res-clock');
+    if (!list.length) return;
+
+    var keep = null;
+    for (var i = 0; i < list.length; i++){
+      if (card.contains(list[i])) { keep = list[i]; break; }
+    }
+    if (!keep) keep = list[0];
+    for (var j = 0; j < list.length; j++){
+      if (list[j] !== keep) list[j].remove();
+    }
+    if (keep.parentElement !== card){
+      card.classList.add('has-clock');
+      card.appendChild(keep);
+    }
   }
 
   function all(){ fix(); clock(); }
