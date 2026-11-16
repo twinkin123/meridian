@@ -393,3 +393,10 @@ table.res th{padding-right:9px}
 .tk .ic img{width:30px;height:30px;border-radius:50%;display:block}
 @keyframes tk-slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){.tickers-track{animation:none}}
+
+/* stop the referral card stretching, keep tiers stacked */
+.grid{align-items:start !important}
+.ref-card{height:auto !important}
+.ref-ladder{display:block !important}
+.ref-ladder > div{padding:8px 0 !important;border-bottom:1px solid var(--line) !important}
+.ref-ladder > div:last-child{border-bottom:0 !important}
