@@ -610,3 +610,18 @@ table.res th{padding-right:9px}
   border-right:1px solid rgba(45,226,214,.45)!important;
   border-bottom:1px solid rgba(45,226,214,.45)!important;
 }
+
+/* lifted surfaces */
+html, body{ background:#0c0e13!important; }
+.main .card, .main .stat{ background-color:#161922!important; }
+.top, .side{ background:#0a0c11!important; }
+
+/* lifted surfaces, stronger */
+html, body{ background:#12141b!important; }
+.main .card, .main .stat{ background-color:#1c202b!important; }
+.top, .side{ background:#0e1017!important; }
+
+/* page matches the landing page */
+html, body{ background:#0a0a0b!important; }
+.top, .side{ background:#0a0a0b!important; }
+.main .card, .main .stat{ background-color:#131316!important; }
