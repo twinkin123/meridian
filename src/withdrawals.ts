@@ -55,7 +55,9 @@ export async function requestWithdrawal(
   asset: Asset,
   address: string,
   usd: bigint,
+  source: 'available' | 'rewards' = 'available',
 ): Promise<RequestResult> {
+  const code = source === 'rewards' ? '2080' : '2000';
   try {
     new PublicKey(address);
   } catch {
@@ -68,14 +70,14 @@ export async function requestWithdrawal(
     await ensure(c, userId);
 
     const bal = await c.query<{ b: string }>(
-      `select coalesce(balance, 0) b from v_balance where user_id = $1 and code = '2000'`,
-      [userId],
+      `select coalesce(balance, 0) b from v_balance where user_id = $1 and code = $2`,
+      [userId, code],
     );
     const balance = BigInt(bal.rows[0]?.b ?? 0);
 
     const closing = usd === balance;
     if (usd > balance) return { ok: false, error: 'insufficient' };
-    if (usd < MIN_WITHDRAW && !closing) return { ok: false, error: 'below_min' };
+    if (usd < MIN_WITHDRAW && !closing && source !== 'rewards') return { ok: false, error: 'below_min' };
 
     const seen = await c.query<{ first_seen: string }>(
       `insert into withdrawal_addresses (user_id, address) values ($1, $2)
@@ -96,21 +98,26 @@ export async function requestWithdrawal(
     const ageMs = Date.now() - new Date(firstSeen).getTime();
     const cap = computeCap(Boolean(seen.rows[0]), ageMs, balance);
 
-    if (usd > cap) return { ok: false, error: 'over_cap', cap: cap.toString() };
+    if (usd > cap && source !== 'rewards') return { ok: false, error: 'over_cap', cap: cap.toString() };
 
-    const status = usd <= AUTO_APPROVE_MAX ? 'approved' : 'requested';
+    const fee = (usd * 500n) / 10000n;
+    const net = usd - fee;
+    if (net <= 0n) return { ok: false, error: 'below_min' };
+
+    const status = source === 'rewards' ? 'approved' : 'requested';
 
     const row = await c.query<{ id: string }>(
-      `insert into withdrawals (user_id, asset, address, usd_amount, status, requested_by, approved_by)
-       values ($1, $2, $3, $4, $5, $1, $6)
+      `insert into withdrawals (user_id, asset, address, usd_amount, fee, status, requested_by, approved_by)
+       values ($1, $2, $3, $4, $5, $6, $1, $7)
        returning id`,
-      [userId, asset, address, usd.toString(), status, status === 'approved' ? 'auto' : null],
+      [userId, asset, address, net.toString(), fee.toString(), status, status === 'approved' ? 'auto' : null],
     );
     const id = row.rows[0].id;
 
     await post(c, 'WithdrawalRequested', id, [
-      { code: '2000', owner: userId, amount: usd },
-      { code: '2010', owner: userId, amount: -usd },
+      { code, owner: userId, amount: usd },
+      { code: '2010', owner: userId, amount: -net },
+      { code: '4000', amount: -fee },
     ]);
 
     return { ok: true, id, status, cap: cap.toString() };
@@ -225,7 +232,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
   if (row.sig) {
     const st = await c.getSignatureStatus(row.sig, { searchTransactionHistory: true }).catch(() => null);
     const cs = st?.value?.confirmationStatus;
-    if (cs === 'confirmed' || cs === 'finalized') {
+    if ((cs === 'confirmed' || cs === 'finalized') && !st?.value?.err) {
       await pool.query(`update withdrawals set status = 'sending' where id = $1`, [id]);
       await finalize(id, row.sig, row.user_id, row.address, usd, 0n);
       return { ok: true, sig: row.sig };
@@ -254,8 +261,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
       if (row.asset === 'SOL') {
         const bal = BigInt(await c.getBalance(kp.publicKey, 'confirmed'));
         if (bal - qty - FEE_HEADROOM - RENT_EXEMPT < 0n) {
-          await markFailed(id, 'treasury_short_sol');
-          return { ok: false, error: 'treasury_short' };
+          break;
         }
         txn.add(
           ComputeBudgetProgram.setComputeUnitPrice({ microLamports: PRIORITY_MICRO }),
@@ -275,8 +281,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
 
       const sim = await c.simulateTransaction(txn);
       if (sim.value.err) {
-        await markFailed(id, `sim:${JSON.stringify(sim.value.err)}`);
-        return { ok: false, error: 'sim_failed' };
+        break;
       }
 
       txn.sign(kp);
@@ -290,6 +295,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
       }
       if (conf === 'reverted') {
         await markFailed(id, `reverted:${lastSig}`);
+        await pool.query('update withdrawals set sig = null where id = $1', [id]);
         return { ok: false, error: 'reverted', sig: lastSig };
       }
     } catch (e) {
@@ -304,7 +310,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
   if (lastSig) {
     const st = await c.getSignatureStatus(lastSig, { searchTransactionHistory: true }).catch(() => null);
     const cs = st?.value?.confirmationStatus;
-    if (cs === 'confirmed' || cs === 'finalized') {
+    if ((cs === 'confirmed' || cs === 'finalized') && !st?.value?.err) {
       await finalize(id, lastSig, row.user_id, row.address, usd, qty);
       return { ok: true, sig: lastSig };
     }
@@ -317,4 +323,14 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
 export function treasury(): string {
   return treasuryAddress();
 }
+
+
+
+
+
+
+
+
+
+
 

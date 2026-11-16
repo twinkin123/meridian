@@ -31,7 +31,7 @@
     <a href="#settings"><span class="ico">?</span> Settings</a>
     <div class="sep">Info</div>
     <a href="#faq"><span class="ico">?</span> FAQ</a>
-    <a href="#docs"><span class="ico">§</span> Docs</a>
+    <a href="#docs"><span class="ico">Â§</span> Docs</a>
   </nav>
 
   <main class="main"><div class="tickers"><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.2 17.4h10.6l3.1 2.6H9.3zM4.4 10.7h10.6l3.1 2.6H7.5zM7.1 4h10.6l3.1 2.6H10.2z"/></svg><img alt=""></span><div><b>SOL</b><small>Solana</small></div><span class="px">71.50<em class="up">+2.14%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.4v9.2M14.3 9.5c-.6-.7-1.6-1.1-2.7-1.1-1.5 0-2.5.7-2.5 1.8 0 1.2 1.1 1.6 2.6 1.9 1.5.3 2.6.7 2.6 1.9 0 1.1-1 1.8-2.5 1.8-1.1 0-2.1-.4-2.7-1.1"/></svg><img alt=""></span><div><b>USDC</b><small>USD Coin</small></div><span class="px">1.00<em class="dn">-0.01%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 3.6h2.1v1.9h1.9V3.6h2.1v2.1c1.8.6 3 2 3 3.8 0 1.6-.8 2.7-2 3.2 1.6.5 2.6 1.9 2.6 3.7 0 2.4-1.8 3.9-4.3 4.2v2h-2.1v-1.9h-1.9v1.9H9.4v-1.9H6.6v-2h1.6V7.7H6.6v-2h2.8zm2.1 2v4.9h2c1.3 0 2.2-.8 2.2-2.1 0-1.4-.9-2.2-2.2-2.2h-2zm0 6.9v5h2.4c1.5 0 2.4-.9 2.4-2.4 0-1.6-1-2.6-2.5-2.6h-2.3z"/></svg><img alt=""></span><div><b>BTC</b><small>Bitcoin</small></div><span class="px">76,779<em class="dn">-1.40%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2l5.9 9.9L12 15.6 6.1 12.1zM12 17.1l5.9-3.6L12 21.8 6.1 13.5z"/></svg><img alt=""></span><div><b>ETH</b><small>Ethereum</small></div><span class="px">2,391<em class="dn">-2.31%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.4"/><path d="M14.2 7.2v7.3a3 3 0 0 1-4.3 2.7"/></svg><img alt=""></span><div><b>JUP</b><small>Jupiter</small></div><span class="px">0.44<em class="up">+0.87%</em></span></div></div>
@@ -53,12 +53,13 @@
 
           <div class="stats">
             <div class="stat"><span class="lbl">Available</span><b id="avail">$0.00</b></div>
-            <div class="stat"><span class="lbl">Pending</span><b id="pend">$0.00</b></div>
+            <div class="stat"><span class="lbl">Pending</span><b id="pend">$0.00</b></div><div class="stat"><span class="lbl">Locked</span><b id="locked">$0.00</b></div><div class="stat"><span class="lbl">Rewards</span><b id="rw">$0.00</b></div>
             <div class="stat"><span class="lbl">Held</span><b id="held">$0.00</b></div>
             <div class="stat"><span class="lbl">Last rate</span><b id="rate">-</b></div>
           </div>
 
           <button class="btn claim" id="claimBtn" type="button">Claim</button>
+        <button class="btn line" id="rwOut" type="button" style="display:none;width:100%;margin-bottom:10px">Withdraw rewards</button>
 
 
 
@@ -192,10 +193,23 @@
           <button class="btn" id="wAll" type="button">Withdraw all</button>
         </div>
         <p class="hint" id="capLine"></p>
+        <p class="hint" id="feeLine">5% withdrawal fee</p>
       </div>
     </section>
 
     <section class="panel" id="p-history">
+      <div class="card">
+      <div class="card">
+      <div class="card">
+        <span class="lbl">Your deposits</span>
+        <p class="hint">Each deposit is locked for 30 days. After that you can request release, which an admin approves.</p>
+        <ul class="list" id="deps"><li class="empty">Loading...</li></ul>
+      </div>
+      <div class="card">
+        <span class="lbl">Settlement releases</span>
+        <p class="hint">Each daily credit releases in four slices, six hours apart.</p>
+        <ul class="list" id="settles"><li class="empty">Loading...</li></ul>
+      </div>
       <div class="card">
         <span class="lbl">Withdrawal history</span>
         <ul class="list" id="hist"><li class="empty">Loading...</li></ul>
@@ -216,6 +230,18 @@
         <p class="hint" id="setEmail"></p>
         <p class="hint">No KYC on this account. Access is geo-restricted.</p>
         <div class="row"><button class="btn" id="logout2" type="button">Log out</button></div>
+
+        <span class="lbl" style="margin-top:18px">Active sessions</span>
+        <p class="hint">Everywhere this account is signed in. Revoke anything you do not recognise.</p>
+        <ul class="list" id="sessList"><li class="empty">Loading...</li></ul>
+        <div class="row"><button class="btn line" id="sessAll" type="button">Sign out everywhere else</button></div>
+
+        <span class="lbl" style="margin-top:18px">Change password</span>
+        <p class="hint">Changing it signs out every other session.</p>
+        <div class="row"><input id="pwCur" type="password" placeholder="Current password" autocomplete="current-password" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px"></div>
+        <div class="row"><input id="pwNew" type="password" placeholder="New password, 8+ characters" autocomplete="new-password" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px"></div>
+        <div class="row"><button class="btn" id="pwGo" type="button">Update password</button></div>
+        <p class="hint" id="pwMsg"></p>
       </div>
     </section>
 
@@ -237,7 +263,7 @@
   function money(m){
     return '$' + (Number(m) / 1e6).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
-  var state = { balance: '0', held: '0', pend: '0', nextRel: null, rateBp: 100 };
+  var state = { balance: '0', held: '0', pend: '0', nextRel: null, locked: '0', rw: '0', rateBp: 100 };
 
   document.querySelectorAll('[data-panel]').forEach(function(b){
     b.addEventListener('click', function(){ go(b.dataset.panel); });
@@ -248,7 +274,7 @@
   function go(id){
     document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('on', p.id === id); });
     document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.toggle('on', n.dataset.panel === id); });
-    if (id === 'p-history') loadHistory();
+    if (id === 'p-history') { loadHistory(); loadSettlements(); loadDeposits(); }
     if (id === 'p-addresses') loadAddresses();
   }
 
@@ -283,7 +309,7 @@
     try {
       var b = await fetch('/wallet/balance').then(function(r){ return r.json(); });
       state.balance = b.balance || '0';
-      state.pend = b.pending || '0'; state.nextRel = b.nextRelease || null;
+      state.pend = b.pending || '0'; state.nextRel = b.nextRelease || null; state.locked = b.locked || '0'; state.rw = b.rewards || '0';
       state.held = b.held || '0';
       state.refCode = b.referralCode || '';
       var rl = document.getElementById('refLink');
@@ -297,7 +323,10 @@
       document.getElementById('avail').textContent = money(state.balance);
       document.getElementById('held').textContent = money(state.held);
       document.getElementById('pend').textContent = money(state.pend);
-      document.getElementById('total').textContent = money((BigInt(state.balance) + BigInt(state.held) + BigInt(state.pend)).toString());
+      document.getElementById('locked').textContent = money(state.locked);
+      document.getElementById('rw').textContent = money(state.rw);
+      document.getElementById('rwOut').style.display = BigInt(state.rw) > 0n ? 'block' : 'none';
+      document.getElementById('total').textContent = money((BigInt(state.balance) + BigInt(state.held) + BigInt(state.pend) + BigInt(state.locked) + BigInt(state.rw)).toString());
       var note = 'No held deposits';
       if (BigInt(state.held) > 0n) note = money(state.held) + ' held until it reaches $10';
       if (BigInt(state.balance) > 0n && BigInt(state.balance) < 10000000n) note = 'Below $10. Withdraw the exact balance to close.';
@@ -319,6 +348,15 @@
     } catch (_) {}
   }
 
+  function tickPend(){
+  if (!state.nextRel) return;
+  var ms = new Date(state.nextRel).getTime() - Date.now();
+  if (ms <= 0) { if (!state._rl) { state._rl = 1; setTimeout(function(){ state._rl = 0; }, 5000); load(); } return; }
+  var mins = Math.max(0, Math.round(ms / 60000));
+  document.getElementById('heldNote').textContent = money(state.pend) + ' releasing over 24h - next slice in ' + (mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm');
+}
+setInterval(tickPend, 1000);
+
   async function loadHistory(){
     var el = document.getElementById('hist');
     el.innerHTML = '<li class="empty">Loading...</li>';
@@ -328,11 +366,45 @@
       if (!rows.length) { el.innerHTML = '<li class="empty">No withdrawals yet.</li>'; return; }
       el.innerHTML = rows.map(function(w){
         var cls = w.status === 'paid' ? 'ok' : (w.status === 'failed' || w.status === 'cancelled') ? 'bad' : '';
-        return '<li><div><b>' + money(w.usd_amount) + '</b> ' + w.asset + '<span class="sub">' +
+        return '<li><div><b>' + money(w.usd_amount) + '</b> ' + w.asset + (Number(w.fee) > 0 ? ' <span class="sub">fee ' + money(w.fee) + '</span>' : '') + '<span class="sub">' +
           (w.address || '').slice(0, 10) + '... ' + new Date(w.created_at).toLocaleString() +
           '</span></div><span class="pill ' + cls + '">' + w.status + '</span></li>';
       }).join('');
     } catch (_) { el.innerHTML = '<li class="empty">Could not load history.</li>'; }
+  }
+
+  async function loadSettlements(){
+    var el = document.getElementById('settles');
+    if (!el) return;
+    el.innerHTML = '<li class="empty">Loading...</li>';
+    try {
+      var r = await fetch('/wallet/settlements').then(function(x){ return x.json(); });
+      var rows = r.settlements || [];
+      if (!rows.length) { el.innerHTML = '<li class="empty">No settlements yet.</li>'; return; }
+      el.innerHTML = rows.map(function(s){
+        var done = !!s.released_at;
+        return '<li><div><b>' + money(s.amount) + '</b><span class="sub">' + (done ? 'released ' + new Date(s.released_at).toLocaleString() : 'due ' + new Date(s.due_at).toLocaleString()) + '</span></div><span class="pill ' + (done ? 'ok' : '') + '">' + (done ? 'released' : 'pending') + '</span></li>';
+      }).join('');
+    } catch (_) { el.innerHTML = '<li class="empty">Could not load settlements.</li>'; }
+  }
+
+  async function loadDeposits(){
+    var el = document.getElementById('deps');
+    if (!el) return;
+    el.innerHTML = '<li class="empty">Loading...</li>';
+    try {
+      var r = await fetch('/wallet/deposits').then(function(x){ return x.json(); });
+      var rows = r.deposits || [];
+      if (!rows.length) { el.innerHTML = '<li class="empty">No deposits yet.</li>'; return; }
+      el.innerHTML = rows.map(function(d){
+        var out;
+        if (d.released_at) out = '<span class="pill ok">released</span>';
+        else if (d.claim_requested_at) out = '<span class="pill">awaiting approval</span>';
+        else if (new Date(d.unlock_at) <= new Date()) out = '<button class="btn line" data-claim=' + d.id + ' type="button">Claim</button>';
+        else out = '<span class="pill">locked</span>';
+        return '<li><div><b>' + money(d.usd_at_det) + '</b> ' + d.asset + '<span class="sub">unlocks ' + new Date(d.unlock_at).toLocaleString() + '</span></div>' + out + '</li>';
+      }).join('');
+    } catch (_) { el.innerHTML = '<li class="empty">Could not load deposits.</li>'; }
   }
 
   async function loadAddresses(){
@@ -348,6 +420,36 @@
         : '<li class="empty">No saved addresses yet.</li>';
     } catch (_) { el.innerHTML = '<li class="empty">Could not load addresses.</li>'; }
   }
+
+  document.getElementById('rwOut').onclick = async function(){
+    var a = document.getElementById('wAddr').value.trim();
+    if (!a) { go('p-withdraw'); return; }
+    this.disabled = true;
+    try {
+      var r = await fetch('/wallet/withdraw', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ asset: 'USDC', address: a, usd: state.rw, source: 'rewards' }) }).then(function(x){ return x.json().then(function(j){ return { ok: x.ok, j: j }; }); });
+      document.getElementById('heldNote').textContent = r.ok ? 'Rewards withdrawal queued, awaiting payout.' : (r.j.error || 'failed');
+      load();
+    } catch (_) { document.getElementById('heldNote').textContent = 'failed'; }
+    finally { this.disabled = false; }
+  };
+
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('[data-claim]');
+    if (!b) return;
+    b.disabled = true; b.textContent = 'Requesting...';
+    fetch('/wallet/deposits/' + b.dataset.claim + '/claim', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ return { ok: r.ok, j: j }; }); })
+      .then(function(res){ if (!res.ok) { b.textContent = res.j.error || 'failed'; b.disabled = false; return; } loadDeposits(); })
+      .catch(function(){ b.textContent = 'failed'; b.disabled = false; });
+  });
+
+  document.getElementById('wUsd').addEventListener('input', function(){
+    var v = Math.round(Number(this.value) * 1e6);
+    var el = document.getElementById('feeLine');
+    if (!v || v <= 0) { el.textContent = '5% withdrawal fee'; return; }
+    var f = Math.floor(v * 500 / 10000);
+    el.textContent = '5% fee (' + money(f) + ') - you receive ' + money(v - f);
+  });
 
   document.getElementById('copy').onclick = function(){ copy(document.getElementById('addr').textContent, this); };
   document.getElementById('copy2').onclick = function(){ copy(document.getElementById('addr2').textContent, this); };
@@ -498,6 +600,18 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return true;
   }
+  document.getElementById('rwOut').onclick = async function(){
+    var a = document.getElementById('wAddr').value.trim();
+    if (!a) { go('p-withdraw'); return; }
+    this.disabled = true;
+    try {
+      var r = await fetch('/wallet/withdraw', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ asset: 'USDC', address: a, usd: state.rw, source: 'rewards' }) }).then(function(x){ return x.json().then(function(j){ return { ok: x.ok, j: j }; }); });
+      document.getElementById('heldNote').textContent = r.ok ? 'Rewards withdrawal queued, awaiting payout.' : (r.j.error || 'failed');
+      load();
+    } catch (_) { document.getElementById('heldNote').textContent = 'failed'; }
+    finally { this.disabled = false; }
+  };
+
   document.addEventListener('click', function(e){
     var a = e.target.closest('a[href^="#"]');
     if (!a) return;
@@ -560,8 +674,116 @@
   if (t){ var c = t.closest('.card'); if (c) c.classList.add('rainbow'); }
 })();
 </script>
-<script src="app-fix.js?v=34" defer></script><script src="profile-chip.js?v=2" defer></script><script src="ticker.js?v=1" defer></script><script src="res-head.js?v=13" defer></script><script>setTimeout(function(){document.documentElement.classList.remove("boot")},2500)</script><script src="boot.js?v=5" defer></script></body>
+<script src="app-fix.js?v=34" defer></script><script src="profile-chip.js?v=2" defer></script><script src="ticker.js?v=1" defer></script><script src="res-head.js?v=13" defer></script><script>setTimeout(function(){document.documentElement.classList.remove("boot")},2500)</script><script src="boot.js?v=5" defer></script><script>
+(function(){
+  var list = document.getElementById('sessList');
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(ch){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[ch]; }); }
+  function when(iso){ try { return new Date(iso).toLocaleString(); } catch (_) { return '-'; } }
+  function shortUa(ua){
+    if (!ua) return 'Unknown device';
+    if (/PowerShell|curl|python|node/i.test(ua)) return 'Script client';
+    var b = ua.match(/(Firefox|Edg|Chrome|Safari)\/[\d.]+/);
+    var os = /Windows/.test(ua) ? 'Windows' : /Mac OS/.test(ua) ? 'macOS' : /Android/.test(ua) ? 'Android' : /iPhone|iPad/.test(ua) ? 'iOS' : /Linux/.test(ua) ? 'Linux' : '';
+    return [b ? b[1] : 'Browser', os].filter(Boolean).join(' on ');
+  }
+  async function loadSessions(){
+    if (!list) return;
+    list.innerHTML = '<li class="empty">Loading...</li>';
+    try {
+      var r = await fetch('/auth/sessions');
+      if (!r.ok) { list.innerHTML = '<li class="empty">Sign in again to see sessions.</li>'; return; }
+      var d = await r.json();
+      var rows = d.sessions || [];
+      if (!rows.length) { list.innerHTML = '<li class="empty">No sessions.</li>'; return; }
+      list.innerHTML = rows.map(function(s){
+        var tag = s.current ? ' <span class="pill">this device</span>' : '';
+        var rev = s.revoked ? ' <span class="pill">revoked</span>' : '';
+        var btn = s.revoked ? '' : '<button class="btn line" data-rev="' + s.id + '"' + (s.current ? ' data-cur="1"' : '') + ' type="button">' + (s.current ? 'Sign out' : 'Revoke') + '</button>';
+        return '<li' + (s.revoked ? ' style="opacity:.55"' : '') + '><div><b>' + esc(shortUa(s.ua)) + tag + rev + '</b><span class="sub">' + esc(s.ip || 'unknown ip') + ' &middot; last seen ' + when(s.lastSeenAt) + '</span></div>' + btn + '</li>';
+      }).join('');
+    } catch (_) { list.innerHTML = '<li class="empty">Could not load sessions.</li>'; }
+  }
+  document.addEventListener('click', async function(e){
+    if (e.target.closest('[data-panel="p-settings"], a[href="#settings"]')) { loadSessions(); return; }
+    var rev = e.target.closest('[data-rev]');
+    if (rev) {
+      rev.disabled = true;
+      var r = await fetch('/auth/sessions/' + rev.dataset.rev, { method: 'DELETE' });
+      if (!r.ok) { rev.disabled = false; return; } if (rev.dataset.cur === '1') location.replace('/auth.html'); else loadSessions();
+    }
+  });
+  if (location.hash === '#settings') loadSessions();
+  var all = document.getElementById('sessAll');
+  if (all) all.addEventListener('click', async function(){
+    if (!confirm('Sign out every other session?')) return;
+    var r = await fetch('/auth/sessions', { method: 'DELETE' });
+    if (r.ok) loadSessions();
+  });
+  var upd = document.getElementById('pwGo');
+  if (upd) upd.addEventListener('click', async function(){
+    var msg = document.getElementById('pwMsg');
+    var cur = document.getElementById('pwCur').value;
+    var nw = document.getElementById('pwNew').value;
+    msg.textContent = '';
+    if (nw.length < 8) { msg.textContent = 'New password needs 8+ characters.'; return; }
+    var r = await fetch('/auth/password', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ current: cur, password: nw })
+    });
+    var d = await r.json().catch(function(){ return {}; });
+    if (r.ok) {
+      msg.textContent = 'Password updated. Other sessions signed out.';
+      document.getElementById('pwCur').value = '';
+      document.getElementById('pwNew').value = '';
+      loadSessions();
+    } else {
+      msg.textContent = d.error === 'bad_credentials' ? 'Current password is wrong.' : 'Could not update password.';
+    }
+  });
+  var tok = new URLSearchParams(location.search).get('reset');
+  if (tok) {
+    var main = document.querySelector('.main');
+    var d = document.createElement('div');
+    d.className = 'card';
+    d.innerHTML = '<span class="lbl">Set a new password</span><p class="hint">This link works once and expires in 30 minutes.</p>'
+      + '<div class="row"><input id="rsPw" type="password" placeholder="New password, 8+ characters" autocomplete="new-password" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:10px"></div>'
+      + '<div class="row"><button class="btn" id="rsGo" type="button">Save password</button></div>'
+      + '<p class="hint" id="rsMsg"></p>';
+    main.insertBefore(d, main.firstChild);
+    document.getElementById('rsGo').addEventListener('click', async function(){
+      var pw = document.getElementById('rsPw').value;
+      var m = document.getElementById('rsMsg');
+      if (pw.length < 8) { m.textContent = 'Needs 8+ characters.'; return; }
+      var r = await fetch('/auth/reset', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ token: tok, password: pw })
+      });
+      if (r.ok) { m.textContent = 'Saved. Redirecting...'; setTimeout(function(){ location.replace('/app.html'); }, 600); }
+      else { var e = await r.json().catch(function(){ return {}; }); m.textContent = e.error === 'bad_token' ? 'That link expired or was already used.' : 'Could not save.'; }
+    });
+  }
+})();
+</script></body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

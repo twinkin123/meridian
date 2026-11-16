@@ -71,18 +71,21 @@ async function processSig(sig: string): Promise<void> {
 
       await ensure(c, u.id);
 
-      const dest = frozen || usd < MIN ? '2050' : '2000';
+      const dest = frozen || usd < MIN ? '2050' : '2070';
       await post(c, 'DepositCredited', sig, [
         { code: '1000', amount: usd },
         { code: dest, owner: u.id, amount: -usd },
       ]);
 
-      await c.query('update deposits set status = $1 where sig = $2', [
-        dest === '2000' ? 'credited' : 'held',
+      await c.query(
+        `update deposits set status = $1, unlock_at = now() + interval '30 days' where sig = $2`,
+        [dest === '2070' ? 'locked' : 'held',
         sig,
       ]);
 
-      if (dest === '2000' && depId) await payReferral(c, u.id, depId, usd);
+      if (dest === '2070' && depId) await payReferral(c, u.id, depId, usd);
     });
   }
 }
+
+

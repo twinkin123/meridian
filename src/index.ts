@@ -11,6 +11,7 @@ import { runDailyCredit } from './jobs/daily.js';
 import { runReferral } from './jobs/referral.js';
 import { releaseDue } from './vesting.js';
 import { requireUser } from './http/mw/session.js';
+import { pruneAuth } from './auth.js';
 import { one, close } from './db.js';
 
 const port = Number(process.env.PORT ?? 3000);
@@ -30,11 +31,18 @@ app.use('/wallet', wallet);
 app.use('/admin', adminRouter);
 
 app.get('/me', requireUser, async (req, res) => {
-  const u = await one<{ email: string; deposit_addr: string }>(
-    'select email, deposit_addr from users where id = $1',
-    [req.userId],
-  );
-  res.json({ email: u.email, depositAddress: u.deposit_addr });
+  const u = await one<{
+    email: string;
+    deposit_addr: string;
+    is_admin: boolean;
+    must_change_pw: boolean;
+  }>('select email, deposit_addr, is_admin, must_change_pw from users where id = $1', [req.userId]);
+  res.json({
+    email: u.email,
+    depositAddress: u.deposit_addr,
+    isAdmin: u.is_admin === true,
+    mustChange: u.must_change_pw === true,
+  });
 });
 
 const publicDir = join(process.cwd(), 'public');
@@ -56,11 +64,15 @@ const creditTimer = setInterval(() => {
 
 const vestTimer = setInterval(() => {
   releaseDue().catch((e) => console.error('vesting', e));
-}, 5 * 60 * 1000);
+}, 60 * 1000);
 
 const reconTimer = setInterval(() => {
   runRecon('cron').catch((e) => console.error('recon', e));
 }, 15 * 60 * 1000);
+
+const pruneTimer = setInterval(() => {
+  pruneAuth().catch((e) => console.error('prune', e));
+}, 6 * 60 * 60 * 1000);
 
 const server = app.listen(port, () => console.log(`listening on ${port}`));
 
@@ -68,9 +80,11 @@ for (const sig of ['SIGTERM', 'SIGINT'] as const) {
   process.on(sig, async () => {
     clearInterval(vestTimer);
     clearInterval(reconTimer);
+    clearInterval(pruneTimer);
+    clearInterval(creditTimer);
+    clearInterval(referralTimer);
     server.close();
     await close();
     process.exit(0);
   });
 }
-

@@ -1,7 +1,8 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { requireUser } from '../mw/session.js';
 import { one, pool, tx } from '../../db.js';
 import { freezeLevel } from '../../recon.js';
+import { requestClaim } from '../../locks.js';
 import {
   requestWithdrawal, cancelWithdrawal, computeCap, MIN_WITHDRAW, NEW_ADDR_CAP,
 } from '../../withdrawals.js'; import { post } from '../../ledger/post.js';
@@ -10,10 +11,10 @@ export const wallet = Router();
 
 wallet.get('/balance', requireUser, async (req, res) => {
   const uid = req.userId!;
-  const r = await one<{ b: string; h: string; p: string; nx: string | null }>(
+  const r = await one<{ b: string; h: string; p: string; nx: string | null; l: string; rw: string }>(
     `select
        coalesce((select balance from v_balance where user_id=$1 and code='2000'),0) b,
-       coalesce((select balance from v_balance where user_id=$1 and code='2050'),0) h, coalesce((select sum(amount) from vesting where user_id=$1 and released_at is null),0) p, (select min(due_at) from vesting where user_id=$1 and released_at is null) nx`,
+       coalesce((select balance from v_balance where user_id=$1 and code='2050'),0) h, coalesce((select balance from v_balance where user_id=$1 and code='2070'),0) l, coalesce((select balance from v_balance where user_id=$1 and code='2080'),0) rw, coalesce((select sum(amount) from vesting where user_id=$1 and released_at is null),0) p, (select min(due_at) from vesting where user_id=$1 and released_at is null) nx`,
     [uid],
   );
   res.json({
@@ -32,7 +33,7 @@ wallet.get('/balance', requireUser, async (req, res) => {
         limit 50`,
       [uid],
     )).rows,
-    pending: r.p,
+    pending: r.p, locked: r.l, rewards: r.rw,
     nextRelease: r.nx,
     held: r.h,
     minWithdraw: MIN_WITHDRAW.toString(),
@@ -50,6 +51,29 @@ wallet.get('/withdrawals', requireUser, async (req, res) => {
   res.json({ withdrawals: rows });
 });
 
+wallet.get('/settlements', requireUser, async (req, res) => {
+  const { rows } = await pool.query(
+    `select id, day, amount, due_at, released_at from vesting where user_id=$1 order by due_at desc limit 50`,
+    [req.userId!],
+  );
+  res.json({ settlements: rows });
+});
+
+wallet.get('/deposits', requireUser, async (req, res) => {
+  const { rows } = await pool.query(
+    `select id, asset, usd_at_det, status, unlock_at, claim_requested_at, released_at
+       from deposits where user_id=$1 order by created_at desc limit 50`,
+    [req.userId!],
+  );
+  res.json({ deposits: rows });
+});
+
+wallet.post('/deposits/:id/claim', requireUser, async (req, res) => {
+  const out = await requestClaim(req.userId!, req.params.id);
+  if (out !== 'requested') return res.status(409).json({ error: out });
+  res.json({ ok: true });
+});
+
 wallet.post('/claim', requireUser, async (req, res) => { const uid = req.userId!; const out = await tx(async (t) => { const r = await t.query(`select coalesce((select balance from v_balance where user_id=$1 and code='2050'),0)::text h`, [uid]); const held = BigInt(r.rows[0].h); if (held <= 0n) return { moved: 0n }; await post(t, 'claim', uid, [{ code: '2050', owner: uid, amount: -held }, { code: '2000', owner: uid, amount: held }]); return { moved: held }; }); if (out.moved === 0n) return res.status(400).json({ error: 'nothing_to_claim' }); res.json({ claimed: out.moved.toString() }); });
 wallet.post('/withdraw', requireUser, async (req, res) => {
   const uid = req.userId!;
@@ -60,7 +84,7 @@ wallet.post('/withdraw', requireUser, async (req, res) => {
   if (typeof address !== 'string') return res.status(400).json({ error: 'bad_address' });
   if (!/^\d+$/.test(String(usd))) return res.status(400).json({ error: 'bad_amount' });
 
-  const out = await requestWithdrawal(uid, asset, address, BigInt(usd));
+  const out = await requestWithdrawal(uid, asset, address, BigInt(usd), req.body?.source === 'rewards' ? 'rewards' : 'available');
   if (!out.ok) return res.status(400).json({ error: out.error, cap: out.cap });
   res.json({ id: out.id, status: out.status, cap: out.cap });
 });
@@ -88,6 +112,13 @@ wallet.get('/cap', requireUser, async (req, res) => {
   const age = known ? Date.now() - new Date(seen.first_seen).getTime() : 0;
   res.json({ cap: computeCap(known, age, BigInt(r.b)).toString() });
 });
+
+
+
+
+
+
+
 
 
 

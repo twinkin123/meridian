@@ -66,6 +66,12 @@
     </div>
 
     <div class="card">
+      <span class="mono">Deposit claims</span>
+      <div class="msg" id="cMsg"></div>
+      <ul class="list" id="claims"><li class="empty">Loading...</li></ul>
+    </div>
+
+    <div class="card">
       <span class="mono">Sweeps</span>
       <div class="row" style="margin-top:10px">
         <button class="btn" id="dry" type="button">Dry run</button>
@@ -107,7 +113,7 @@
     token = t;
     sessionStorage.setItem('admin_token', t);
     var ok = await loadFreeze();
-    if (ok) { gate.classList.add('hide'); panel.classList.remove('hide'); loadQueue(); loadSweeps(); loadRuns(); }
+    if (ok) { gate.classList.add('hide'); panel.classList.remove('hide'); loadQueue(); loadClaims(); loadSweeps(); loadRuns(); }
     else msg('gateMsg', 'Token rejected.', 'err');
   }
 
@@ -166,7 +172,8 @@
           '<span class="sub">' + (w.address || '') + '</span>' +
           '<span class="sub">' + new Date(w.created_at).toLocaleString() + '</span></div>' +
           '<div style="text-align:right"><span class="pill ' + cls + '">' + w.status + '</span>' +
-          (w.status === 'pending' ? '<div class="row" style="margin-top:6px;justify-content:flex-end"><button class="btn" data-approve="' + w.id + '">Approve</button></div>' : '') +
+          (w.status === 'requested' ? '<div class="row" style="margin-top:6px;justify-content:flex-end"><button class="btn" data-approve="' + w.id + '">Approve</button></div>' : '') +
+          (w.status === 'sending' ? '<div class="row" style="margin-top:6px;justify-content:flex-end"><button class="btn" data-pay="' + w.id + '">Retry</button></div>' : '') +
           (w.status === 'approved' ? '<div class="row" style="margin-top:6px;justify-content:flex-end"><button class="btn p" data-pay="' + w.id + '">Pay</button></div>' : '') +
           '</div></li>';
       }).join('');
@@ -184,7 +191,30 @@
     var r = await fetch('/admin/withdrawals/' + id + '/' + what, { method: 'POST', headers: h() });
     var j = await r.json().catch(function(){ return {}; });
     msg('wMsg', r.ok ? (what === 'approve' ? 'Approved.' : 'Paid: ' + (j.sig || 'sent')) : (j.error || 'Failed.'), r.ok ? 'ok' : 'err');
-    loadQueue();
+    loadQueue(); loadClaims();
+  }
+
+  async function loadClaims(){
+    var el = document.getElementById('claims');
+    try {
+      var r = await fetch('/admin/claims', { headers: h() });
+      var j = await r.json();
+      var rows = j.claims || [];
+      if (!rows.length) { el.innerHTML = '<li class="empty">No claims.</li>'; return; }
+      el.innerHTML = rows.map(function(d){
+        return '<li><div><b>' + money(d.usd_at_det) + '</b> ' + d.asset + '<span class="sub">requested ' + new Date(d.claim_requested_at).toLocaleString() + '</span></div><div style="text-align:right"><button class="btn p" data-ca=' + d.id + '>Approve</button></div></li>';
+      }).join('');
+      el.querySelectorAll('[data-ca]').forEach(function(b){
+        b.onclick = function(){ approveClaim(b.dataset.ca); };
+      });
+    } catch (_) { el.innerHTML = '<li class="empty">Could not load.</li>'; }
+  }
+
+  async function approveClaim(id){
+    var r = await fetch('/admin/claims/' + id + '/approve', { method: 'POST', headers: h() });
+    var j = await r.json().catch(function(){ return {}; });
+    msg('cMsg', r.ok ? 'Released.' : (j.error || 'Failed.'), r.ok ? 'ok' : 'err');
+    loadClaims();
   }
 
   async function loadSweeps(){
@@ -238,6 +268,13 @@
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 

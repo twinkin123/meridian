@@ -1,8 +1,22 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import { one, none } from '../../db.js';
 import { address } from '../../solana/derive.js';
-import { hashPw, checkPw, issueSession, throttle, revokeSession } from '../../auth.js';
-import { requireUser } from '../mw/session.js';
+import {
+  hashPw,
+  checkPw,
+  issueSession,
+  throttle,
+  revokeSession,
+  revokeSessionById,
+  revokeAllSessions,
+  listSessions,
+  createReset,
+  consumeReset,
+  setPassword,
+  pruneAuth,
+} from '../../auth.js';
+import { requireUser, clientMeta } from '../mw/session.js';
+import { sendResetMail } from '../../mail.js';
 
 export const auth = Router();
 
@@ -32,7 +46,9 @@ auth.post('/signup', async (req, res) => {
 
   const pwHash = await hashPw(pw);
   const ref = String(req.body?.ref ?? '').trim().toUpperCase();
-  const referrer = ref ? await one<{ id: string }>(`select id from users where referral_code = $1`, [ref]) : null;
+  const referrer = ref
+    ? await one<{ id: string }>(`select id from users where referral_code = $1`, [ref])
+    : null;
   const row = await one<{ id: string; deposit_index: number }>(
     `insert into users (email, pw_hash, deposit_addr, referral_code, referred_by)
      values ($1, $2, 'pending', upper(substr(md5(random()::text),1,8)), $3) returning id, deposit_index`,
@@ -41,9 +57,13 @@ auth.post('/signup', async (req, res) => {
 
   const addr = address(row.deposit_index);
   await none(`update users set deposit_addr = $1 where id = $2`, [addr, row.id]);
-  await none(`insert into accounts (code, kind, owner_type, owner_id) select c, 'liability', 'user', $1 from unnest(array['2000','2010','2020','2050']) c`, [row.id]);
+  await none(
+    `insert into accounts (code, kind, owner_type, owner_id)
+     select c, 'liability', 'user', $1 from unnest(array['2000','2010','2020','2050']) c`,
+    [row.id],
+  );
 
-  const token = await issueSession(row.id);
+  const token = await issueSession(row.id, clientMeta(req));
   res.cookie('sid', token, COOKIE);
   res.status(201).json({ id: row.id, email, depositAddress: addr });
 });
@@ -59,8 +79,8 @@ auth.post('/login', async (req, res) => {
     return res.status(429).json({ error: 'too_many_attempts' });
   }
 
-  const u = await one<{ id: string; pw_hash: string }>(
-    `select id, pw_hash from users where lower(email) = $1`,
+  const u = await one<{ id: string; pw_hash: string; must_change_pw: boolean }>(
+    `select id, pw_hash, must_change_pw from users where lower(email) = $1`,
     [email],
   );
   if (!u) return res.status(401).json({ error: 'bad_credentials' });
@@ -68,9 +88,10 @@ auth.post('/login', async (req, res) => {
   const ok = await checkPw(pw, u.pw_hash);
   if (!ok) return res.status(401).json({ error: 'bad_credentials' });
 
-  const token = await issueSession(u.id);
+  const token = await issueSession(u.id, clientMeta(req));
   res.cookie('sid', token, COOKIE);
-  res.json({ ok: true });
+  void pruneAuth().catch(() => {});
+  res.json({ ok: true, mustChange: u.must_change_pw === true });
 });
 
 auth.post('/logout', requireUser, async (req, res) => {
@@ -80,6 +101,87 @@ auth.post('/logout', requireUser, async (req, res) => {
   res.json({ ok: true });
 });
 
+auth.get('/sessions', requireUser, async (req, res) => {
+  const rows = await listSessions(req.userId!);
+  res.json({
+    sessions: rows.map((s) => ({
+      id: s.id,
+      ua: s.ua,
+      ip: s.ip,
+      createdAt: s.created_at,
+      lastSeenAt: s.last_seen_at,
+      revoked: Boolean(s.revoked_at),
+      current: s.id === req.sessionId,
+    })),
+  });
+});
 
+auth.delete('/sessions', requireUser, async (req, res) => {
+  const n = await revokeAllSessions(req.userId!, req.sessionId);
+  res.json({ ok: true, revoked: n });
+});
 
+auth.delete('/sessions/:id', requireUser, async (req, res) => {
+  const gone = await revokeSessionById(req.userId!, String(req.params.id));
+  if (!gone) return res.status(404).json({ error: 'not_found' });
+  if (String(req.params.id) === req.sessionId) res.clearCookie('sid', { path: '/' });
+  res.json({ ok: true });
+});
 
+auth.post('/password', requireUser, async (req, res) => {
+  const cur = String(req.body?.current ?? '');
+  const pw = String(req.body?.password ?? '');
+  if (pw.length < 8) return res.status(400).json({ error: 'weak_password' });
+
+  const u = await one<{ pw_hash: string }>(`select pw_hash from users where id = $1`, [req.userId]);
+  if (!u || !(await checkPw(cur, u.pw_hash))) return res.status(401).json({ error: 'bad_credentials' });
+
+  await setPassword(req.userId!, pw, false);
+  await revokeAllSessions(req.userId!, req.sessionId);
+  res.json({ ok: true });
+});
+
+auth.post('/forgot', async (req, res) => {
+  const email = String(req.body?.email ?? '').trim().toLowerCase();
+
+  try {
+    await throttle(`reset:${req.ip}`, 10);
+  } catch {
+    return res.status(429).json({ error: 'too_many_attempts' });
+  }
+
+  const u = await one<{ id: string }>(`select id from users where lower(email) = $1`, [email]);
+
+  let link: string | undefined;
+  if (u) {
+    const token = await createReset(u.id);
+    const base = process.env.PUBLIC_BASE_URL ?? `${req.protocol}://${req.get('host')}`;
+    link = `${base}/auth.html?reset=${token}`;
+    const out = await sendResetMail(email, link);
+    if (out.sent) link = undefined;
+  }
+
+  // always 200 so the response cannot enumerate accounts
+  res.json({ ok: true, ...(link ? { link } : {}) });
+});
+
+auth.post('/reset', async (req, res) => {
+  const token = String(req.body?.token ?? '').trim();
+  const pw = String(req.body?.password ?? '');
+  if (pw.length < 8) return res.status(400).json({ error: 'weak_password' });
+
+  try {
+    await throttle(`reset-use:${req.ip}`, 20);
+  } catch {
+    return res.status(429).json({ error: 'too_many_attempts' });
+  }
+
+  const userId = await consumeReset(token);
+  if (!userId) return res.status(400).json({ error: 'bad_token' });
+
+  await setPassword(userId, pw, false);
+  await revokeAllSessions(userId);
+  const fresh = await issueSession(userId, clientMeta(req));
+  res.cookie('sid', fresh, COOKIE);
+  res.json({ ok: true });
+});

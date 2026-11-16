@@ -1,6 +1,7 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
+<script>window.__resetTok = new URLSearchParams(location.search).get('reset');</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meridian - Account</title>
@@ -46,6 +47,7 @@
           </div>
           <button class="btn" id="submit" type="submit">Create account</button>
         </form>
+        <p class="hint" style="margin-top:12px;text-align:center"><a href="#" id="forgot">Forgot password?</a></p>
 
         <p class="switch" id="switch"></p>
       </div>
@@ -167,7 +169,67 @@
   setMode(mode);
 })();
 </script>
-</body>
+<script>
+(function(){
+  var tok = window.__resetTok || new URLSearchParams(location.search).get('reset');
+  if (!tok) return;
+  var $ = function(id){ return document.getElementById(id); };
+  var form = $('form') || document.querySelector('form');
+  if (!form) return;
+  if ($('title')) $('title').textContent = 'Set a new password';
+  if ($('lede')) $('lede').textContent = 'This link works once and expires in 30 minutes.';
+  var tabs = document.querySelector('.tabs');
+  if (tabs) tabs.style.display = 'none';
+  var emailEl = $('email');
+  if (emailEl) {
+    var f = emailEl.closest('.field') || emailEl.parentElement;
+    if (f) f.style.display = 'none';
+  }
+  if ($('submit')) $('submit').textContent = 'Save password';
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    var msg = $('msg');
+    var pw = $('password').value;
+    if (pw.length < 8) { msg.textContent = 'Password needs at least 8 characters.'; return; }
+    if ($('submit')) $('submit').disabled = true;
+    var r = await fetch('/auth/reset', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ token: tok, password: pw })
+    });
+    if (r.ok) { msg.textContent = 'Saved. Opening your dashboard...'; location.replace('/app.html'); return; }
+    var d = await r.json().catch(function(){ return {}; });
+    msg.textContent = d.error === 'bad_token' ? 'That link expired or was already used.' : 'Could not save the password.';
+    if ($('submit')) $('submit').disabled = false;
+  }, true);
+})();
+</script><script>
+(function(){
+  var link = document.getElementById('forgot');
+  if (!link) return;
+  link.addEventListener('click', async function(e){
+    e.preventDefault();
+    var msg = document.getElementById('msg');
+    var email = document.getElementById('email').value.trim();
+    if (!email) { msg.textContent = 'Type your email first, then press the link.'; return; }
+    link.textContent = 'Sending...';
+    var r = await fetch('/auth/forgot', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ email: email })
+    });
+    link.textContent = 'Forgot password?';
+    if (!r.ok) { msg.textContent = 'Too many attempts. Wait a minute.'; return; }
+    var d = await r.json().catch(function(){ return {}; });
+    msg.textContent = d.link
+      ? 'No mail provider yet, so here is the link: ' + d.link
+      : 'If that email exists, a reset link is on its way. It expires in 30 minutes.';
+  });
+})();
+</script></body>
 </html>
 
 

@@ -26,7 +26,7 @@ export async function payReferral(t: Tx, userId: string, depositId: string, usd:
   const inv = await t.query<{ n: string }>('select count(*)::text n from users where referred_by=$1', [referrer]);
 
   const txId = await post(t, 'ReferralCommission', `ref:first:${depositId}`, [
-    { code: '2000', owner: referrer, amount: -commission },
+    { code: '2080', owner: referrer, amount: -commission },
     { code: '5010', amount: commission },
   ]);
 

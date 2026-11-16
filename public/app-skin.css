@@ -33,7 +33,7 @@ html,body{background:#0a0a0b!important;color:var(--txt)!important;font-family:In
   min-width:0!important;max-width:none!important;position:relative;z-index:1;
 }
 
-/* sidebar â€” same top offset as the ticker row */
+/* sidebar ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â same top offset as the ticker row */
 .side{
   width:230px!important;min-width:230px!important;max-width:230px!important;
   height:100%!important;align-self:stretch!important;
@@ -106,7 +106,7 @@ html,body{background:#0a0a0b!important;color:var(--txt)!important;font-family:In
 .delta{font-size:12.5px!important;color:var(--mut2)!important;margin-top:5px}
 .hint,.small,.muted{color:var(--mut)!important;font-size:12.5px!important;line-height:1.6!important}
 
-.stats{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin-top:14px!important}
+.stats{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:12px!important;margin-top:14px!important}
 .stat{background:var(--panel)!important;border:1px solid var(--line)!important;border-radius:var(--r)!important;padding:16px!important}
 .stat .v{font-size:21px!important;font-weight:600!important}
 
@@ -429,3 +429,5 @@ table.res th{padding-right:9px}
 .ref-ladder b{font-size:15px !important}
 .ref-card .addr code{font-size:12.5px !important;padding:14px 13px !important}
 .ref-card .hint{font-size:13px !important}
+
+

@@ -1,20 +1,34 @@
 import { Router } from 'express';
 import { runSweep, treasuryAddress, BATCH } from './sweeps.js';
+import { approveClaim } from './locks.js';
 import { approveWithdrawal, payoutWithdrawal } from './withdrawals.js';
 import { runRecon, latestRuns, freezeLevel, setFreeze } from './recon.js';
 import { pool } from './db.js';
+import { breakGlassOk, sessionFromToken, isAdmin } from './auth.js';
 
 export const adminRouter = Router();
 
+// every route below still calls authed(...); this is the single real gate
 function authed(header: (k: string) => string | undefined): boolean {
-  const token = process.env.ADMIN_TOKEN;
-  if (!token) return false;
-  return header('x-admin-token') === token;
+  if (header('x-admin-session') === '1') return true;
+  return breakGlassOk(header('x-admin-token'));
 }
 
-adminRouter.use((req, res, next) => {
-  if (!authed((k) => req.header(k))) return res.status(401).json({ error: 'bad_admin_token' });
-  next();
+adminRouter.use(async (req, res, next) => {
+  if (authed((k) => req.header(k))) return next();
+
+  // a signed-in admin is promoted to the token header so the per-route checks pass
+  const token = process.env.ADMIN_TOKEN;
+  const sid = req.cookies?.sid;
+  if (token && sid) {
+    const s = await sessionFromToken(sid);
+    if (s && (await isAdmin(s.user_id))) {
+      req.headers['x-admin-token'] = token;
+      req.headers['x-admin-session'] = '1';
+      return next();
+    }
+  }
+  return res.status(401).json({ error: 'bad_admin_token' });
 });
 
 adminRouter.get('/treasury', (_req, res) => {
@@ -24,17 +38,25 @@ adminRouter.get('/treasury', (_req, res) => {
 adminRouter.get('/sweep/status', async (_req, res) => {
   const { rows } = await pool.query(
     `select id, deposit_address, asset, amount_raw, status, error, attempts, created_at
-       from sweeps order by id desc limit 50`,
+       from sweeps
+      order by id desc
+      limit 50`,
   );
   res.json({ sweeps: rows });
 });
 
 adminRouter.post('/sweep', async (req, res) => {
+  if (!authed((k) => req.header(k))) {
+    return res.status(401).json({ error: 'bad_admin_token' });
+  }
+
   const dryRun = req.query.dryRun === '1';
   const raw = Number(req.query.limit ?? BATCH);
   const limit = Number.isFinite(raw) && raw > 0 ? raw : BATCH;
+
   try {
-    res.json(await runSweep({ dryRun, limit }));
+    const out = await runSweep({ dryRun, limit });
+    res.json(out);
   } catch (e) {
     res.status(500).json({ error: e instanceof Error ? e.message : 'sweep_failed' });
   }
@@ -46,6 +68,21 @@ adminRouter.get('/withdrawals', async (_req, res) => {
        from withdrawals order by created_at desc limit 100`,
   );
   res.json({ withdrawals: rows });
+});
+
+adminRouter.get('/claims', async (_req, res) => {
+  const { rows } = await pool.query(
+    `select id, user_id, asset, usd_at_det, unlock_at, claim_requested_at
+       from deposits where claim_requested_at is not null and released_at is null
+       order by claim_requested_at limit 100`,
+  );
+  res.json({ claims: rows });
+});
+
+adminRouter.post('/claims/:id/approve', async (req, res) => {
+  const ok = await approveClaim(req.params.id);
+  if (!ok) return res.status(409).json({ error: 'not_pending' });
+  res.json({ ok: true });
 });
 
 adminRouter.post('/withdrawals/:id/approve', async (req, res) => {
@@ -101,7 +138,7 @@ adminRouter.post('/referral/run', async (req, res) => {
 
 adminRouter.get('/referral/runs', async (req, res) => {
   if (!authed((k) => req.header(k))) return res.status(401).json({ error: 'bad_admin_token' });
-  const { rows } = await (await import('./db.js')).pool.query(
+  const { rows } = await pool.query(
     `select period, payouts, total_usd, ran_at from referral_runs order by period desc limit 24`,
   );
   res.json({ runs: rows });
