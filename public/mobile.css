@@ -623,3 +623,15 @@ html body .res-total{
   -webkit-text-fill-color:#1bff80!important;
   color:#1bff80!important;
 }
+
+@media (max-width: 900px){
+  html body .main .card, html body .main .stat, html body .main .stats{
+    width:auto!important;
+  }
+}
+
+@media (max-width: 900px){
+  html body .main .card, html body .main .stat, html body .main .stats{
+    width:auto!important;
+  }
+}
