@@ -163,3 +163,4 @@
   .side a{ padding:11px 9px !important; font-size:12px; }
   .big{ font-size:30px !important; }
 }
+.side a{ touch-action:manipulation; -webkit-tap-highlight-color:transparent; pointer-events:auto !important; }
