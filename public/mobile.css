@@ -2,94 +2,113 @@
 
 @media (max-width: 900px){
 
-  html, body{ width:100%; max-width:100%; overflow-x:hidden; }
+  html, body{ width:100%; max-width:100%; overflow-x:hidden; padding:0 !important; margin:0 !important; }
 
-  /* header: brand on its own line, controls flush underneath */
-  .top{ flex-wrap:wrap; gap:8px; padding:10px 12px; position:static; }
-  .top .brand{ flex:1 1 100%; }
-  .top-right{ width:100%; display:flex; gap:8px; justify-content:flex-start; padding:0; }
-  .top-right .who{
-    flex:1 1 auto; min-width:0; max-width:none;
-    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left;
+  /* header: one compact row, controls right */
+  .top{
+    display:flex !important; align-items:center; gap:10px;
+    padding:9px 12px !important; margin:0 !important;
+    flex-wrap:nowrap !important; position:static !important;
   }
-  .top-right .ghost{ flex:0 0 auto; }
+  .top .brand{ flex:0 0 auto; font-size:14px; }
+  .top .brand-mark{ width:22px; height:22px; font-size:11px; }
+  .top-right{
+    flex:1 1 auto; min-width:0;
+    display:flex !important; align-items:center; justify-content:flex-end; gap:6px;
+    padding:0 !important;
+  }
+  .top-right .who{
+    flex:0 1 auto; min-width:0; font-size:11px; opacity:.6;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .top-right .ghost{ flex:0 0 auto; font-size:11px; padding:5px 9px; border-radius:0; }
 
-  /* shell: single column, no divider rail */
+  /* shell */
   .shell, .layout{ display:block !important; }
   .layout::before{ display:none !important; }
 
-  /* sidebar becomes a scrolling tab bar */
+  /* nav: borderless scrolling tabs */
   .side{
-    position:sticky; top:0; z-index:20;
-    display:flex !important; flex-wrap:nowrap; align-items:center; gap:6px;
-    width:100%; max-width:none; padding:8px 12px;
+    position:sticky; top:0; z-index:30;
+    display:flex !important; flex-wrap:nowrap !important; align-items:stretch;
+    gap:0 !important; width:100%; max-width:none;
+    padding:0 8px !important; margin:0 !important;
     overflow-x:auto; overflow-y:hidden;
-    border-right:0;
-    border-bottom:1px solid rgba(255,255,255,.12);
+    border:0 !important; border-bottom:1px solid rgba(255,255,255,.12) !important;
     background:#07070b;
     -webkit-overflow-scrolling:touch; scrollbar-width:none;
   }
   .side::-webkit-scrollbar{ display:none; }
   .side .sep{ display:none !important; }
+  .side .ico{ display:none !important; }
   .side a{
-    flex:0 0 auto; white-space:nowrap;
-    padding:9px 13px; font-size:13px;
-    border:1px solid rgba(255,255,255,.12);
+    flex:0 0 auto; white-space:nowrap; display:flex; align-items:center;
+    padding:12px 11px !important; margin:0 !important; font-size:13px;
+    border:0 !important; border-radius:0 !important;
+    border-bottom:2px solid transparent !important;
+    background:transparent !important;
   }
-  .side a .ico{ font-size:13px; }
+  .side a.on{ color:#fff !important; border-bottom-color:#fff !important; }
   .side .robot-card{ display:none !important; }
 
-  .main{ width:100%; max-width:none; padding:0; }
+  /* content flush */
+  .main, .panel, .grid, .grid > div{
+    width:100% !important; max-width:none !important;
+    padding:0 !important; margin:0 !important; display:block !important;
+  }
+  .grid{ gap:0 !important; }
 
-  /* ticker: one flush row, horizontal scroll */
+  /* ticker */
   .tickers{
     display:flex !important; flex-wrap:nowrap !important; gap:0 !important;
-    width:100%; padding:0; margin:0;
+    width:100% !important; padding:0 !important; margin:0 !important;
     overflow-x:auto; overflow-y:hidden;
-    border-top:1px solid rgba(255,255,255,.1);
-    border-bottom:1px solid rgba(255,255,255,.1);
+    border:0 !important; border-radius:0 !important; background:transparent !important;
+    border-top:1px solid rgba(255,255,255,.1) !important;
+    border-bottom:1px solid rgba(255,255,255,.1) !important;
     -webkit-overflow-scrolling:touch; scrollbar-width:none;
   }
   .tickers::-webkit-scrollbar{ display:none; }
-  .tk{
-    flex:0 0 auto; display:flex; align-items:center; gap:8px;
-    padding:9px 14px;
+  .tickers .tk{
+    flex:0 0 auto; display:flex !important; align-items:center; gap:7px;
+    padding:9px 13px !important; margin:0 !important;
     border:0 !important; border-right:1px solid rgba(255,255,255,.08) !important;
-    border-radius:0 !important; background:transparent !important;
+    border-radius:0 !important; background:transparent !important; box-shadow:none !important;
   }
-  .tk .ic{ width:22px; height:22px; flex:0 0 auto; }
-  .tk b{ font-size:13px; }
-  .tk small{ display:none; }
-  .tk .px{ margin-left:2px; font-size:12px; }
-  .tk .px em{ display:block; font-size:10px; }
+  .tickers .tk .ic{ width:20px; height:20px; flex:0 0 auto; }
+  .tickers .tk b{ font-size:12px; }
+  .tickers .tk small{ display:none !important; }
+  .tickers .tk .px{ margin-left:2px; font-size:12px; }
+  .tickers .tk .px em{ display:block; font-size:10px; }
 
-  /* content: single column, edge to edge */
-  .grid{ display:block !important; gap:0 !important; }
-  .grid > div{ display:block; width:100%; }
-
-  .card{
-    width:100%; margin:0 !important; border-radius:0 !important;
+  /* cards flush, square */
+  .main .card{
+    width:100% !important; margin:0 !important; border-radius:0 !important;
     border-left:0 !important; border-right:0 !important; border-top:0 !important;
-    padding:16px 14px;
+    padding:16px 14px !important; box-shadow:none !important;
   }
-  .card.rainbow{
+  .main .card.rainbow{
     border-left-width:1px !important; border-right-width:1px !important;
     border-top-width:1px !important; border-bottom-width:1px !important;
   }
 
-  .stats{ display:grid !important; grid-template-columns:repeat(3,1fr); gap:0 !important; width:100%; }
-  .stat{ border-radius:0 !important; border-left:0 !important; border-right:0 !important; padding:12px 14px; }
-  .stat + .stat{ border-left:1px solid rgba(255,255,255,.1) !important; }
+  .stats{
+    display:grid !important; grid-template-columns:repeat(3,1fr) !important;
+    gap:0 !important; width:100% !important; margin:0 !important;
+  }
+  .stats .stat{
+    width:auto !important; margin:0 !important; border-radius:0 !important;
+    border-left:0 !important; border-right:0 !important; padding:12px 10px !important;
+  }
+  .stats .stat + .stat{ border-left:1px solid rgba(255,255,255,.1) !important; }
 
-  .big{ font-size:34px; }
+  .big{ font-size:34px !important; }
   .row{ flex-wrap:wrap; gap:8px; }
   .row .btn{ flex:1 1 auto; }
-
   .addr code{ word-break:break-all; }
 
-  /* results table scrolls inside its own card */
   .res{
-    display:block; width:100%; overflow-x:auto;
+    display:block !important; width:100%; overflow-x:auto;
     -webkit-overflow-scrolling:touch; border-collapse:collapse; font-size:12px;
   }
   .res thead, .res tbody{ display:table; width:100%; min-width:560px; }
@@ -103,8 +122,9 @@
   .ref-ladder > div{ font-size:12px; }
 }
 
-@media (max-width: 420px){
-  .tk{ padding:8px 11px; }
-  .side a{ padding:8px 11px; font-size:12px; }
-  .big{ font-size:30px; }
+@media (max-width: 400px){
+  .top-right .who{ display:none !important; }
+  .tickers .tk{ padding:8px 11px !important; }
+  .side a{ padding:11px 9px !important; font-size:12px; }
+  .big{ font-size:30px !important; }
 }
