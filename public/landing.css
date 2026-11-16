@@ -521,3 +521,6 @@ img,video{display:block;max-width:100%}
 .robot-corner{aspect-ratio:3/4 !important;width:clamp(88px,14vw,116px) !important;overflow:hidden !important;border-radius:14px !important;box-shadow:0 14px 36px rgba(0,0,0,.6) !important;-webkit-mask-image:none !important;mask-image:none !important;background:none !important;border:0 !important}
 .robot-corner img{position:absolute !important;inset:0 !important;width:100% !important;height:100% !important;object-fit:cover !important;object-position:50% 30% !important;transform:none !important;filter:none !important}
 @media (max-width:860px){.robot-corner{width:clamp(64px,17vw,84px) !important;border-radius:10px !important}}
+.robot-corner.robot-frame{position:fixed !important;right:24px !important;bottom:24px !important;width:112px !important;aspect-ratio:3/4 !important;overflow:hidden !important;border-radius:12px !important;box-shadow:0 14px 36px rgba(0,0,0,.6) !important;-webkit-mask-image:none !important;mask-image:none !important;background:none !important;border:0 !important;opacity:1 !important;transform:none !important;mix-blend-mode:normal !important}
+.robot-corner.robot-frame img{object-position:50% 18% !important}
+@media (max-width:860px){.robot-corner.robot-frame{width:72px !important;right:12px !important;bottom:12px !important;border-radius:9px !important}}
