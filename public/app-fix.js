@@ -101,7 +101,7 @@
       '<div class="res-total' + (tot < 0 ? ' dn' : '') + '">' + (tot >= 0 ? '+' : '') + tot.toFixed(2) + '%</div>' +
       '<div class="res-nav"><button type="button" data-o="1">&lt;</button><button type="button" data-o="-1">&gt;</button></div></div>' +
       '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-      '<div class="'';
+      '<div class="res-clock">next credit in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
 
     card.querySelectorAll('.res-nav button').forEach(function(b){
       b.addEventListener('click', function(){
@@ -136,24 +136,6 @@
   }, true);
 })();
 
-/* belt-and-braces nav: capture taps so a reload can never swallow them */
-(function(){
-  document.addEventListener('click', function(e){
-    var a = e.target.closest('.side a');
-    if (!a) return;
-    var h = a.getAttribute('href') || '';
-    var i = h.indexOf('#');
-    if (i < 0) return;
-    var id = 'p-' + h.slice(i + 1);
-    var t = document.getElementById(id);
-    if (!t) return;
-    e.preventDefault();
-    document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('on', p.id === id); });
-    document.querySelectorAll('.side a').forEach(function(x){ x.classList.remove('on'); });
-    a.classList.add('on');
-    window.scrollTo(0, 0);
-  }, true);
-})();
 
 /* claim button */
 (function(){
@@ -185,15 +167,6 @@
   try { localStorage.setItem('mrd_seen', '1'); } catch (_) {}
 })();
 
-/* header greeting: first visit vs returning */
-(function(){
-  var el = document.getElementById('welcome');
-  if (!el) return;
-  var seen = false;
-  try { seen = localStorage.getItem('mrd_seen') === '1'; } catch (_) {}
-  el.textContent = seen ? 'Welcome back' : 'Welcome';
-  try { localStorage.setItem('mrd_seen', '1'); } catch (_) {}
-})();
 
 
 
