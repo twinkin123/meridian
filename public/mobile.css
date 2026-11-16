@@ -660,3 +660,23 @@ html body .res-total{
     margin-bottom:12px!important;
   }
 }
+
+@media (max-width: 900px){
+  html body .main .card, html body .main .stat, html body .main .stats{
+    width:auto!important;
+    margin:0 12px 14px!important;
+    border-radius:8px!important;
+    border:1px solid rgba(45,226,214,.16)!important;
+    box-shadow:0 0 26px -8px rgba(45,226,214,.32), 0 0 60px -30px rgba(45,226,214,.24)!important;
+  }
+}
+
+@media (max-width: 900px){
+  html body .main .card, html body .main .stat, html body .main .stats{
+    width:auto!important;
+    margin:0 12px 14px!important;
+    border-radius:8px!important;
+    border:1px solid rgba(45,226,214,.16)!important;
+    box-shadow:0 0 26px -8px rgba(45,226,214,.32), 0 0 60px -30px rgba(45,226,214,.24)!important;
+  }
+}
