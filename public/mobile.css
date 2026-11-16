@@ -510,3 +510,9 @@
   }
   .side .robot-card::after{ display:none !important; }
 }
+
+/* align nav casing top with the content column */
+@media (min-width: 901px){
+  .side{ padding-top:22px !important; padding-bottom:14px !important; }
+  .top .welcome{ left:340px !important; }
+}
