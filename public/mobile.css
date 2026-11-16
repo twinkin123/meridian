@@ -599,3 +599,13 @@ html.boot body{visibility:hidden}
   }
   .side > a + a{ border-top:0!important; border-left:1px solid rgba(45,226,214,.13)!important; }
 }
+
+@media (max-width: 900px){
+  .main .card, .main .stats, .main .stat,
+  #claimBtn, #rwOut, [data-results]{
+    box-shadow:none!important;
+  }
+  .main .card{ border-bottom:1px solid rgba(45,226,214,.13)!important; }
+  .main .stat{ border-bottom:1px solid rgba(255,255,255,.07)!important; }
+  [data-results]{ border:1px solid rgba(45,226,214,.35)!important; }
+}
