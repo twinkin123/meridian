@@ -1,35 +1,52 @@
 /* landing-fix.js - keep the hero robot playing on iOS and Android. */
 (function(){
   'use strict';
-  var v = document.querySelector('.mascot');
-  if (!v || v.tagName !== 'VIDEO') return;
+  var stage = document.getElementById('robotStage');
+  if (!stage) return;
+  var vids = Array.prototype.slice.call(stage.querySelectorAll('video'));
+  if (!vids.length) return;
 
-  v.muted = true;
-  v.defaultMuted = true;
-  v.setAttribute('muted', '');
-  v.playsInline = true;
-  v.setAttribute('playsinline', '');
-  v.setAttribute('webkit-playsinline', '');
-  v.loop = true;
-  v.preload = 'auto';
+  function active(){
+    return stage.querySelector('video.is-active') || vids[0];
+  }
 
-  function go(){
-    if (!v.paused) return;
+  function prep(v){
+    v.muted = true;
+    v.defaultMuted = true;
+    v.setAttribute('muted', '');
+    v.playsInline = true;
+    v.setAttribute('playsinline', '');
+    v.setAttribute('webkit-playsinline', '');
+    v.loop = true;
+    v.setAttribute('preload', 'auto');
+  }
+
+  function play(v){
+    if (!v || !v.paused) return;
     var p = v.play();
     if (p && p.catch) p.catch(function(){});
   }
 
-  go();
+  function go(){ play(active()); }
 
-  ['loadeddata', 'canplay', 'canplaythrough', 'stalled', 'suspend'].forEach(function(e){
-    v.addEventListener(e, go);
+  vids.forEach(function(v){
+    prep(v);
+    ['loadeddata', 'canplay', 'canplaythrough'].forEach(function(e){
+      v.addEventListener(e, function(){ play(v); });
+    });
+    v.addEventListener('pause', function(){ setTimeout(go, 300); });
   });
+
+  vids.forEach(function(v){
+    var s = v.getAttribute('src');
+    if (s){ v.setAttribute('src', s); v.load(); }
+  });
+
+  go();
 
   document.addEventListener('touchstart', go, { passive: true });
   document.addEventListener('click', go);
   document.addEventListener('scroll', go, { passive: true });
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) go(); });
-  v.addEventListener('pause', function(){ setTimeout(go, 300); });
-  setInterval(function(){ if (v.paused && !document.hidden) go(); }, 2000);
-})();/* iOS decides eligibility at load time: re-assert the flags, then reload */
-(function(){ var v = document.querySelector(".mascot"); if (!v || v.tagName !== "VIDEO") return; var s = v.getAttribute("src"); if (!s) return; v.muted = true; v.setAttribute("muted",""); v.setAttribute("playsinline",""); v.setAttribute("webkit-playsinline",""); v.setAttribute("autoplay",""); v.setAttribute("preload","auto"); v.setAttribute("src", s); v.load(); var p = v.play(); if (p && p.catch) p.catch(function(){}); })();
+  setInterval(function(){ if (!document.hidden) go(); }, 2000);
+})();
