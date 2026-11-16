@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/app.css">
-<link rel="stylesheet" href="/theme-dark.css"><link rel="stylesheet" href="/app-skin.css?v=29"><link rel="stylesheet" href="mobile.css?v=10"></head>
+<link rel="stylesheet" href="/theme-dark.css"><link rel="stylesheet" href="/app-skin.css?v=29"><link rel="stylesheet" href="mobile.css?v=11"></head>
 <body>
 
 <header class="top">
@@ -605,7 +605,7 @@
     var wins = actuals.filter(function(x){ return x >= 0; }).length;
     var day = d.toLocaleDateString('en-US',{ month:'long', day:'numeric', year:'numeric' });
 
-    card.innerHTML = '<p class="res-note">Results post daily at 00:15 UTC · every trade published</p>' +
+    card.innerHTML = '' +
       '<div class="res-head"><div><div class="res-title">Trade results · ' + day + '</div><div class="res-sub">' + wins + ' profit · ' + (n-wins) + ' drawdown</div></div>' +
       '<div class="res-total' + (total < 0 ? ' dn' : '') + '">' + (total >= 0 ? '+' : '') + total.toFixed(2) + '%</div>' +
       '<div class="res-nav"><button type="button" data-o="1">‹</button><button type="button" data-o="-1">›</button></div></div>' +
@@ -639,8 +639,13 @@
   if (t){ var c = t.closest('.card'); if (c) c.classList.add('rainbow'); }
 })();
 </script>
-<script src="app-fix.js?v=26" defer></script><script src="profile-chip.js?v=1" defer></script><script src="ticker.js?v=1" defer></script><script src="res-head.js?v=7" defer></script><script>setTimeout(function(){document.documentElement.classList.remove("boot")},2500)</script><script src="boot.js?v=1" defer></script></body>
+<script src="app-fix.js?v=26" defer></script><script src="profile-chip.js?v=1" defer></script><script src="ticker.js?v=1" defer></script><script src="res-head.js?v=7" defer></script><script>setTimeout(function(){document.documentElement.classList.remove("boot")},2500)</script><script src="boot.js?v=2" defer></script></body>
 </html>
+
+
+
+
+
 
 
 
