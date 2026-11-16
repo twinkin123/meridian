@@ -518,3 +518,6 @@ img,video{display:block;max-width:100%}
 .robot-corner{-webkit-mask-image:radial-gradient(ellipse 46% 54% at 50% 48%,#000 72%,transparent 100%) !important;mask-image:radial-gradient(ellipse 46% 54% at 50% 48%,#000 72%,transparent 100%) !important}
 .robot-corner img{transform:scale(1.1) !important}
 @media (max-width:860px){.robot-corner img{transform:scale(1.2) !important}}
+.robot-corner{aspect-ratio:3/4 !important;width:clamp(88px,14vw,116px) !important;overflow:hidden !important;border-radius:14px !important;box-shadow:0 14px 36px rgba(0,0,0,.6) !important;-webkit-mask-image:none !important;mask-image:none !important;background:none !important;border:0 !important}
+.robot-corner img{position:absolute !important;inset:0 !important;width:100% !important;height:100% !important;object-fit:cover !important;object-position:50% 30% !important;transform:none !important;filter:none !important}
+@media (max-width:860px){.robot-corner{width:clamp(64px,17vw,84px) !important;border-radius:10px !important}}
