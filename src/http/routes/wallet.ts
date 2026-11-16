@@ -54,7 +54,7 @@ wallet.get('/withdrawals', requireUser, async (req, res) => {
 
 wallet.get('/settlements', requireUser, async (req, res) => {
   const { rows } = await pool.query(
-    `select id, day, amount, due_at, released_at from vesting where user_id=$1 order by due_at desc limit 50`,
+    `select id, day, amount, due_at, released_at from vesting where user_id=$1 order by (released_at is null) desc, case when released_at is null then due_at end asc, released_at desc limit 50`,
     [req.userId!],
   );
   res.json({ settlements: rows });
@@ -141,6 +141,7 @@ wallet.get('/cap', requireUser, async (req, res) => {
   const age = known ? Date.now() - new Date(seen.first_seen).getTime() : 0;
   res.json({ cap: computeCap(known, age, BigInt(r.b)).toString() });
 });
+
 
 
 
