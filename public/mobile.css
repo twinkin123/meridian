@@ -564,3 +564,4 @@ html.boot body{visibility:hidden}
 .robot-card video.live{opacity:1}
 
 @media (max-width:900px){.side .robot-card img.robot-still{position:static !important;width:44px !important;height:44px !important;object-fit:cover;border-radius:6px;opacity:1 !important}}
+.top-right a.ghost{display:none !important}
