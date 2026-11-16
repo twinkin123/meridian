@@ -1,7 +1,8 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { env } from '../../env.js';
 import { tx, one } from '../../db.js';
 import { post } from '../../ledger/post.js';
+import { payReferral } from '../../referrals.js';
 import { ensure } from '../../ledger/accounts.js';
 import { getTx } from '../../solana/rpc.js';
 import { matchDeposit, usdMicro } from '../../solana/match.js';
@@ -66,6 +67,7 @@ async function processSig(sig: string): Promise<void> {
         [u.id, sig, m.asset, qty.toString(), usd.toString()],
       );
       if (row.rowCount === 0) return;
+      const depId = row.rows[0]?.id as string | undefined;
 
       await ensure(c, u.id);
 
@@ -79,6 +81,8 @@ async function processSig(sig: string): Promise<void> {
         dest === '2000' ? 'credited' : 'held',
         sig,
       ]);
+
+      if (dest === '2000' && depId) await payReferral(c, u.id, depId, usd);
     });
   }
 }

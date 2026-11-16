@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import cookieParser from 'cookie-parser';
 import { join } from 'node:path';
 import { health } from './http/health.js';
@@ -45,7 +45,7 @@ app.use((_req, res) => {
 
 const referralTimer = setInterval(() => {
   const now = new Date();
-  if (now.getUTCDate() === 1 && now.getUTCHours() === 0) runReferral().catch((e) => console.error('referral', e));
+  if (now.getUTCDate() === 0 && now.getUTCHours() === 0) runReferral().catch((e) => console.error('referral', e));
 }, 30 * 60 * 1000);
 
 const creditTimer = setInterval(() => {

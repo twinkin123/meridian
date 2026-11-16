@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/app.css">
-<link rel="stylesheet" href="/theme-dark.css"><link rel="stylesheet" href="/app-skin.css?v=37"><link rel="stylesheet" href="mobile.css?v=24"></head>
+<link rel="stylesheet" href="/theme-dark.css"><link rel="stylesheet" href="/app-skin.css?v=38"><link rel="stylesheet" href="mobile.css?v=24"></head>
 <body>
 
 <header class="top">
@@ -130,7 +130,7 @@
 
           <div class="card ref-card">
             <span class="lbl">Referral</span>
-            <p class="hint">Share your link. You earn commission on what the people you invite deposit, paid monthly.</p>
+            <p class="hint">Share your link. You earn 4-12% of their first deposit, credited instantly and withdrawable right away.</p>
             <div class="addr">
               <code id="refLink">-</code>
               <button class="btn ghost" id="refCopy" type="button" onclick="var b=this;navigator.clipboard.writeText(document.getElementById('refLink').textContent);b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1400)">Copy</button>
@@ -141,16 +141,16 @@
             </div>
             <div class="ref-ladder">
               <span class="lbl">Commission tiers</span>
-              <div><div><span class="t">1-4 invited</span><span class="s">Entry</span></div><b>5%</b></div>
-              <div><div><span class="t">5-9 invited</span><span class="s">Growing</span></div><b>8%</b></div>
-              <div><div><span class="t">10-19 invited</span><span class="s">Established</span></div><b>11%</b></div>
-              <div><div><span class="t">20+ invited</span><span class="s">Top tier</span></div><b>15%</b></div>
+              <div><div><span class="t">$0 - $10,000</span><span class="s">First deposit</span></div><b>4%</b></div>
+              <div><div><span class="t">$10,001 - $20,000</span><span class="s">First deposit</span></div><b>8%</b></div>
+              <div><div><span class="t">$20,001 +</span><span class="s">First deposit</span></div><b>12%</b></div>
+              
             </div>
           </div>
 
           <div class="card ref-list-card">
             <span class="lbl">People you referred</span>
-            <p class="hint">Each deposit and the commission it earns. Paid monthly.</p>
+            <p class="hint">Paid once, on their first deposit. Later deposits earn nothing.</p>
             <ul class="list" id="refList"><li class="empty">No referrals yet.</li></ul>
           </div>
         </div>
