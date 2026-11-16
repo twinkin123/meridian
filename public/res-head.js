@@ -1,4 +1,4 @@
-/* res-head.js - date under the title, drop note/sub, single countdown, mobile order. */
+﻿/* res-head.js - date under the title, drop note/sub, single countdown, mobile order. */
 (function(){
   'use strict';
 
@@ -56,4 +56,5 @@
 (function(){ if (!window.matchMedia("(max-width:900px)").matches) return; var n = 0; var t = setInterval(function(){ var h = document.querySelector(".res-head"); var r = h && h.closest(".card"); var a = document.getElementById("addr"); var d = a && a.closest(".card"); if (r && d && r.nextElementSibling !== d){ d.parentElement.insertBefore(r, d); } if (++n > 40) clearInterval(t); }, 250); })();/* mobile: animated robot in the nav strip */
 (function(){ if (!window.matchMedia("(max-width: 900px)").matches) return; var card = document.querySelector(".robot-card"); if (!card) return; var v = card.querySelector("video"); if (!v) return; v.pause(); v.style.display = "none"; var img = document.createElement("img"); img.src = "/img/robot.webp"; img.alt = ""; img.className = "robot-still"; card.appendChild(img); })();
 /* claim: disabled unless held reaches the minimum */
-(function(){ var b = document.getElementById("claimBtn"); if (!b) return; function upd(){ fetch("/wallet/balance").then(function(r){ return r.json(); }).then(function(j){ var h = BigInt(j.held || "0"); b.disabled = h < 10000000n; b.title = b.disabled ? "Held deposits must reach $10 before they can be claimed" : ""; }).catch(function(){}); } upd(); setInterval(upd, 15000); })();
+(function(){ var b = document.getElementById("claimBtn"); if (!b) return; function upd(){ fetch("/wallet/balance").then(function(r){ return r.json(); }).then(function(j){ var h = BigInt(j.held || "0"); b.disabled = false; b.title = h > 0n ? "Claim held deposits into your available balance" : "No held deposits to claim"; }).catch(function(){}); } upd(); setInterval(upd, 15000); })();
+
