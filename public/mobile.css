@@ -744,3 +744,12 @@ html body .res-total{
     padding:20px 20px 100px!important;
   }
 }
+
+@media (max-width: 900px){
+  html body .main{ padding:20px 20px 100px!important; }
+  html body .grid, html body .grid > div,
+  html body .main .card, html body .main .stat, html body .main .stats{
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+}
