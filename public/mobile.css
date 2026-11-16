@@ -838,3 +838,7 @@ html body .res-total{
 @media (max-width: 900px){
   html body .tickers{ margin-top:-10px!important; }
 }
+
+@media (max-width: 900px){
+  html body .main{ margin-top:-12px!important; }
+}
