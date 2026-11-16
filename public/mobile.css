@@ -560,3 +560,5 @@
 html.boot{background:#0a0a0b}
 html.boot body{visibility:hidden}
 @media (max-width:900px){.side .robot-card{display:flex !important;flex:0 0 auto !important;align-items:center !important;padding:6px 10px !important;margin:0 !important;border:0 !important;border-left:1px solid rgba(255,255,255,.1) !important;border-radius:0 !important;background:transparent !important}.side .robot-card video{width:44px !important;height:44px !important;object-fit:cover;border-radius:6px}.side .robot-card p{display:none !important}}
+.robot-card video{opacity:0;transition:opacity .22s ease}
+.robot-card video.live{opacity:1}
