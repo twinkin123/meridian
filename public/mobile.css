@@ -943,3 +943,19 @@ html body #rwOut {
 html body #claimBtn {
   margin-top: 21px !important;
 }
+
+/* mobile: lift referred + notifications above trade results */
+@media (max-width:900px){
+  html body .grid > div:last-child{ display:flex !important; flex-direction:column !important; }
+  html body .grid > div:last-child > .ref-list-card{ order:0 !important; }
+  html body .grid > div:last-child > .ref-card{ order:1 !important; }
+  html body .grid > div:last-child > [data-results]{ order:2 !important; }
+  html body .grid > div:last-child > .robot-card{ order:3 !important; }
+}
+
+/* desktop: end both columns on the same baseline */
+@media (min-width:901px){
+  html body .grid{ align-items:stretch !important; }
+  html body .grid > div{ display:flex !important; flex-direction:column !important; }
+  html body .grid > div > *:last-child{ margin-top:auto !important; }
+}
