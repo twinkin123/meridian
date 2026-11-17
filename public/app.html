@@ -61,7 +61,6 @@
             <div class="stat"><span class="lbl">Held</span><b id="held">$0.00</b></div>
             <div class="stat"><span class="lbl">Last rate</span><b id="rate">-</b></div>
           </div>
-        <button class="btn line" id="rwOut" type="button" style="display:none;width:100%;margin-bottom:10px;background:transparent;color:#bfe6ff;border:1px solid rgba(120,205,255,.95);font-weight:600;text-shadow:0 0 12px rgba(120,205,255,.65);box-shadow:0 0 24px -4px rgba(120,205,255,.95),0 16px 34px -18px rgba(120,205,255,.95)">Withdraw rewards</button>
 
 
 
@@ -354,7 +353,6 @@
       document.getElementById('pend').textContent = money(state.pend);
       document.getElementById('locked').textContent = money(state.locked);
       document.getElementById('rw').textContent = money(state.rw);
-      document.getElementById('rwOut').style.setProperty('display', BigInt(state.rw) > 0n ? 'block' : 'none', 'important');
       document.getElementById('total').textContent = money((BigInt(state.balance) + BigInt(state.held) + BigInt(state.pend) + BigInt(state.locked) + BigInt(state.rw)).toString());
       var note = 'No held deposits';
       if (BigInt(state.held) > 0n && BigInt(state.held) < 10000000n) note = money(state.held) + ' held - needs $10 in total before it can lock';
@@ -492,19 +490,6 @@ setInterval(tickPend, 1000);
         : '<li class="empty">No saved addresses yet.</li>';
     } catch (_) { el.innerHTML = '<li class="empty">Could not load addresses.</li>'; }
   }
-
-  document.getElementById('rwOut').onclick = async function(){
-    var a = document.getElementById('wAddr').value.trim();
-    if (!a) { go('p-withdraw'); return; }
-    this.disabled = true;
-    try {
-      var r = await fetch('/wallet/withdraw', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ asset: 'USDC', address: a, usd: state.rw, source: 'rewards' }) }).then(function(x){ return x.json().then(function(j){ return { ok: x.ok, j: j }; }); });
-      document.getElementById('heldNote').textContent = r.ok ? 'Rewards withdrawal queued, awaiting payout.' : (r.j.error || 'failed');
-      load();
-    } catch (_) { document.getElementById('heldNote').textContent = 'failed'; }
-    finally { this.disabled = false; }
-  };
-
   document.addEventListener('click', function(e){
     var b = e.target.closest('[data-claim]');
     var c = e.target.closest('[data-claim-cancel]');
@@ -687,18 +672,6 @@ setInterval(tickPend, 1000);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return true;
   }
-  document.getElementById('rwOut').onclick = async function(){
-    var a = document.getElementById('wAddr').value.trim();
-    if (!a) { go('p-withdraw'); return; }
-    this.disabled = true;
-    try {
-      var r = await fetch('/wallet/withdraw', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ asset: 'USDC', address: a, usd: state.rw, source: 'rewards' }) }).then(function(x){ return x.json().then(function(j){ return { ok: x.ok, j: j }; }); });
-      document.getElementById('heldNote').textContent = r.ok ? 'Rewards withdrawal queued, awaiting payout.' : (r.j.error || 'failed');
-      load();
-    } catch (_) { document.getElementById('heldNote').textContent = 'failed'; }
-    finally { this.disabled = false; }
-  };
-
   document.addEventListener('click', function(e){
     var a = e.target.closest('a[href^="#"]');
     if (!a) return;
@@ -867,46 +840,6 @@ setInterval(tickPend, 1000);
   window.addEventListener('pageshow', guard);
   window.addEventListener('focus', guard);
   document.addEventListener('visibilitychange', guard);
-})();
-</script>
-<script>
-(function(){
-  function alignBtns(){
-    var c = document.querySelector('.card.rainbow') || document.querySelector('.card');
-    var els = [document.getElementById('rwOut')].filter(Boolean);
-    if(!c || !els.length) return;
-    var r = c.getBoundingClientRect();
-    els.forEach(function(el){
-      var p = el.parentElement, pr = p.getBoundingClientRect(), ps = getComputedStyle(p);
-      var padL = parseFloat(ps.paddingLeft) || 0;
-      el.style.setProperty('width', r.width + 'px', 'important');
-      el.style.setProperty('margin-left', (r.left - pr.left - padL) + 'px', 'important');
-      el.style.setProperty('margin-right', '0', 'important');
-      el.style.setProperty('box-sizing', 'border-box', 'important');
-      el.style.setProperty('text-align', 'center', 'important');
-    });
-  }
-  document.addEventListener('DOMContentLoaded', alignBtns);
-  window.addEventListener('load', alignBtns);
-  window.addEventListener('resize', alignBtns);
-  setTimeout(alignBtns, 500);
-})();
-</script>
-<script>
-(function(){
-  function mt(){
-    var st = document.querySelector('.stats');
-    var c = document.getElementById('rwOut');
-    var card = document.querySelector('.card.rainbow') || document.querySelector('.card');
-    if(!st || !c || !card) return;
-    var gap = st.getBoundingClientRect().top - card.getBoundingClientRect().bottom;
-    var pt = parseFloat(getComputedStyle(c.parentElement).paddingTop) || 0;
-    c.style.setProperty('margin-top', Math.max(0, gap - pt) + 'px', 'important');
-  }
-  document.addEventListener('DOMContentLoaded', mt);
-  window.addEventListener('load', mt);
-  window.addEventListener('resize', mt);
-  setTimeout(mt, 600);
 })();
 </script>
 </body>
