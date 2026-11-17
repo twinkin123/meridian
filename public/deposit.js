@@ -131,6 +131,7 @@
       var r = await fetch('/wallet/deposit', { credentials: 'same-origin' });
       if (!r.ok) throw new Error('http ' + r.status);
       var j = await r.json();
+      if (!j.address) throw new Error('no address');
       addrEl.textContent = j.address;
       qrEl.src = j.qr;
       if (Number(j.received) > 0) setStatus('Deposit received', true);
@@ -146,6 +147,7 @@
         var r = await fetch('/wallet/deposit', { credentials: 'same-origin' });
         if (!r.ok) return;
         var j = await r.json();
+      if (!j.address) throw new Error('no address');
         if (Number(j.received) > 0) {
           setStatus('Deposit received', true);
           clearInterval(timer);

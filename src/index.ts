@@ -37,6 +37,7 @@ app.get('/health', async (_req, res) => {
 
 app.use('/auth', auth);
 app.use('/webhooks', webhooks);
+app.use('/wallet/deposit', requireUser, deposit);
 app.use('/wallet', wallet);
 app.use('/wallet/deposit', requireUser, deposit);
 app.use('/admin', adminRouter);
