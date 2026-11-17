@@ -167,3 +167,15 @@ export async function sweepFrom(
   const amount = asset === 'usdc' ? usdc(micro) : sol(micro);
   return transferFrom(walletId, asset, amount, to, referenceId, idempotencyKey);
 }
+
+/** Imports an existing keypair so Privy takes custody of an address we already issued. */
+export async function importSolanaWallet(
+  address: string,
+  secretKey: Uint8Array,
+): Promise<{ id: string; address: string }> {
+  const w = await privy().wallets().import({
+    wallet: { private_key: secretKey, address, chain_type: 'solana', entropy_type: 'private-key' },
+  });
+  if (!w.id || !w.address) throw new Error('privy_import_failed');
+  return { id: w.id, address: w.address };
+}

@@ -48,7 +48,7 @@ function conn(): Connection {
   return new Connection(need('RPC_URL'), 'confirmed');
 }
 
-function keypairForIndex(index: number): Keypair {
+export function keypairForIndex(index: number): Keypair {
   const seed = Buffer.from(mnemonicToSeedSync(need('MASTER_MNEMONIC'))).toString('hex');
   const { key } = derivePath(`m/44'/501'/${index}'/0'`, seed);
   return Keypair.fromSeed(new Uint8Array(key));
