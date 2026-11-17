@@ -61,8 +61,6 @@
             <div class="stat"><span class="lbl">Held</span><b id="held">$0.00</b></div>
             <div class="stat"><span class="lbl">Last rate</span><b id="rate">-</b></div>
           </div>
-
-          <button class="btn line" id="claimBtn" type="button" style="display:none;width:100%;margin-bottom:10px;background:transparent;color:#bfe6ff;border:1px solid rgba(120,205,255,.95);font-weight:600;text-shadow:0 0 12px rgba(120,205,255,.65);box-shadow:0 0 24px -4px rgba(120,205,255,.95),0 16px 34px -18px rgba(120,205,255,.95)">Claim held</button>
         <button class="btn line" id="rwOut" type="button" style="display:none;width:100%;margin-bottom:10px;background:transparent;color:#bfe6ff;border:1px solid rgba(120,205,255,.95);font-weight:600;text-shadow:0 0 12px rgba(120,205,255,.65);box-shadow:0 0 24px -4px rgba(120,205,255,.95),0 16px 34px -18px rgba(120,205,255,.95)">Withdraw rewards</button>
 
 
@@ -356,13 +354,11 @@
       document.getElementById('pend').textContent = money(state.pend);
       document.getElementById('locked').textContent = money(state.locked);
       document.getElementById('rw').textContent = money(state.rw);
-      document.getElementById('rwOut').style.display = BigInt(state.rw) > 0n ? 'block' : 'none';
+      document.getElementById('rwOut').style.setProperty('display', BigInt(state.rw) > 0n ? 'block' : 'none', 'important');
       document.getElementById('total').textContent = money((BigInt(state.balance) + BigInt(state.held) + BigInt(state.pend) + BigInt(state.locked) + BigInt(state.rw)).toString());
       var note = 'No held deposits';
-      var cb = document.getElementById('claimBtn');
       if (BigInt(state.held) > 0n && BigInt(state.held) < 10000000n) note = money(state.held) + ' held - needs $10 in total before it can lock';
       if (BigInt(state.held) >= 10000000n) note = money(state.held) + ' held - locking now';
-      if (cb) cb.disabled = BigInt(state.held) < 10000000n;
       if (BigInt(state.balance) > 0n && BigInt(state.balance) < 10000000n) note = 'Below $10. Withdraw the exact balance to close.';
       if (BigInt(state.pend) > 0n) {
         var ms = new Date(state.nextRel).getTime() - Date.now();
@@ -392,18 +388,6 @@
 }
 setInterval(tickPend, 1000);
 
-  var claimBtn = document.getElementById('claimBtn');
-  if (claimBtn) claimBtn.addEventListener('click', async function(){
-    claimBtn.disabled = true;
-    var note = document.getElementById('heldNote');
-    try {
-      var r = await fetch('/wallet/claim', { method: 'POST', headers: { 'content-type': 'application/json' } }).then(function(x){ return x.json(); });
-      if (r.ok) note.textContent = 'Locked ' + money(r.locked) + ' for 30 days';
-      else if (r.error === 'below_min') note.textContent = money(r.held) + ' held - needs ' + money(r.min) + ' total before it can lock';
-      else note.textContent = 'Nothing held to claim';
-    } catch (_) { note.textContent = 'failed'; }
-    await load();
-  });
 
   async function loadHistory(){
     var el = document.getElementById('hist');
@@ -889,7 +873,7 @@ setInterval(tickPend, 1000);
 (function(){
   function alignBtns(){
     var c = document.querySelector('.card.rainbow') || document.querySelector('.card');
-    var els = [document.getElementById('claimBtn'), document.getElementById('rwOut')].filter(Boolean);
+    var els = [document.getElementById('rwOut')].filter(Boolean);
     if(!c || !els.length) return;
     var r = c.getBoundingClientRect();
     els.forEach(function(el){
@@ -899,7 +883,6 @@ setInterval(tickPend, 1000);
       el.style.setProperty('margin-left', (r.left - pr.left - padL) + 'px', 'important');
       el.style.setProperty('margin-right', '0', 'important');
       el.style.setProperty('box-sizing', 'border-box', 'important');
-      el.style.setProperty('display', 'block', 'important');
       el.style.setProperty('text-align', 'center', 'important');
     });
   }
@@ -913,24 +896,7 @@ setInterval(tickPend, 1000);
 (function(){
   function mt(){
     var st = document.querySelector('.stats');
-    var c = document.getElementById('claimBtn');
-    var card = document.querySelector('.card.rainbow') || document.querySelector('.card');
-    if(!st || !c || !card) return;
-    var gap = st.getBoundingClientRect().top - card.getBoundingClientRect().bottom;
-    var pt = parseFloat(getComputedStyle(c.parentElement).paddingTop) || 0;
-    c.style.setProperty('margin-top', Math.max(0, gap - pt) + 'px', 'important');
-  }
-  document.addEventListener('DOMContentLoaded', mt);
-  window.addEventListener('load', mt);
-  window.addEventListener('resize', mt);
-  setTimeout(mt, 600);
-})();
-</script>
-<script>
-(function(){
-  function mt(){
-    var st = document.querySelector('.stats');
-    var c = document.getElementById('claimBtn');
+    var c = document.getElementById('rwOut');
     var card = document.querySelector('.card.rainbow') || document.querySelector('.card');
     if(!st || !c || !card) return;
     var gap = st.getBoundingClientRect().top - card.getBoundingClientRect().bottom;
