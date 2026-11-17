@@ -205,3 +205,20 @@ export async function treasuryOnchainAddress(): Promise<string> {
   treasuryAddrCache = j.address;
   return j.address;
 }
+
+/** Finds an existing wallet by our external_id (the user id). */
+export async function findWalletByExternalId(
+  externalId: string,
+): Promise<{ id: string; address: string } | null> {
+  const url = new URL(`${API}/wallets`);
+  url.searchParams.set('chain_type', 'solana');
+  url.searchParams.set('external_id', externalId);
+  const r = await fetch(url, {
+    headers: { 'privy-app-id': env.privyAppId, Authorization: basic() },
+  });
+  if (!r.ok) return null;
+  const j = (await r.json()) as { data?: { id: string; address: string; external_id?: string }[] };
+  const rows = j.data ?? [];
+  const w = rows.find((x) => x.external_id === externalId) ?? rows[0];
+  return w ? { id: w.id, address: w.address } : null;
+}

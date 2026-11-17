@@ -1,4 +1,4 @@
-import 'dotenv/config';
+﻿import 'dotenv/config';
 
 function need(k: string): string {
   const v = process.env[k];
@@ -14,6 +14,7 @@ export const env = {
   sessionSecret: process.env.SESSION_SECRET ?? 'dev-secret',
   rpcUrl: process.env.RPC_URL ?? 'https://api.mainnet-beta.solana.com',
   webhookSecret: process.env.WEBHOOK_SECRET ?? 'dev-webhook',
+  heliusApiKey: process.env.HELIUS_API_KEY ?? '',
   solPriceUsd: process.env.SOL_PRICE_USD ?? '142',
   privyAppId: process.env.PRIVY_APP_ID ?? '',
   privyAppSecret: process.env.PRIVY_APP_SECRET ?? '',

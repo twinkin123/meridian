@@ -17,11 +17,12 @@ deposit.get('/', async (req, res) => {
   });
 
   const recent = await pool.query<{ usd: string }>(
-    `select coalesce(sum(amount), 0) usd from postings p
+    `select coalesce(sum(p.amount), 0) usd
+       from postings p
        join transactions t on t.id = p.tx_id
-      where p.code = '2000' and p.owner = $1 and t.created_at > now() - interval '30 minutes'`,
+       join accounts a on a.id = p.account_id
+      where a.code = '2000' and a.owner_id = $1 and t.created_at > now() - interval '30 minutes'`,
     [userId],
   );
-
   res.json({ address, qr, received: recent.rows[0]?.usd ?? '0' });
 });

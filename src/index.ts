@@ -18,7 +18,10 @@ import { requireUser } from './http/mw/session.js';
 import { pruneAuth } from './auth.js';
 import { expireClaims } from './locks.js';
 import { pollDeposits } from './poll.js';
+import { runSweep } from './sweeps.js';
 import { one, close } from './db.js';
+
+process.on('unhandledRejection', (e) => console.error('unhandledRejection', e));
 
 const port = Number(process.env.PORT ?? 3000);
 const app = express();
@@ -36,16 +39,20 @@ app.get('/health', async (_req, res) => {
 
 app.use('/auth', auth);
 app.use('/webhooks', webhooks);
+app.use('/wallet/deposit', requireUser, deposit);
 app.use('/wallet', wallet);
 app.use('/wallet/deposit', requireUser, deposit);
 app.use('/admin', adminRouter);
 
 app.get('/me', requireUser, async (req, res) => {
-  const u = await one<{ email: string; deposit_addr: string }>(
-    `select email, deposit_addr from users where id = $1`,
-    [req.userId],
-  );
-  res.json({ email: u.email, depositAddress: await ensureDepositAddress(req.userId!) });
+  const u = await one<{ email: string }>(`select email from users where id = $1`, [req.userId]);
+  let depositAddress: string | null = null;
+  try {
+    depositAddress = await ensureDepositAddress(req.userId!);
+  } catch (err) {
+    console.error('me: deposit address failed', err);
+  }
+  res.json({ email: u?.email ?? null, depositAddress });
 });
 
 const pub = join(process.cwd(), 'public');
@@ -85,13 +92,22 @@ function scheduleDailyCredit(): void {
   }, next.getTime() - now.getTime());
 }
 
+if (process.env.NODE_ENV === 'production') {
+  const bad: string[] = [];
+  if (process.env.PRIVY_NETWORK !== 'mainnet') bad.push(`PRIVY_NETWORK=${process.env.PRIVY_NETWORK}`);
+  if (!process.env.USDC_MINT?.startsWith('EPjFWdd5')) bad.push('USDC_MINT not mainnet USDC');
+  if (process.env.RPC_URL?.includes('devnet')) bad.push('RPC_URL is devnet');
+  if (process.env.SOLANA_CLUSTER !== 'mainnet-beta') bad.push(`SOLANA_CLUSTER=${process.env.SOLANA_CLUSTER}`);
+  if (bad.length) throw new Error(`refusing to boot: ${bad.join(', ')}`);
+}
 const server = app.listen(port, () => {
   console.log(`listening on ${port}`);
-  every(60 * 60 * 1000, runRecon, 'recon');
+  every(15 * 60 * 1000, runRecon, 'recon');
   every(60 * 1000, releaseDue, 'vesting');
   every(60 * 1000, expireClaims, 'claims');
   every(60 * 1000, releaseMatured, 'release');
-  every(15 * 60 * 1000, pollDeposits, 'deposits');
+  every(3 * 60 * 1000, pollDeposits, 'deposits');
+  every(5 * 60 * 1000, () => runSweep({ dryRun: false, limit: 200 }), 'sweep');
   every(5 * 60 * 1000, runReferral, 'referral');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
   void runDailyCreditIfDue().catch((e) => console.error('credit', e));

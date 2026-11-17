@@ -1,11 +1,11 @@
-import { Connection, PublicKey } from '@solana/web3.js';
+﻿import { Connection, PublicKey } from '@solana/web3.js';
 import { getAssociatedTokenAddress, getAccount } from '@solana/spl-token';
 import { pool, one } from './db.js';
 import { usdMicro } from './solana/match.js';
 import { sweepDestination } from './sweeps.js';
 import { solPriceMicro } from './price.js';
 
-export const DRIFT_FREEZE_USD = 1_000_000n;
+export const DRIFT_FREEZE_USD = 5_000_000n;
 
 const USDC_MINT = new PublicKey(
   process.env.USDC_MINT ?? 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
