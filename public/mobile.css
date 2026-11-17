@@ -918,3 +918,13 @@ html body #rwOut {
   margin: 0 0 10px 0 !important;
   text-align: center !important;
 }
+
+/* v83 - match button width to the value card exactly */
+html body #claimBtn,
+html body #rwOut {
+  align-self: stretch !important;
+  width: auto !important;
+  box-sizing: border-box !important;
+  margin: 0 35px 10px 35px !important;
+  text-align: center !important;
+}
