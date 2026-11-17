@@ -158,3 +158,10 @@ adminRouter.get('/referral/runs', async (req, res) => {
   );
   res.json({ runs: rows });
 });
+adminRouter.get('/credit/runs', async (_req, res) => {
+  const { rows } = await pool.query(
+    `select day::text as day, rate_bp, posted, total, gross_total, fee_total
+       from credit_runs order by day desc limit 20`,
+  );
+  res.json({ today: new Date().toISOString().slice(0, 10), rows });
+});
