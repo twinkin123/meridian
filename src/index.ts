@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import cookieParser from 'cookie-parser';
 import { join } from 'node:path';
 import { health } from './http/health.js';
@@ -8,7 +8,7 @@ import { wallet } from './http/routes/wallet.js';
 import { results } from './http/routes/results.js';
 import { adminRouter } from './admin.js';
 import { runRecon } from './recon.js';
-import { runDailyCredit } from './jobs/daily.js';
+import { runDailyCredit, runDailyCreditIfDue } from './jobs/daily.js';
 import { runReferral } from './jobs/referral.js';
 import { releaseDue } from './vesting.js';
 import { requireUser } from './http/mw/session.js';
@@ -61,7 +61,10 @@ function every(ms: number, fn: () => Promise<unknown>, label: string): void {
   timers.push(setInterval(tick, ms));
 }
 
+let dailyTimer: NodeJS.Timeout | null = null;
+
 function scheduleDailyCredit(): void {
+  if (dailyTimer) clearTimeout(dailyTimer);
   const now = new Date();
   const next = new Date(Date.UTC(
     now.getUTCFullYear(),
@@ -70,12 +73,10 @@ function scheduleDailyCredit(): void {
     0, 15, 0, 0,
   ));
   if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
-
-  setTimeout(() => {
-    void runDailyCredit().catch((e) => console.error('credit', e));
-    timers.push(setInterval(() => {
-      void runDailyCredit().catch((e) => console.error('credit', e));
-    }, 24 * 60 * 60 * 1000));
+  dailyTimer = setTimeout(() => {
+    void runDailyCredit()
+      .catch((e) => console.error('credit', e))
+      .finally(() => scheduleDailyCredit());
   }, next.getTime() - now.getTime());
 }
 
@@ -86,6 +87,7 @@ const server = app.listen(port, () => {
   every(60 * 1000, expireClaims, 'claims');
   every(5 * 60 * 1000, runReferral, 'referral');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
+  void runDailyCreditIfDue().catch((e) => console.error('credit', e));
   scheduleDailyCredit();
 });
 

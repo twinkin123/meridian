@@ -77,3 +77,14 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
   );
   return { posted, total: total.toString() };
 }
+
+export async function runDailyCreditIfDue(): Promise<void> {
+  const now = new Date();
+  const boundary = Date.UTC(
+    now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 15, 0, 0,
+  );
+  if (now.getTime() < boundary) return;
+  const key = now.toISOString().slice(0, 10);
+  const r = await pool.query('select 1 from credit_runs where day = $1', [key]);
+  if (r.rowCount === 0) await runDailyCredit();
+}

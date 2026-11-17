@@ -9,7 +9,7 @@ const DAYS = 30;
 results.get('/', requireUser, async (_req, res) => {
   const { rows } = await pool.query(
     `select day::text as day, rate_bp, posted, total
-       from credit_runs
+       from credit_runs where day <= current_date
       order by day desc
       limit $1`,
     [DAYS],
