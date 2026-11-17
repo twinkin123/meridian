@@ -11,7 +11,7 @@ import { solPriceMicro } from '../../price.js';
 
 export const webhooks = Router();
 
-import { MIN_DEPOSIT as MIN } from '../../locks.js';
+import { MIN_DEPOSIT as MIN, combineHeld } from '../../locks.js';
 
 webhooks.post('/helius', async (req, res) => {
   if (req.header('authorization') !== env.webhookSecret) {
@@ -59,6 +59,7 @@ async function processSig(sig: string): Promise<void> {
 
     if (usd <= 0n) continue;
 
+    const dest = frozen || usd < MIN ? '2050' : '2070';
     await tx(async (c) => {
       const row = await c.query(
         `insert into deposits (user_id, sig, asset, qty, usd_at_det, status)
@@ -71,7 +72,6 @@ async function processSig(sig: string): Promise<void> {
 
       await ensure(c, u.id);
 
-      const dest = frozen || usd < MIN ? '2050' : '2070';
       await post(c, 'DepositCredited', sig, [
         { code: '1000', amount: usd },
         { code: dest, owner: u.id, amount: -usd },
@@ -85,6 +85,8 @@ async function processSig(sig: string): Promise<void> {
 
       if (dest === '2070' && depId) await payReferral(c, u.id, depId, usd);
     });
+
+    if (dest === '2050') await combineHeld(u.id);
   }
 }
 

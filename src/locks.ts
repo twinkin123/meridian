@@ -145,3 +145,35 @@ export async function combineHeld(userId: string): Promise<CombineResult> {
     return { state: 'combined', amount };
   });
 }
+
+/** Releases matured locks automatically. Idempotent on released_at. */
+export async function releaseMatured(limit = 500): Promise<number> {
+  const { rows } = await pool.query<{ id: string; user_id: string; usd_at_det: string }>(
+    `select id, user_id, usd_at_det from deposits
+      where status = 'locked' and released_at is null and unlock_at <= now()
+      order by unlock_at limit $1`,
+    [limit],
+  );
+
+  let released = 0;
+  for (const r of rows) {
+    const amount = BigInt(r.usd_at_det);
+    if (amount <= 0n) continue;
+    const ok = await tx(async (c) => {
+      const done = await c.query(
+        `update deposits set released_at = now(), status = 'credited'
+          where id = $1 and released_at is null returning id`,
+        [r.id],
+      );
+      if (done.rowCount === 0) return false;
+      await c.query('select ensure_user_accounts($1)', [r.user_id]);
+      await post(c, 'LockReleased', `release:${r.id}`, [
+        { code: '2070', owner: r.user_id, amount },
+        { code: '2000', owner: r.user_id, amount: -amount },
+      ]);
+      return true;
+    });
+    if (ok) released += 1;
+  }
+  return released;
+}

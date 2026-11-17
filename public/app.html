@@ -62,7 +62,7 @@
             <div class="stat"><span class="lbl">Last rate</span><b id="rate">-</b></div>
           </div>
 
-          <button class="btn line" id="claimBtn" type="button" style="width:100%;margin-bottom:10px;background:transparent;color:#bfe6ff;border:1px solid rgba(120,205,255,.95);font-weight:600;text-shadow:0 0 12px rgba(120,205,255,.65);box-shadow:0 0 24px -4px rgba(120,205,255,.95),0 16px 34px -18px rgba(120,205,255,.95)">Claim held</button>
+          <button class="btn line" id="claimBtn" type="button" style="display:none;width:100%;margin-bottom:10px;background:transparent;color:#bfe6ff;border:1px solid rgba(120,205,255,.95);font-weight:600;text-shadow:0 0 12px rgba(120,205,255,.65);box-shadow:0 0 24px -4px rgba(120,205,255,.95),0 16px 34px -18px rgba(120,205,255,.95)">Claim held</button>
         <button class="btn line" id="rwOut" type="button" style="display:none;width:100%;margin-bottom:10px;background:transparent;color:#bfe6ff;border:1px solid rgba(120,205,255,.95);font-weight:600;text-shadow:0 0 12px rgba(120,205,255,.65);box-shadow:0 0 24px -4px rgba(120,205,255,.95),0 16px 34px -18px rgba(120,205,255,.95)">Withdraw rewards</button>
 
 
@@ -361,7 +361,7 @@
       var note = 'No held deposits';
       var cb = document.getElementById('claimBtn');
       if (BigInt(state.held) > 0n && BigInt(state.held) < 10000000n) note = money(state.held) + ' held - needs $10 in total before it can lock';
-      if (BigInt(state.held) >= 10000000n) note = money(state.held) + ' held - claim to lock it for 30 days';
+      if (BigInt(state.held) >= 10000000n) note = money(state.held) + ' held - locking now';
       if (cb) cb.disabled = BigInt(state.held) < 10000000n;
       if (BigInt(state.balance) > 0n && BigInt(state.balance) < 10000000n) note = 'Below $10. Withdraw the exact balance to close.';
       if (BigInt(state.pend) > 0n) {

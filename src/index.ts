@@ -9,6 +9,7 @@ import { results } from './http/routes/results.js';
 import { adminRouter } from './admin.js';
 import { runRecon } from './recon.js';
 import { runDailyCredit, runDailyCreditIfDue } from './jobs/daily.js';
+import { releaseMatured } from './locks.js';
 import { runReferral } from './jobs/referral.js';
 import { releaseDue } from './vesting.js';
 import { requireUser } from './http/mw/session.js';
@@ -85,6 +86,7 @@ const server = app.listen(port, () => {
   every(15 * 60 * 1000, runRecon, 'recon');
   every(60 * 1000, releaseDue, 'vesting');
   every(60 * 1000, expireClaims, 'claims');
+  every(60 * 1000, releaseMatured, 'release');
   every(5 * 60 * 1000, runReferral, 'referral');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
   void runDailyCreditIfDue().catch((e) => console.error('credit', e));
