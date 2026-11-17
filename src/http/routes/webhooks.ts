@@ -33,7 +33,7 @@ webhooks.post('/helius', async (req, res) => {
   }
 });
 
-async function processSig(sig: string): Promise<void> {
+export async function processSig(sig: string): Promise<void> {
   const seen = await one<{ id: string }>('select id from deposits where sig = $1', [sig]);
   if (seen) return;
 
