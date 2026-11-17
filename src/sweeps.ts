@@ -129,7 +129,7 @@ async function submitPrivy(
       asset === 'USDC' ? 'usdc' : 'sol',
       asset === 'USDC' ? usdc(amountRaw) : sol(amountRaw),
       destination,
-      `sweep:${address}`,
+      `sweep:${address}:${Date.now()}`,
       `sweep:${address}:${Date.now()}`,
     );
   } catch (e) {
@@ -253,7 +253,7 @@ export async function runSweep(opts: { dryRun: boolean; limit: number }) {
   const { rows } = await pool.query(
     `select privy_address as deposit_address, privy_wallet_id, deposit_index
        from users
-      where privy_address is not null
+      where privy_address is not null and privy_wallet_id is not null
       order by deposit_index
       limit $1`,
     [Math.min(opts.limit, 200)],
@@ -261,10 +261,19 @@ export async function runSweep(opts: { dryRun: boolean; limit: number }) {
 
   const results: Result[] = [];
   for (const r of rows) {
-    const batch = await sweepAddress(
-      r.deposit_address, r.privy_wallet_id, destination, c, opts.dryRun, reserveExtra,
-    );
-    results.push(...batch);
+    try {
+      const batch = await sweepAddress(
+        r.deposit_address, r.privy_wallet_id, destination, c, opts.dryRun, reserveExtra,
+      );
+      results.push(...batch);
+    } catch (e) {
+      results.push({
+        address: r.deposit_address,
+        asset: '-',
+        status: 'failed',
+        reason: e instanceof Error ? e.message.slice(0, 200) : String(e),
+      });
+    }
   }
 
   const confirmed = results.filter((r) => r.status === 'confirmed');
@@ -303,7 +312,7 @@ async function ensureFloat(owner: PublicKey, c: Connection, walletId: string): P
     'sol',
     sol(SWEEP_FLOAT_LAMPORTS),
     owner.toBase58(),
-    'float',
+    `float:${owner.toBase58()}:${Date.now()}`,
     `float:${owner.toBase58()}:${Date.now()}`,
   );
 
