@@ -1,6 +1,9 @@
 import { pool } from './db.js';
 import { getSigs } from './solana/rpc.js';
 import { processSig } from './http/routes/webhooks.js';
+import { getAssociatedTokenAddress } from '@solana/spl-token';
+import { PublicKey } from '@solana/web3.js';
+import { USDC_MINT } from './solana/match.js';
 
 // Round-robin: only a slice of wallets per cycle, so RPC volume stays flat as
 // the user count grows. Each address is revisited every (wallets / SLICE)
@@ -26,14 +29,36 @@ export async function pollDeposits(): Promise<void> {
     cursor = (cursor + take) % rows.length;
 
     for (const a of slice) {
+      let ata: string;
       try {
-        for (const sig of await getSigs(a, 5)) {
-          await processSig(sig);
-          hits++;
-        }
+        ata = (await getAssociatedTokenAddress(new PublicKey(USDC_MINT), new PublicKey(a))).toBase58();
       } catch (e) {
-        console.error('poll', a, e instanceof Error ? e.message : e);
+        console.error('poll: ata', a, e instanceof Error ? e.message : e);
+        continue;
       }
+
+      const seen = new Set<string>();
+
+      for (const addr of [a, ata]) {
+        let sigs: string[] = [];
+        try {
+          sigs = await getSigs(addr, 5);
+        } catch (e) {
+          console.error('poll', addr, e instanceof Error ? e.message : e);
+        }
+
+        for (const sig of sigs) {
+          if (seen.has(sig)) continue;
+          seen.add(sig);
+          try {
+            await processSig(sig);
+            hits++;
+          } catch (e) {
+            console.error('processSig', sig, e instanceof Error ? e.message : e);
+          }
+        }
+      }
+
       await sleep(250);
     }
     if (hits) console.log('poll: scanned', hits, 'of', slice.length, 'wallets');
