@@ -938,3 +938,8 @@ html body #rwOut {
   margin: 0 0 10px 0 !important;
   text-align: center !important;
 }
+
+/* v86 - clearance above the claim button to match the gap above the stats row */
+html body #claimBtn {
+  margin-top: 21px !important;
+}
