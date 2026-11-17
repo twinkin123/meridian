@@ -928,3 +928,13 @@ html body #rwOut {
   margin: 0 35px 10px 35px !important;
   text-align: center !important;
 }
+
+/* v85 - buttons sized to the value card by measurement */
+html body #claimBtn,
+html body #rwOut {
+  display: block !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  margin: 0 0 10px 0 !important;
+  text-align: center !important;
+}
