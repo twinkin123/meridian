@@ -5,6 +5,8 @@ import { health } from './http/health.js';
 import { auth } from './http/routes/auth.js';
 import { webhooks } from './http/routes/webhooks.js';
 import { wallet } from './http/routes/wallet.js';
+import { deposit } from './http/routes/deposit.js';
+import { ensureDepositAddress } from './deposits.js';
 import { results } from './http/routes/results.js';
 import { adminRouter } from './admin.js';
 import { runRecon } from './recon.js';
@@ -34,6 +36,7 @@ app.get('/health', async (_req, res) => {
 app.use('/auth', auth);
 app.use('/webhooks', webhooks);
 app.use('/wallet', wallet);
+app.use('/wallet/deposit', requireUser, deposit);
 app.use('/admin', adminRouter);
 
 app.get('/me', requireUser, async (req, res) => {
@@ -41,7 +44,7 @@ app.get('/me', requireUser, async (req, res) => {
     `select email, deposit_addr from users where id = $1`,
     [req.userId],
   );
-  res.json({ email: u.email, depositAddress: u.deposit_addr });
+  res.json({ email: u.email, depositAddress: await ensureDepositAddress(req.userId!) });
 });
 
 const pub = join(process.cwd(), 'public');

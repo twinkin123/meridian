@@ -70,3 +70,100 @@ export async function sendUsdc(
   if (!res.id) throw new Error('privy_transfer_no_id');
   return res.id;
 }
+const API = 'https://api.privy.io/v1';
+
+function basic(): string {
+  return 'Basic ' + Buffer.from(`${env.privyAppId}:${env.privyAppSecret}`).toString('base64');
+}
+
+/** Current state of a wallet action. */
+export async function getAction(actionId: string): Promise<string> {
+  if (!env.privyTreasuryWalletId) throw new Error('privy_treasury_missing');
+  const r = await fetch(`${API}/wallets/${env.privyTreasuryWalletId}/actions/${actionId}`, {
+    headers: { 'privy-app-id': env.privyAppId, Authorization: basic() },
+  });
+  if (!r.ok) throw new Error(`privy_action_${r.status}`);
+  const j = (await r.json()) as { status?: string };
+  return j.status ?? 'unknown';
+}
+
+/** Blocks until the action reaches a terminal state or the deadline passes. */
+export async function waitForAction(
+  actionId: string,
+  timeoutMs = 120_000,
+): Promise<'succeeded' | 'failed' | 'rejected' | 'timeout'> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const s = await getAction(actionId).catch(() => 'unknown');
+    if (s === 'succeeded') return 'succeeded';
+    if (s === 'failed' || s === 'rejected') return s;
+    await new Promise((r) => setTimeout(r, 2_000));
+  }
+  return 'timeout';
+}
+
+/** lamports to SOL decimal string. */
+export function sol(lamports: bigint): string {
+  const whole = lamports / 1_000_000_000n;
+  const frac = (lamports % 1_000_000_000n).toString().padStart(9, '0').replace(/0+$/, '');
+  return frac ? `${whole}.${frac}` : `${whole}.0`;
+}
+
+export async function sendSol(
+  to: string,
+  lamports: bigint,
+  referenceId: string,
+  idempotencyKey: string,
+): Promise<string> {
+  if (!env.privyTreasuryWalletId) throw new Error('privy_treasury_missing');
+  const res = await privy().wallets().transfer(env.privyTreasuryWalletId, {
+    amount: sol(lamports),
+    amount_type: 'exact_input',
+    source: { asset: 'sol', chain: chain() },
+    destination: { address: to },
+    reference_id: referenceId.slice(0, 64),
+    idempotency_key: idempotencyKey,
+    request_expiry: expiry(),
+    authorization_context: auth(),
+  });
+  if (!res.id) throw new Error('privy_transfer_no_id');
+  return res.id;
+}
+
+type TransferAsset = 'usdc' | 'sol';
+
+/** Transfers from any Privy-held wallet. Shared by payouts and sweeps. */
+export async function transferFrom(
+  walletId: string,
+  asset: TransferAsset,
+  amount: string,
+  to: string,
+  referenceId: string,
+  idempotencyKey: string,
+): Promise<string> {
+  const res = await privy().wallets().transfer(walletId, {
+    amount,
+    amount_type: 'exact_input',
+    source: { asset, chain: chain() },
+    destination: { address: to },
+    reference_id: referenceId.slice(0, 64),
+    idempotency_key: idempotencyKey,
+    request_expiry: expiry(),
+    authorization_context: auth(),
+  });
+  if (!res.id) throw new Error('privy_transfer_no_id');
+  return res.id;
+}
+
+/** Moves a deposit wallet's balance to the treasury. */
+export async function sweepFrom(
+  walletId: string,
+  asset: TransferAsset,
+  micro: bigint,
+  to: string,
+  referenceId: string,
+  idempotencyKey: string,
+): Promise<string> {
+  const amount = asset === 'usdc' ? usdc(micro) : sol(micro);
+  return transferFrom(walletId, asset, amount, to, referenceId, idempotencyKey);
+}

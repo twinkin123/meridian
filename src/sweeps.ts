@@ -290,9 +290,9 @@ export async function runSweep(opts: { dryRun: boolean; limit: number }) {
   const reserveExtra = treasuryAtaReady ? 0n : RENT_EXEMPT;
 
   const { rows } = await pool.query(
-    `select deposit_addr as deposit_address, deposit_index
+    `select privy_address as deposit_address, deposit_index
        from users
-      where deposit_addr is not null
+      where privy_address is not null
       order by deposit_index
       limit $1`,
     [Math.min(opts.limit, 200)],

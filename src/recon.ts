@@ -50,11 +50,11 @@ export function isValidAddress(a: string): boolean {
 
 export async function chainTotals() {
   const c = new Connection(process.env.RPC_URL!, 'confirmed');
-  const { rows } = await pool.query<{ deposit_addr: string }>(
-    'select deposit_addr from users where deposit_addr is not null limit 1000',
+  const { rows } = await pool.query<{ privy_address: string }>(
+    'select privy_address from users where privy_address is not null limit 1000',
   );
 
-  const addrs = [...rows.map((r) => r.deposit_addr), sweepDestination().toBase58()]
+  const addrs = [...rows.map((r) => r.privy_address), sweepDestination().toBase58()]
     .filter((a) => {
       const ok = isValidAddress(a);
       if (!ok) console.warn('recon: skipping invalid address', a);

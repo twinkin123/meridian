@@ -48,7 +48,7 @@ async function processSig(sig: string): Promise<void> {
     .filter(Boolean);
 
   for (const key of keys) {
-    const u = await one<{ id: string }>('select id from users where deposit_addr = $1', [key]);
+    const u = await one<{ id: string }>('select id from users where privy_address = $1', [key]);
     if (!u) continue;
 
     const m = matchDeposit(t, key);

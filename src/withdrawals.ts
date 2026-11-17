@@ -16,6 +16,7 @@ import { post } from './ledger/post.js';
 import { ensure } from './ledger/accounts.js';
 import { treasuryKeypair, treasuryAddress } from './sweeps.js';
 import { solPriceMicro } from './price.js';
+import { sendUsdc, sendSol, waitForAction } from './privy.js';
 
 export const MIN_WITHDRAW = 10_000_000n;
 export const NEW_ADDR_CAP = 500_000_000n;
@@ -224,27 +225,28 @@ export type PayoutResult = { ok: boolean; error?: string; sig?: string };
 export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
   const w = await pool.query<{
     id: string; user_id: string; asset: Asset; address: string;
-    usd_amount: string; status: string; sig: string | null;
+    usd_amount: string; status: string; sig: string | null; privy_action_id: string | null;
   }>(`select * from withdrawals where id = $1`, [id]);
 
   const row = w.rows[0];
   if (!row) return { ok: false, error: 'not_found' };
   if (row.status === 'sent') return { ok: true, sig: row.sig ?? undefined };
-  if (row.status !== 'approved' && row.status !== 'failed' && row.status !== 'sending') {
+  if (!['approved', 'failed', 'sending'].includes(row.status)) {
     return { ok: false, error: `status_${row.status}` };
   }
 
-  const c = new Connection(process.env.RPC_URL!, 'confirmed');
   const usd = BigInt(row.usd_amount);
+  const price = await solPriceMicro();
+  const qty = qtyFor(row.asset, usd, price);
 
-  if (row.sig) {
-    const st = await c.getSignatureStatus(row.sig, { searchTransactionHistory: true }).catch(() => null);
-    const cs = st?.value?.confirmationStatus;
-    if ((cs === 'confirmed' || cs === 'finalized') && !st?.value?.err) {
-      await pool.query(`update withdrawals set status = 'sending' where id = $1`, [id]);
-      await finalize(id, row.sig, row.user_id, row.address, usd, 0n);
-      return { ok: true, sig: row.sig };
+  // An action is already in flight: resolve it before sending anything new.
+  if (row.privy_action_id) {
+    const settled = await waitForAction(row.privy_action_id, 20_000);
+    if (settled === 'succeeded') {
+      await finalize(id, row.privy_action_id, row.user_id, row.address, usd, qty);
+      return { ok: true, sig: row.privy_action_id };
     }
+    if (settled === 'timeout') return { ok: false, error: 'pending', sig: row.privy_action_id };
   }
 
   const claimed = await tx(async (c) => {
@@ -256,7 +258,6 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
     if (!cur) return false;
     if (!['approved', 'failed', 'sending'].includes(cur.status)) return false;
 
-    // a failed row was already refunded, so retrying must reserve it again
     if (cur.status === 'failed') {
       const net = BigInt(cur.usd_amount);
       const fee = BigInt(cur.fee);
@@ -272,78 +273,37 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
   });
   if (!claimed) return { ok: false, error: 'race' };
 
-  const price = await solPriceMicro();
-  const qty = qtyFor(row.asset, usd, price);
-  const kp: Keypair = treasuryKeypair();
-  const dest = new PublicKey(row.address);
-
-  let lastSig: string | null = null;
+  let lastAction: string | null = null;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    const key = `withdraw:${id}:${attempt}`;
     try {
-      const txn = new Transaction();
-      txn.feePayer = kp.publicKey;
+      const action: string = row.asset === 'USDC'
+        ? await sendUsdc(row.address, qty, `withdraw:${id}`, key)
+        : await sendSol(row.address, qty, `withdraw:${id}`, key);
+      lastAction = action;
+      await pool.query(`update withdrawals set privy_action_id = $2, sig = $2 where id = $1`, [id, action]);
 
-      if (row.asset === 'SOL') {
-        const bal = BigInt(await c.getBalance(kp.publicKey, 'confirmed'));
-        if (bal - qty - FEE_HEADROOM - RENT_EXEMPT < 0n) {
-          break;
-        }
-        txn.add(
-          ComputeBudgetProgram.setComputeUnitPrice({ microLamports: PRIORITY_MICRO }),
-          SystemProgram.transfer({ fromPubkey: kp.publicKey, toPubkey: dest, lamports: qty }),
-        );
-      } else {
-        const from = await getAssociatedTokenAddress(USDC_MINT, kp.publicKey);
-        const to = await getOrCreateAssociatedTokenAccount(c, kp, USDC_MINT, dest);
-        txn.add(
-          ComputeBudgetProgram.setComputeUnitPrice({ microLamports: PRIORITY_MICRO }),
-          createTransferCheckedInstruction(from, USDC_MINT, to.address, kp.publicKey, qty, USDC_DECIMALS),
-        );
+      const settled = await waitForAction(action);
+      if (settled === 'succeeded') {
+        await finalize(id, action, row.user_id, row.address, usd, qty);
+        return { ok: true, sig: action };
       }
-
-      const { blockhash, lastValidBlockHeight } = await c.getLatestBlockhash('confirmed');
-      txn.recentBlockhash = blockhash;
-
-      const sim = await c.simulateTransaction(txn);
-      if (sim.value.err) {
-        break;
-      }
-
-      txn.sign(kp);
-      lastSig = await c.sendRawTransaction(txn.serialize(), { skipPreflight: true, maxRetries: 3 });
-      await pool.query(`update withdrawals set sig = $2 where id = $1`, [id, lastSig]);
-
-      const conf = await confirmSig(c, lastSig, lastValidBlockHeight);
-      if (conf === 'confirmed') {
-        await finalize(id, lastSig, row.user_id, row.address, usd, qty);
-        return { ok: true, sig: lastSig };
-      }
-      if (conf === 'reverted') {
-        await failAndRefund(id, `reverted:${lastSig}`);
-        await pool.query('update withdrawals set sig = null where id = $1', [id]);
-        return { ok: false, error: 'reverted', sig: lastSig };
+      if (settled === 'timeout') {
+        // leave it 'sending'; a resume resolves it from privy_action_id
+        return { ok: false, error: 'pending', sig: action };
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'payout_failed';
       if (attempt === MAX_ATTEMPTS) {
         await failAndRefund(id, msg);
-        return { ok: false, error: msg, sig: lastSig ?? undefined };
+        return { ok: false, error: msg, sig: lastAction ?? undefined };
       }
     }
   }
 
-  if (lastSig) {
-    const st = await c.getSignatureStatus(lastSig, { searchTransactionHistory: true }).catch(() => null);
-    const cs = st?.value?.confirmationStatus;
-    if ((cs === 'confirmed' || cs === 'finalized') && !st?.value?.err) {
-      await finalize(id, lastSig, row.user_id, row.address, usd, qty);
-      return { ok: true, sig: lastSig };
-    }
-  }
-
   await failAndRefund(id, 'not_confirmed_after_attempts');
-  return { ok: false, error: 'not_confirmed', sig: lastSig ?? undefined };
+  return { ok: false, error: 'not_confirmed', sig: lastAction ?? undefined };
 }
 
 export function treasury(): string {

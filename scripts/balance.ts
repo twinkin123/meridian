@@ -1,3 +1,4 @@
+export {};
 const ADDR = process.argv[2];
 if (!ADDR) { console.error('usage: npx tsx scripts\balance.ts <address>'); process.exit(1); }
 const nets = [
