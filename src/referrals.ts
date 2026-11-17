@@ -16,8 +16,8 @@ export async function payReferral(t: Tx, userId: string, depositId: string, usd:
   const referrer = u.rows[0]?.referred_by;
   if (!referrer) return 0n;
 
-  const prior = await t.query('select 1 from users where id=$1 and referral_paid_at is not null', [userId]);
-  if ((prior.rowCount ?? 0) > 0) return 0n;
+  const claim = await t.query('update users set referral_paid_at = now() where id = $1 and referral_paid_at is null returning id', [userId]);
+  if ((claim.rowCount ?? 0) === 0) return 0n;
 
   const bp = bpFor(usd);
   const commission = (usd * BigInt(bp)) / 10000n;
@@ -41,7 +41,6 @@ export async function payReferral(t: Tx, userId: string, depositId: string, usd:
 
     [`first:${depositId}`, referrer, Number(inv.rows[0]?.n ?? 0), usd.toString(), bp, commission.toString(), txId, sameIp]);
 
-  await t.query('update users set referral_paid_at = now() where id=$1', [userId]);
 
   return commission;
 }

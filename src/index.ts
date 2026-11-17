@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import cookieParser from 'cookie-parser';
 import { join } from 'node:path';
 import { health } from './http/health.js';
@@ -92,6 +92,14 @@ function scheduleDailyCredit(): void {
   }, next.getTime() - now.getTime());
 }
 
+if (process.env.NODE_ENV === 'production') {
+  const bad: string[] = [];
+  if (process.env.PRIVY_NETWORK !== 'mainnet') bad.push(`PRIVY_NETWORK=${process.env.PRIVY_NETWORK}`);
+  if (!process.env.USDC_MINT?.startsWith('EPjFWdd5')) bad.push('USDC_MINT not mainnet USDC');
+  if (process.env.RPC_URL?.includes('devnet')) bad.push('RPC_URL is devnet');
+  if (process.env.SOLANA_CLUSTER !== 'mainnet-beta') bad.push(`SOLANA_CLUSTER=${process.env.SOLANA_CLUSTER}`);
+  if (bad.length) throw new Error(`refusing to boot: ${bad.join(', ')}`);
+}
 const server = app.listen(port, () => {
   console.log(`listening on ${port}`);
   every(15 * 60 * 1000, runRecon, 'recon');

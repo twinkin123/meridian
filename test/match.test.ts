@@ -41,13 +41,13 @@ test('detects native sol', () => {
     meta: {
       err: null,
       preBalances: [100],
-      postBalances: [900],
+      postBalances: [4000900],
       preTokenBalances: [],
       postTokenBalances: [],
     },
     transaction: { message: { accountKeys: [addr] } },
   };
-  assert.deepEqual(matchDeposit(t, addr), { asset: 'SOL', qty: 800n });
+  assert.deepEqual(matchDeposit(t, addr), { asset: 'SOL', qty: 4000800n });
 });
 
 test('usdc is already micro-dollars', () => {

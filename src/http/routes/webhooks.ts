@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import { env } from '../../env.js';
 import { tx, one } from '../../db.js';
 import { post } from '../../ledger/post.js';
@@ -34,8 +34,6 @@ webhooks.post('/helius', async (req, res) => {
 });
 
 export async function processSig(sig: string): Promise<void> {
-  const seen = await one<{ id: string }>('select id from deposits where sig = $1', [sig]);
-  if (seen) return;
 
   const t = await getTx(sig);
   if (!t) return;
@@ -54,6 +52,8 @@ export async function processSig(sig: string): Promise<void> {
   for (const key of keys) {
     const u = await one<{ id: string }>('select id from users where privy_address = $1', [key]);
     if (!u) continue;
+    const seen = await one<{ id: string }>('select id from deposits where sig = $1 and user_id = $2', [sig, u.id]);
+    if (seen) continue;
 
     const m = matchDeposit(t, key);
     if (!m) continue;
@@ -68,7 +68,7 @@ export async function processSig(sig: string): Promise<void> {
       const row = await c.query(
         `insert into deposits (user_id, sig, asset, qty, usd_at_det, status)
          values ($1,$2,$3,$4,$5,'detected')
-         on conflict (sig) do nothing returning id`,
+         on conflict (sig, user_id) do nothing returning id`,
         [u.id, sig, m.asset, qty.toString(), usd.toString()],
       );
       if (row.rowCount === 0) return;
@@ -76,18 +76,18 @@ export async function processSig(sig: string): Promise<void> {
 
       await ensure(c, u.id);
 
-      await post(c, 'DepositCredited', sig, [
+      await post(c, 'DepositCredited', `${sig}:${u.id}`, [
         { code: '1000', amount: usd },
         { code: dest, owner: u.id, amount: -usd },
       ]);
 
       await c.query(
-        `update deposits set status = $1, unlock_at = now() + interval '30 days' where sig = $2`,
+        `update deposits set status = $1, unlock_at = now() + interval '30 days' where sig = $2 and user_id = $3`,
         [dest === '2070' ? 'locked' : 'held',
-        sig,
+        sig, u.id,
       ]);
 
-      if (dest === '2070' && depId) await payReferral(c, u.id, depId, usd);
+      if (depId) await payReferral(c, u.id, depId, usd);
     });
 
     if (dest === '2050') await combineHeld(u.id);
