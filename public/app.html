@@ -926,6 +926,23 @@ setInterval(tickPend, 1000);
   setTimeout(mt, 600);
 })();
 </script>
+<script>
+(function(){
+  function mt(){
+    var st = document.querySelector('.stats');
+    var c = document.getElementById('claimBtn');
+    var card = document.querySelector('.card.rainbow') || document.querySelector('.card');
+    if(!st || !c || !card) return;
+    var gap = st.getBoundingClientRect().top - card.getBoundingClientRect().bottom;
+    var pt = parseFloat(getComputedStyle(c.parentElement).paddingTop) || 0;
+    c.style.setProperty('margin-top', Math.max(0, gap - pt) + 'px', 'important');
+  }
+  document.addEventListener('DOMContentLoaded', mt);
+  window.addEventListener('load', mt);
+  window.addEventListener('resize', mt);
+  setTimeout(mt, 600);
+})();
+</script>
 </body>
 </html>
 
