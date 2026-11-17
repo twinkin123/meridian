@@ -1,6 +1,6 @@
-﻿:root{
+:root{
   --panel:#111214; --panel2:#17181b; --line:#1f2024; --line2:#2b2d33;
-  --txt:#f2f3f5; --mut:#8b8d94; --mut2:#5f6167; --grn:#2fd48a; --red:#f2665c; --pur:#8b5cf6;
+  --txt:#f2f3f5; --mut:#c8cad1; --mut2:#b3b5bd; --grn:#2fd48a; --red:#f2665c; --pur:#8b5cf6;
   --r:12px;
 }
 html,body{background:#0a0a0b!important;color:var(--txt)!important;font-family:Inter,-apple-system,"Segoe UI",sans-serif!important}

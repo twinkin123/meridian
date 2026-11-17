@@ -5,3 +5,4 @@
   html body .grid > div{ display:flex !important; flex-direction:column !important; }
   html body .grid > div > *:last-child{ margin-top:auto !important; }
 }
+/* readability: remaining dim text */.welcome{color:#a9abb4 !important}.res th{opacity:.72 !important}
