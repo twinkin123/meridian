@@ -102,11 +102,11 @@ if (process.env.NODE_ENV === 'production') {
 }
 const server = app.listen(port, () => {
   console.log(`listening on ${port}`);
-  every(15 * 60 * 1000, runRecon, 'recon');
+  every(60 * 60 * 1000, runRecon, 'recon');
   every(60 * 1000, releaseDue, 'vesting');
   every(60 * 1000, expireClaims, 'claims');
   every(60 * 1000, releaseMatured, 'release');
-  every(3 * 60 * 1000, pollDeposits, 'deposits');
+  every(15 * 60 * 1000, pollDeposits, 'deposits');
   every(5 * 60 * 1000, () => runSweep({ dryRun: false, limit: 200 }), 'sweep');
   every(5 * 60 * 1000, runReferral, 'referral');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
