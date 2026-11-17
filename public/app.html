@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/app.css">
-<link rel="stylesheet" href="/theme-dark.css?v=3"><link rel="stylesheet" href="/app-skin.css?v=78"><link rel="stylesheet" href="mobile.css?v=83"></head>
+<link rel="stylesheet" href="/theme-dark.css?v=3"><link rel="stylesheet" href="/app-skin.css?v=78"><link rel="stylesheet" href="mobile.css?v=85"></head>
 <body>
 
 <header class="top">
@@ -885,6 +885,30 @@ setInterval(tickPend, 1000);
   document.addEventListener('visibilitychange', guard);
 })();
 </script><script src="/results.js?v=3" defer></script>
+<script>
+(function(){
+  function alignBtns(){
+    var c = document.querySelector('.card.rainbow') || document.querySelector('.card');
+    var els = [document.getElementById('claimBtn'), document.getElementById('rwOut')].filter(Boolean);
+    if(!c || !els.length) return;
+    var r = c.getBoundingClientRect();
+    els.forEach(function(el){
+      var p = el.parentElement, pr = p.getBoundingClientRect(), ps = getComputedStyle(p);
+      var padL = parseFloat(ps.paddingLeft) || 0;
+      el.style.setProperty('width', r.width + 'px', 'important');
+      el.style.setProperty('margin-left', (r.left - pr.left - padL) + 'px', 'important');
+      el.style.setProperty('margin-right', '0', 'important');
+      el.style.setProperty('box-sizing', 'border-box', 'important');
+      el.style.setProperty('display', 'block', 'important');
+      el.style.setProperty('text-align', 'center', 'important');
+    });
+  }
+  document.addEventListener('DOMContentLoaded', alignBtns);
+  window.addEventListener('load', alignBtns);
+  window.addEventListener('resize', alignBtns);
+  setTimeout(alignBtns, 500);
+})();
+</script>
 </body>
 </html>
 
