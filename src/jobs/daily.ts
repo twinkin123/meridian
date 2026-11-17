@@ -6,13 +6,16 @@ const MIN_BP = 100;
 const MAX_BP = 350;
 const FEE_BP = 1500;
 const MIN_BALANCE = 10_000_000n;
+const SLICES = 4;
+const SLICE_MS = 6 * 60 * 60 * 1000;
 
 export type CreditResult = { skipped?: boolean; reason?: string; posted: number; total: string };
 
 /**
  * Daily settlement. The gross rate is drawn from the 1-3.5% band, the platform
- * keeps FEE_BP, and the remaining 85% lands straight in available balance.
- * The base is locked principal plus available; held dust does not earn.
+ * keeps FEE_BP of it, and the remaining 85% vests to the user in four slices
+ * over 24 hours. The base is locked principal plus available; held dust does
+ * not earn.
  */
 export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
   if ((await freezeLevel()) >= 2) return { skipped: true, reason: 'frozen', posted: 0, total: '0' };
@@ -50,10 +53,22 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
       await c.query('select ensure_user_accounts($1)', [r.user_id]);
       const legs: { code: string; owner?: string; amount: bigint }[] = [
         { code: '1010', amount: gross },
-        { code: '2000', owner: r.user_id, amount: -net },
+        { code: '2060', owner: r.user_id, amount: -net },
       ];
       if (fee > 0n) legs.push({ code: '4000', amount: -fee });
       await post(c, 'SettlementCredit', `${key}:${r.user_id}`, legs);
+
+      const base = net / BigInt(SLICES);
+      let left = net;
+      for (let i = 1; i <= SLICES; i++) {
+        const slice = i === SLICES ? left : base;
+        left -= slice;
+        if (slice <= 0n) continue;
+        await c.query(
+          `insert into vesting (user_id, day, amount, due_at) values ($1, $2, $3, $4)`,
+          [r.user_id, key, slice.toString(), new Date(day.getTime() + i * SLICE_MS)],
+        );
+      }
     });
     posted += 1;
     total += net;
