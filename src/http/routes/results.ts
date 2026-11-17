@@ -14,7 +14,6 @@ results.get('/', requireUser, async (_req, res) => {
       limit $1`,
     [DAYS],
   );
-  console.log('RESULTS', rows[0]?.day, rows.length, new Date().toISOString());
   res.setHeader('Cache-Control', 'no-store');
   res.json({ today: new Date().toISOString().slice(0, 10), days: rows });
 });
