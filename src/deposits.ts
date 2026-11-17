@@ -1,5 +1,5 @@
 import { pool } from './db.js';
-import { createDepositWallet } from './privy.js';
+import { createDepositWallet, findWalletByExternalId } from './privy.js';
 
 /**
  * Returns the user's deposit address, creating the wallet on first call.
@@ -13,7 +13,14 @@ export async function ensureDepositAddress(userId: string): Promise<string> {
   const existing = r.rows[0]?.privy_address;
   if (existing) return existing;
 
-  const w = await createDepositWallet(userId);
+  let w: { id: string; address: string };
+  try {
+    w = await createDepositWallet(userId);
+  } catch {
+    const found = await findWalletByExternalId(userId);
+    if (!found) throw new Error('privy_wallet_create_failed');
+    w = found;
+  }
   const upd = await pool.query<{ privy_address: string }>(
     `update users set privy_wallet_id = $2, privy_address = $3
       where id = $1 and privy_address is null

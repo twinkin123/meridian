@@ -19,6 +19,8 @@ import { pruneAuth } from './auth.js';
 import { expireClaims } from './locks.js';
 import { one, close } from './db.js';
 
+process.on('unhandledRejection', (e) => console.error('unhandledRejection', e));
+
 const port = Number(process.env.PORT ?? 3000);
 const app = express();
 
