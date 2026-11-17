@@ -1,4 +1,4 @@
-import 'dotenv/config';
+﻿import 'dotenv/config';
 import { pool } from '../src/db.js';
 import { env } from '../src/env.js';
 
@@ -41,9 +41,9 @@ if (!hook) {
   console.log('existing', have.length, 'merged', merged.length);
   await call('PUT', `/${hook.webhookID}`, {
     webhookURL: hook.webhookURL,
-    transactionTypes: hook.transactionTypes?.length ? hook.transactionTypes : ['ANY'],
+    transactionTypes: ['ANY'],
     accountAddresses: merged,
-    webhookType: hook.webhookType || 'raw',
+    webhookType: 'raw',
     authHeader: env.webhookSecret,
   });
   console.log('patched', hook.webhookID);
