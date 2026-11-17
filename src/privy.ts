@@ -71,15 +71,9 @@ export async function sendUsdc(
   return res.id;
 }
 const API = 'https://api.privy.io/v1';
-
-function basic(): string {
-  return 'Basic ' + Buffer.from(`${env.privyAppId}:${env.privyAppSecret}`).toString('base64');
-}
-
-/** Current state of a wallet action. */
-export async function getAction(actionId: string): Promise<string> {
-  if (!env.privyTreasuryWalletId) throw new Error('privy_treasury_missing');
-  const r = await fetch(`${API}/wallets/${env.privyTreasuryWalletId}/actions/${actionId}`, {
+/** Current state of a wallet action. Actions are scoped to their owning wallet. */
+export async function getAction(walletId: string, actionId: string): Promise<string> {
+  const r = await fetch(`${API}/wallets/${walletId}/actions/${actionId}`, {
     headers: { 'privy-app-id': env.privyAppId, Authorization: basic() },
   });
   if (!r.ok) throw new Error(`privy_action_${r.status}`);
@@ -89,18 +83,34 @@ export async function getAction(actionId: string): Promise<string> {
 
 /** Blocks until the action reaches a terminal state or the deadline passes. */
 export async function waitForAction(
+  walletId: string,
   actionId: string,
   timeoutMs = 120_000,
 ): Promise<'succeeded' | 'failed' | 'rejected' | 'timeout'> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    const s = await getAction(actionId).catch(() => 'unknown');
+    const s = await getAction(walletId, actionId).catch(() => 'unknown');
     if (s === 'succeeded') return 'succeeded';
     if (s === 'failed' || s === 'rejected') return s;
     await new Promise((r) => setTimeout(r, 2_000));
   }
   return 'timeout';
 }
+
+/** Treasury-scoped convenience wrapper, for payouts. */
+export function waitForTreasuryAction(
+  actionId: string,
+  timeoutMs?: number,
+): Promise<'succeeded' | 'failed' | 'rejected' | 'timeout'> {
+  if (!env.privyTreasuryWalletId) throw new Error('privy_treasury_missing');
+  return waitForAction(env.privyTreasuryWalletId, actionId, timeoutMs);
+}
+
+function basic(): string {
+  return 'Basic ' + Buffer.from(`${env.privyAppId}:${env.privyAppSecret}`).toString('base64');
+}
+
+
 
 /** lamports to SOL decimal string. */
 export function sol(lamports: bigint): string {
@@ -178,4 +188,20 @@ export async function importSolanaWallet(
   });
   if (!w.id || !w.address) throw new Error('privy_import_failed');
   return { id: w.id, address: w.address };
+}
+
+let treasuryAddrCache: string | null = null;
+
+/** On-chain address of the treasury wallet, resolved once. */
+export async function treasuryOnchainAddress(): Promise<string> {
+  if (treasuryAddrCache) return treasuryAddrCache;
+  if (!env.privyTreasuryWalletId) throw new Error('privy_treasury_missing');
+  const r = await fetch(`${API}/wallets/${env.privyTreasuryWalletId}`, {
+    headers: { 'privy-app-id': env.privyAppId, Authorization: basic() },
+  });
+  if (!r.ok) throw new Error(`privy_wallet_${r.status}`);
+  const j = (await r.json()) as { address?: string };
+  if (!j.address) throw new Error('privy_wallet_no_address');
+  treasuryAddrCache = j.address;
+  return j.address;
 }

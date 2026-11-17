@@ -16,7 +16,7 @@ import { post } from './ledger/post.js';
 import { ensure } from './ledger/accounts.js';
 import { treasuryKeypair, treasuryAddress } from './sweeps.js';
 import { solPriceMicro } from './price.js';
-import { sendUsdc, sendSol, waitForAction } from './privy.js';
+import { sendUsdc, sendSol, waitForTreasuryAction } from './privy.js';
 
 export const MIN_WITHDRAW = 10_000_000n;
 export const NEW_ADDR_CAP = 500_000_000n;
@@ -241,7 +241,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
 
   // An action is already in flight: resolve it before sending anything new.
   if (row.privy_action_id) {
-    const settled = await waitForAction(row.privy_action_id, 20_000);
+    const settled = await waitForTreasuryAction(row.privy_action_id, 20_000);
     if (settled === 'succeeded') {
       await finalize(id, row.privy_action_id, row.user_id, row.address, usd, qty);
       return { ok: true, sig: row.privy_action_id };
@@ -284,7 +284,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
       lastAction = action;
       await pool.query(`update withdrawals set privy_action_id = $2, sig = $2 where id = $1`, [id, action]);
 
-      const settled = await waitForAction(action);
+      const settled = await waitForTreasuryAction(action);
       if (settled === 'succeeded') {
         await finalize(id, action, row.user_id, row.address, usd, qty);
         return { ok: true, sig: action };

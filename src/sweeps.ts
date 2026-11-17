@@ -1,3 +1,4 @@
+import { transferFrom, getAction, waitForAction, usdc, sol, treasuryOnchainAddress } from './privy.js';
 import {
   Connection,
   Keypair,
@@ -80,7 +81,7 @@ async function mark(id: number, status: string, error?: string): Promise<void> {
   );
 }
 
-async function inFlight(address: string, c: Connection): Promise<boolean> {
+async function inFlight(address: string, walletId: string): Promise<boolean> {
   const { rows } = await pool.query(
     `select id, signature, created_at
        from sweeps
@@ -92,11 +93,14 @@ async function inFlight(address: string, c: Connection): Promise<boolean> {
   if (!row) return false;
 
   if (row.signature) {
-    const st = await c.getSignatureStatus(row.signature, { searchTransactionHistory: true });
-    const cs = st?.value?.confirmationStatus;
-    if (cs === 'confirmed' || cs === 'finalized') {
+    const st = await getAction(walletId, row.signature).catch(() => 'unknown');
+    if (st === 'succeeded') {
       await mark(row.id, 'confirmed');
       return true;
+    }
+    if (st === 'failed' || st === 'rejected') {
+      await mark(row.id, 'failed', `action_${st}`);
+      return false;
     }
   }
 
@@ -108,22 +112,26 @@ async function inFlight(address: string, c: Connection): Promise<boolean> {
   return true;
 }
 
-async function submit(
+async function submitPrivy(
   address: string,
-  asset: string,
+  walletId: string,
+  asset: 'USDC' | 'SOL',
   amountRaw: bigint,
-  destination: PublicKey,
-  tx: Transaction,
-  kp: Keypair,
-  c: Connection,
-  blockhash: string,
-  lastValidBlockHeight: number,
+  destination: string,
+  dryRun: boolean,
 ): Promise<Result> {
-  tx.sign(kp);
+  if (dryRun) return { address, asset, status: 'dry_run', amountRaw: amountRaw.toString() };
 
-  let sent: string;
+  let action: string;
   try {
-    sent = await c.sendRawTransaction(tx.serialize(), { skipPreflight: true, maxRetries: 3 });
+    action = await transferFrom(
+      walletId,
+      asset === 'USDC' ? 'usdc' : 'sol',
+      asset === 'USDC' ? usdc(amountRaw) : sol(amountRaw),
+      destination,
+      `sweep:${address}`,
+      `sweep:${address}:${Date.now()}`,
+    );
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return { address, asset, status: 'failed', reason: msg.slice(0, 200) };
@@ -134,30 +142,32 @@ async function submit(
      values ($1, $2, $3, $4, $5, 'submitted', now())
      on conflict do nothing
      returning id`,
-    [address, asset, amountRaw.toString(), destination.toBase58(), sent],
+    [address, asset, amountRaw.toString(), destination, action],
   );
   const id: number | null = rows[0]?.id ?? null;
 
-  try {
-    await c.confirmTransaction({ signature: sent, blockhash, lastValidBlockHeight }, 'confirmed');
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : 'confirm_failed';
-    if (id) await mark(id, 'failed', msg.slice(0, 400));
-    return { address, asset, status: 'failed', reason: 'confirm_failed', signature: sent };
+  const settled = await waitForAction(walletId, action);
+  if (settled === 'succeeded') {
+    if (id) await mark(id, 'confirmed');
+    return { address, asset, status: 'confirmed', amountRaw: amountRaw.toString(), signature: action };
+  }
+  if (settled === 'timeout') {
+    return { address, asset, status: 'submitted', reason: 'pending', signature: action };
   }
 
-  if (id) await mark(id, 'confirmed');
-  return { address, asset, status: 'confirmed', amountRaw: amountRaw.toString(), signature: sent };
+  if (id) await mark(id, 'failed', `action_${settled}`);
+  return { address, asset, status: 'failed', reason: `action_${settled}`, signature: action };
 }
 
 async function sweepUsdc(
   address: string,
-  kp: Keypair,
-  destination: PublicKey,
+  walletId: string,
+  owner: PublicKey,
+  destination: string,
   c: Connection,
   dryRun: boolean,
 ): Promise<Result> {
-  const ata = await getAssociatedTokenAddress(USDC_MINT, kp.publicKey);
+  const ata = await getAssociatedTokenAddress(USDC_MINT, owner);
 
   let amount = 0n;
   try {
@@ -167,76 +177,27 @@ async function sweepUsdc(
   }
   if (amount === 0n) return { address, asset: 'USDC', status: 'skipped', reason: 'zero' };
 
-  const destAta = await getOrCreateAssociatedTokenAccount(c, kp, USDC_MINT, destination);
-
-  const tx = new Transaction().add(
-    ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 50_000 }),
-    createTransferCheckedInstruction(
-      ata,
-      USDC_MINT,
-      destAta.address,
-      kp.publicKey,
-      amount,
-      USDC_DECIMALS,
-    ),
-  );
-  tx.feePayer = kp.publicKey;
-
-  const { blockhash, lastValidBlockHeight } = await c.getLatestBlockhash('confirmed');
-  tx.recentBlockhash = blockhash;
-
-  const sim = await c.simulateTransaction(tx);
-  if (sim.value.err) {
-    return {
-      address, asset: 'USDC', status: 'failed',
-      reason: `sim:${JSON.stringify(sim.value.err)}`.slice(0, 200),
-    };
-  }
-
-  if (dryRun) return { address, asset: 'USDC', status: 'dry_run', amountRaw: amount.toString() };
-
-  return submit(address, 'USDC', amount, destination, tx, kp, c, blockhash, lastValidBlockHeight);
+  if (!dryRun) await ensureFloat(owner, c, walletId);
+  return submitPrivy(address, walletId, 'USDC', amount, destination, dryRun);
 }
 
 async function sweepSol(
   address: string,
-  kp: Keypair,
-  destination: PublicKey,
+  walletId: string,
+  owner: PublicKey,
+  destination: string,
   c: Connection,
   dryRun: boolean,
   reserveExtra: bigint,
 ): Promise<Result> {
-  const bal = BigInt(await c.getBalance(kp.publicKey, 'confirmed'));
+  const bal = BigInt(await c.getBalance(owner, 'confirmed'));
   const sweepable = bal - RENT_EXEMPT - FEE_HEADROOM - reserveExtra;
 
   if (sweepable < MIN_SWEEP_LAMPORTS) {
     return { address, asset: 'SOL', status: 'skipped', reason: `below_min:${sweepable}` };
   }
 
-  const tx = new Transaction().add(
-    ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 50_000 }),
-    SystemProgram.transfer({
-      fromPubkey: kp.publicKey,
-      toPubkey: destination,
-      lamports: sweepable,
-    }),
-  );
-  tx.feePayer = kp.publicKey;
-
-  const { blockhash, lastValidBlockHeight } = await c.getLatestBlockhash('confirmed');
-  tx.recentBlockhash = blockhash;
-
-  const sim = await c.simulateTransaction(tx);
-  if (sim.value.err) {
-    return {
-      address, asset: 'SOL', status: 'failed',
-      reason: `sim:${JSON.stringify(sim.value.err)}`.slice(0, 200),
-    };
-  }
-
-  if (dryRun) return { address, asset: 'SOL', status: 'dry_run', amountRaw: sweepable.toString() };
-
-  return submit(address, 'SOL', sweepable, destination, tx, kp, c, blockhash, lastValidBlockHeight);
+  return submitPrivy(address, walletId, 'SOL', sweepable, destination, dryRun);
 }
 
 async function ensureTreasuryAta(c: Connection, destination: PublicKey): Promise<boolean> {
@@ -250,7 +211,7 @@ async function ensureTreasuryAta(c: Connection, destination: PublicKey): Promise
 
 async function sweepAddress(
   address: string,
-  index: number,
+  walletId: string,
   destination: PublicKey,
   c: Connection,
   dryRun: boolean,
@@ -264,18 +225,18 @@ async function sweepAddress(
     );
     if (!lock[0].ok) return [{ address, asset: '-', status: 'locked' }];
 
-    if (await inFlight(address, c)) {
+    if (await inFlight(address, walletId)) {
       return [{ address, asset: '-', status: 'already_in_flight' }];
     }
 
-    const kp = keypairForIndex(index);
-    if (kp.publicKey.toBase58() !== address) {
-      return [{ address, asset: '-', status: 'derive_mismatch' }];
-    }
+    if (!walletId) return [{ address, asset: '-', status: 'no_wallet' }];
+
+    const owner = new PublicKey(address);
+    const dest = destination.toBase58();
 
     const out: Result[] = [];
-    out.push(await sweepUsdc(address, kp, destination, c, dryRun));
-    out.push(await sweepSol(address, kp, destination, c, dryRun, reserveExtra));
+    out.push(await sweepUsdc(address, walletId, owner, dest, c, dryRun));
+    out.push(await sweepSol(address, walletId, owner, dest, c, dryRun, reserveExtra));
     return out;
   } finally {
     await client.query('select pg_advisory_unlock(hashtext($1))', [address]).catch(() => {});
@@ -290,7 +251,7 @@ export async function runSweep(opts: { dryRun: boolean; limit: number }) {
   const reserveExtra = treasuryAtaReady ? 0n : RENT_EXEMPT;
 
   const { rows } = await pool.query(
-    `select privy_address as deposit_address, deposit_index
+    `select privy_address as deposit_address, privy_wallet_id, deposit_index
        from users
       where privy_address is not null
       order by deposit_index
@@ -301,7 +262,7 @@ export async function runSweep(opts: { dryRun: boolean; limit: number }) {
   const results: Result[] = [];
   for (const r of rows) {
     const batch = await sweepAddress(
-      r.deposit_address, r.deposit_index, destination, c, opts.dryRun, reserveExtra,
+      r.deposit_address, r.privy_wallet_id, destination, c, opts.dryRun, reserveExtra,
     );
     results.push(...batch);
   }
@@ -322,4 +283,33 @@ export async function runSweep(opts: { dryRun: boolean; limit: number }) {
     sweptUsdcRaw: sum('USDC'),
     results,
   };
+}
+/** Deposit wallets need SOL for the sweep fee; Privy takes it from the source. */
+const SWEEP_FLOAT_LAMPORTS = 3_000_000n;
+const SWEEP_FLOAT_TRIGGER = 1_000_000n;
+
+async function ensureFloat(owner: PublicKey, c: Connection, walletId: string): Promise<void> {
+  const bal = BigInt(await c.getBalance(owner, 'confirmed'));
+  if (bal >= SWEEP_FLOAT_TRIGGER) return;
+
+  const treasury = process.env.PRIVY_TREASURY_WALLET_ID;
+  if (!treasury) throw new Error('privy_treasury_missing');
+
+  const tbal = BigInt(await c.getBalance(new PublicKey(await treasuryOnchainAddress()), 'confirmed'));
+  if (tbal < SWEEP_FLOAT_LAMPORTS) throw new Error('treasury_float_exhausted');
+
+  await transferFrom(
+    treasury,
+    'sol',
+    sol(SWEEP_FLOAT_LAMPORTS),
+    owner.toBase58(),
+    'float',
+    `float:${owner.toBase58()}:${Date.now()}`,
+  );
+
+  // let it land before the fee is taken from the same wallet
+  for (let i = 0; i < 20; i++) {
+    await new Promise((r) => setTimeout(r, 1_500));
+    if (BigInt(await c.getBalance(owner, 'confirmed')) >= SWEEP_FLOAT_TRIGGER) return;
+  }
 }

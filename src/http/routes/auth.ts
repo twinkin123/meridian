@@ -1,3 +1,4 @@
+import { createDepositWallet } from '../../privy.js';
 import { Router } from 'express';
 import { one, none } from '../../db.js';
 import { address } from '../../solana/derive.js';
@@ -55,9 +56,19 @@ auth.post('/signup', async (req, res) => {
     [email, pwHash, referrer?.id ?? null],
   );
 
-  const addr = address(row.deposit_index);
-  await none(`update users set deposit_addr = $1 where id = $2`, [addr, row.id]);
-  await none(
+  let addr: string;
+  try {
+    const w = await createDepositWallet(row.id);
+    await none(
+      `update users set deposit_addr = $1, privy_wallet_id = $2, privy_address = $3 where id = $4`,
+      [w.address, w.id, w.address, row.id],
+    );
+    addr = w.address;
+  } catch {
+    const fallback = address(row.deposit_index);
+    await none(`update users set deposit_addr = $1 where id = $2`, [fallback, row.id]);
+    addr = fallback;
+  }  await none(
     `insert into accounts (code, kind, owner_type, owner_id)
      select c, 'liability', 'user', $1 from unnest(array['2000','2010','2020','2050']) c`,
     [row.id],
