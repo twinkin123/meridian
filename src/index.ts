@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import cookieParser from 'cookie-parser';
 import { join } from 'node:path';
 import { health } from './http/health.js';
@@ -43,11 +43,14 @@ app.use('/wallet/deposit', requireUser, deposit);
 app.use('/admin', adminRouter);
 
 app.get('/me', requireUser, async (req, res) => {
-  const u = await one<{ email: string; deposit_addr: string }>(
-    `select email, deposit_addr from users where id = $1`,
-    [req.userId],
-  );
-  res.json({ email: u.email, depositAddress: await ensureDepositAddress(req.userId!) });
+  const u = await one<{ email: string }>(`select email from users where id = $1`, [req.userId]);
+  let depositAddress: string | null = null;
+  try {
+    depositAddress = await ensureDepositAddress(req.userId!);
+  } catch (err) {
+    console.error('me: deposit address failed', err);
+  }
+  res.json({ email: u?.email ?? null, depositAddress });
 });
 
 const pub = join(process.cwd(), 'public');
