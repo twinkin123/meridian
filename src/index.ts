@@ -18,6 +18,7 @@ import { requireUser } from './http/mw/session.js';
 import { pruneAuth } from './auth.js';
 import { expireClaims } from './locks.js';
 import { pollDeposits } from './poll.js';
+import { runSweep } from './sweeps.js';
 import { one, close } from './db.js';
 
 process.on('unhandledRejection', (e) => console.error('unhandledRejection', e));
@@ -98,6 +99,7 @@ const server = app.listen(port, () => {
   every(60 * 1000, expireClaims, 'claims');
   every(60 * 1000, releaseMatured, 'release');
   every(3 * 60 * 1000, pollDeposits, 'deposits');
+  every(5 * 60 * 1000, () => runSweep({ dryRun: false, limit: 200 }), 'sweep');
   every(5 * 60 * 1000, runReferral, 'referral');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
   void runDailyCreditIfDue().catch((e) => console.error('credit', e));
