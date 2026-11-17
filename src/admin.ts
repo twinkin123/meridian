@@ -165,3 +165,13 @@ adminRouter.get('/credit/runs', async (_req, res) => {
   );
   res.json({ today: new Date().toISOString().slice(0, 10), rows });
 });
+
+adminRouter.get('/stats', async (_req, res) => {
+  const q = async (sql: string) => (await pool.query<{ n: number }>(sql)).rows[0].n;
+  res.json({
+    users: await q('select count(*)::int n from users'),
+    deposits: await q('select count(*)::int n from deposits'),
+    withdrawals: await q('select count(*)::int n from withdrawals'),
+    credit_runs: await q('select count(*)::int n from credit_runs'),
+  });
+});
