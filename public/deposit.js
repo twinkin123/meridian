@@ -163,7 +163,7 @@
 
   window.openDeposit = open;
   document.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-deposit]');
+    var t = e.target.closest('[data-deposit], [data-goto="p-deposit"], a[href="#deposit"]');
     if (t) { e.preventDefault(); open(); }
   });
 })();
