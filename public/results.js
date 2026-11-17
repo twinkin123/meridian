@@ -91,7 +91,7 @@
     if (!entry) return;
 
     var note = '<p class="res-note">Results post daily at 00:15 UTC &middot; every trade published</p>';
-    var head = '<div class="res-head"><div><div class="res-title">Trade results &middot; ' + dayLabel(entry.day) + '</div>';
+    var head = '<div class="res-head"><div><div class="res-title">Trade results &middot; ' + dayLabel(entry.day) + ' [' + entry.day + ']</div>';
     var tableOpen = '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Spread</th><th>Return</th></tr></thead><tbody>';
 
     if (entry.rate === null){

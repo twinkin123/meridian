@@ -91,7 +91,7 @@
     }).join('');
 
     var wins = actuals.filter(function(x){ return x >= 0; }).length;
-    var day = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    var day = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 
     card.innerHTML =
       '' +
