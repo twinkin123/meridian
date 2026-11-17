@@ -964,3 +964,14 @@ html body #claimBtn {
   html body .grid > div{ display:flex !important; flex-direction:column !important; }
   html body .grid > div > *:last-child{ margin-top:auto !important; }
 }
+@media (max-width:900px){
+  html body .grid > div > *{ order:6 !important; }
+  html body .grid > div:first-child > .card:first-child{ order:0 !important; }
+  html body .grid .stats{ order:1 !important; }
+  html body .grid #rwOut{ order:2 !important; }
+  html body .grid .ref-list-card{ order:3 !important; }
+  html body .grid [data-results]{ order:4 !important; }
+  html body .grid #resCard{ order:4 !important; }
+  html body .grid .ref-card{ order:5 !important; }
+  html body .grid .robot-card{ order:7 !important; }
+}
