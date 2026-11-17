@@ -3,6 +3,7 @@ import { getSigs } from './solana/rpc.js';
 import { processSig } from './http/routes/webhooks.js';
 
 let busy = false;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export async function pollDeposits(): Promise<void> {
   if (busy) return;
@@ -21,6 +22,7 @@ export async function pollDeposits(): Promise<void> {
       } catch (e) {
         console.error('poll', a, e instanceof Error ? e.message : e);
       }
+      await sleep(250);
     }
     if (hits) console.log('poll: scanned', hits);
   } finally {

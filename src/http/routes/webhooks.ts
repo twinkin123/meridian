@@ -43,9 +43,13 @@ export async function processSig(sig: string): Promise<void> {
   const frozen = (await freezeLevel()) >= 1;
   const price = await solPriceMicro();
 
-  const keys: string[] = (t.transaction?.message?.accountKeys ?? [])
-    .map((k: any) => (typeof k === 'string' ? k : k?.pubkey))
-    .filter(Boolean);
+  const keys: string[] = [
+    ...(t.transaction?.message?.accountKeys ?? []).map((k: any) =>
+      typeof k === 'string' ? k : k?.pubkey,
+    ),
+    ...(t.meta?.postTokenBalances ?? []).map((p: any) => p.owner),
+    ...(t.meta?.preTokenBalances ?? []).map((p: any) => p.owner),
+  ].filter(Boolean);
 
   for (const key of keys) {
     const u = await one<{ id: string }>('select id from users where privy_address = $1', [key]);
