@@ -15,7 +15,8 @@ export const webhooks = Router();
 import { MIN_DEPOSIT as MIN, combineHeld } from '../../locks.js';
 import { notify, usdStr } from '../../notify.js';
 
-/** Helius raw payloads are arrays; enhanced ones can be wrapped. Accept all shapes. */
+/** Helius puts the signature at the top level for raw payloads and at
+    transaction.signatures[0] for enhanced ones. Accept both, and any wrapper. */
 function sigsFrom(body: any): string[] {
   const items = Array.isArray(body)
     ? body
@@ -24,9 +25,17 @@ function sigsFrom(body: any): string[] {
       : body
         ? [body]
         : [];
-  return items
-    .map((t: any) => t?.signature ?? t?.transaction?.signature)
-    .filter((s: any): s is string => typeof s === 'string' && s.length > 0);
+
+  const out: string[] = [];
+  for (const t of items) {
+    const s =
+      t?.signature ??
+      t?.transaction?.signature ??
+      (Array.isArray(t?.transaction?.signatures) ? t.transaction.signatures[0] : undefined) ??
+      (Array.isArray(t?.signatures) ? t.signatures[0] : undefined);
+    if (typeof s === 'string' && s.length > 0) out.push(s);
+  }
+  return out;
 }
 
 webhooks.post('/helius', async (req, res) => {
@@ -36,7 +45,7 @@ webhooks.post('/helius', async (req, res) => {
   }
 
   const sigs = sigsFrom(req.body);
-  console.log('webhook arrival', sigs.length, JSON.stringify(req.body).slice(0, 120));
+  console.log('webhook arrival', sigs.length, sigs[0] ?? '-');
 
   res.json({ received: sigs.length });
 
