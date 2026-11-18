@@ -1,0 +1,5 @@
+html body .side a{display:flex;align-items:center;gap:9px}
+html body .side a .ico{display:grid !important;place-items:center;width:16px;height:16px;flex:0 0 auto;opacity:.7}
+html body .side a .ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+html body .side a:hover .ico,html body .side a.on .ico{opacity:1}
+@media (max-width:900px){html body .side a{gap:7px}html body .side a .ico,html body .side a .ico svg{width:15px;height:15px}}
