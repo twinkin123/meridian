@@ -17,8 +17,7 @@
   who.setAttribute('tabindex', '0');
 
   who.addEventListener('click', function(){
-    var b = document.querySelector('[data-panel="p-settings"]');
-    if (b) b.click();
+    if (window.openSettings) window.openSettings();
   });
 
   who.addEventListener('keydown', function(e){

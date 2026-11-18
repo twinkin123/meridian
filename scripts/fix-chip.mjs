@@ -1,0 +1,10 @@
+﻿import { readFileSync, writeFileSync } from 'node:fs';
+const f = 'public/profile-chip.js';
+let p = readFileSync(f, 'utf8').replace(/\r\n/g, '\n');
+const a = "var b = document.querySelector('[data-panel=\"p-settings\"]');";
+const b = 'if (window.openSettings) window.openSettings();';
+const n = p.split(a).length - 1;
+if (n !== 1) throw new Error('want 1, got ' + n);
+p = p.split(a).join(b).split('\n    if (b) b.click();').join('');
+writeFileSync(f, p);
+console.log('chip fixed');
