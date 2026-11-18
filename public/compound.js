@@ -15,8 +15,13 @@
     var cr = card.getBoundingClientRect();
     var kr = clock.getBoundingClientRect();
     if (!kr.width) return;
-    btn.style.setProperty('right', Math.round(cr.right - kr.right) + 'px', 'important');
-    btn.style.setProperty('top', Math.round(kr.bottom - cr.top + 8) + 'px', 'important');
+    if (window.matchMedia('(max-width:900px)').matches) {
+      btn.style.setProperty('right', Math.round(cr.right - kr.right) + 'px', 'important');
+      btn.style.setProperty('top', Math.round(kr.bottom - cr.top + 8) + 'px', 'important');
+    } else {
+      btn.style.setProperty('right', Math.round(cr.right - kr.left + 12) + 'px', 'important');
+      btn.style.setProperty('top', Math.round(kr.top - cr.top + (kr.height - btn.offsetHeight) / 2) + 'px', 'important');
+    }
   }
 
   var saved = null;
