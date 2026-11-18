@@ -45,7 +45,7 @@ wallet.get('/balance', requireUser, async (req, res) => {
 
 wallet.get('/withdrawals', requireUser, async (req, res) => {
   const { rows } = await pool.query(
-    `select id, asset, address, usd_amount, status, sig, error, created_at
+    `select id, asset, address, usd_amount, fee, status, sig as tx_sig, error, created_at, sent_at
        from withdrawals where user_id=$1 order by created_at desc limit 50`,
     [req.userId!],
   );
@@ -62,7 +62,7 @@ wallet.get('/settlements', requireUser, async (req, res) => {
 
 wallet.get('/deposits', requireUser, async (req, res) => {
   const { rows } = await pool.query(
-    `select id, asset, usd_at_det, status, unlock_at, claim_requested_at, released_at
+    `select id, asset, usd_at_det, status, unlock_at, claim_requested_at, released_at, created_at
        from deposits where user_id=$1 order by created_at desc limit 50`,
     [req.userId!],
   );

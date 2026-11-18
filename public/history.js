@@ -60,7 +60,7 @@
     function sum(rows, k) { return rows.reduce(function (a, r) { return a + Number(r[k] || 0); }, 0); }
     setStat('hsDep', money(sum(data.deposits, 'usd_at_det')), data.deposits.length + ' total');
     setStat('hsSet', money(sum(data.settlements, 'amount')), data.settlements.length + ' slices');
-    setStat('hsWd', money(sum(data.withdrawals, 'usd_amount')), data.withdrawals.length + ' requests');
+    setStat('hsWd', money(data.withdrawals.reduce(function (a, x) { return a + Number(x.usd_amount || 0) + Number(x.fee || 0); }, 0)), data.withdrawals.length + ' requests');
   }
 
   function depRow(d) {
@@ -90,10 +90,12 @@
 
   function wdRow(w) {
     var cls = w.status === 'paid' ? 'ok' : (w.status === 'failed' || w.status === 'cancelled') ? 'bad' : '';
-    var net = Number(w.usd_amount || 0) - Number(w.fee || 0);
+    var fee = Number(w.fee || 0);
+    var net = Number(w.usd_amount || 0);
+    var gross = net + fee;
     return '<li><div class="hs-main">'
-      + '<b>' + money(w.usd_amount) + '</b><span class="hs-asset">' + esc(w.asset) + '</span>'
-      + (Number(w.fee) > 0 ? '<span class="hs-meta">fee ' + money(w.fee) + ' \u00b7 net ' + money(net) + '</span>' : '')
+      + '<b>' + money(gross) + '</b><span class="hs-asset">' + esc(w.asset) + '</span>'
+      + (fee > 0 ? '<span class="hs-meta">fee ' + money(fee) + ' \u00b7 net ' + money(net) + '</span>' : '')
       + '<span class="hs-meta hs-addr">' + esc(w.address) + '</span>'
       + '<span class="hs-meta">requested ' + when(w.created_at) + ' \u00b7 ' + rel(w.created_at) + '</span>'
       + (w.sent_at ? '<span class="hs-meta">sent ' + when(w.sent_at) + '</span>' : '')
