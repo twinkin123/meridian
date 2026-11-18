@@ -13,6 +13,7 @@ import { adminRouter } from './admin.js';
 import { sqlRouter } from './admin-sql.js';
 import { runRecon } from './recon.js';
 import { runDailyCredit, runDailyCreditIfDue } from './jobs/daily.js';
+import { revalueSolDeposits } from './jobs/revalue.js';
 import { releaseMatured } from './locks.js';
 import { runReferral } from './jobs/referral.js';
 import { releaseDue } from './vesting.js';
@@ -107,6 +108,7 @@ if (process.env.NODE_ENV === 'production') {
 const server = app.listen(port, () => {
   console.log(`listening on ${port}`);
   every(60 * 60 * 1000, runRecon, 'recon');
+  every(60 * 60 * 1000, revalueSolDeposits, 'revalue');
   every(60 * 1000, releaseDue, 'vesting');
   every(60 * 1000, expireClaims, 'claims');
   every(60 * 1000, releaseMatured, 'release');

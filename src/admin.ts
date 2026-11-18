@@ -132,6 +132,15 @@ adminRouter.post('/freeze', async (req, res) => {
   await setFreeze(level, 'admin');
   res.json({ level });
 });
+adminRouter.post('/revalue/run', async (req, res) => {
+  if (!authed(req)) return res.status(401).json({ error: 'bad_admin_token' });
+  const { revalueSolDeposits } = await import('./jobs/revalue.js');
+  try {
+    res.json(await revalueSolDeposits());
+  } catch (e: any) {
+    res.status(500).json({ error: String(e?.message ?? e) });
+  }
+});
 adminRouter.post('/credit/run', async (req, res) => {
   if (!authed(req)) return res.status(401).json({ error: 'bad_admin_token' });
   const day = req.query.day ? new Date(String(req.query.day)) : new Date();
