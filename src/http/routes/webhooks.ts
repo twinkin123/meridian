@@ -15,14 +15,28 @@ export const webhooks = Router();
 import { MIN_DEPOSIT as MIN, combineHeld } from '../../locks.js';
 import { notify, usdStr } from '../../notify.js';
 
+/** Helius raw payloads are arrays; enhanced ones can be wrapped. Accept all shapes. */
+function sigsFrom(body: any): string[] {
+  const items = Array.isArray(body)
+    ? body
+    : Array.isArray(body?.data)
+      ? body.data
+      : body
+        ? [body]
+        : [];
+  return items
+    .map((t: any) => t?.signature ?? t?.transaction?.signature)
+    .filter((s: any): s is string => typeof s === 'string' && s.length > 0);
+}
+
 webhooks.post('/helius', async (req, res) => {
   if (!safeEq((req.header('authorization') ?? '').trim(), env.webhookSecret.trim())) {
+    console.log('webhook bad_auth', (req.header('authorization') ?? '').length);
     return res.status(401).json({ error: 'bad_auth' });
   }
 
-  const sigs: string[] = Array.isArray(req.body)
-    ? req.body.map((t: any) => t?.signature).filter(Boolean)
-    : [];
+  const sigs = sigsFrom(req.body);
+  console.log('webhook arrival', sigs.length, JSON.stringify(req.body).slice(0, 120));
 
   res.json({ received: sigs.length });
 
