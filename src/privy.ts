@@ -1,4 +1,4 @@
-import { PrivyClient } from '@privy-io/node';
+﻿import { PrivyClient } from '@privy-io/node';
 import { env } from './env.js';
 
 let client: PrivyClient | null = null;
@@ -97,6 +97,18 @@ export async function waitForAction(
   return 'timeout';
 }
 
+/** On-chain signature for a settled action, when Privy reports one. */
+export async function actionSig(actionId: string): Promise<string | null> {
+  if (!env.privyTreasuryWalletId) return null;
+  const r = await fetch(`${API}/wallets/${env.privyTreasuryWalletId}/actions/${actionId}`, {
+    headers: { 'privy-app-id': env.privyAppId, Authorization: basic() },
+  }).catch(() => null);
+  if (!r || !r.ok) return null;
+  const j = (await r.json().catch(() => null)) as
+    | { transaction_hash?: string; output?: { transaction_hash?: string } }
+    | null;
+  return j?.transaction_hash ?? j?.output?.transaction_hash ?? null;
+}
 /** Treasury-scoped convenience wrapper, for payouts. */
 export function waitForTreasuryAction(
   actionId: string,

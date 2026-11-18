@@ -1,6 +1,6 @@
-import { test } from 'node:test';
+﻿import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { verdictFor, driftThreshold, DRIFT_FREEZE_USD, DRIFT_FLOOR_USD } from '../src/recon.js';
+import { verdictFor, driftThreshold, DRIFT_FLOOR_USD, DRIFT_FLOOR_USD } from '../src/recon.js';
 
 const LIMIT = driftThreshold(0n);
 
@@ -30,6 +30,6 @@ test('fewer coins than owed is drift and freezes', () => {
 });
 
 test('negative margin outranks everything', () => {
-  assert.equal(verdictFor(-1n, DRIFT_FREEZE_USD * 100n), 'insolvent');
-  assert.equal(verdictFor(-1n, -(DRIFT_FREEZE_USD * 100n)), 'insolvent');
+  assert.equal(verdictFor(-1n, DRIFT_FLOOR_USD * 100n), 'insolvent');
+  assert.equal(verdictFor(-1n, -(DRIFT_FLOOR_USD * 100n)), 'insolvent');
 });

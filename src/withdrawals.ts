@@ -1,4 +1,4 @@
-import {
+﻿import {
   Connection,
   Keypair,
   PublicKey,
@@ -18,7 +18,7 @@ import { combineHeld } from './locks.js';
 import { notify, notifyUser, usdStr } from './notify.js';
 import { treasuryKeypair, treasuryAddress, treasuryHeadroom } from './sweeps.js';
 import { solPriceMicro } from './price.js';
-import { sendUsdc, sendSol, waitForTreasuryAction } from './privy.js';
+import { sendUsdc, sendSol, waitForTreasuryAction, actionSig } from './privy.js';
 
 export const MIN_WITHDRAW = 10_000_000n;
 export const NEW_ADDR_CAP = 500_000_000n;
@@ -266,13 +266,13 @@ export async function rejectWithdrawal(id: string, reason: string | null): Promi
   return refundToReserve(id, 'failed', reason, 'withdrawal_rejected', 'Withdrawal rejected');
 }
 async function finalize(
-  id: string, sig: string, userId: string, address: string, usd: bigint, qty: bigint,
+  id: string, sig: string, actionId: string, userId: string, address: string, usd: bigint, qty: bigint,
 ) {
   await tx(async (conn) => {
     await conn.query(
-      `update withdrawals set status = 'sent', sig = $2, qty_raw = $3, sent_at = now()
+      `update withdrawals set status = 'sent', sig = $2, privy_action_id = $3, qty_raw = $4, sent_at = now()
         where id = $1 and status = 'sending'`,
-      [id, sig, qty.toString()],
+      [id, sig, actionId, qty.toString()],
     );
     await conn.query(
       `update withdrawal_addresses set last_used = now() where user_id = $1 and address = $2`,
@@ -310,8 +310,9 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
   if (row.privy_action_id) {
     const settled = await waitForTreasuryAction(row.privy_action_id, 20_000);
     if (settled === 'succeeded') {
-      await finalize(id, row.privy_action_id, row.user_id, row.address, usd, qty);
-      return { ok: true, sig: row.privy_action_id };
+      const onchain = (await actionSig(row.privy_action_id)) ?? row.privy_action_id;
+      await finalize(id, onchain, row.privy_action_id, row.user_id, row.address, usd, qty);
+      return { ok: true, sig: onchain };
     }
     if (settled === 'timeout') return { ok: false, error: 'pending', sig: row.privy_action_id };
   }
@@ -343,8 +344,9 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
 
       const settled = await waitForTreasuryAction(action);
       if (settled === 'succeeded') {
-        await finalize(id, action, row.user_id, row.address, usd, qty);
-        return { ok: true, sig: action };
+        const onchain = (await actionSig(action)) ?? action;
+        await finalize(id, onchain, action, row.user_id, row.address, usd, qty);
+        return { ok: true, sig: onchain };
       }
       if (settled === 'timeout') {
         // leave it 'sending'; a resume resolves it from privy_action_id
