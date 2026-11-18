@@ -1,12 +1,8 @@
-.cmp{position:absolute;top:14px;right:186px;display:inline-flex;align-items:center;gap:8px;padding:0;border:0;background:none;color:var(--ink-3);font-family:"Space Mono",monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.cmp{position:absolute;top:46px;right:18px;display:inline-flex;align-items:center;gap:8px;padding:0;border:0;background:none;color:var(--ink-3);font-family:"Space Mono",monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
 .cmp-lbl{white-space:nowrap}
 .cmp-track{position:relative;flex:none;width:36px;height:20px;border-radius:99px;background:rgba(255,255,255,.1);border:1px solid var(--line-2);transition:background .18s ease,border-color .18s ease}
 .cmp-knob{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#cfcfda;transition:transform .18s ease,background .18s ease}
 .cmp.on .cmp-track{background:#3b82f6;border-color:#3b82f6}
 .cmp.on .cmp-knob{transform:translateX(16px);background:#fff}
 .cmp.on .cmp-lbl{color:var(--txt)}
-@media (max-width:620px){
-  .cmp{position:absolute;top:14px;right:14px}
-  .cmp-lbl{display:none}
-  html body .card.has-clock .res-clock{top:44px !important;right:14px !important}
-}
+@media (max-width:620px){.cmp{top:44px;right:14px;font-size:9px}}

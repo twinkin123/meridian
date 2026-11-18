@@ -9,19 +9,14 @@
   }
 
   function place() {
-    if (window.matchMedia('(max-width:620px)').matches) {
-      btn.style.removeProperty('top');
-      btn.style.removeProperty('right');
-      return;
-    }
     var card = btn.closest('.card');
     var clock = document.querySelector('.card.has-clock .res-clock') || document.querySelector('.res-clock');
     if (!card || !clock) return;
     var cr = card.getBoundingClientRect();
     var kr = clock.getBoundingClientRect();
     if (!kr.width) return;
-    btn.style.setProperty('right', Math.round(cr.right - kr.left + 10) + 'px', 'important');
-    btn.style.setProperty('top', Math.round(kr.top - cr.top + (kr.height - btn.offsetHeight) / 2) + 'px', 'important');
+    btn.style.setProperty('right', Math.round(cr.right - kr.right) + 'px', 'important');
+    btn.style.setProperty('top', Math.round(kr.bottom - cr.top + 8) + 'px', 'important');
   }
 
   var saved = null;
