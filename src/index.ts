@@ -1,5 +1,6 @@
 import 'express-async-errors';
 import express from 'express';
+import { jwks } from './jwks.js';
 import cookieParser from 'cookie-parser';
 import { join } from 'node:path';
 import { health } from './http/health.js';
@@ -24,6 +25,7 @@ import { requireUser } from './http/mw/session.js';
 import { pruneAuth } from './auth.js';
 import { expireClaims } from './locks.js';
 import { pollDeposits } from './poll.js';
+import { refreshRoutes } from './deposit-routes.js';
 import { runSweep, assertSweepDestination } from './sweeps.js';
 import { one, close } from './db.js';
 
@@ -41,6 +43,11 @@ app.use('/results', results);
 app.get('/health', async (_req, res) => {
   const h = await health();
   res.status(h.ok ? 200 : 503).json(h);
+});
+
+app.get('/.well-known/jwks.json', (_req, res) => {
+  res.set('Cache-Control', 'public, max-age=300');
+  res.type('application/jwk-set+json').send(jwks());
 });
 
 app.use('/auth', auth);
@@ -150,9 +157,11 @@ const server = app.listen(port, () => {
   every(5 * 60 * 1000, resumeStuckWithdrawals, 'resume');
   every(60 * 1000, payApproved, 'payout');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
+  every(6 * 60 * 60 * 1000, refreshRoutes, 'routes');
   void runSettlementIfDue().catch((e) => console.error('settle', e));
   void backfillTrades().catch((e) => console.error('trades', e));
   void ensureToday().catch((e) => console.error('day-open', e));
+  void refreshRoutes().catch((e) => console.error('routes', e));
   scheduleDayOpen();
   scheduleDailyCredit();
 });
