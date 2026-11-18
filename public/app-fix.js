@@ -75,11 +75,8 @@
     if (lastSig === sig) return;
     lastSig = sig;
 
-    var recorded = d.source === 'recorded';
     var tot = d.rate_bp / 100;
     var day = new Date(d.day + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
-    var chip = '<span style="display:inline-block;margin-left:8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:' +
-      (recorded ? 'var(--grn)' : 'var(--mut2)') + '">' + (recorded ? 'recorded' : 'estimated') + '</span>';
 
     var rows = (d.rows || []).map(function(r){
       var v = Number(r.ret) / 100;
@@ -91,7 +88,7 @@
         '<td class="' + cls + '">' + (v >= 0 ? '+' : '') + v.toFixed(2) + '%</td></tr>';
     }).join('');
 
-    card.innerHTML = head(day + chip, (tot >= 0 ? '+' : '') + tot.toFixed(2) + '%') +
+    card.innerHTML = head(day, (tot >= 0 ? '+' : '') + tot.toFixed(2) + '%') +
       '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>' +
       '<div class="res-clock">next credit in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
 
