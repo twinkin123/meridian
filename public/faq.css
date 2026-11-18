@@ -1,0 +1,16 @@
+
+.fq-overlay{position:fixed;inset:0;background:rgba(6,6,9,.72);backdrop-filter:blur(6px);z-index:120;display:flex;align-items:center;justify-content:center;padding:16px}
+.fq-sheet{width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:18px;color:var(--txt);box-shadow:0 24px 70px rgba(0,0,0,.6);max-height:92vh;overflow:auto}
+.fq-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.fq-ico{width:30px;height:30px;border-radius:9px;background:rgba(139,92,246,.16);color:var(--pur);display:grid;place-items:center;font-size:14px;font-weight:700}
+.fq-head h3{margin:0;font-size:16px;font-weight:600}
+.fq-x{margin-left:auto;background:none;border:0;color:var(--mut);font-size:19px;cursor:pointer;line-height:1}
+.fq-list{display:flex;flex-direction:column}
+.fq-item{border-bottom:1px solid var(--line);padding:12px 0}
+.fq-item:first-child{padding-top:0}
+.fq-item:last-child{border-bottom:none;padding-bottom:0}
+.fq-item b{display:block;font-size:13px;font-weight:600;color:var(--txt)}
+.fq-item p{margin:3px 0 0;font-size:11.5px;line-height:1.5;color:var(--mut)}
+.fq-foot{margin-top:14px;font-size:11.5px;color:var(--mut);border-top:1px solid var(--line);padding-top:11px;line-height:1.45}
+body.fq-open{overflow:hidden}
+@media (max-width:560px){.fq-overlay{padding:0;align-items:flex-end}.fq-sheet{max-width:100%;border-radius:18px 18px 0 0;max-height:94vh}}
