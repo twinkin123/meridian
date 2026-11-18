@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import QRCode from 'qrcode';
 import { pool } from '../../db.js';
 import { ensureDepositAddress } from '../../deposits.js';

@@ -1,4 +1,4 @@
-﻿import { pool, tx } from './db.js';
+import { pool, tx } from './db.js';
 import { createDepositWallet, findWalletByExternalId } from './privy.js';
 
 /**

@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import { env } from '../../env.js';
 import { tx, one } from '../../db.js';
 import { post } from '../../ledger/post.js';

@@ -1,4 +1,4 @@
-﻿import { transferFrom, getAction, waitForAction, usdc, sol, treasuryOnchainAddress } from './privy.js';
+import { transferFrom, getAction, waitForAction, usdc, sol, treasuryOnchainAddress } from './privy.js';
 import {
   Connection,
   Keypair,

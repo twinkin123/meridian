@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   var overlay = null, timer = null, addrEl = null, statusEl = null, qrEl = null;
 
   function el(tag, cls, text) {

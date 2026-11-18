@@ -1,4 +1,4 @@
-﻿import { pool } from './db.js';
+import { pool } from './db.js';
 import { getSigs } from './solana/rpc.js';
 import { processSig } from './http/routes/webhooks.js';
 import { getAssociatedTokenAddress } from '@solana/spl-token';

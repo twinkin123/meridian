@@ -1,4 +1,4 @@
-﻿import {
+import {
   Connection,
   Keypair,
   PublicKey,

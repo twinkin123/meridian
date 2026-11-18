@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import { runSweep, treasuryAddress, BATCH } from './sweeps.js';
 import { approveClaim, rejectClaim } from './locks.js';
 import { approveWithdrawal, payoutWithdrawal } from './withdrawals.js';

@@ -1,4 +1,4 @@
-﻿import { createDepositWallet } from '../../privy.js';
+import { createDepositWallet } from '../../privy.js';
 import { Router } from 'express';
 import { one, none } from '../../db.js';
 import { address } from '../../solana/derive.js';

@@ -1,4 +1,4 @@
-﻿import { readdir, readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pool, close } from '../src/db.js';
 
@@ -16,7 +16,8 @@ async function main() {
     if (done.has(f)) { console.log(`skip ${f}`); continue; }
     console.log(`apply ${f}`);
     await pool.query('begin');
-    await pool.query(await readFile(join(dir, f), 'utf8'));
+    const sql = (await readFile(join(dir, f), 'utf8')).replace(/^\uFEFF/, '');
+    await pool.query(sql);
     await pool.query('insert into _migrations (name) values ($1)', [f]);
     await pool.query('commit');
   }

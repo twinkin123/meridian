@@ -1,4 +1,4 @@
-﻿import { env } from '../env.js';
+import { env } from '../env.js';
 
 // One shared serialized queue: poll, recon and sweeps all go through it, so they
 // cannot burst past the provider rate limit at the same instant.
