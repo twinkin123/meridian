@@ -72,7 +72,7 @@ app.use((req, res, next) => {
 
 const timers: NodeJS.Timeout[] = [];
 
-function every(ms: number, fn: () => Promise, label: string): void {
+function every(ms: number, fn: () => Promise<unknown>, label: string): void {
   const tick = () => {
     void fn().catch((e) => console.error(label, e instanceof Error ? e.message : e));
   };

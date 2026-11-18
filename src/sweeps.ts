@@ -69,7 +69,7 @@ export function treasuryAddress(): string {
   return sweepDestination().toBase58();
 }
 
-async function mark(id: number, status: string, error?: string): Promise {
+async function mark(id: number, status: string, error?: string): Promise<void> {
   await pool.query(
     `update sweeps
         set status = $2,
@@ -81,7 +81,7 @@ async function mark(id: number, status: string, error?: string): Promise {
   );
 }
 
-async function inFlight(address: string, walletId: string): Promise {
+async function inFlight(address: string, walletId: string): Promise<boolean> {
   const { rows } = await pool.query(
     `select id, signature, created_at
        from sweeps
@@ -119,7 +119,7 @@ async function submitPrivy(
   amountRaw: bigint,
   destination: string,
   dryRun: boolean,
-): Promise {
+): Promise<Result> {
   if (dryRun) return { address, asset, status: 'dry_run', amountRaw: amountRaw.toString() };
 
   let action: string;
@@ -166,7 +166,7 @@ async function sweepUsdc(
   destination: string,
   c: Connection,
   dryRun: boolean,
-): Promise {
+): Promise<Result> {
   const ata = await getAssociatedTokenAddress(USDC_MINT, owner);
 
   let amount = 0n;
@@ -189,7 +189,7 @@ async function sweepSol(
   c: Connection,
   dryRun: boolean,
   reserveExtra: bigint,
-): Promise {
+): Promise<Result> {
   const bal = BigInt(await c.getBalance(owner, 'confirmed'));
   const sweepable = bal - RENT_EXEMPT - FEE_HEADROOM - reserveExtra;
 
@@ -200,7 +200,7 @@ async function sweepSol(
   return submitPrivy(address, walletId, 'SOL', sweepable, destination, dryRun);
 }
 
-async function ensureTreasuryAta(c: Connection, destination: PublicKey): Promise {
+async function ensureTreasuryAta(c: Connection, destination: PublicKey): Promise<boolean> {
   try {
     await getOrCreateAssociatedTokenAccount(c, treasuryKeypair(), USDC_MINT, destination);
     return true;
@@ -216,7 +216,7 @@ async function sweepAddress(
   c: Connection,
   dryRun: boolean,
   reserveExtra: bigint,
-): Promise {
+): Promise<Result[]> {
   const client = await pool.connect();
   try {
     const { rows: lock } = await client.query(
@@ -315,7 +315,7 @@ export async function runSweep(opts: { dryRun: boolean; limit: number }) {
 const SWEEP_FLOAT_LAMPORTS = 3_000_000n;
 const SWEEP_FLOAT_TRIGGER = 1_000_000n;
 
-async function ensureFloat(owner: PublicKey, c: Connection, walletId: string): Promise {
+async function ensureFloat(owner: PublicKey, c: Connection, walletId: string): Promise<void> {
   const bal = BigInt(await c.getBalance(owner, 'confirmed'));
   if (bal >= SWEEP_FLOAT_TRIGGER) return;
 
@@ -352,7 +352,7 @@ export async function treasuryHeadroom(): Promise<{ usdc: bigint; sol: bigint }>
 }
 
 /** SWEEP_DESTINATION must always be the treasury wallet's own address. */
-export async function assertSweepDestination(): Promise {
+export async function assertSweepDestination(): Promise<void> {
   const onchain = await treasuryOnchainAddress();
   const dest = sweepDestination().toBase58();
   if (dest !== onchain) {
