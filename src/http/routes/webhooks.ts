@@ -38,7 +38,7 @@ webhooks.post('/helius', async (req, res) => {
 export async function processSig(sig: string): Promise<void> {
 
   const t = await getTx(sig);
-  if (!t) return;
+  if (!t) throw new Error(`tx_not_found:` + sig);
 
   const frozen = (await freezeLevel()) >= 1;
   const price = await solPriceMicro();
