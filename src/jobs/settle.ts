@@ -3,8 +3,9 @@ import { ensureDay } from '../trades.js';
 import { runDailyCredit } from './daily.js';
 
 /**
- * The 24-hour settlement. The day row is guaranteed first so a frozen or
- * failed run still leaves a day, then the run rewrites it at the real rate.
+ * The 24-hour settlement. No day row is created before the run, so a day with
+ * no rate stays blank and the previous rate holds on the card until 00:15.
+ * A row that already exists is repaired first.
  */
 export async function runSettlement(): Promise<void> {
   const day = new Date();

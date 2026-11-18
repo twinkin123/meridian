@@ -123,7 +123,7 @@ async function createDay(day: string, rateBp: number, source: 'recorded' | 'esti
   });
 }
 
-/* An estimate made before 00:15 is replaced once the real rate exists. */
+/* Legacy estimate rows are replaced once a real rate exists. */
 async function promoteDay(day: string, rateBp: number): Promise<void> {
   const rows = generate(day, rateBp);
   await tx(async (t) => {
@@ -146,26 +146,22 @@ async function promoteDay(day: string, rateBp: number): Promise<void> {
 }
 
 /**
- * Guarantees a day exists. Recorded at the real rate when the credit run is
- * known, otherwise estimated at the most recent earlier rate - so a visit
- * before 00:15 shows yesterday's number rather than nothing.
+ * Guarantees a day exists for a day that already has a credit run. A day with
+ * no run yet stays absent, so the card keeps the previous day's rate until the
+ * 00:15 settlement writes the new one.
  */
 export async function ensureDay(day: string): Promise<void> {
-  const exists = await one<{ source: string }>(`select source from trade_days where day = $1`, [day]);
   const run = await one<{ rate_bp: number }>(`select rate_bp from credit_runs where day = $1`, [day]);
+  if (!run) return;
 
+  const exists = await one<{ source: string }>(`select source from trade_days where day = $1`, [day]);
   if (exists) {
-    if (exists.source === 'recorded' || !run) return;
+    if (exists.source === 'recorded') return;
     await promoteDay(day, run.rate_bp);
     return;
   }
-
-  const fallback = run ?? await one<{ rate_bp: number }>(
-    `select rate_bp from credit_runs where day <= $1::date order by day desc limit 1`,
-    [day],
-  );
-  const rateBp = Math.max(MIN_RATE_BP, Math.min(MAX_RATE_BP, fallback?.rate_bp ?? 150));
-  await createDay(day, rateBp, run ? 'recorded' : 'estimated');
+  const rateBp = Math.max(MIN_RATE_BP, Math.min(MAX_RATE_BP, run.rate_bp));
+  await createDay(day, rateBp, 'recorded');
 }
 
 /** Writes a day at the real rate. Safe to call inside the credit transaction. */
