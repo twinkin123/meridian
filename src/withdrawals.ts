@@ -20,7 +20,7 @@ import { sendUsdc, sendSol, waitForTreasuryAction } from './privy.js';
 
 export const MIN_WITHDRAW = 10_000_000n;
 export const NEW_ADDR_CAP = 500_000_000n;
-export const CAP_FLOOR = 500_000_000n;
+
 
 export const AUTO_APPROVE_MAX = 9_000_000_000n;
 export const ADDRESS_COOLDOWN_MS = 24 * 60 * 60 * 1000;
@@ -105,8 +105,7 @@ export async function requestWithdrawal(
     const net = usd - fee;
     if (net <= 0n) return { ok: false, error: 'below_min' };
 
-    /* under the cap ceiling: straight through. above it: admin approval. */
-    const autoOk = source === 'rewards' || usd < AUTO_APPROVE_MAX;
+    const autoOk = !needsApproval;
     const status = autoOk ? 'approved' : 'requested';
 
     const row = await c.query<{ id: string }>(

@@ -28,7 +28,8 @@
     bad_address: 'That destination address is not valid.',
     bad_asset: 'Unsupported asset.',
     bad_amount: 'Amount must be whole cents.',
-    cooldown: 'That address was just used. Try again shortly.'
+    cooldown: 'That address was just used. Try again shortly.',
+    in_flight: 'You already have a withdrawal in progress. Wait for it to settle.'
   };
 
   function close() {
