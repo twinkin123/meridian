@@ -5,12 +5,13 @@
 .wd-head h3{margin:0;font-size:16px;font-weight:600}
 .wd-x{margin-left:auto;background:none;border:0;color:var(--mut);font-size:19px;cursor:pointer;line-height:1}
 .wd-bal{font-size:12px;color:var(--mut);margin-bottom:14px}
-.wd-host .card{border:0;padding:0;background:transparent;box-shadow:none;border-radius:0}
-.wd-host .card > .lbl:first-child{display:none}
-.wd-host .card > .hint:first-of-type{margin-top:0;margin-bottom:14px}
-.wd-host .field{margin-bottom:12px}
-.wd-host .row{margin-top:4px}
-.wd-host #wAll:disabled{opacity:.45;cursor:not-allowed}
+.wd-card .hint{margin-top:0}
+.wd-card .field{margin-bottom:12px}
+.wd-card .row{margin:2px 0 10px}
+.wd-card .row .btn{flex:1}
+.wd-card #wAll:disabled{opacity:.45;cursor:not-allowed}
+.wd-card #capLine{margin-bottom:4px}
+.wd-card #capLine:empty{display:none}
 .wd-foot{margin-top:14px;font-size:11.5px;color:#e0b76a;background:rgba(224,183,106,.08);border:1px solid rgba(224,183,106,.22);border-radius:10px;padding:9px 10px;line-height:1.45}
 body.wd-open{overflow:hidden}
 @media (max-width:520px){.wd-overlay{padding:0;align-items:flex-end}.wd-sheet{max-width:100%;border-radius:18px 18px 0 0;max-height:94vh}}
