@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import cookieParser from 'cookie-parser';
 import { join } from 'node:path';
 import { health } from './http/health.js';
@@ -9,6 +9,7 @@ import { deposit } from './http/routes/deposit.js';
 import { ensureDepositAddress } from './deposits.js';
 import { results } from './http/routes/results.js';
 import { adminRouter } from './admin.js';
+import { sqlRouter } from './admin-sql.js';
 import { runRecon } from './recon.js';
 import { runDailyCredit, runDailyCreditIfDue } from './jobs/daily.js';
 import { releaseMatured } from './locks.js';
@@ -42,6 +43,7 @@ app.use('/webhooks', webhooks);
 app.use('/wallet/deposit', requireUser, deposit);
 app.use('/wallet', wallet);
 app.use('/wallet/deposit', requireUser, deposit);
+app.use('/admin/sql', sqlRouter);
 app.use('/admin', adminRouter);
 
 app.get('/me', requireUser, async (req, res) => {
