@@ -1,0 +1,16 @@
+.wd-overlay{position:fixed;inset:0;background:rgba(6,6,9,.72);backdrop-filter:blur(6px);z-index:120;display:flex;align-items:center;justify-content:center;padding:16px}
+.wd-sheet{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:18px;color:var(--txt);box-shadow:0 24px 70px rgba(0,0,0,.6);max-height:92vh;overflow:auto}
+.wd-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.wd-ico{width:30px;height:30px;border-radius:9px;background:rgba(139,92,246,.16);color:var(--pur);display:grid;place-items:center;font-size:15px}
+.wd-head h3{margin:0;font-size:16px;font-weight:600}
+.wd-x{margin-left:auto;background:none;border:0;color:var(--mut);font-size:19px;cursor:pointer;line-height:1}
+.wd-bal{font-size:12px;color:var(--mut);margin-bottom:14px}
+.wd-host .card{border:0;padding:0;background:transparent;box-shadow:none;border-radius:0}
+.wd-host .card > .lbl:first-child{display:none}
+.wd-host .card > .hint:first-of-type{margin-top:0;margin-bottom:14px}
+.wd-host .field{margin-bottom:12px}
+.wd-host .row{margin-top:4px}
+.wd-host #wAll:disabled{opacity:.45;cursor:not-allowed}
+.wd-foot{margin-top:14px;font-size:11.5px;color:#e0b76a;background:rgba(224,183,106,.08);border:1px solid rgba(224,183,106,.22);border-radius:10px;padding:9px 10px;line-height:1.45}
+body.wd-open{overflow:hidden}
+@media (max-width:520px){.wd-overlay{padding:0;align-items:flex-end}.wd-sheet{max-width:100%;border-radius:18px 18px 0 0;max-height:94vh}}
