@@ -1,0 +1,24 @@
+.ad-overlay{position:fixed;inset:0;background:rgba(6,6,9,.72);backdrop-filter:blur(6px);z-index:120;display:flex;align-items:center;justify-content:center;padding:16px}
+.ad-sheet{width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:18px;color:var(--txt);box-shadow:0 24px 70px rgba(0,0,0,.6);max-height:92vh;overflow:auto}
+.ad-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ad-ico{width:30px;height:30px;border-radius:9px;background:rgba(139,92,246,.16);color:var(--pur);display:grid;place-items:center;font-size:13px}
+.ad-head h3{margin:0;font-size:16px;font-weight:600}
+.ad-x{margin-left:auto;background:none;border:0;color:var(--mut);font-size:19px;cursor:pointer;line-height:1}
+.ad-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.ad-stat{border:1px solid var(--line);border-radius:11px;padding:9px 10px;background:var(--panel2)}
+.ad-stat span{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+.ad-stat b{display:block;font-size:14px;font-weight:600;margin:2px 0 1px}
+.ad-stat i{display:block;font-size:10.5px;color:var(--mut2);font-style:normal}
+.ad-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ad-list li{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:11px;padding:10px 11px}
+.ad-list li.empty{border-style:dashed;color:var(--mut);font-size:12.5px;justify-content:center;padding:18px;text-align:center;line-height:1.5}
+.ad-main{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.ad-main code{font-family:var(--mono,monospace);font-size:11px;color:var(--txt);overflow-wrap:anywhere;line-height:1.35}
+.ad-meta{font-size:11px;color:var(--mut);line-height:1.4}
+.ad-cap{align-self:flex-start;margin-top:2px;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--grn)}
+.ad-cap.bad{color:#e0b76a}
+.ad-side{display:flex;flex-direction:column;gap:6px;flex:none}
+.ad-act{width:auto;padding:5px 11px;font-size:11.5px}
+.ad-foot{margin-top:14px;font-size:11.5px;color:var(--mut);border-top:1px solid var(--line);padding-top:11px;line-height:1.45}
+body.ad-open{overflow:hidden}
+@media (max-width:560px){.ad-overlay{padding:0;align-items:flex-end}.ad-sheet{max-width:100%;border-radius:18px 18px 0 0;max-height:94vh}}
