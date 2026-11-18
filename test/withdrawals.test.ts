@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  computeCap, qtyFor, NEW_ADDR_CAP, CAP_FLOOR, CAP_CEIL, ADDRESS_COOLDOWN_MS,
+  computeCap, qtyFor, NEW_ADDR_CAP, ADDRESS_COOLDOWN_MS,
 } from '../src/withdrawals.js';
 
 const OLD = ADDRESS_COOLDOWN_MS + 1;
@@ -16,21 +16,21 @@ test('known address inside cooldown still gets the flat cap', () => {
   assert.equal(computeCap(true, YOUNG, 900_000_000_000n), NEW_ADDR_CAP);
 });
 
-test('small balance is floored at the flat cap', () => {
-  assert.equal(computeCap(true, OLD, 100_000_000n), CAP_FLOOR);
+test('the flat cap is well under a large balance', () => {
+  assert.ok(NEW_ADDR_CAP < 900_000_000_000n);
 });
 
-test('large balance scales to half', () => {
-  assert.equal(computeCap(true, OLD, 4_000_000_000n), 2_000_000_000n);
+test('known address past cooldown gets the whole balance', () => {
+  assert.equal(computeCap(true, OLD, 100_000_000n), 100_000_000n);
 });
 
-test('huge balance is ceilinged', () => {
-  assert.equal(computeCap(true, OLD, 900_000_000_000n), CAP_CEIL);
+test('no ceiling applies to a large balance', () => {
+  assert.equal(computeCap(true, OLD, 4_000_000_000n), 4_000_000_000n);
+  assert.equal(computeCap(true, OLD, 900_000_000_000n), 900_000_000_000n);
 });
 
-test('cap never falls below balance', () => {
-  const bal = 100_000_000n;
-  assert.ok(computeCap(true, OLD, bal) >= bal);
+test('a zero balance yields a zero cap', () => {
+  assert.equal(computeCap(true, OLD, 0n), 0n);
 });
 
 test('usdc qty equals the usd amount', () => {
