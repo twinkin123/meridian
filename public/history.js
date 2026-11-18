@@ -74,7 +74,7 @@
     return '<li class="' + cls + '"><div class="hs-main">'
       + '<b>' + money(d.usd_at_det) + '</b><span class="hs-asset">' + esc(d.asset) + '</span>'
       + '<span class="hs-meta">detected ' + when(d.created_at || d.detected_at) + '</span>'
-      + (held ? '<span class="hs-meta">in reserve \u00b7 locks for 30 days once reserve reaches $10</span>' : '<span class="hs-meta">unlocks ' + when(d.unlock_at) + ' \u00b7 ' + rel(d.unlock_at) + '</span>')
+      + (held ? '<span class="hs-meta">in reserve \u00b7 stakes for 30 days once reserve reaches $10</span>' : '<span class="hs-meta">unlocks ' + when(d.unlock_at) + ' \u00b7 ' + rel(d.unlock_at) + '</span>')
       + (d.claim_requested_at ? '<span class="hs-meta">release requested ' + when(d.claim_requested_at) + '</span>' : '')
       + (d.released_at ? '<span class="hs-meta">released ' + when(d.released_at) + '</span>' : '')
       + '</div><div class="hs-side">' + side + '</div></li>';
@@ -108,7 +108,7 @@
     if (!loaded || !listEl) return;
     var rows = data[tab] || [];
     if (!rows.length) {
-      listEl.innerHTML = '<li class="empty">' + (tab === 'deposits' ? 'No deposits yet.' : tab === 'settlements' ? 'No credits yet.' : 'No withdrawals yet.') + '</li>';
+      listEl.innerHTML = '<li class="empty">' + (tab === 'deposits' ? 'No stakes yet.' : tab === 'settlements' ? 'No credits yet.' : 'No withdrawals yet.') + '</li>';
       return;
     }
     var fn = tab === 'deposits' ? depRow : tab === 'settlements' ? setRow : wdRow;
@@ -168,13 +168,13 @@
     sheet.appendChild(head);
 
     var stats = el('div', 'hs-stats');
-    stats.innerHTML = '<div class="hs-stat"><span>Deposited</span><b id="hsDep">\u2014</b><i></i></div>'
+    stats.innerHTML = '<div class="hs-stat"><span>Staked</span><b id="hsDep">\u2014</b><i></i></div>'
       + '<div class="hs-stat"><span>Credited</span><b id="hsSet">\u2014</b><i></i></div>'
       + '<div class="hs-stat"><span>Withdrawn</span><b id="hsWd">\u2014</b><i></i></div>';
     sheet.appendChild(stats);
 
     tabsEl = el('div', 'hs-tabs');
-    [['deposits', 'Deposits'], ['settlements', 'Credited'], ['withdrawals', 'Withdrawals']].forEach(function (t) {
+    [['deposits', 'Stakes'], ['settlements', 'Credited'], ['withdrawals', 'Withdrawals']].forEach(function (t) {
       var b = el('button', 'hs-tab', t[1]);
       b.type = 'button';
       b.dataset.tab = t[0];
@@ -192,7 +192,7 @@
     });
     sheet.appendChild(listEl);
 
-    var foot = el('div', 'hs-foot', 'Deposits lock for 30 days. A release request is approved by hand, then the balance becomes withdrawable.');
+    var foot = el('div', 'hs-foot', 'Stakes lock for 30 days. A release request is approved by hand, then the balance becomes withdrawable.');
     sheet.appendChild(foot);
 
     overlay.appendChild(sheet);

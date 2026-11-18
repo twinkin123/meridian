@@ -55,11 +55,11 @@
     var sheet = el('div', 'dep-sheet');
     sheet.setAttribute('role', 'dialog');
     sheet.setAttribute('aria-modal', 'true');
-    sheet.setAttribute('aria-label', 'Deposit funds');
+    sheet.setAttribute('aria-label', 'Stake funds');
 
     var head = el('div', 'dep-head');
     head.appendChild(el('div', 'dep-ico', '\u2193'));
-    head.appendChild(el('h3', null, 'Deposit funds'));
+    head.appendChild(el('h3', null, 'Stake funds'));
     var x = el('button', 'dep-x', '\u00d7');
     x.setAttribute('aria-label', 'Close');
     x.addEventListener('click', close);
@@ -69,7 +69,7 @@
     var row = el('div', 'dep-row');
     row.appendChild(el('span', 'dot'));
     var rt = el('div', 't');
-    rt.appendChild(el('b', null, 'Deposit USDC or SOL on Solana'));
+    rt.appendChild(el('b', null, 'Stake USDC or SOL on Solana'));
     rt.appendChild(el('span', null, 'Direct \u00b7 Recommended'));
     row.appendChild(rt);
     row.appendChild(el('span', 'chev', '\u203a'));
@@ -90,7 +90,7 @@
     sheet.appendChild(line);
 
     statusEl = el('div', 'dep-status');
-    setStatus('Waiting for your deposit\u2026');
+    setStatus('Waiting for your stake\u2026');
     sheet.appendChild(statusEl);
 
     var safe = el('div', 'dep-safe');
@@ -99,7 +99,7 @@
 
     var alt = el('div', 'dep-alt');
     var at = el('div', 't');
-    at.appendChild(el('b', null, 'Deposit another token or network'));
+    at.appendChild(el('b', null, 'Stake another token or network'));
     at.appendChild(el('span', null, 'Same address, any SPL token'));
     alt.appendChild(at);
     alt.appendChild(el('span', 'chev', '\u203a'));
@@ -134,7 +134,7 @@
       if (!j.address) throw new Error('no address');
       addrEl.textContent = j.address;
       qrEl.src = j.qr;
-      if (j.latest && ['held','locked','credited'].indexOf(j.latest.status) !== -1) setStatus('Deposit received', true);
+      if (j.latest && ['held','locked','credited'].indexOf(j.latest.status) !== -1) setStatus('Stake received', true);
     } catch (e) {
       addrEl.textContent = 'Unavailable';
       setStatus('Could not load address');
@@ -149,7 +149,7 @@
         var j = await r.json();
       if (!j.address) throw new Error('no address');
         if (j.latest && ['held','locked','credited'].indexOf(j.latest.status) !== -1) {
-          setStatus('Deposit received', true);
+          setStatus('Stake received', true);
           clearInterval(timer);
         }
       } catch (e) {}
