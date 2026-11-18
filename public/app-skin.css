@@ -632,17 +632,4 @@ html body #claimBtn, html body #rwOut{
   html body .shell .main{padding-bottom:150px!important}
   html body .shell .main .panel.on .card:last-child{padding-bottom:36px!important}
   html body .shell .main .panel.on .card:last-child .list li:last-child{padding-bottom:16px!important}
-}@media (min-width:901px){
-  .side{height:auto!important;align-self:start!important}
-  .side .robot-card{margin-top:18px!important}
-  .grid > div:last-child > .card:last-child{flex:0 1 auto!important}
 }
-
-/* right column: robot card is the filler, real cards stay at natural height */
-.grid > div:last-child{display:flex!important;flex-direction:column!important}
-.grid > div:last-child > .card{flex:0 0 auto!important}
-.grid > div:last-child > .card.robot-card{flex:1 1 auto!important;display:flex!important;flex-direction:column!important;justify-content:center!important;min-height:150px!important}
-.grid > div:last-child > .card.robot-card video{height:100%!important;max-height:none!important;min-height:0!important;object-fit:contain!important}
-.ref-card{display:flex!important;flex-direction:column!important}
-.ref-card .ref-ladder{margin-top:12px!important;flex:0 0 auto!important}
-.ref-list-card .list{justify-content:flex-start!important}
