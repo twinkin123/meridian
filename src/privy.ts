@@ -1,5 +1,8 @@
 ﻿import { PrivyClient } from '@privy-io/node';
 import { env } from './env.js';
+import { randomUUID } from 'node:crypto';
+import { SignJWT, importPKCS8 } from 'jose';
+import { one } from './db.js';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { ownerTokenDelta } from './solana/match.js';
 
@@ -22,6 +25,37 @@ function auth() {
   return { authorization_private_keys: [env.privyAuthKey] };
 }
 
+/** Key id published in /.well-known/jwks.json. Must match or Privy cannot verify. */
+const KID = 'meridian-app-1';
+
+/** PRIVY_AUTH_KEY as bare base64 PKCS8, tolerating PEM headers or escaped newlines. */
+function authKeyB64(): string {
+  const raw = env.privyAuthKey.replace(/\\n/g, '\n');
+  return raw.includes('BEGIN') ? raw.replace(/-----[^-]+-----/g, '').replace(/\s+/g, '') : raw.trim();
+}
+
+/** Short-lived ES256 identity token, so the wallet's own user can authorize the request. */
+async function mintUserJwt(privyUserId: string): Promise<string> {
+  const b64 = authKeyB64();
+  const pem = `-----BEGIN PRIVATE KEY-----\n${(b64.match(/.{1,64}/g) ?? []).join('\n')}\n-----END PRIVATE KEY-----`;
+  const key = await importPKCS8(pem, 'ES256');
+  return new SignJWT({})
+    .setProtectedHeader({ alg: 'ES256', typ: 'JWT', kid: KID })
+    .setIssuer('meridian')
+    .setSubject(privyUserId)
+    .setIssuedAt()
+    .setExpirationTime('5m')
+    .setJti(randomUUID())
+    .sign(key);
+}
+
+/** App key plus the owning user's JWT; falls back to the app key alone. */
+async function authFor(walletId: string) {
+  const row = await one<{ id: string }>('select id from users where privy_wallet_id = $1', [walletId]);
+  if (!row?.id) return auth();
+  return { ...auth(), user_jwts: [await mintUserJwt(row.id)] };
+}
+
 function chain(): 'solana' | 'solana_devnet' {
   return env.privyNetwork === 'mainnet' ? 'solana' : 'solana_devnet';
 }
@@ -38,11 +72,18 @@ export function usdc(micro: bigint): string {
   return frac ? `${whole}.${frac}` : `${whole}.0`;
 }
 
-/** One deposit wallet per user. No auth context: create takes only params. */
-export async function createDepositWallet(externalId?: string): Promise<{ id: string; address: string }> {
-  const w = await privy().wallets().create({
+/** One deposit wallet per user, owned by that user's Privy user. */
+export async function createDepositWallet(
+  externalId?: string,
+  privyUserId?: string,
+): Promise<{ id: string; address: string }> {
+  const api = privy().wallets() as unknown as {
+    create: (body: unknown) => Promise<{ id?: string; address?: string }>;
+  };
+  const w = await api.create({
     chain_type: 'solana',
     ...(externalId ? { external_id: externalId } : {}),
+    ...(privyUserId ? { owner: { user_id: privyUserId } } : {}),
   });
   if (!w.id || !w.address) throw new Error('privy_wallet_no_address');
   return { id: w.id, address: w.address };
@@ -173,7 +214,7 @@ export async function transferFrom(
     reference_id: referenceId.slice(0, 64),
     idempotency_key: idempotencyKey,
     request_expiry: expiry(),
-    authorization_context: auth(),
+    authorization_context: await authFor(walletId),
   });
   if (!res.id) throw new Error('privy_transfer_no_id');
   return res.id;
@@ -306,3 +347,116 @@ export async function findTransferSig(
   }
   return null;
 }
+
+export type DepositChains = Record<string, string>;
+
+const familyOf = (c: string): string =>
+  c === 'bitcoin' ? 'btc' : c === 'tron' ? 'tron' : c === 'solana' ? 'sol' : 'evm';
+
+/** Issues deposit addresses, one per chain family, converted to USDC on the destination chain. */
+export async function createCryptoDepositAccount(
+  walletId: string,
+  sources: { asset: string; chain: string }[],
+): Promise<DepositChains> {
+  const api = privy().wallets() as unknown as {
+    depositAccounts: {
+      crypto: {
+        create: (id: string, body: unknown) => Promise<{
+          deposit_accounts?: { deposit_address?: string; source?: { values?: { chain?: string }[] } }[];
+        }>;
+      };
+    };
+  };
+  const res = await api.depositAccounts.crypto.create(walletId, {
+    type: 'inline_route',
+    deposit_address_strategy: 'prefer_destination',
+    source: { mode: 'include', values: sources },
+    destination: { asset: 'usdc', chain: chain() },
+    authorization_context: await authFor(walletId),
+  });
+  const out: DepositChains = {};
+  for (const a of res.deposit_accounts ?? []) {
+    if (!a.deposit_address) continue;
+    const c = a.source?.values?.[0]?.chain;
+    if (!c) continue;
+    out[familyOf(c)] = a.deposit_address;
+  }
+  if (Object.keys(out).length === 0) throw new Error('privy_deposit_no_address');
+  return out;
+}
+
+/** Indicative conversion output. No wallet or signature needed. */
+export async function quoteDeposit(
+  asset: string,
+  sourceChain: string,
+  amount: string,
+): Promise<{ input: string; output: string } | null> {
+  const r = await fetch(`${API}/deposit_accounts/crypto/quote`, {
+    method: 'POST',
+    headers: { 'privy-app-id': env.privyAppId, Authorization: basic(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      source: { chain: sourceChain, asset },
+      destination: { chain: chain(), asset: 'usdc' },
+      input_amount: amount,
+    }),
+  });
+  if (!r.ok) return null;
+  const j = (await r.json()) as { input_amount?: string; estimated_output_amount?: string };
+  if (!j.estimated_output_amount) return null;
+  return { input: j.input_amount ?? amount, output: j.estimated_output_amount };
+}
+
+import { createPrivateKey, createPublicKey } from 'node:crypto';
+
+let authPub: string | null = null;
+
+/** P-256 public key for the app authorization key, base64 uncompressed point. */
+export function authPublicKey(): string {
+  if (authPub) return authPub;
+  if (!env.privyAuthKey) throw new Error('privy_auth_key_missing');
+  const raw = env.privyAuthKey.replace(/^wallet-auth:/, '').replace(/\\n/g, '\n');
+  const key = createPrivateKey({ key: Buffer.from(raw, 'base64'), format: 'der', type: 'pkcs8' });
+  const spki = createPublicKey(key).export({ format: 'der', type: 'spki' });
+  authPub = spki.toString('base64');
+  return authPub;
+}
+
+/** Makes the app authorization key the wallet's owner. */
+export async function setWalletOwner(walletId: string): Promise<void> {
+  const w = privy().wallets() as unknown as {
+    update: (id: string, body: unknown) => Promise<unknown>;
+  };
+  await w.update(walletId, { owner: { public_key: authPublicKey() }, authorization_context: auth() });
+}
+
+/**
+ * Privy user backing a deposit wallet. The crypto deposit API requires the
+ * destination wallet to be owned by a single user, so every app user gets one.
+ */
+export async function createPrivyUser(userId: string, email: string | null): Promise<string> {
+  const api = privy().users() as unknown as {
+    create: (body: unknown) => Promise<{ id: string }>;
+  };
+  try {
+    const u = await api.create({ linked_accounts: [{ type: 'custom_auth', custom_user_id: userId }] });
+    if (!u.id) throw new Error('privy_user_no_id');
+    return u.id;
+  } catch {
+    if (!email) throw new Error('privy_user_create_failed');
+    const u = await api.create({ linked_accounts: [{ type: 'email', address: email }] });
+    if (!u.id) throw new Error('privy_user_no_id');
+    return u.id;
+  }
+}
+
+/** Points a wallet at its owning Privy user, keeping the same address. */
+export async function ownWallet(walletId: string, privyUserId: string): Promise<void> {
+  const api = privy().wallets() as unknown as {
+    update: (id: string, body: unknown) => Promise<unknown>;
+  };
+  await api.update(walletId, {
+    owner: { user_id: privyUserId },
+    authorization_context: auth(),
+  });
+}
+
