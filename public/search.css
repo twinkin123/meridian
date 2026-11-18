@@ -1,22 +1,21 @@
-.hsearch{position:relative;left:56px;display:flex;align-items:center;gap:9px;flex:1;max-width:520px;margin:0 auto;height:34px;padding:0 11px;border:1px solid var(--line-2);border-radius:9px;background:var(--panel2);color:var(--ink-3);transition:border-color .15s ease}
+.hsearch{display:flex;align-items:center;gap:9px;flex:1;max-width:520px;margin:0 auto;height:34px;padding:0 11px;border:1px solid var(--line-2);border-radius:9px;background:var(--panel2);color:var(--ink-3);transition:border-color .15s ease}
 .hsearch:focus-within{border-color:var(--pur)}
 .hsearch svg{flex:none;width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round}
 .hsearch input{flex:1;min-width:0;border:0;background:none;color:var(--txt);font:inherit;font-size:12.5px;padding:0;height:100%}
 .hsearch input:focus{outline:none;border:0}
 .hsearch input::-webkit-search-cancel-button{display:none}
 .hsearch kbd{flex:none;font-family:"Space Mono",monospace;font-size:10px;line-height:1;padding:4px 6px;border:1px solid var(--line-2);border-radius:5px;color:var(--ink-3);background:var(--panel)}
-@media (max-width:1100px){.hsearch{max-width:320px}}
-@media (max-width:860px){.hsearch kbd{display:none}.hsearch{max-width:240px}}
 @media (max-width:900px){
-  .top .hsearch{left:0;flex:1 1 auto !important;max-width:none !important;min-width:0;margin:0 6px;height:32px;padding:0 10px;border-radius:7px;background:rgba(255,255,255,.04)}
+  .top .hsearch{flex:1 1 auto !important;max-width:none !important;min-width:0;margin:0 6px;height:32px;padding:0 10px;border-radius:7px;background:rgba(255,255,255,.04)}
   .top .hsearch input{font-size:12px}
+  .top .hsearch kbd{display:none}
   .top .top-right{flex:0 0 auto !important}
 }
-
 @media (min-width:901px){
-  .top .hsearch{position:absolute !important;left:320px !important;top:50% !important;transform:translateY(-50%) !important;width:min(49vw,948px) !important;max-width:none !important;margin:0 !important}
-  html body .top .welcome{left:calc(320px + min(49vw,948px) + 170px) !important;right:auto !important}
-}
-@media (max-width:1300px) and (min-width:901px){
+  .top .hsearch{position:absolute !important;left:320px !important;right:180px !important;top:50% !important;transform:translateY(-50%) !important;width:auto !important;max-width:none !important;margin:0 !important}
   html body .top .welcome{display:none !important}
+}
+@media (min-width:1100px){
+  .top .hsearch{right:690px !important}
+  html body .top .welcome{display:block !important;left:auto !important;right:420px !important}
 }
