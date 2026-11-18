@@ -1,5 +1,6 @@
 ﻿import { PrivyClient } from '@privy-io/node';
 import { env } from './env.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 
 let client: PrivyClient | null = null;
 
@@ -233,4 +234,51 @@ export async function findWalletByExternalId(
   const rows = j.data ?? [];
   const w = rows.find((x) => x.external_id === externalId) ?? rows[0];
   return w ? { id: w.id, address: w.address } : null;
+}
+/**
+ * Best-effort on-chain signature for a settled treasury transfer.
+ * Privy's action resource carries no signature, so match the chain instead:
+ * newest treasury transactions, first one paying `to` exactly `qty`.
+ */
+export async function findTransferSig(
+  to: string,
+  qty: bigint,
+  asset: 'USDC' | 'SOL',
+  sinceMs: number,
+): Promise<string | null> {
+  const rpc = process.env.RPC_URL;
+  if (!rpc) return null;
+  const from = await treasuryOnchainAddress().catch(() => null);
+  if (!from) return null;
+  const mint = process.env.USDC_MINT ?? 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+
+  const c = new Connection(rpc, 'confirmed');
+  const sigs = await c.getSignaturesForAddress(new PublicKey(from), { limit: 25 }).catch(() => []);
+
+  for (const s of sigs) {
+    if (!s.blockTime || s.blockTime * 1000 < sinceMs - 180_000) continue;
+    const tx = await c
+      .getParsedTransaction(s.signature, { maxSupportedTransactionVersion: 0, commitment: 'confirmed' })
+      .catch(() => null);
+    if (!tx?.meta) continue;
+
+    const keys = tx.transaction.message.accountKeys.map((k) => k.pubkey.toBase58());
+    const at = keys.indexOf(to);
+    if (at === -1) continue;
+
+    let delta: bigint;
+    if (asset === 'SOL') {
+      delta = BigInt(tx.meta.postBalances[at] ?? 0) - BigInt(tx.meta.preBalances[at] ?? 0);
+    } else {
+      const pre: any[] = tx.meta.preTokenBalances ?? [];
+      const post: any[] = tx.meta.postTokenBalances ?? [];
+      const bal = (list: any[]): bigint => {
+        const hit = list.find((b) => b.owner === to && b.mint === mint);
+        return BigInt(hit?.uiTokenAmount?.amount ?? '0');
+      };
+      delta = bal(post) - bal(pre);
+    }
+    if (delta === qty) return s.signature;
+  }
+  return null;
 }

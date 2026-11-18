@@ -18,7 +18,7 @@ import { combineHeld } from './locks.js';
 import { notify, notifyUser, usdStr } from './notify.js';
 import { treasuryKeypair, treasuryAddress, treasuryHeadroom } from './sweeps.js';
 import { solPriceMicro } from './price.js';
-import { sendUsdc, sendSol, waitForTreasuryAction, actionSig } from './privy.js';
+import { sendUsdc, sendSol, waitForTreasuryAction, findTransferSig } from './privy.js';
 
 export const MIN_WITHDRAW = 10_000_000n;
 export const NEW_ADDR_CAP = 500_000_000n;
@@ -293,6 +293,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
   const w = await pool.query<{
     id: string; user_id: string; asset: Asset; address: string;
     usd_amount: string; status: string; sig: string | null; privy_action_id: string | null;
+    created_at: string;
   }>(`select * from withdrawals where id = $1`, [id]);
 
   const row = w.rows[0];
@@ -310,7 +311,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
   if (row.privy_action_id) {
     const settled = await waitForTreasuryAction(row.privy_action_id, 20_000);
     if (settled === 'succeeded') {
-      const onchain = (await actionSig(row.privy_action_id)) ?? row.privy_action_id;
+      const onchain = (await findTransferSig(row.address, qty, row.asset, new Date(row.created_at).getTime())) ?? row.privy_action_id;
       await finalize(id, onchain, row.privy_action_id, row.user_id, row.address, usd, qty);
       return { ok: true, sig: onchain };
     }
@@ -344,7 +345,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
 
       const settled = await waitForTreasuryAction(action);
       if (settled === 'succeeded') {
-        const onchain = (await actionSig(action)) ?? action;
+        const onchain = (await findTransferSig(row.address, qty, row.asset, new Date(row.created_at).getTime())) ?? action;
         await finalize(id, onchain, action, row.user_id, row.address, usd, qty);
         return { ok: true, sig: onchain };
       }
