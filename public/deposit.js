@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   var overlay = null, timer = null, addrEl = null, statusEl = null, qrEl = null;
 
   function el(tag, cls, text) {
@@ -134,7 +134,7 @@
       if (!j.address) throw new Error('no address');
       addrEl.textContent = j.address;
       qrEl.src = j.qr;
-      if (Number(j.received) > 0) setStatus('Deposit received', true);
+      if (j.latest && ['held','locked','credited'].indexOf(j.latest.status) !== -1) setStatus('Deposit received', true);
     } catch (e) {
       addrEl.textContent = 'Unavailable';
       setStatus('Could not load address');
@@ -148,7 +148,7 @@
         if (!r.ok) return;
         var j = await r.json();
       if (!j.address) throw new Error('no address');
-        if (Number(j.received) > 0) {
+        if (j.latest && ['held','locked','credited'].indexOf(j.latest.status) !== -1) {
           setStatus('Deposit received', true);
           clearInterval(timer);
         }

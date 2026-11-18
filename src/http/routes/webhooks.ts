@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { env } from '../../env.js';
 import { tx, one } from '../../db.js';
 import { post } from '../../ledger/post.js';
@@ -8,13 +8,14 @@ import { getTx } from '../../solana/rpc.js';
 import { matchDeposit, usdMicro } from '../../solana/match.js';
 import { freezeLevel } from '../../recon.js';
 import { solPriceMicro } from '../../price.js';
+import { safeEq } from '../../auth.js';
 
 export const webhooks = Router();
 
 import { MIN_DEPOSIT as MIN, combineHeld } from '../../locks.js';
 
 webhooks.post('/helius', async (req, res) => {
-  if (req.header('authorization') !== env.webhookSecret) {
+  if (!safeEq(req.header('authorization') ?? '', env.webhookSecret)) {
     return res.status(401).json({ error: 'bad_auth' });
   }
 

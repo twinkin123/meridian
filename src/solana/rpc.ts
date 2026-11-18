@@ -1,4 +1,4 @@
-import { env } from '../env.js';
+﻿import { env } from '../env.js';
 
 // One shared serialized queue: poll, recon and sweeps all go through it, so they
 // cannot burst past the provider rate limit at the same instant.
@@ -67,7 +67,14 @@ export async function getTx(sig: string): Promise<any | null> {
   ]);
 }
 
-export async function getSigs(address: string, limit = 5): Promise<string[]> {
-  const r = await call('getSignaturesForAddress', [address, { limit }]);
+export async function getSigs(
+  address: string,
+  limit = 20,
+  until?: string | null,
+): Promise<string[]> {
+  const r = await call('getSignaturesForAddress', [
+    address,
+    { limit, ...(until ? { until } : {}) },
+  ]);
   return (r ?? []).map((x: any) => x.signature).filter(Boolean);
 }

@@ -1,4 +1,4 @@
-import { transferFrom, getAction, waitForAction, usdc, sol, treasuryOnchainAddress } from './privy.js';
+﻿import { transferFrom, getAction, waitForAction, usdc, sol, treasuryOnchainAddress } from './privy.js';
 import {
   Connection,
   Keypair,
@@ -235,8 +235,24 @@ async function sweepAddress(
     const dest = destination.toBase58();
 
     const out: Result[] = [];
-    out.push(await sweepUsdc(address, walletId, owner, dest, c, dryRun));
-    out.push(await sweepSol(address, walletId, owner, dest, c, dryRun, reserveExtra));
+    for (const asset of ['USDC', 'SOL'] as const) {
+      try {
+        const r = asset === 'USDC'
+          ? await sweepUsdc(address, walletId, owner, dest, c, dryRun)
+          : await sweepSol(address, walletId, owner, dest, c, dryRun, reserveExtra);
+        out.push(r);
+      } catch (e) {
+        const reason = e instanceof Error ? e.message.slice(0, 200) : String(e);
+        out.push({ address, asset, status: 'failed', reason });
+        if (!dryRun) {
+          await pool.query(
+            `insert into sweeps (deposit_address, asset, amount_raw, destination, status, error, submitted_at)
+             values ($1, $2, '0', $3, 'failed', $4, now())`,
+            [address, asset, dest, `address-level: ${reason}`],
+          ).catch(() => {});
+        }
+      }
+    }
     return out;
   } finally {
     await client.query('select pg_advisory_unlock(hashtext($1))', [address]).catch(() => {});
@@ -251,16 +267,17 @@ export async function runSweep(opts: { dryRun: boolean; limit: number }) {
   const reserveExtra = treasuryAtaReady ? 0n : RENT_EXEMPT;
 
   const { rows } = await pool.query(
-    `select privy_address as deposit_address, privy_wallet_id, deposit_index
+    `select privy_address as deposit_address, privy_wallet_id, id
        from users
       where privy_address is not null and privy_wallet_id is not null
-      order by deposit_index
+      order by last_swept_at nulls first
       limit $1`,
     [Math.min(opts.limit, 200)],
   );
 
   const results: Result[] = [];
   for (const r of rows) {
+    await pool.query('update users set last_swept_at = now() where id = $1', [r.id]).catch(() => {});
     try {
       const batch = await sweepAddress(
         r.deposit_address, r.privy_wallet_id, destination, c, opts.dryRun, reserveExtra,

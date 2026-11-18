@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { runSweep, treasuryAddress, BATCH } from './sweeps.js';
 import { approveClaim, rejectClaim } from './locks.js';
 import { approveWithdrawal, payoutWithdrawal } from './withdrawals.js';
@@ -9,13 +9,13 @@ import { breakGlassOk, sessionFromToken, isAdmin } from './auth.js';
 export const adminRouter = Router();
 
 // every route below still calls authed(...); this is the single real gate
-function authed(header: (k: string) => string | undefined): boolean {
-  if (header('x-admin-session') === '1') return true;
-  return breakGlassOk(header('x-admin-token'));
+function authed(req: any): boolean {
+  if (req.isAdmin === true) return true;
+  return breakGlassOk(req.header('x-admin-token'));
 }
 
 adminRouter.use(async (req, res, next) => {
-  if (authed((k) => req.header(k))) return next();
+  if (authed(req)) return next();
 
   // a signed-in admin is promoted to the token header so the per-route checks pass
   const token = process.env.ADMIN_TOKEN;
@@ -23,8 +23,7 @@ adminRouter.use(async (req, res, next) => {
   if (token && sid) {
     const s = await sessionFromToken(sid);
     if (s && (await isAdmin(s.user_id))) {
-      req.headers['x-admin-token'] = token;
-      req.headers['x-admin-session'] = '1';
+      (req as any).isAdmin = true;
       return next();
     }
   }
@@ -46,7 +45,7 @@ adminRouter.get('/sweep/status', async (_req, res) => {
 });
 
 adminRouter.post('/sweep', async (req, res) => {
-  if (!authed((k) => req.header(k))) {
+  if (!authed(req)) {
     return res.status(401).json({ error: 'bad_admin_token' });
   }
 
@@ -134,14 +133,14 @@ adminRouter.post('/freeze', async (req, res) => {
   res.json({ level });
 });
 adminRouter.post('/credit/run', async (req, res) => {
-  if (req.header('x-admin-token') !== process.env.ADMIN_TOKEN) return res.status(401).json({ error: 'bad_admin_token' });
+  if (!authed(req)) return res.status(401).json({ error: 'bad_admin_token' });
   const day = req.query.day ? new Date(String(req.query.day)) : new Date();
   const { runDailyCredit } = await import('./jobs/daily.js');
   res.json(await runDailyCredit(day));
 });
 
 adminRouter.post('/referral/run', async (req, res) => {
-  if (!authed((k) => req.header(k))) return res.status(401).json({ error: 'bad_admin_token' });
+  if (!authed(req)) return res.status(401).json({ error: 'bad_admin_token' });
   const period = req.query.period ? String(req.query.period) : undefined;
   try {
     const { runReferral } = await import('./jobs/referral.js');
@@ -152,7 +151,7 @@ adminRouter.post('/referral/run', async (req, res) => {
 });
 
 adminRouter.get('/referral/runs', async (req, res) => {
-  if (!authed((k) => req.header(k))) return res.status(401).json({ error: 'bad_admin_token' });
+  if (!authed(req)) return res.status(401).json({ error: 'bad_admin_token' });
   const { rows } = await pool.query(
     `select period, payouts, total_usd, ran_at from referral_runs order by period desc limit 24`,
   );

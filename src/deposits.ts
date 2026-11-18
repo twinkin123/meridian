@@ -1,39 +1,37 @@
-import { pool } from './db.js';
+﻿import { pool, tx } from './db.js';
 import { createDepositWallet, findWalletByExternalId } from './privy.js';
 
 /**
  * Returns the user's deposit address, creating the wallet on first call.
- * The address is stable for the life of the account.
+ * Serialised on the user row so two concurrent callers cannot both create.
  */
 export async function ensureDepositAddress(userId: string): Promise<string> {
-  const r = await pool.query<{ privy_address: string | null }>(
-    'select privy_address from users where id = $1',
-    [userId],
-  );
-  const existing = r.rows[0]?.privy_address;
-  if (existing) return existing;
+  return tx(async (c) => {
+    await c.query('select id from users where id = $1 for update', [userId]);
 
-  let w: { id: string; address: string };
-  try {
-    w = await createDepositWallet(userId);
-  } catch {
-    const found = await findWalletByExternalId(userId);
-    if (!found) throw new Error('privy_wallet_create_failed');
-    w = found;
-  }
-  const upd = await pool.query<{ privy_address: string }>(
-    `update users set privy_wallet_id = $2, privy_address = $3
-      where id = $1 and privy_address is null
-      returning privy_address`,
-    [userId, w.id, w.address],
-  );
-  if (upd.rowCount) return upd.rows[0].privy_address;
+    const r = await c.query<{ privy_address: string | null }>(
+      'select privy_address from users where id = $1',
+      [userId],
+    );
+    const existing = r.rows[0]?.privy_address;
+    if (existing) return existing;
 
-  const again = await pool.query<{ privy_address: string }>(
-    'select privy_address from users where id = $1',
-    [userId],
-  );
-  return again.rows[0].privy_address;
+    let w: { id: string; address: string };
+    try {
+      w = await createDepositWallet(userId);
+    } catch {
+      const found = await findWalletByExternalId(userId);
+      if (!found) throw new Error('privy_wallet_create_failed');
+      w = found;
+    }
+
+    const upd = await c.query<{ privy_address: string }>(
+      `update users set privy_wallet_id = $2, privy_address = $3
+        where id = $1 returning privy_address`,
+      [userId, w.id, w.address],
+    );
+    return upd.rows[0].privy_address;
+  });
 }
 
 /** Wallet id backing a user's deposit address. */

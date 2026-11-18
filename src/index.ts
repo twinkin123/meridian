@@ -1,4 +1,5 @@
-﻿import express from 'express';
+﻿import 'express-async-errors';
+import express from 'express';
 import cookieParser from 'cookie-parser';
 import { join } from 'node:path';
 import { health } from './http/health.js';
@@ -42,7 +43,6 @@ app.use('/auth', auth);
 app.use('/webhooks', webhooks);
 app.use('/wallet/deposit', requireUser, deposit);
 app.use('/wallet', wallet);
-app.use('/wallet/deposit', requireUser, deposit);
 app.use('/admin/sql', sqlRouter);
 app.use('/admin', adminRouter);
 
@@ -97,6 +97,8 @@ function scheduleDailyCredit(): void {
 if (process.env.NODE_ENV === 'production') {
   const bad: string[] = [];
   if (process.env.PRIVY_NETWORK !== 'mainnet') bad.push(`PRIVY_NETWORK=${process.env.PRIVY_NETWORK}`);
+  if (process.env.WEBHOOK_SECRET === undefined || process.env.WEBHOOK_SECRET === 'dev-webhook') bad.push('WEBHOOK_SECRET is default');
+  if (process.env.SESSION_SECRET === undefined || process.env.SESSION_SECRET === 'dev-secret') bad.push('SESSION_SECRET is default');
   if (!process.env.USDC_MINT?.startsWith('EPjFWdd5')) bad.push('USDC_MINT not mainnet USDC');
   if (process.env.RPC_URL?.includes('devnet')) bad.push('RPC_URL is devnet');
   if (process.env.SOLANA_CLUSTER !== 'mainnet-beta') bad.push(`SOLANA_CLUSTER=${process.env.SOLANA_CLUSTER}`);

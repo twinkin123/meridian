@@ -1,4 +1,4 @@
-import { createDepositWallet } from '../../privy.js';
+﻿import { createDepositWallet } from '../../privy.js';
 import { Router } from 'express';
 import { one, none } from '../../db.js';
 import { address } from '../../solana/derive.js';
@@ -66,7 +66,10 @@ auth.post('/signup', async (req, res) => {
     addr = w.address;
   } catch {
     const fallback = address(row.deposit_index);
-    await none(`update users set deposit_addr = $1 where id = $2`, [fallback, row.id]);
+    await none(
+      `update users set deposit_addr = $1, privy_address = $1 where id = $2`,
+      [fallback, row.id],
+    );
     addr = fallback;
   }  await none(
     `insert into accounts (code, kind, owner_type, owner_id)

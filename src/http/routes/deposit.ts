@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import QRCode from 'qrcode';
 import { pool } from '../../db.js';
 import { ensureDepositAddress } from '../../deposits.js';
@@ -6,23 +6,33 @@ import { ensureDepositAddress } from '../../deposits.js';
 export const deposit = Router();
 
 deposit.get('/', async (req, res) => {
-  const userId = (req as any).userId ?? (req as any).user?.id;
-  if (!userId) return res.status(401).json({ error: 'unauth' });
+  const userId = req.userId!;
 
-  const address = await ensureDepositAddress(userId);
+  let address: string | null = null;
+  try {
+    address = await ensureDepositAddress(userId);
+  } catch (err) {
+    console.error('deposit: address', err);
+  }
+  if (!address) return res.status(503).json({ error: 'address_unavailable' });
+
   const qr = await QRCode.toDataURL(address, {
     margin: 1,
     width: 320,
     color: { dark: '#0e0b16', light: '#ffffff' },
   });
 
-  const recent = await pool.query<{ usd: string }>(
-    `select coalesce(sum(p.amount), 0) usd
-       from postings p
-       join transactions t on t.id = p.tx_id
-       join accounts a on a.id = p.account_id
-      where a.code = '2000' and a.owner_id = $1 and t.created_at > now() - interval '30 minutes'`,
+  const { rows } = await pool.query<{ id: string; usd: string; status: string; asset: string }>(
+    `select id, usd_at_det usd, status, asset from deposits
+      where user_id = $1 order by created_at desc limit 5`,
     [userId],
   );
-  res.json({ address, qr, received: recent.rows[0]?.usd ?? '0' });
+
+  res.json({
+    address,
+    qr,
+    latest: rows[0]
+      ? { id: rows[0].id, asset: rows[0].asset, usd: rows[0].usd, status: rows[0].status }
+      : null,
+  });
 });

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Connection,
   Keypair,
   PublicKey,
@@ -105,13 +105,16 @@ export async function requestWithdrawal(
     const net = usd - fee;
     if (net <= 0n) return { ok: false, error: 'below_min' };
 
-    const status = source === 'rewards' ? 'approved' : 'requested';
+    const autoOk =
+      source === 'rewards' ||
+      (usd <= AUTO_APPROVE_MAX && Boolean(seen.rows[0]) && ageMs >= ADDRESS_COOLDOWN_MS);
+    const status = autoOk ? 'approved' : 'requested';
 
     const row = await c.query<{ id: string }>(
       `insert into withdrawals (user_id, asset, address, usd_amount, fee, status, requested_by, approved_by, source)
        values ($1, $2, $3, $4, $5, $6, $1, $7, $8)
        returning id`,
-      [userId, asset, address, net.toString(), fee.toString(), status, status === 'approved' ? 'auto' : null, source],
+      [userId, asset, address, net.toString(), fee.toString(), status, autoOk ? 'auto' : null, source],
     );
     const id = row.rows[0].id;
 
