@@ -349,3 +349,11 @@ export async function treasuryHeadroom(): Promise<{ usdc: bigint; sol: bigint }>
   const sol = BigInt(await c.getBalance(owner, 'confirmed'));
   return { usdc, sol };
 }
+/** SWEEP_DESTINATION must always be the treasury wallet's own address. */
+export async function assertSweepDestination(): Promise<void> {
+  const onchain = await treasuryOnchainAddress();
+  const dest = sweepDestination().toBase58();
+  if (dest !== onchain) {
+    throw new Error(`SWEEP_DESTINATION ${dest} is not the treasury ${onchain}`);
+  }
+}

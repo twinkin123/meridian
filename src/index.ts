@@ -24,7 +24,7 @@ import { requireUser } from './http/mw/session.js';
 import { pruneAuth } from './auth.js';
 import { expireClaims } from './locks.js';
 import { pollDeposits } from './poll.js';
-import { runSweep } from './sweeps.js';
+import { runSweep, assertSweepDestination } from './sweeps.js';
 import { one, close } from './db.js';
 
 process.on('unhandledRejection', (e) => console.error('unhandledRejection', e));
@@ -129,6 +129,12 @@ if (process.env.NODE_ENV === 'production') {
 }
 const server = app.listen(port, () => {
   console.log(`listening on ${port}`);
+  void assertSweepDestination()
+    .then(() => console.log('sweep destination verified'))
+    .catch((e) => {
+      console.error('sweep-destination', e instanceof Error ? e.message : e);
+      process.exit(1);
+    });
   every(60 * 60 * 1000, runRecon, 'recon');
   every(60 * 60 * 1000, revalueSolDeposits, 'revalue');
   every(60 * 1000, releaseDue, 'vesting');
