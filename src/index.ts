@@ -72,7 +72,7 @@ app.use((req, res, next) => {
 
 const timers: NodeJS.Timeout[] = [];
 
-function every(ms: number, fn: () => Promise<unknown>, label: string): void {
+function every(ms: number, fn: () => Promise, label: string): void {
   const tick = () => {
     void fn().catch((e) => console.error(label, e instanceof Error ? e.message : e));
   };
@@ -129,12 +129,14 @@ if (process.env.NODE_ENV === 'production') {
 }
 const server = app.listen(port, () => {
   console.log(`listening on ${port}`);
+
   void assertSweepDestination()
     .then(() => console.log('sweep destination verified'))
     .catch((e) => {
       console.error('sweep-destination', e instanceof Error ? e.message : e);
       process.exit(1);
     });
+
   every(60 * 60 * 1000, runRecon, 'recon');
   every(60 * 60 * 1000, revalueSolDeposits, 'revalue');
   every(60 * 1000, releaseDue, 'vesting');
