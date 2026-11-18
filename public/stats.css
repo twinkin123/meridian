@@ -1,0 +1,56 @@
+/* stats + action buttons */
+.stats{gap:9px}
+.stats .stat{
+  position:relative;border:1px solid var(--line);border-radius:12px;
+  padding:12px 13px 13px;background:var(--panel2);overflow:hidden;
+}
+.stats .stat::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line2);
+}
+.stats .stat:nth-child(1)::before{background:#0d9b63}
+.stats .stat:nth-child(2)::before{background:#e0b76a}
+.stats .stat:nth-child(3)::before{background:#5b7fb0}
+.stats .stat:nth-child(4)::before{background:var(--pur)}
+.stats .stat:nth-child(5)::before{background:#c98a4b}
+.stats .stat:nth-child(6)::before{background:var(--mut2)}
+.stats .lbl{
+  display:block;text-transform:none;letter-spacing:0;font-size:11.5px;
+  font-weight:500;color:var(--mut);line-height:1.2;
+}
+.stats .stat b{
+  display:block;margin-top:5px;font-size:19px;font-weight:600;
+  letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--txt);
+}
+
+/* action row */
+.card.rainbow .row{gap:8px}
+.card.rainbow .row .btn{
+  flex:1;height:38px;border-radius:10px;font-size:13px;font-weight:600;
+  transition:background .15s,border-color .15s,transform .12s;
+}
+.card.rainbow .row .btn.p{
+  background:linear-gradient(180deg,#8b5cf6,#7343e0);border:1px solid transparent;
+  color:#fff;box-shadow:0 8px 20px -10px rgba(139,92,246,.9);
+}
+.card.rainbow .row .btn.p:hover{filter:brightness(1.08)}
+.card.rainbow .row .btn:not(.p){
+  background:transparent;border:1px solid var(--line2);color:var(--txt);
+}
+.card.rainbow .row .btn:not(.p):hover{background:rgba(255,255,255,.05);border-color:var(--mut2)}
+.card.rainbow .row .btn:active{transform:translateY(1px)}
+
+/* claim / rewards bars */
+#claimBtn,#rwOut{
+  height:38px;border-radius:10px;font-size:12.5px;font-weight:600;letter-spacing:.01em;
+}
+#claimBtn:disabled{
+  opacity:.55;color:#9dc4da;border-color:rgba(120,205,255,.32);
+  text-shadow:none;box-shadow:none;
+}
+#claimBtn:not(:disabled){border-color:rgba(120,205,255,.95)}
+@media (max-width:900px){
+  .stats .stat b{font-size:17px}
+  .card.rainbow .row .btn{font-size:12.5px}
+}
+#rwOut:disabled{opacity:.55;color:#9dc4da;border-color:rgba(120,205,255,.32);text-shadow:none;box-shadow:none}
+#rwOut:not(:disabled){border-color:rgba(120,205,255,.95)}

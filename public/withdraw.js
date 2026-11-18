@@ -172,7 +172,7 @@
           .then(function (r) { return r.json().catch(function () { return {}; }).then(function (x) { return { ok: r.ok, j: x }; }); })
           .then(function (res) {
             var note = document.getElementById('heldNote');
-            if (note) note.textContent = res.ok ? 'Rewards withdrawal queued, awaiting payout.' : (res.j.error || 'failed');
+            if (note) note.textContent = res.ok ? 'Referral rewards withdrawal queued, awaiting payout.' : (res.j.error || 'failed');
             window.dispatchEvent(new Event('pageshow'));
           });
       })
