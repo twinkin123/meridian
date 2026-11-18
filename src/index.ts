@@ -17,6 +17,7 @@ import { revalueSolDeposits } from './jobs/revalue.js';
 import { resumeStuckWithdrawals } from './jobs/resume.js';
 import { payApproved } from './jobs/pay.js';
 import { releaseMatured } from './locks.js';
+import { ensureToday, backfillTrades } from './trades.js';
 import { runReferral } from './jobs/referral.js';
 import { releaseDue } from './vesting.js';
 import { requireUser } from './http/mw/session.js';
@@ -93,6 +94,8 @@ function scheduleDailyCredit(): void {
   dailyTimer = setTimeout(() => {
     void runDailyCredit()
       .catch((e) => console.error('credit', e))
+      .then(() => ensureToday())
+      .catch((e) => console.error('trades', e))
       .finally(() => scheduleDailyCredit());
   }, next.getTime() - now.getTime());
 }
@@ -121,6 +124,8 @@ const server = app.listen(port, () => {
   every(60 * 1000, payApproved, 'payout');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
   void runDailyCreditIfDue().catch((e) => console.error('credit', e));
+  void backfillTrades().catch((e) => console.error('trades', e));
+  every(15 * 60 * 1000, ensureToday, 'trades');
   scheduleDailyCredit();
 });
 

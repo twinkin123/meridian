@@ -32,17 +32,16 @@
   function fmt(v){ v = Number(v); if (!isFinite(v)) return '-'; if (v < 0.0001) return v.toExponential(2); return v.toFixed(dec(v)); }
   function hhmm(m){ return pad(Math.floor(m / 60)) + ':' + pad(m % 60); }
 
-  var days = [], offset = 0, maxOffset = 0, lastSig = null;
+  var days = [], offset = 0, cursor = null, hasMore = true, loading = false, lastSig = null;
 
   function wireNav(){
     card.querySelectorAll('.res-nav button').forEach(function(b){
       var o = +b.getAttribute('data-o');
-      if (o > 0 && offset >= maxOffset) b.disabled = true;
+      if (o > 0 && !hasMore && offset >= days.length - 1) b.disabled = true;
       if (o < 0 && offset <= 0) b.disabled = true;
       b.addEventListener('click', function(){
         offset += o;
         if (offset < 0) offset = 0;
-        if (offset > maxOffset) offset = maxOffset;
         build();
       });
     });
@@ -55,8 +54,11 @@
   }
 
   function build(){
-    if (offset > maxOffset) offset = maxOffset;
     if (offset < 0) offset = 0;
+    if (offset > days.length - 1){
+      if (hasMore) { load(); return; }
+      offset = Math.max(0, days.length - 1);
+    }
 
     var d = days[offset];
     if (!d){
@@ -103,23 +105,29 @@
     clock();
   }
 
-  function load(){
-    fetch('/results', { credentials: 'same-origin' })
+  function load(reset){
+    if (loading) return;
+    loading = true;
+    var url = '/results?limit=30' + (!reset && cursor ? '&before=' + encodeURIComponent(cursor) : '');
+    fetch(url, { credentials: 'same-origin' })
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(j){
         if (!j) return;
-        days = (j.days || []).filter(function(d){ return d && d.day; });
-        maxOffset = Math.max(0, days.length - 1);
-        if (offset > maxOffset) offset = maxOffset;
+        var page = (j.days || []).filter(function(d){ return d && d.day; });
+        if (reset) { days = []; offset = 0; cursor = null; }
+        if (!page.length) { hasMore = false; lastSig = null; build(); return; }
+        days = days.concat(page);
+        cursor = days[days.length - 1].day;
+        hasMore = !!j.hasMore;
         lastSig = null;
         build();
       })
-      .catch(function(){});
+      .catch(function(){})
+      .then(function(){ loading = false; });
   }
-
-  load();
-  document.addEventListener('rate', function(){ if (offset === 0) load(); });
-  setInterval(load, 60000);
+  load(true);
+  document.addEventListener('rate', function(){ if (offset === 0) load(true); });
+  setInterval(function(){ if (offset === 0) load(true); }, 60000);
 })();
 /* belt-and-braces nav: capture taps so a reload can never swallow them */
 (function(){
