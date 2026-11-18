@@ -36,11 +36,13 @@ const USDC_MINT = new PublicKey(
 
 export type Asset = 'SOL' | 'USDC';
 
+/**
+ * $500 on an address we have not paid before, for its first 24 hours. After
+ * that the whole available balance, with no ceiling.
+ */
 export function computeCap(known: boolean, ageMs: number, balance: bigint): bigint {
   if (!known || ageMs < ADDRESS_COOLDOWN_MS) return NEW_ADDR_CAP;
-  const scaled = balance / 2n;
-  const floored = scaled < CAP_FLOOR ? CAP_FLOOR : scaled;
-  return floored > CAP_CEIL ? CAP_CEIL : floored;
+  return balance;
 }
 
 export function qtyFor(asset: Asset, usd: bigint, priceMicro: bigint): bigint {
@@ -80,6 +82,27 @@ export async function requestWithdrawal(
     if (usd > balance) return { ok: false, error: 'insufficient' };
     if (usd < MIN_WITHDRAW && !closing && source !== 'rewards') return { ok: false, error: 'below_min' };
 
+    /* Referral commission is unconditional: no cap, no minimum, no gate, and it
+       never blocks or counts against the available balance. */
+    let needsApproval = false;
+    if (source !== 'rewards') {
+      const open = await c.query<{ n: string }>(
+        `select count(*)::text n from withdrawals
+          where user_id = $1 and source = 'available'
+            and status in ('requested','approved','sending')`,
+        [userId],
+      );
+      if (Number(open.rows[0]?.n ?? 0) > 0) return { ok: false, error: 'in_flight' };
+
+      const recent = await c.query<{ g: string }>(
+        `select coalesce(sum(usd_amount + fee), 0)::text g from withdrawals
+          where user_id = $1 and source = 'available'
+            and created_at > now() - interval '24 hours'
+            and status not in ('cancelled', 'failed')`,
+        [userId],
+      );
+      needsApproval = BigInt(recent.rows[0]?.g ?? 0) + usd >= AUTO_APPROVE_MAX;
+    }
     const seen = await c.query<{ first_seen: string }>(
       `insert into withdrawal_addresses (user_id, address) values ($1, $2)
        on conflict (user_id, address) do nothing
