@@ -123,7 +123,7 @@ async function createDay(day: string, rateBp: number, source: 'recorded' | 'esti
   });
 }
 
-/* Legacy estimate rows are replaced once a real rate exists. */
+/* A day opened at the previous rate is rewritten once the real rate exists. */
 async function promoteDay(day: string, rateBp: number): Promise<void> {
   const rows = generate(day, rateBp);
   await tx(async (t) => {

@@ -17,7 +17,7 @@ import { revalueSolDeposits } from './jobs/revalue.js';
 import { resumeStuckWithdrawals } from './jobs/resume.js';
 import { payApproved } from './jobs/pay.js';
 import { releaseMatured } from './locks.js';
-import { backfillTrades } from './trades.js';
+import { backfillTrades, ensureToday } from './trades.js';
 import { runReferral } from './jobs/referral.js';
 import { releaseDue } from './vesting.js';
 import { requireUser } from './http/mw/session.js';
@@ -129,6 +129,8 @@ const server = app.listen(port, () => {
 for (const sig of ['SIGTERM', 'SIGINT'] as const) {
   process.on(sig, async () => {
     for (const t of timers) clearInterval(t);
+    if (dayTimer) clearTimeout(dayTimer);
+    if (dailyTimer) clearTimeout(dailyTimer);
     server.close();
     await close();
     process.exit(0);
