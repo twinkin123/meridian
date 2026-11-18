@@ -5,4 +5,8 @@
 .cmp.on .cmp-track{background:#3b82f6;border-color:#3b82f6}
 .cmp.on .cmp-knob{transform:translateX(16px);background:#fff}
 .cmp.on .cmp-lbl{color:var(--txt)}
-@media (max-width:620px){.cmp{position:static;margin:0 0 0 8px;vertical-align:middle;font-size:9px}}
+@media (max-width:620px){
+  .cmp{position:absolute;top:14px;right:14px}
+  .cmp-lbl{display:none}
+  html body .card.has-clock .res-clock{top:44px !important;right:14px !important}
+}
