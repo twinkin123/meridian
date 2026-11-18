@@ -1,5 +1,6 @@
 import { pool, tx } from './db.js';
 import { post } from './ledger/post.js';
+import { notify, usdStr } from './notify.js';
 
 /** Releases any vested settlement credits whose due time has passed. */
 export async function releaseDue(): Promise<{ released: number }> {
@@ -24,6 +25,7 @@ export async function releaseDue(): Promise<{ released: number }> {
         { code: '2060', owner: r.user_id, amount },
         { code: '2000', owner: r.user_id, amount: -amount },
       ]);
+      await notify(c, r.user_id, 'slice_released', `${usdStr(amount)} USD credit slice released to your available balance.`);
     });
     released += 1;
   }

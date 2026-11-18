@@ -14,6 +14,8 @@ import {
 import { pool, tx } from './db.js';
 import { post } from './ledger/post.js';
 import { ensure } from './ledger/accounts.js';
+import { combineHeld } from './locks.js';
+import { notify, notifyUser, usdStr } from './notify.js';
 import { treasuryKeypair, treasuryAddress } from './sweeps.js';
 import { solPriceMicro } from './price.js';
 import { sendUsdc, sendSol, waitForTreasuryAction } from './privy.js';
@@ -145,41 +147,36 @@ export async function requestWithdrawal(
       { code: '4000', amount: -fee },
     ]);
 
+    await notify(c, userId, autoOk ? 'withdrawal_approved' : 'withdrawal_requested',
+      autoOk
+        ? `Withdrawal of ${usdStr(usd)} USD approved. Sending now.`
+        : `Withdrawal of ${usdStr(usd)} USD requested. Waiting on admin approval.`);
+
     return { ok: true, id, status, cap: cap.toString() };
   });
 }
 
 export async function approveWithdrawal(id: string, approver: string): Promise<boolean> {
-  const r = await pool.query(
+  const r = await pool.query<{ user_id: string; usd_amount: string; fee: string }>(
     `update withdrawals set status = 'approved', approved_by = $2
-      where id = $1 and status in ('requested','failed')`,
+      where id = $1 and status = 'requested'
+      returning user_id, usd_amount, fee`,
     [id, approver],
   );
-  return (r.rowCount ?? 0) > 0;
+  const row = r.rows[0];
+  if (!row) return false;
+  await notifyUser(row.user_id, 'withdrawal_approved',
+    `Withdrawal approved. ${usdStr(BigInt(row.usd_amount) + BigInt(row.fee))} USD is on its way.`);
+  return true;
 }
-
 export async function cancelWithdrawal(id: string, userId: string): Promise<boolean> {
-  return tx(async (c) => {
-    const w = await c.query<{ usd_amount: string; fee: string; source: string }>(
-      `select usd_amount, fee, source from withdrawals
-        where id = $1 and user_id = $2 and status = 'requested' for update`,
-      [id, userId],
-    );
-    if (w.rowCount === 0) return false;
-
-    const r = w.rows[0];
-    const net = BigInt(r.usd_amount);
-    const fee = BigInt(r.fee);
-    await c.query(`update withdrawals set status = 'cancelled' where id = $1`, [id]);
-    await post(c, 'WithdrawalCancelled', `${id}#c${Date.now()}`, [
-      { code: '2010', owner: userId, amount: net },
-      { code: r.source === 'rewards' ? '2080' : '2000', owner: userId, amount: -(net + fee) },
-      { code: '4000', amount: fee },
-    ]);
-    return true;
-  });
+  const r = await pool.query(
+    `select id from withdrawals where id = $1 and user_id = $2 and status = 'requested'`,
+    [id, userId],
+  );
+  if (r.rowCount === 0) return false;
+  return refundToReserve(id, 'cancelled', null, 'withdrawal_cancelled', 'Withdrawal cancelled');
 }
-
 type Conf = 'confirmed' | 'reverted' | 'expired' | 'timeout';
 
 async function confirmSig(
@@ -202,28 +199,65 @@ async function confirmSig(
   return 'timeout';
 }
 
-async function failAndRefund(id: string, msg: string): Promise<void> {
-  const r = await pool.query<{
-    user_id: string; usd_amount: string; fee: string; source: string; status: string;
-  }>(`select user_id, usd_amount, fee, source, status from withdrawals where id = $1`, [id]);
+/**
+ * Puts a rejected, cancelled or failed withdrawal back into reserve - or back to
+ * referral rewards if it came from there. The reserve is backed by a synthetic
+ * held deposit row so the normal $10 combine path picks it up and re-locks it.
+ * Terminal: the user re-requests rather than retrying in place.
+ */
+async function refundToReserve(
+  id: string,
+  final: 'failed' | 'cancelled',
+  msg: string | null,
+  kind: string,
+  label: string,
+): Promise<boolean> {
+  const out = await tx(async (c) => {
+    const r = await c.query<{
+      user_id: string; usd_amount: string; fee: string; source: string; status: string;
+    }>(`select user_id, usd_amount, fee, source, status from withdrawals where id = $1 for update`, [id]);
 
-  const w = r.rows[0];
-  if (!w) return;
-  if (w.status === 'failed' || w.status === 'sent' || w.status === 'paid' || w.status === 'cancelled') return;
+    const w = r.rows[0];
+    if (!w || !['requested', 'approved', 'sending'].includes(w.status)) return null;
 
-  const net = BigInt(w.usd_amount);
-  const fee = BigInt(w.fee);
+    const net = BigInt(w.usd_amount);
+    const fee = BigInt(w.fee);
+    const gross = net + fee;
+    const back = w.source === 'rewards' ? '2080' : '2050';
+    const where = w.source === 'rewards' ? 'your referral rewards' : 'reserve';
 
-  await tx(async (c) => {
-    await c.query(`update withdrawals set status = 'failed', error = $2 where id = $1`, [id, msg.slice(0, 400)]);
+    await ensure(c, w.user_id);
+    await c.query(`update withdrawals set status = $2, error = $3 where id = $1`, [
+      id, final, msg ? msg.slice(0, 400) : null,
+    ]);
     await post(c, 'WithdrawalFailed', `${id}#f${Date.now()}`, [
       { code: '2010', owner: w.user_id, amount: net },
-      { code: w.source === 'rewards' ? '2080' : '2000', owner: w.user_id, amount: -(net + fee) },
+      { code: back, owner: w.user_id, amount: -gross },
       { code: '4000', amount: fee },
     ]);
+
+    if (w.source !== 'rewards') {
+      await c.query(
+        `insert into deposits (user_id, sig, asset, qty, usd_at_det, status)
+         values ($1, $2, 'USDC', $3, $3, 'held')
+         on conflict (sig, user_id) do nothing`,
+        [w.user_id, `reserve:${id}`, gross.toString()],
+      );
+    }
+
+    await notify(c, w.user_id, kind,
+      `${label}. ${usdStr(gross)} USD returned to ${where}.` + (msg ? ` Reason: ${msg}` : ''));
+    return w.user_id;
   });
+
+  if (out) await combineHeld(out).catch(() => undefined);
+  return Boolean(out);
 }
 
+/** Admin rejects a pending withdrawal. The money goes back to reserve. */
+export async function rejectWithdrawal(id: string, reason: string | null): Promise<boolean> {
+  return refundToReserve(id, 'failed', reason, 'withdrawal_rejected', 'Withdrawal rejected');
+}
 async function finalize(
   id: string, sig: string, userId: string, address: string, usd: bigint, qty: bigint,
 ) {
@@ -241,6 +275,8 @@ async function finalize(
       { code: '2010', owner: userId, amount: usd },
       { code: '1000', amount: -usd },
     ]);
+    await notify(conn, userId, 'withdrawal_sent',
+      `${usdStr(usd)} USD sent to ${address.slice(0, 4)}...${address.slice(-4)}.`);
   });
 }
 
@@ -255,7 +291,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
   const row = w.rows[0];
   if (!row) return { ok: false, error: 'not_found' };
   if (row.status === 'sent') return { ok: true, sig: row.sig ?? undefined };
-  if (!['approved', 'failed', 'sending'].includes(row.status)) {
+  if (!['approved', 'sending'].includes(row.status)) {
     return { ok: false, error: `status_${row.status}` };
   }
 
@@ -280,17 +316,7 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
 
     const cur = w.rows[0];
     if (!cur) return false;
-    if (!['approved', 'failed', 'sending'].includes(cur.status)) return false;
-
-    if (cur.status === 'failed') {
-      const net = BigInt(cur.usd_amount);
-      const fee = BigInt(cur.fee);
-      await post(c, 'WithdrawalRequested', `${id}#r${Date.now()}`, [
-        { code: cur.source === 'rewards' ? '2080' : '2000', owner: cur.user_id, amount: net + fee },
-        { code: '2010', owner: cur.user_id, amount: -net },
-        { code: '4000', amount: -fee },
-      ]);
-    }
+    if (!['approved', 'sending'].includes(cur.status)) return false;
 
     await c.query(`update withdrawals set status = 'sending', error = null where id = $1`, [id]);
     return true;
@@ -320,13 +346,13 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'payout_failed';
       if (attempt === MAX_ATTEMPTS) {
-        await failAndRefund(id, msg);
+        await refundToReserve(id, 'failed', msg, 'withdrawal_failed', 'Withdrawal could not be sent');
         return { ok: false, error: msg, sig: lastAction ?? undefined };
       }
     }
   }
 
-  await failAndRefund(id, 'not_confirmed_after_attempts');
+  await refundToReserve(id, 'failed', 'not_confirmed_after_attempts', 'withdrawal_failed', 'Withdrawal could not be sent');
   return { ok: false, error: 'not_confirmed', sig: lastAction ?? undefined };
 }
 

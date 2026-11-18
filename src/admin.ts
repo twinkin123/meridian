@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { runSweep, treasuryAddress, BATCH } from './sweeps.js';
 import { approveClaim, rejectClaim } from './locks.js';
-import { approveWithdrawal, payoutWithdrawal } from './withdrawals.js';
+import { approveWithdrawal, rejectWithdrawal, payoutWithdrawal } from './withdrawals.js';
 import { runRecon, latestRuns, freezeLevel, setFreeze } from './recon.js';
 import { pool } from './db.js';
 import { breakGlassOk, sessionFromToken, isAdmin } from './auth.js';
@@ -101,6 +101,13 @@ adminRouter.get('/deposits', async (_req, res) => {
 
 adminRouter.post('/withdrawals/:id/approve', async (req, res) => {
   const ok = await approveWithdrawal(req.params.id, 'admin');
+  if (!ok) return res.status(409).json({ error: 'not_pending' });
+  res.json({ ok: true });
+});
+
+adminRouter.post('/withdrawals/:id/reject', async (req, res) => {
+  const reason = typeof req.body?.reason === 'string' ? req.body.reason.slice(0, 200) : null;
+  const ok = await rejectWithdrawal(req.params.id, reason);
   if (!ok) return res.status(409).json({ error: 'not_pending' });
   res.json({ ok: true });
 });

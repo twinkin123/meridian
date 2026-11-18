@@ -1,4 +1,4 @@
-import type { Client } from 'pg';
+import { notify, notifyUser, usdStr } from './notify.js';
 import { pool, tx } from './db.js';
 import { post } from './ledger/post.js';
 
@@ -15,6 +15,9 @@ export async function requestClaim(userId: string, depositId: string): Promise<s
     [depositId, userId],
   );
   if (r.rowCount === 0) return 'not_claimable';
+  const d = await pool.query<{ usd_at_det: string }>('select usd_at_det from deposits where id = $1', [depositId]);
+  await notifyUser(userId, 'claim_requested',
+    `${usdStr(BigInt(d.rows[0]?.usd_at_det ?? '0'))} USD unlock requested. An admin reviews it.`);
   return 'requested';
 }
 
@@ -50,10 +53,6 @@ export async function approveClaim(depositId: string): Promise<boolean> {
   });
 }
 
-async function notify(c: Client, userId: string, kind: string, body: string): Promise<void> {
-  await c.query(`insert into notifications (user_id, kind, body) values ($1, $2, $3)`, [userId, kind, body]);
-}
-
 /** How long a claim request stands before it lapses back to claimable. */
 export const CLAIM_TTL_HOURS = 72;
 
@@ -65,7 +64,9 @@ export async function cancelClaim(userId: string, depositId: string): Promise<bo
         and released_at is null and claim_requested_at is not null returning id`,
     [depositId, userId],
   );
-  return (r.rowCount ?? 0) > 0;
+  if ((r.rowCount ?? 0) === 0) return false;
+  await notifyUser(userId, 'claim_cancelled', 'Your unlock request was withdrawn.');
+  return true;
 }
 
 /** Admin rejects a pending claim, with an optional reason shown to the user. */
@@ -88,11 +89,15 @@ export async function rejectClaim(depositId: string, reason: string | null): Pro
 
 /** Lapsed claim requests fall back to claimable so nothing hangs forever. */
 export async function expireClaims(): Promise<number> {
-  const r = await pool.query(
+  const r = await pool.query<{ user_id: string }>(
     `update deposits set claim_requested_at = null
       where claim_requested_at is not null and released_at is null
-        and claim_requested_at < now() - interval '72 hours'`,
+        and claim_requested_at < now() - interval '72 hours'
+      returning user_id`,
   );
+  for (const row of r.rows) {
+    await notifyUser(row.user_id, 'claim_expired', 'Your unlock request lapsed after 72 hours. You can request it again.');
+  }
   return r.rowCount ?? 0;
 }
 
@@ -135,6 +140,7 @@ export async function combineHeld(userId: string): Promise<CombineResult> {
       { code: '2050', owner: userId, amount },
       { code: '2070', owner: userId, amount: -amount },
     ]);
+    await notify(c, userId, 'reserve_locked', `${usdStr(amount)} USD moved from reserve into a 30-day lock.`);
 
     await c.query(
       `update deposits set status = 'locked', unlock_at = now() + interval '30 days'
@@ -171,6 +177,7 @@ export async function releaseMatured(limit = 500): Promise<number> {
         { code: '2070', owner: r.user_id, amount },
         { code: '2000', owner: r.user_id, amount: -amount },
       ]);
+      await notify(c, r.user_id, 'lock_released', `${usdStr(amount)} USD unlocked and available to withdraw.`);
       return true;
     });
     if (ok) released += 1;

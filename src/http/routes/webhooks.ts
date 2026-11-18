@@ -13,6 +13,7 @@ import { safeEq } from '../../auth.js';
 export const webhooks = Router();
 
 import { MIN_DEPOSIT as MIN, combineHeld } from '../../locks.js';
+import { notify, usdStr } from '../../notify.js';
 
 webhooks.post('/helius', async (req, res) => {
   if (!safeEq(req.header('authorization') ?? '', env.webhookSecret)) {
@@ -88,6 +89,13 @@ export async function processSig(sig: string): Promise<void> {
         sig, u.id,
       ]);
 
+      if (frozen) {
+        await notify(c, u.id, 'deposit_held', `${usdStr(usd)} USD received. Withdrawals are frozen, so it waits in reserve.`);
+      } else if (dest === '2050') {
+        await notify(c, u.id, 'deposit_held', `${usdStr(usd)} USD received and held in reserve. It locks for 30 days once reserve reaches $10.`);
+      } else {
+        await notify(c, u.id, 'deposit_locked', `${usdStr(usd)} USD received and locked for 30 days.`);
+      }
       if (depId) await payReferral(c, u.id, depId, usd);
     });
 

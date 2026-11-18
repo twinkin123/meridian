@@ -1,6 +1,7 @@
 import { pool, tx } from '../db.js';
 import { post } from '../ledger/post.js';
 import { freezeLevel } from '../recon.js';
+import { notify, usdStr } from '../notify.js';
 
 const MIN_BP = 100;
 const MAX_BP = 350;
@@ -69,6 +70,8 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
           [r.user_id, key, slice.toString(), new Date(day.getTime() + i * SLICE_MS)],
         );
       }
+      await notify(c, r.user_id, 'credit_posted',
+        `Daily credit posted: ${usdStr(gross)} USD gross, ${usdStr(net)} USD net, vesting in four slices over 24 hours.`);
     });
     posted += 1;
     total += net;
