@@ -1,4 +1,4 @@
-﻿import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import { getAssociatedTokenAddress, getAccount } from '@solana/spl-token';
 import { pool, one } from './db.js';
 import { usdMicro } from './solana/match.js';
@@ -6,6 +6,11 @@ import { sweepDestination } from './sweeps.js';
 import { solPriceMicro } from './price.js';
 
 export const DRIFT_FREEZE_USD = 5_000_000n;
+
+/** Drift alarm as a share of liabilities, in basis points. */
+export const DRIFT_FREEZE_BP = BigInt(process.env.DRIFT_FREEZE_BP ?? '1000');
+/** ...but never tighter than this, in micro-USD. */
+export const DRIFT_FLOOR_USD = 2_000_000n;
 
 const USDC_MINT = new PublicKey(
   process.env.USDC_MINT ?? 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
@@ -32,10 +37,16 @@ export async function setFreeze(level: number, actor: string): Promise<void> {
 
 export type Verdict = 'ok' | 'surplus' | 'drift' | 'insolvent';
 
-export function verdictFor(margin: bigint, drift: bigint): Verdict {
+export function driftThreshold(liabilities: bigint): bigint {
+  const scaled = (liabilities * DRIFT_FREEZE_BP) / 10000n;
+  return scaled < DRIFT_FLOOR_USD ? DRIFT_FLOOR_USD : scaled;
+}
+
+export function verdictFor(margin: bigint, drift: bigint, liabilities = 0n): Verdict {
   if (margin < 0n) return 'insolvent';
-  if (drift < -DRIFT_FREEZE_USD) return 'drift';
-  if (drift > DRIFT_FREEZE_USD) return 'surplus';
+  const limit = driftThreshold(liabilities);
+  if (drift < -limit) return 'drift';
+  if (drift > limit) return 'surplus';
   return 'ok';
 }
 
@@ -100,7 +111,7 @@ export async function runRecon(actor = 'manual') {
   const stuck = Number(stuckRow.n);
 
   const drift = chainUsd - assets;
-  const verdict = verdictFor(margin, drift);
+  const verdict = verdictFor(margin, drift, liabilities);
 
   await pool.query(
     `insert into recon_runs
