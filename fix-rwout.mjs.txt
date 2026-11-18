@@ -1,0 +1,49 @@
+import fs from 'node:fs';
+let bad = false;
+const fail = m => { console.log('FAIL: ' + m); bad = true; };
+const A = 'public/app.html', W = 'public/withdraw.js';
+let a = fs.readFileSync(A, 'utf8');
+let w = fs.readFileSync(W, 'utf8');
+
+const btnRe = /[ \t]*<button[^>]*id="rwOut"[\s\S]*?<\/button>[ \t]*/;
+const m = a.match(btnRe);
+if (!m) fail('button not found');
+else {
+  let btn = m[0].trim().replace('margin-top:10px;', 'margin:12px 0 16px;');
+  if (!btn.includes('margin:12px 0 16px;')) btn = btn.replace('width:100%;', 'width:100%;margin:12px 0 16px;');
+  a = a.replace(btnRe, '');
+  const li = a.indexOf('<div class="ref-ladder">');
+  if (li < 0) fail('ref-ladder not found');
+  else { a = a.slice(0, li) + btn + '\n' + a.slice(li); console.log('button inserted before ref-ladder'); }
+}
+
+const shimRe = /[ \t]*<script>\(function\(\)\{[^<]*?function (?:alignBtns|mt)\([\s\S]*?<\/script>[ \t]*/g;
+const shims = (a.match(shimRe) || []).length;
+a = a.replace(shimRe, '');
+console.log('shims removed: ' + shims);
+if (shims !== 3) fail('expected 3 shims, found ' + shims);
+
+if (a.includes('/withdraw.js?v=2')) { a = a.replace('/withdraw.js?v=2', '/withdraw.js?v=3'); console.log('bumped to v=3'); }
+else fail('withdraw tag not found');
+
+const n = (a.match(/id="rwOut"/g) || []).length;
+console.log('rwOut occurrences: ' + n);
+if (n !== 1) fail('rwOut count is ' + n);
+
+const g1 = "    if (!addr || !addr.value.trim()) { open(); return; }";
+const n1 = "    var mine = (addr && addr.value.trim()) || ((document.getElementById('addr') || {}).textContent || '').trim();\n    if (!mine) { open(); return; }";
+if (!w.includes(g1)) fail('rewards guard not found'); else w = w.replace(g1, n1);
+
+const g2 = 'address: addr.value.trim()';
+if (!w.includes(g2)) fail('addr.value use not found'); else w = w.replace(g2, 'address: mine');
+
+const g3 = "if (!(Number(rw) > 0)) { open(); return; }";
+if (!w.includes(g3)) fail('rw check not found'); else w = w.replace(g3, g3 + " var b0 = document.getElementById('rwOut'); if (b0) b0.disabled = true;");
+
+const g4 = "var note = document.getElementById('heldNote');";
+if (!w.includes(g4)) fail('heldNote line not found'); else w = w.replace(g4, g4 + "\n            var btn = document.getElementById('rwOut');\n            if (btn) { btn.textContent = res.ok ? 'Queued' : 'Try again'; setTimeout(function () { btn.textContent = 'Claim Referral Rewards'; }, 2500); }");
+
+if (bad) { console.log('--- nothing written ---'); process.exit(1); }
+fs.writeFileSync(A, a);
+fs.writeFileSync(W, w);
+console.log('OK: wrote app.html and withdraw.js');
