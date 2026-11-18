@@ -339,3 +339,13 @@ async function ensureFloat(owner: PublicKey, c: Connection, walletId: string): P
     if (BigInt(await c.getBalance(owner, 'confirmed')) >= SWEEP_FLOAT_TRIGGER) return;
   }
 }
+
+/** Spendable balance on the wallet that actually pays withdrawals. */
+export async function treasuryHeadroom(): Promise<{ usdc: bigint; sol: bigint }> {
+  const c = conn();
+  const owner = new PublicKey(await treasuryOnchainAddress());
+  const ata = await getAssociatedTokenAddress(USDC_MINT, owner);
+  const usdc = await getAccount(c, ata).then((x) => BigInt(x.amount)).catch(() => 0n);
+  const sol = BigInt(await c.getBalance(owner, 'confirmed'));
+  return { usdc, sol };
+}

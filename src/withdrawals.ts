@@ -16,7 +16,7 @@ import { post } from './ledger/post.js';
 import { ensure } from './ledger/accounts.js';
 import { combineHeld } from './locks.js';
 import { notify, notifyUser, usdStr } from './notify.js';
-import { treasuryKeypair, treasuryAddress } from './sweeps.js';
+import { treasuryKeypair, treasuryAddress, treasuryHeadroom } from './sweeps.js';
 import { solPriceMicro } from './price.js';
 import { sendUsdc, sendSol, waitForTreasuryAction } from './privy.js';
 
@@ -156,20 +156,27 @@ export async function requestWithdrawal(
   });
 }
 
-export async function approveWithdrawal(id: string, approver: string): Promise<boolean> {
-  const r = await pool.query<{ user_id: string; usd_amount: string; fee: string }>(
-    `update withdrawals set status = 'approved', approved_by = $2
-      where id = $1 and status = 'requested'
-      returning user_id, usd_amount, fee`,
-    [id, approver],
-  );
-  const row = r.rows[0];
-  if (!row) return false;
-  await notifyUser(row.user_id, 'withdrawal_approved',
-    `Withdrawal approved. ${usdStr(BigInt(row.usd_amount) + BigInt(row.fee))} USD is on its way.`);
-  return true;
-}
-export async function cancelWithdrawal(id: string, userId: string): Promise<boolean> {
+export type ApproveResult = { ok: true } | { ok: false; error: string };
+/** A single withdrawal may not exceed this share of the treasury. */
+const TREASURY_SHARE_PCT = 15n;
+export async function approveWithdrawal(id: string, approver: string): Promise<ApproveResult> {
+  const q = await pool.query<{ asset: Asset; usd_amount: string; status: string }>(`select asset, usd_amount, status from withdrawals where id = $1`, [id]);
+  const row = q.rows[0];
+  if (!row) return { ok: false, error: 'not_found' };
+  if (row.status !== 'requested') return { ok: false, error: 'not_pending' };
+  const net = BigInt(row.usd_amount);
+  const need = row.asset === 'USDC' ? net : qtyFor('SOL', net, await solPriceMicro()) + FEE_HEADROOM;
+  const head = await treasuryHeadroom().catch(() => null);
+  if (!head) return { ok: false, error: 'treasury_unreachable' };
+  const have = row.asset === 'USDC' ? head.usdc : head.sol;
+  if (have < need) return { ok: false, error: `treasury_short:${have}:${need}` };
+  if (need * 100n >= have * TREASURY_SHARE_PCT) return { ok: false, error: `treasury_share:${have}:${need}` };
+  const r = await pool.query<{ user_id: string }>(`update withdrawals set status = 'approved', approved_by = $2 where id = $1 and status = 'requested' returning user_id`, [id, approver]);
+  const done = r.rows[0];
+  if (!done) return { ok: false, error: 'not_pending' };
+  await notifyUser(done.user_id, 'withdrawal_approved', `Withdrawal approved. ${usdStr(net)} USD is on its way.`);
+  return { ok: true };
+}export async function cancelWithdrawal(id: string, userId: string): Promise<boolean> {
   const r = await pool.query(
     `select id from withdrawals where id = $1 and user_id = $2 and status = 'requested'`,
     [id, userId],

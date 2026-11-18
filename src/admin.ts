@@ -100,8 +100,8 @@ adminRouter.get('/deposits', async (_req, res) => {
 });
 
 adminRouter.post('/withdrawals/:id/approve', async (req, res) => {
-  const ok = await approveWithdrawal(req.params.id, 'admin');
-  if (!ok) return res.status(409).json({ error: 'not_pending' });
+  const out = await approveWithdrawal(req.params.id, 'admin');
+  if (!out.ok) return res.status(409).json({ error: out.error });
   res.json({ ok: true });
 });
 
