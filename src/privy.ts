@@ -236,6 +236,25 @@ export async function findWalletByExternalId(
   const w = rows.find((x) => x.external_id === externalId) ?? rows[0];
   return w ? { id: w.id, address: w.address } : null;
 }
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Bounds how many transactions one lookup parses; the transfer is always recent. */
+const MAX_PARSE = 10;
+
+/** RPC reads here are best-effort, and a 429 must not read as "no such transfer". */
+export async function withRetry<T>(fn: () => Promise<T>, attempts = 4): Promise<T> {
+  let last: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      last = e;
+      if (i < attempts - 1) await sleep(250 * 2 ** i);
+    }
+  }
+  throw last;
+}
+
 /**
  * Best-effort on-chain signature for a settled treasury transfer.
  * Privy's action resource carries no signature, so match the chain instead:
@@ -254,13 +273,23 @@ export async function findTransferSig(
   const mint = process.env.USDC_MINT ?? 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 
   const c = new Connection(rpc, 'confirmed');
-  const sigs = await c.getSignaturesForAddress(new PublicKey(from), { limit: 25 }).catch(() => []);
+  const sigs = await withRetry(() =>
+    c.getSignaturesForAddress(new PublicKey(from), { limit: 25 }),
+  ).catch(() => []);
 
+  let parsed = 0;
   for (const s of sigs) {
-    if (!s.blockTime || s.blockTime * 1000 < sinceMs - 180_000) continue;
-    const tx = await c
-      .getParsedTransaction(s.signature, { maxSupportedTransactionVersion: 0, commitment: 'confirmed' })
-      .catch(() => null);
+    if (parsed >= MAX_PARSE) break;
+    if (s.err) continue;
+    // A just-sent transfer can come back with a null blockTime; treat it as fresh.
+    if (s.blockTime && s.blockTime * 1000 < sinceMs - 180_000) continue;
+    parsed++;
+    const tx = await withRetry(() =>
+      c.getParsedTransaction(s.signature, {
+        maxSupportedTransactionVersion: 0,
+        commitment: 'confirmed',
+      }),
+    ).catch(() => null);
     if (!tx?.meta) continue;
 
     let delta: bigint;
