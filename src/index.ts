@@ -12,12 +12,12 @@ import { results } from './http/routes/results.js';
 import { adminRouter } from './admin.js';
 import { sqlRouter } from './admin-sql.js';
 import { runRecon } from './recon.js';
-import { runDailyCredit, runDailyCreditIfDue } from './jobs/daily.js';
+import { runSettlement, runSettlementIfDue } from './jobs/settle.js';
 import { revalueSolDeposits } from './jobs/revalue.js';
 import { resumeStuckWithdrawals } from './jobs/resume.js';
 import { payApproved } from './jobs/pay.js';
 import { releaseMatured } from './locks.js';
-import { ensureToday, backfillTrades } from './trades.js';
+import { backfillTrades } from './trades.js';
 import { runReferral } from './jobs/referral.js';
 import { releaseDue } from './vesting.js';
 import { requireUser } from './http/mw/session.js';
@@ -92,10 +92,8 @@ function scheduleDailyCredit(): void {
   ));
   if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
   dailyTimer = setTimeout(() => {
-    void runDailyCredit()
-      .catch((e) => console.error('credit', e))
-      .then(() => ensureToday())
-      .catch((e) => console.error('trades', e))
+    void runSettlement()
+      .catch((e) => console.error('settle', e))
       .finally(() => scheduleDailyCredit());
   }, next.getTime() - now.getTime());
 }
@@ -123,9 +121,8 @@ const server = app.listen(port, () => {
   every(5 * 60 * 1000, resumeStuckWithdrawals, 'resume');
   every(60 * 1000, payApproved, 'payout');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
-  void runDailyCreditIfDue().catch((e) => console.error('credit', e));
+  void runSettlementIfDue().catch((e) => console.error('settle', e));
   void backfillTrades().catch((e) => console.error('trades', e));
-  every(15 * 60 * 1000, ensureToday, 'trades');
   scheduleDailyCredit();
 });
 
