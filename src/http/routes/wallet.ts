@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { requireUser } from '../mw/session.js';
 import { one, pool, tx } from '../../db.js';
 import { freezeLevel } from '../../recon.js';
-import { requestClaim, cancelClaim, combineHeld, MIN_DEPOSIT } from '../../locks.js';
+import { requestClaim, cancelClaim } from '../../locks.js';
 import {
   requestWithdrawal, cancelWithdrawal, payoutWithdrawal, computeCap, MIN_WITHDRAW, NEW_ADDR_CAP,
 } from '../../withdrawals.js'; import { post } from '../../ledger/post.js';
@@ -75,14 +75,6 @@ wallet.post('/deposits/:id/claim', requireUser, async (req, res) => {
   res.json({ ok: true });
 });
 
-wallet.post('/claim', requireUser, async (req, res) => {
-  const out = await combineHeld(req.userId!);
-  if (out.state === 'nothing') return res.status(400).json({ error: 'nothing_to_claim' });
-  if (out.state === 'below_min') {
-    return res.status(400).json({ error: 'below_min', held: out.held.toString(), min: MIN_DEPOSIT.toString() });
-  }
-  res.json({ ok: true, locked: out.amount.toString() });
-});
   wallet.post('/deposits/:id/claim/cancel', requireUser, async (req, res) => {
     const ok = await cancelClaim(req.userId!, req.params.id);
     if (!ok) return res.status(409).json({ error: 'not_pending' });

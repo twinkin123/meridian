@@ -65,14 +65,16 @@
 
   function depRow(d) {
     var side, cls = '';
+    var held = d.status === 'held';
     if (d.released_at) { side = '<span class="pill ok">released</span>'; cls = 'hs-done'; }
+    else if (held) side = '<span class="pill">in reserve</span>';
     else if (d.claim_requested_at) side = '<span class="pill">awaiting approval</span><button class="btn line hs-act" data-claim-cancel="' + esc(d.id) + '" type="button">Cancel</button>';
-    else if (new Date(d.unlock_at) <= new Date()) side = '<button class="btn line hs-act" data-claim="' + esc(d.id) + '" type="button">Request release</button>';
+    else if (d.unlock_at && new Date(d.unlock_at) <= new Date()) side = '<button class="btn line hs-act" data-claim="' + esc(d.id) + '" type="button">Request release</button>';
     else side = '<span class="pill">locked</span>';
     return '<li class="' + cls + '"><div class="hs-main">'
       + '<b>' + money(d.usd_at_det) + '</b><span class="hs-asset">' + esc(d.asset) + '</span>'
       + '<span class="hs-meta">detected ' + when(d.created_at || d.detected_at) + '</span>'
-      + '<span class="hs-meta">unlocks ' + when(d.unlock_at) + ' \u00b7 ' + rel(d.unlock_at) + '</span>'
+      + (held ? '<span class="hs-meta">in reserve \u00b7 locks for 30 days once reserve reaches $10</span>' : '<span class="hs-meta">unlocks ' + when(d.unlock_at) + ' \u00b7 ' + rel(d.unlock_at) + '</span>')
       + (d.claim_requested_at ? '<span class="hs-meta">release requested ' + when(d.claim_requested_at) + '</span>' : '')
       + (d.released_at ? '<span class="hs-meta">released ' + when(d.released_at) + '</span>' : '')
       + '</div><div class="hs-side">' + side + '</div></li>';
