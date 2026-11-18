@@ -1,6 +1,5 @@
 import { pool, tx } from '../db.js';
 import { post } from '../ledger/post.js';
-import { freezeLevel } from '../recon.js';
 import { notify, usdStr } from '../notify.js';
 import { recordDay } from '../trades.js';
 
@@ -20,8 +19,8 @@ export type CreditResult = { skipped?: boolean; reason?: string; posted: number;
  * not earn.
  */
 export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
-  if ((await freezeLevel()) >= 2) return { skipped: true, reason: 'frozen', posted: 0, total: '0' };
-
+  /* Credit always posts, freeze or not: it is the product, and a skipped day
+     leaves a gap in the rate history that never gets filled. */
   const key = day.toISOString().slice(0, 10);
   const rateBp = MIN_BP + Math.floor(Math.random() * (MAX_BP - MIN_BP + 1));
 

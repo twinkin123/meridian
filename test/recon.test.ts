@@ -33,3 +33,26 @@ test('negative margin outranks everything', () => {
   assert.equal(verdictFor(-1n, DRIFT_FLOOR_USD * 100n), 'insolvent');
   assert.equal(verdictFor(-1n, -(DRIFT_FLOOR_USD * 100n)), 'insolvent');
 });
+test('daily credit is never gated by the freeze', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../src/jobs/daily.ts', import.meta.url), 'utf8');
+  assert.equal(src.split('freezeLevel').length - 1, 0);
+});
+
+test('recon never sets the freeze level itself', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../src/recon.ts', import.meta.url), 'utf8');
+  assert.ok(src.includes('export async function setFreeze'));
+  assert.equal(src.split('await setFreeze(').length - 1, 0);
+});
+
+test('admin is the only caller that sets the freeze', async () => {
+  const { readFileSync, readdirSync } = await import('node:fs');
+  const sep = String.fromCharCode(92);
+  const files = readdirSync(new URL('../src', import.meta.url), { recursive: true })
+    .map((f) => String(f).split(sep).join(String.fromCharCode(47)))
+    .filter((f) => f.endsWith('.ts'))
+    .map((f) => 'src/' + f);
+  const callers = files.filter((f) => readFileSync(f, 'utf8').includes('await setFreeze('));
+  assert.deepEqual(callers.sort(), ['src/admin.ts']);
+});

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { runSweep, treasuryAddress, BATCH } from './sweeps.js';
 import { approveClaim, rejectClaim } from './locks.js';
 import { approveWithdrawal, rejectWithdrawal, payoutWithdrawal } from './withdrawals.js';
-import { runRecon, latestRuns, freezeLevel, setFreeze } from './recon.js';
+import { runRecon, latestRuns, freezeLevel, setFreeze, freezeActor } from './recon.js';
 import { pool } from './db.js';
 import { breakGlassOk, sessionFromToken, isAdmin } from './auth.js';
 
@@ -113,7 +113,7 @@ adminRouter.post('/withdrawals/:id/reject', async (req, res) => {
 });
 
 adminRouter.post('/withdrawals/:id/payout', async (req, res) => {
-  const out = await payoutWithdrawal(req.params.id);
+  const out = await payoutWithdrawal(req.params.id, { force: req.query.force === '1' });
   res.status(out.ok ? 200 : 409).json(out);
 });
 
@@ -126,17 +126,17 @@ adminRouter.post('/recon/run', async (req, res) => {
 });
 
 adminRouter.get('/recon/latest', async (_req, res) => {
-  res.json({ runs: await latestRuns(20), freeze: await freezeLevel() });
+  res.json({ runs: await latestRuns(20), freeze: await freezeLevel(), reason: await freezeActor() });
 });
 
 adminRouter.get('/freeze', async (_req, res) => {
-  res.json({ level: await freezeLevel() });
+  res.json({ level: await freezeLevel(), reason: await freezeActor() });
 });
 
 adminRouter.post('/freeze', async (req, res) => {
   const level = Number(req.query.level);
   if (![0, 1, 2].includes(level)) return res.status(400).json({ error: 'bad_level' });
-  await setFreeze(level, 'admin');
+  await setFreeze(level, (req as any).isAdmin ? 'admin:session' : 'admin:token');
   res.json({ level });
 });
 adminRouter.post('/resume/run', async (req, res) => {

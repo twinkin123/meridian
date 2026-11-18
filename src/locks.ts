@@ -1,6 +1,7 @@
 import { notify, notifyUser, usdStr } from './notify.js';
 import { pool, tx } from './db.js';
 import { post } from './ledger/post.js';
+import { freezeLevel } from './recon.js';
 
 /** Minimum a held balance must reach before it becomes a real locked deposit. */
 export const MIN_DEPOSIT = 10_000_000n;
@@ -112,6 +113,9 @@ export type CombineResult =
  * 30-day clock, and only then can they be claimed and released.
  */
 export async function combineHeld(userId: string): Promise<CombineResult> {
+  // Level 1 means "start no new 30-day locks"; reserve simply accumulates.
+  if ((await freezeLevel()) >= 1) return { state: 'nothing' };
+
   return tx(async (c) => {
     const rows = await c.query<{ id: string; usd_at_det: string }>(
       `select id, usd_at_det from deposits

@@ -45,3 +45,7 @@ h1{font-size:24px;letter-spacing:-.03em;margin-bottom:6px}
 
 .grid2 > .card{align-self:start}
 
+
+.card.alert{border-color:#f2ddb8;background:#fdf6e9;box-shadow:none}
+.card.alert .mono,.card.alert .lede{color:#8a5a08}
+.card.alert .lede{margin-bottom:0}

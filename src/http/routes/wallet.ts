@@ -98,7 +98,9 @@ wallet.post('/deposits/:id/claim', requireUser, async (req, res) => {
 
 wallet.post('/withdraw', requireUser, async (req, res) => {
   const uid = req.userId!;
-  if ((await freezeLevel()) >= 2) return res.status(503).json({ error: 'frozen' });
+  if ((await freezeLevel()) >= 2 && req.body?.source !== 'rewards') {
+    return res.status(503).json({ error: 'frozen' });
+  }
 
   const { asset, address, usd } = req.body ?? {};
   if (asset !== 'SOL' && asset !== 'USDC') return res.status(400).json({ error: 'bad_asset' });

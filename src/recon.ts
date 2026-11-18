@@ -33,6 +33,11 @@ export async function setFreeze(level: number, actor: string): Promise<void> {
   );
 }
 
+export async function freezeActor(): Promise<string | null> {
+  const r = await one<{ value: string }>(`select value from system_state where key = 'freeze_actor'`);
+  return r?.value ?? null;
+}
+
 export type Verdict = 'ok' | 'surplus' | 'drift' | 'insolvent';
 
 export function driftThreshold(liabilities: bigint): bigint {
@@ -129,14 +134,17 @@ export async function runRecon(actor = 'manual') {
     ],
   );
 
-  const current = await freezeLevel();
-  if (verdict === 'insolvent' && current < 2) await setFreeze(2, `recon:${actor}`);
-  else if (verdict === 'drift' && current < 1) await setFreeze(1, `recon:${actor}`);
+  /* Nothing here is automatic: a run only records its verdict and the limit it
+     was judged against. Every freeze is initiated by a human from admin. */
+  const frozen = await freezeLevel();
+  const limit = driftThreshold(liabilities);
 
   return {
     verdict,
     drift: drift.toString(),
     margin: margin.toString(),
+    limit: limit.toString(),
+    frozen: String(frozen),
     stuck,
     assets: assets.toString(),
     chainUsd: chainUsd.toString(),

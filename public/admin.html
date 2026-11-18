@@ -34,10 +34,20 @@
 
   <div class="hide" id="panel">
 
+    <div class="card alert hide" id="warnCard">
+      <span class="mono">Recon warning</span>
+      <p class="lede" id="warnText" style="margin:8px 0 0"></p>
+      <div class="row">
+        <button class="btn" data-lvl="1" type="button">Freeze level 1</button>
+        <button class="btn d" data-lvl="2" type="button">Freeze level 2</button>
+        <button class="btn" data-lvl="0" type="button">Clear freeze</button>
+      </div>
+    </div>
+
     <div class="grid2">
       <div class="card">
         <span class="mono">Freeze switch</span>
-        <p class="lede" style="margin-top:8px">Level 0 normal. Level 1 holds deposit crediting. Level 2 stops payouts.</p>
+        <p class="lede" style="margin-top:8px">Level 0 normal. Level 1 starts no new 30-day locks. Level 2 also stops withdrawals leaving. Daily credit and referral rewards always run. Only you set the level.</p>
         <div class="big" id="lvl">0</div>
         <p class="sub" id="lvlReason">no reason recorded</p>
         <div class="row">
@@ -50,7 +60,7 @@
 
       <div class="card">
         <span class="mono">Reconciliation</span>
-        <p class="lede" style="margin-top:8px">Chain against book. Negative drift and insolvency freeze.</p>
+        <p class="lede" style="margin-top:8px">Chain against book. Bad readings only raise a warning - you decide whether to freeze.</p>
         <div class="msg" id="rMsg"></div>
         <div class="row">
           <button class="btn p" id="recon" type="button">Run recon now</button>
@@ -130,6 +140,10 @@
 
   document.querySelectorAll('[data-lvl]').forEach(function(b){
     b.addEventListener('click', async function(){
+      var cur = Number(document.getElementById('lvl').textContent) || 0;
+      var want = Number(b.dataset.lvl);
+      if (want === 2 && cur !== 2 && !confirm('Freeze level 2? Withdrawals stop leaving until you clear it.')) return;
+      if (want === 0 && cur > 0 && !confirm('Clear the freeze? Stale withdrawals will start paying again.')) return;
       var r = await fetch('/admin/freeze?level=' + b.dataset.lvl, { method: 'POST', headers: h() });
       var j = await r.json().catch(function(){ return {}; });
       if (!r.ok) return msg('fMsg', j.error || 'Failed.', 'err');
@@ -145,7 +159,7 @@
       var r = await fetch('/admin/recon/run', { method: 'POST', headers: h() });
       var j = await r.json().catch(function(){ return {}; });
       if (!r.ok) { msg('rMsg', j.error || 'Recon failed.', 'err'); return; }
-      msg('rMsg', 'Verdict: ' + j.verdict, j.verdict === 'ok' || j.verdict === 'surplus' ? 'ok' : 'err');
+      msg('rMsg', 'Verdict: ' + j.verdict + (Number(j.frozen) > 0 ? ' - still frozen at level ' + j.frozen : ' - nothing frozen'), j.verdict === 'ok' || j.verdict === 'surplus' ? 'ok' : 'err');
       var rows = [
         ['Chain', money(j.chainUsd)],
         ['Ledger assets', money(j.assets)],
@@ -188,7 +202,7 @@
   }
 
   async function act(what, id){
-    var r = await fetch('/admin/withdrawals/' + id + '/' + what, { method: 'POST', headers: h() });
+    var r = await fetch('/admin/withdrawals/' + id + '/' + what + (what === 'payout' ? '?force=1' : ''), { method: 'POST', headers: h() });
     var j = await r.json().catch(function(){ return {}; });
     msg('wMsg', r.ok ? (what === 'approve' ? 'Approved.' : 'Paid: ' + (j.sig || 'sent')) : (j.error || 'Failed.'), r.ok ? 'ok' : 'err');
     loadQueue(); loadClaims();
@@ -241,12 +255,34 @@
     loadSweeps();
   }
 
+  function limitFor(liab){
+    return Math.max(2000000, Math.floor(Number(liab || 0) * 1000 / 10000));
+  }
+
+  function paintWarn(latest, freeze, reason){
+    var card = document.getElementById('warnCard');
+    var bad = latest && (latest.verdict === 'drift' || latest.verdict === 'insolvent');
+    var held = Number(freeze) > 0;
+    if (!bad && !held) { card.classList.add('hide'); return; }
+    card.classList.remove('hide');
+    var text = document.getElementById('warnText');
+    if (bad) {
+      text.textContent = 'Latest recon came back ' + latest.verdict + ': drift ' + money(latest.drift) +
+        ' against a limit of ' + money(limitFor(latest.liabilities)) +
+        '. Recon does not freeze on its own.' + (held ? ' Currently frozen at level ' + freeze + '.' : '');
+    } else {
+      text.textContent = 'Frozen at level ' + freeze + (reason ? ' by ' + reason : '') +
+        '. Latest verdict is ' + (latest ? latest.verdict : 'unknown') + '.';
+    }
+  }
+
   async function loadRuns(){
     try {
       var r = await fetch('/admin/recon/latest', { headers: h() });
       var j = await r.json();
       document.getElementById('lvl').textContent = j.freeze;
       var rows = j.runs || [];
+      paintWarn(rows[0], j.freeze, j.reason);
       document.getElementById('reconOut').innerHTML = rows.length ? rows.map(function(x){
         var cls = (x.verdict === 'ok' || x.verdict === 'surplus') ? 'ok' : 'bad';
         return '<li><div>' + new Date(x.created_at).toLocaleString() + '<span class="sub">drift ' + money(x.drift) + '</span></div><span class="pill ' + cls + '">' + x.verdict + '</span></li>';

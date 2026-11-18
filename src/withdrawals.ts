@@ -18,6 +18,7 @@ import { combineHeld } from './locks.js';
 import { notify, notifyUser, usdStr } from './notify.js';
 import { treasuryKeypair, treasuryAddress, treasuryHeadroom } from './sweeps.js';
 import { solPriceMicro } from './price.js';
+import { freezeLevel } from './recon.js';
 import { sendUsdc, sendSol, waitForTreasuryAction, findTransferSig } from './privy.js';
 
 export const MIN_WITHDRAW = 10_000_000n;
@@ -69,6 +70,8 @@ export async function requestWithdrawal(
     return { ok: false, error: 'bad_address' };
   }
   if (usd <= 0n) return { ok: false, error: 'bad_amount' };
+  // Referral commission is small and owed already, so a freeze does not hold it.
+  if (source !== 'rewards' && (await freezeLevel()) >= 2) return { ok: false, error: 'frozen' };
 
   return tx(async (c) => {
     await c.query('select id from users where id = $1 for update', [userId]);
@@ -289,10 +292,14 @@ async function finalize(
 
 export type PayoutResult = { ok: boolean; error?: string; sig?: string };
 
-export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
+export async function payoutWithdrawal(
+  id: string,
+  opts: { force?: boolean } = {},
+): Promise<PayoutResult> {
   const w = await pool.query<{
     id: string; user_id: string; asset: Asset; address: string;
     usd_amount: string; status: string; sig: string | null; privy_action_id: string | null;
+    source: string;
     created_at: string;
   }>(`select * from withdrawals where id = $1`, [id]);
 
@@ -301,6 +308,9 @@ export async function payoutWithdrawal(id: string): Promise<PayoutResult> {
   if (row.status === 'sent') return { ok: true, sig: row.sig ?? undefined };
   if (!['approved', 'sending'].includes(row.status)) {
     return { ok: false, error: `status_${row.status}` };
+  }
+  if (!opts.force && row.source !== 'rewards' && (await freezeLevel()) >= 2) {
+    return { ok: false, error: 'frozen' };
   }
 
   const usd = BigInt(row.usd_amount);
