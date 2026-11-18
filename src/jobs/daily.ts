@@ -2,6 +2,7 @@ import { pool, tx } from '../db.js';
 import { post } from '../ledger/post.js';
 import { freezeLevel } from '../recon.js';
 import { notify, usdStr } from '../notify.js';
+import { recordDay } from '../trades.js';
 
 const MIN_BP = 100;
 const MAX_BP = 350;
@@ -24,11 +25,18 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
   const key = day.toISOString().slice(0, 10);
   const rateBp = MIN_BP + Math.floor(Math.random() * (MAX_BP - MIN_BP + 1));
 
-  const claim = await pool.query(
-    `insert into credit_runs (day, rate_bp, fee_bp) values ($1, $2, $3) on conflict (day) do nothing returning day`,
-    [key, rateBp, FEE_BP],
-  );
-  if (claim.rowCount === 0) return { skipped: true, posted: 0, total: '0' };
+  /* The run and the trade day are written together, at the same rate, in one
+     transaction - the day can never exist at a different number to the credit. */
+  const claim = await tx(async (c) => {
+    const ins = await c.query(
+      `insert into credit_runs (day, rate_bp, fee_bp) values ($1, $2, $3) on conflict (day) do nothing returning day`,
+      [key, rateBp, FEE_BP],
+    );
+    if (ins.rowCount === 0) return false;
+    await recordDay(c, key, rateBp);
+    return true;
+  });
+  if (!claim) return { skipped: true, posted: 0, total: '0' };
 
   const { rows } = await pool.query<{ user_id: string; b: string }>(
     `select user_id, sum(balance)::text b from v_balance

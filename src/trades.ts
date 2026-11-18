@@ -1,5 +1,7 @@
 import { pool, tx, one } from './db.js';
 
+type Q = { query: (text: string, params?: any[]) => Promise<any> };
+
 const MIN_RATE_BP = 100;
 const MAX_RATE_BP = 350;
 
@@ -166,6 +168,24 @@ export async function ensureDay(day: string): Promise<void> {
   await createDay(day, rateBp, run ? 'recorded' : 'estimated');
 }
 
+/** Writes a day at the real rate. Safe to call inside the credit transaction. */
+export async function recordDay(c: Q, day: string, rateBp: number): Promise<void> {
+  const rows = generate(day, rateBp);
+  await c.query(
+    `insert into trade_days (day, rate_bp, source) values ($1, $2, 'recorded')
+     on conflict (day) do update set rate_bp = excluded.rate_bp, source = 'recorded'`,
+    [day, rateBp],
+  );
+  await c.query(`delete from trade_results where day = $1`, [day]);
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i]!;
+    await c.query(
+      `insert into trade_results (day, seq, symbol, side, open_px, close_px, opened_min, closed_min, ret_bp)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [day, i, r.symbol, r.side, r.open, r.close, r.opened, r.closed, Math.round(r.ret * 100)],
+    );
+  }
+}
 export async function ensureToday(): Promise<void> {
   await ensureDay(utcToday());
 }
