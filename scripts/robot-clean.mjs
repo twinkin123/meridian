@@ -1,0 +1,10 @@
+﻿import { readFileSync, writeFileSync } from 'node:fs';
+const c = 'public/robot-float.css';
+let s = readFileSync(c, 'utf8').replace(/\r\n/g, '\n');
+s = s.split(';filter:drop-shadow(0 0 14px rgba(45,226,214,.4))').join('');
+s = s.split('radial-gradient(ellipse 52% 52% at 50% 50%,#000 52%,transparent 92%)').join('radial-gradient(ellipse 48% 48% at 50% 50%,#000 40%,transparent 84%)');
+s = s.split('pointer-events:none;').join('pointer-events:none;mix-blend-mode:screen;');
+writeFileSync(c, s);
+const f = 'public/app.html';
+writeFileSync(f, readFileSync(f, 'utf8').split('/robot-float.css?v=5').join('/robot-float.css?v=6'));
+console.log('glow gone');

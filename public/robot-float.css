@@ -1,5 +1,5 @@
 .robot-float{display:none}
 @media (max-width:900px){
-  .robot-float{display:block;position:fixed;right:12px;bottom:12px;width:64px;height:64px;z-index:60;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 52% 52% at 50% 50%,#000 52%,transparent 92%);mask-image:radial-gradient(ellipse 52% 52% at 50% 50%,#000 52%,transparent 92%);filter:drop-shadow(0 0 14px rgba(45,226,214,.4))}
+  .robot-float{display:block;position:fixed;right:12px;bottom:12px;width:64px;height:64px;z-index:60;pointer-events:none;mix-blend-mode:screen;-webkit-mask-image:radial-gradient(ellipse 48% 48% at 50% 50%,#000 40%,transparent 84%);mask-image:radial-gradient(ellipse 48% 48% at 50% 50%,#000 40%,transparent 84%)}
   .robot-float img{display:block;width:100%;height:100%;object-fit:contain}
 }
