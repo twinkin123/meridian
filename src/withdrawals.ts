@@ -22,7 +22,7 @@ export const MIN_WITHDRAW = 10_000_000n;
 export const NEW_ADDR_CAP = 500_000_000n;
 export const CAP_FLOOR = 500_000_000n;
 export const CAP_CEIL = 25_000_000_000n;
-export const AUTO_APPROVE_MAX = 1_000_000_000n;
+export const AUTO_APPROVE_MAX = 9_000_000_000n;
 export const ADDRESS_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 export const USDC_DECIMALS = 6;
 export const RENT_EXEMPT = 2_039_280n;
@@ -105,9 +105,8 @@ export async function requestWithdrawal(
     const net = usd - fee;
     if (net <= 0n) return { ok: false, error: 'below_min' };
 
-    const autoOk =
-      source === 'rewards' ||
-      (usd <= AUTO_APPROVE_MAX && Boolean(seen.rows[0]) && ageMs >= ADDRESS_COOLDOWN_MS);
+    /* under the cap ceiling: straight through. above it: admin approval. */
+    const autoOk = source === 'rewards' || usd <= AUTO_APPROVE_MAX;
     const status = autoOk ? 'approved' : 'requested';
 
     const row = await c.query<{ id: string }>(

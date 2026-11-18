@@ -71,7 +71,7 @@
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
         if (!res.ok) { wmsg(errors[res.j.error] || res.j.error || 'Withdrawal failed.', 'err'); return; }
-        wmsg('Withdrawal ' + res.j.status + '.', 'ok');
+        wmsg(res.j.status === 'approved' ? 'Approved. Sending now.' : 'Requested. Awaiting approval.', 'ok');
         document.getElementById('wUsd').value = '';
         document.getElementById('feeLine').textContent = '5% withdrawal fee';
         window.dispatchEvent(new Event('pageshow'));

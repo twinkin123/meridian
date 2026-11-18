@@ -4,7 +4,7 @@ import { one, pool, tx } from '../../db.js';
 import { freezeLevel } from '../../recon.js';
 import { requestClaim, cancelClaim, combineHeld, MIN_DEPOSIT } from '../../locks.js';
 import {
-  requestWithdrawal, cancelWithdrawal, computeCap, MIN_WITHDRAW, NEW_ADDR_CAP,
+  requestWithdrawal, cancelWithdrawal, payoutWithdrawal, computeCap, MIN_WITHDRAW, NEW_ADDR_CAP,
 } from '../../withdrawals.js'; import { post } from '../../ledger/post.js';
 
 export const wallet = Router();
@@ -116,6 +116,11 @@ wallet.post('/withdraw', requireUser, async (req, res) => {
   const out = await requestWithdrawal(uid, asset, address, BigInt(usd), req.body?.source === 'rewards' ? 'rewards' : 'available');
   if (!out.ok) return res.status(400).json({ error: out.error, cap: out.cap });
   res.json({ id: out.id, status: out.status, cap: out.cap });
+
+  /* approved goes out immediately; payApproved retries if this drops */
+  if (out.status === 'approved') {
+    void payoutWithdrawal(out.id).catch((e) => console.error('payout', e instanceof Error ? e.message : e));
+  }
 });
 
 wallet.post('/withdraw/:id/cancel', requireUser, async (req, res) => {

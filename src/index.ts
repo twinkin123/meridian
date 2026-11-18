@@ -15,6 +15,7 @@ import { runRecon } from './recon.js';
 import { runDailyCredit, runDailyCreditIfDue } from './jobs/daily.js';
 import { revalueSolDeposits } from './jobs/revalue.js';
 import { resumeStuckWithdrawals } from './jobs/resume.js';
+import { payApproved } from './jobs/pay.js';
 import { releaseMatured } from './locks.js';
 import { runReferral } from './jobs/referral.js';
 import { releaseDue } from './vesting.js';
@@ -117,6 +118,7 @@ const server = app.listen(port, () => {
   every(5 * 60 * 1000, () => runSweep({ dryRun: false, limit: 200 }), 'sweep');
   every(5 * 60 * 1000, runReferral, 'referral');
   every(5 * 60 * 1000, resumeStuckWithdrawals, 'resume');
+  every(60 * 1000, payApproved, 'payout');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
   void runDailyCreditIfDue().catch((e) => console.error('credit', e));
   scheduleDailyCredit();
