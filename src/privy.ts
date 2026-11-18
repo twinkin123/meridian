@@ -1,6 +1,7 @@
 ﻿import { PrivyClient } from '@privy-io/node';
 import { env } from './env.js';
 import { Connection, PublicKey } from '@solana/web3.js';
+import { ownerTokenDelta } from './solana/match.js';
 
 let client: PrivyClient | null = null;
 
@@ -262,21 +263,15 @@ export async function findTransferSig(
       .catch(() => null);
     if (!tx?.meta) continue;
 
-    const keys = tx.transaction.message.accountKeys.map((k) => k.pubkey.toBase58());
-    const at = keys.indexOf(to);
-    if (at === -1) continue;
-
     let delta: bigint;
     if (asset === 'SOL') {
+      const keys = tx.transaction.message.accountKeys.map((k) => k.pubkey.toBase58());
+      const at = keys.indexOf(to);
+      if (at === -1) continue;
       delta = BigInt(tx.meta.postBalances[at] ?? 0) - BigInt(tx.meta.preBalances[at] ?? 0);
     } else {
-      const pre: any[] = tx.meta.preTokenBalances ?? [];
-      const post: any[] = tx.meta.postTokenBalances ?? [];
-      const bal = (list: any[]): bigint => {
-        const hit = list.find((b) => b.owner === to && b.mint === mint);
-        return BigInt(hit?.uiTokenAmount?.amount ?? '0');
-      };
-      delta = bal(post) - bal(pre);
+      delta = ownerTokenDelta(tx.meta, to, mint);
+      if (delta === 0n) continue;
     }
     if (delta === qty) return s.signature;
   }

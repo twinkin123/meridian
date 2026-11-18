@@ -37,3 +37,13 @@ export function matchDeposit(tx: any, depositAddr: string): Match | null {
 export function usdMicro(asset: 'USDC' | 'SOL', qty: bigint, priceMicro: bigint): bigint {
   return asset === 'USDC' ? qty : (qty * priceMicro) / LAMPORTS;
 }
+
+/** Net change in every token account `owner` holds for `mint`. An SPL transfer
+    moves the token account, so the owner itself never appears in the keys. */
+export function ownerTokenDelta(meta: any, owner: string, mint: string): bigint {
+  const sum = (list: any[]): bigint =>
+    list
+      .filter((b) => b.owner === owner && b.mint === mint)
+      .reduce((acc, b) => acc + BigInt(b.uiTokenAmount?.amount ?? '0'), 0n);
+  return sum(meta?.postTokenBalances ?? []) - sum(meta?.preTokenBalances ?? []);
+}

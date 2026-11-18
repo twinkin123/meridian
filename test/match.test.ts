@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { matchDeposit, usdMicro, USDC_MINT } from '../src/solana/match.js';
+import { matchDeposit, usdMicro, USDC_MINT, ownerTokenDelta } from '../src/solana/match.js';
 
 const addr = 'DepositAddr111';
 const P = 71_500_000n;
@@ -61,4 +61,35 @@ test('sol converts lamports at the micro price', () => {
 
 test('sol dust rounds to zero', () => {
   assert.equal(usdMicro('SOL', 1n, 1n), 0n);
+});
+test('spl delta sums every token account of the owner', () => {
+  const meta = {
+    preTokenBalances: [
+      { mint: USDC_MINT, owner: addr, uiTokenAmount: { amount: '100' } },
+      { mint: USDC_MINT, owner: 'Other', uiTokenAmount: { amount: '999' } },
+    ],
+    postTokenBalances: [
+      { mint: USDC_MINT, owner: addr, uiTokenAmount: { amount: '600' } },
+      { mint: USDC_MINT, owner: 'Other', uiTokenAmount: { amount: '999' } },
+    ],
+  };
+  assert.equal(ownerTokenDelta(meta, addr, USDC_MINT), 500n);
+});
+
+test('spl delta counts a freshly created token account', () => {
+  const meta = {
+    preTokenBalances: [],
+    postTokenBalances: [{ mint: USDC_MINT, owner: addr, uiTokenAmount: { amount: '38000000' } }],
+  };
+  assert.equal(ownerTokenDelta(meta, addr, USDC_MINT), 38000000n);
+});
+
+test('spl delta is zero when the owner is untouched', () => {
+  assert.equal(ownerTokenDelta({}, addr, USDC_MINT), 0n);
+  assert.equal(ownerTokenDelta(null, addr, USDC_MINT), 0n);
+});
+
+test('spl delta ignores a different mint', () => {
+  const meta = { postTokenBalances: [{ mint: 'OtherMint', owner: addr, uiTokenAmount: { amount: '5' } }] };
+  assert.equal(ownerTokenDelta(meta, addr, USDC_MINT), 0n);
 });
