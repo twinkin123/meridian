@@ -21,4 +21,6 @@ export const env = {
   privyAuthKey: process.env.PRIVY_AUTH_KEY ?? '',
   privyTreasuryWalletId: process.env.PRIVY_TREASURY_WALLET_ID ?? '',
   privyNetwork: process.env.PRIVY_NETWORK === 'mainnet' ? 'mainnet' : 'devnet',
+  /** Comma-separated chains with app-pays sponsorship. One unsponsored chain fails the whole create. */
+  depositChains: process.env.DEPOSIT_CHAINS ?? '',
 };

@@ -1,5 +1,7 @@
-(function () {
+﻿(function () {
   var overlay = null, timer = null, addrEl = null, statusEl = null, qrEl = null;
+  var warnEl = null, quoteEl = null, selected = null;
+  var routes = [], addresses = {}, min = {};
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -20,6 +22,7 @@
   function onKey(e) { if (e.key === 'Escape') close(); }
 
   function setStatus(text, ok) {
+    if (!statusEl) return;
     statusEl.textContent = '';
     var dot = el('span', 'pulse');
     statusEl.className = 'dep-status' + (ok ? ' ok' : '');
@@ -35,9 +38,13 @@
       btn.classList.add('done');
       setTimeout(function () { btn.textContent = 'Copy address'; btn.classList.remove('done'); }, 1600);
     };
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(a).then(done).catch(fallback);
-    } else fallback();
+    if (navigator.clipboard) {
+      if (window.isSecureContext) {
+        navigator.clipboard.writeText(a).then(done).catch(fallback);
+        return;
+      }
+    }
+    fallback();
     function fallback() {
       var t = document.createElement('textarea');
       t.value = a;
@@ -48,31 +55,100 @@
     }
   }
 
+  function familyCopy(f) {
+    if (f === 'btc') return 'Only send BTC on Bitcoin. Other assets may be lost.';
+    if (f === 'tron') return 'Only send TRX or USDT on Tron to this address.';
+    if (f === 'sol') return 'Only send SOL or SPL tokens on Solana to this address.';
+    return 'Only send the selected token on its own network. Other networks are not recovered automatically.';
+  }
+
+  function applyAddr(fam) {
+    var a = addresses[fam];
+    if (!a) return;
+    addrEl.textContent = a.address;
+    qrEl.src = a.qr;
+    warnEl.textContent = '\u26a0 ' + familyCopy(fam);
+  }
+
+  async function quote() {
+    if (!selected) return;
+    quoteEl.textContent = '';
+    if (selected.family === 'sol') {
+      if (selected.asset === 'usdc') {
+        quoteEl.textContent = 'Delivered 1:1, no conversion';
+        return;
+      }
+    }
+    var amt = min[selected.family] || 15;
+    var parts = [
+      'asset=' + encodeURIComponent(selected.asset),
+      'chain=' + encodeURIComponent(selected.chain),
+      'amount=' + amt
+    ];
+    try {
+      var r = await fetch('/wallet/deposit/quote?' + parts.join('&'), { credentials: 'same-origin' });
+      if (!r.ok) return;
+      var j = await r.json();
+      quoteEl.textContent = 'Send ' + amt + ' ' + selected.symbol +
+        ', receive \u2248 ' + Number(j.output).toFixed(2) + ' USDC';
+    } catch (e) {}
+  }
+
+  function pick(route, row) {
+    selected = route;
+    var list = overlay.querySelector('.dep-list');
+    if (list) list.remove();
+    var cur = row.querySelector('.dep-cur');
+    if (cur) cur.textContent = route.symbol + ' on ' + route.network;
+    applyAddr(route.family);
+    quote();
+  }
+
+  function openList(row) {
+    var list = overlay.querySelector('.dep-list');
+    if (list) { list.remove(); return; }
+    list = el('div', 'dep-list');
+    var last = null;
+    routes.forEach(function (route) {
+      if (route.family !== last) {
+        last = route.family;
+        var name = route.family === 'sol' ? 'Solana' : route.family === 'tron' ? 'Tron' : route.family === 'btc' ? 'Bitcoin' : 'EVM networks';
+        list.appendChild(el('div', 'dep-group', name));
+      }
+      var b = el('button', 'dep-opt');
+      b.type = 'button';
+      b.appendChild(el('span', 's', route.symbol));
+      b.appendChild(el('span', 'n', route.network));
+      b.addEventListener('click', function () { pick(route, row); });
+      list.appendChild(b);
+    });
+    row.insertAdjacentElement('afterend', list);
+    list.scrollIntoView({ block: 'nearest' });
+  }
+
   function build() {
     overlay = el('div', 'dep-overlay');
     overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
 
     var sheet = el('div', 'dep-sheet');
     sheet.setAttribute('role', 'dialog');
-    sheet.setAttribute('aria-modal', 'true');
-    sheet.setAttribute('aria-label', 'Stake funds');
+    sheet.setAttribute('aria-label', 'Deposit');
 
     var head = el('div', 'dep-head');
-    head.appendChild(el('div', 'dep-ico', '\u2193'));
-    head.appendChild(el('h3', null, 'Stake funds'));
+    head.appendChild(el('h2', null, 'Deposit'));
     var x = el('button', 'dep-x', '\u00d7');
+    x.type = 'button';
     x.setAttribute('aria-label', 'Close');
     x.addEventListener('click', close);
     head.appendChild(x);
     sheet.appendChild(head);
 
-    var row = el('div', 'dep-row');
-    row.appendChild(el('span', 'dot'));
-    var rt = el('div', 't');
-    rt.appendChild(el('b', null, 'Stake USDC or SOL on Solana'));
-    rt.appendChild(el('span', null, 'Direct \u00b7 Recommended'));
-    row.appendChild(rt);
-    row.appendChild(el('span', 'chev', '\u203a'));
+    var row = el('button', 'dep-row');
+    row.type = 'button';
+    row.appendChild(el('span', 'dep-lbl', 'Asset'));
+    row.appendChild(el('span', 'dep-cur', 'Loading\u2026'));
+    row.appendChild(el('span', 'dep-chev', '\u203a'));
+    row.addEventListener('click', function () { openList(row); });
     sheet.appendChild(row);
 
     var qr = el('div', 'dep-qr');
@@ -84,41 +160,25 @@
     var line = el('div', 'dep-addr');
     addrEl = el('code', null, 'Loading\u2026');
     var cp = el('button', 'dep-copy', 'Copy address');
+    cp.type = 'button';
     cp.addEventListener('click', copy);
     line.appendChild(addrEl);
     line.appendChild(cp);
     sheet.appendChild(line);
 
+    quoteEl = el('div', 'dep-quote');
+    sheet.appendChild(quoteEl);
+
     statusEl = el('div', 'dep-status');
-    setStatus('Waiting for your stake\u2026');
+    setStatus('Waiting for your deposit\u2026');
     sheet.appendChild(statusEl);
 
+    warnEl = el('div', 'dep-warn');
+    sheet.appendChild(warnEl);
+
     var safe = el('div', 'dep-safe');
-    safe.textContent = '\u26bf Protected by privy';
+    safe.textContent = '\u26bf Protected by privy \u00b7 routed by Relay';
     sheet.appendChild(safe);
-
-    var alt = el('div', 'dep-alt');
-    var at = el('div', 't');
-    at.appendChild(el('b', null, 'Stake another token or network'));
-    at.appendChild(el('span', null, 'Same address, any SPL token'));
-    alt.appendChild(at);
-    alt.appendChild(el('span', 'chev', '\u203a'));
-    sheet.appendChild(alt);
-
-    var more = el('details', 'dep-more');
-    more.appendChild(el('summary', null, 'Fees, minimum and what to send'));
-    var ol = el('ol');
-    ['Send USDC or SOL on Solana only',
-     'Minimum $10 \u2014 smaller amounts are held',
-     'Wait for confirmation before closing'].forEach(function (t) {
-      ol.appendChild(el('li', null, t));
-    });
-    more.appendChild(ol);
-    sheet.appendChild(more);
-
-    var warn = el('div', 'dep-warn');
-    warn.textContent = '\u26a0 Only send on Solana. Other networks are not recovered automatically.';
-    sheet.appendChild(warn);
 
     overlay.appendChild(sheet);
     document.body.appendChild(overlay);
@@ -129,16 +189,36 @@
   async function load() {
     try {
       var r = await fetch('/wallet/deposit', { credentials: 'same-origin' });
-      if (!r.ok) throw new Error('http ' + r.status);
+      if (!r.ok) { setStatus('Could not load your deposit address.'); return; }
       var j = await r.json();
-      if (!j.address) throw new Error('no address');
-      addrEl.textContent = j.address;
-      qrEl.src = j.qr;
-      if (j.latest && ['held','locked','credited'].indexOf(j.latest.status) !== -1) setStatus('Stake received', true);
-    } catch (e) {
-      addrEl.textContent = 'Unavailable';
-      setStatus('Could not load address');
-    }
+      (j.addresses || []).forEach(function (a) { addresses[a.family] = a; });
+    } catch (e) { setStatus('Could not load your deposit address.'); return; }
+
+    try {
+      var r2 = await fetch('/wallet/deposit/assets', { credentials: 'same-origin' });
+      if (!r2.ok) return;
+      var k = await r2.json();
+      routes = k.routes || [];
+      min = k.min || {};
+      if (!routes.length) { setStatus('No deposit routes are available right now.'); return; }
+      var def = null;
+      routes.forEach(function (r3) {
+        if (!def) {
+          if (r3.family === 'sol') {
+            if (r3.asset === 'usdc') def = r3;
+          }
+        }
+      });
+      if (!def) {
+        routes.forEach(function (r4) { if (!def && r4.family === 'sol') def = r4; });
+      }
+      if (!def) def = routes[0];
+      selected = def;
+      var cur = overlay.querySelector('.dep-cur');
+      if (cur) cur.textContent = def.symbol + ' on ' + def.network;
+      applyAddr(def.family);
+      quote();
+    } catch (e) {}
   }
 
   function poll() {
@@ -147,19 +227,19 @@
         var r = await fetch('/wallet/deposit', { credentials: 'same-origin' });
         if (!r.ok) return;
         var j = await r.json();
-      if (!j.address) throw new Error('no address');
-        if (j.latest && ['held','locked','credited'].indexOf(j.latest.status) !== -1) {
-          setStatus('Stake received', true);
-          clearInterval(timer);
+        var l = j.latest;
+        if (!l) return;
+        if (l.status === 'detected' || l.status === 'pending' || l.status === 'credited') {
+          setStatus('Received ' + Number(l.usd).toFixed(2) + ' USD worth of ' + l.asset + '.', true);
         }
       } catch (e) {}
-    }, 4000);
+    }, 8000);
   }
 
-  function open() {
+  async function open() {
     if (overlay) return;
     build();
-    load();
+    await load();
     poll();
   }
 

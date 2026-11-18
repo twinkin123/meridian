@@ -1,4 +1,4 @@
-import { createDepositWallet } from '../../privy.js';
+﻿import { createDepositWallet, createPrivyUser } from '../../privy.js';
 import { Router } from 'express';
 import { one, none } from '../../db.js';
 import { address } from '../../solana/derive.js';
@@ -58,7 +58,9 @@ auth.post('/signup', async (req, res) => {
 
   let addr: string;
   try {
-    const w = await createDepositWallet(row.id);
+    const pu = await createPrivyUser(row.id, email);
+    await none(`update users set privy_user_id = $1 where id = $2`, [pu, row.id]);
+    const w = await createDepositWallet(row.id, pu);
     await none(
       `update users set deposit_addr = $1, privy_wallet_id = $2, privy_address = $3 where id = $4`,
       [w.address, w.id, w.address, row.id],
