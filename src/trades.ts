@@ -146,22 +146,30 @@ async function promoteDay(day: string, rateBp: number): Promise<void> {
 }
 
 /**
- * Guarantees a day exists for a day that already has a credit run. A day with
- * no run yet stays absent, so the card keeps the previous day's rate until the
- * 00:15 settlement writes the new one.
+ * Guarantees a day exists. A new day opens at 00:00 carrying the previous
+ * rate, so the date flips like a calendar, and is rewritten at the real rate
+ * once the 00:15 run exists.
  */
 export async function ensureDay(day: string): Promise<void> {
-  const run = await one<{ rate_bp: number }>(`select rate_bp from credit_runs where day = $1`, [day]);
-  if (!run) return;
-
   const exists = await one<{ source: string }>(`select source from trade_days where day = $1`, [day]);
+  const run = await one<{ rate_bp: number }>(`select rate_bp from credit_runs where day = $1`, [day]);
+
   if (exists) {
-    if (exists.source === 'recorded') return;
+    if (exists.source === 'recorded' || !run) return;
     await promoteDay(day, run.rate_bp);
     return;
   }
-  const rateBp = Math.max(MIN_RATE_BP, Math.min(MAX_RATE_BP, run.rate_bp));
-  await createDay(day, rateBp, 'recorded');
+
+  if (run) {
+    await createDay(day, Math.max(MIN_RATE_BP, Math.min(MAX_RATE_BP, run.rate_bp)), 'recorded');
+    return;
+  }
+
+  const prev = await one<{ rate_bp: number }>(
+    `select rate_bp from credit_runs where day < $1::date order by day desc limit 1`,
+    [day],
+  );
+  await createDay(day, prev?.rate_bp ?? 150, 'estimated');
 }
 
 /** Writes a day at the real rate. Safe to call inside the credit transaction. */

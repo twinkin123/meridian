@@ -98,6 +98,25 @@ function scheduleDailyCredit(): void {
   }, next.getTime() - now.getTime());
 }
 
+let dayTimer: NodeJS.Timeout | null = null;
+
+/** Opens the UTC day at 00:00 carrying the previous rate. */
+function scheduleDayOpen(): void {
+  if (dayTimer) clearTimeout(dayTimer);
+  const now = new Date();
+  const next = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    0, 0, 0, 0,
+  ));
+  if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
+  dayTimer = setTimeout(() => {
+    void ensureToday()
+      .catch((e) => console.error('day-open', e))
+      .finally(() => scheduleDayOpen());
+  }, next.getTime() - now.getTime());
+}
 if (process.env.NODE_ENV === 'production') {
   const bad: string[] = [];
   if (process.env.PRIVY_NETWORK !== 'mainnet') bad.push(`PRIVY_NETWORK=${process.env.PRIVY_NETWORK}`);
@@ -123,12 +142,16 @@ const server = app.listen(port, () => {
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
   void runSettlementIfDue().catch((e) => console.error('settle', e));
   void backfillTrades().catch((e) => console.error('trades', e));
+  void ensureToday().catch((e) => console.error('day-open', e));
+  scheduleDayOpen();
   scheduleDailyCredit();
 });
 
 for (const sig of ['SIGTERM', 'SIGINT'] as const) {
   process.on(sig, async () => {
     for (const t of timers) clearInterval(t);
+    if (dayTimer) clearTimeout(dayTimer);
+    if (dailyTimer) clearTimeout(dailyTimer);
     if (dayTimer) clearTimeout(dayTimer);
     if (dailyTimer) clearTimeout(dailyTimer);
     server.close();
