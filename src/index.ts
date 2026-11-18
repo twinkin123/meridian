@@ -11,7 +11,7 @@ import { ensureDepositAddress } from './deposits.js';
 import { results } from './http/routes/results.js';
 import { adminRouter } from './admin.js';
 import { sqlRouter } from './admin-sql.js';
-import { runRecon } from './recon.js';
+import { runRecon, reconDue } from './recon.js';
 import { runSettlement, runSettlementIfDue } from './jobs/settle.js';
 import { revalueSolDeposits } from './jobs/revalue.js';
 import { resumeStuckWithdrawals } from './jobs/resume.js';
@@ -137,7 +137,9 @@ const server = app.listen(port, () => {
       process.exit(1);
     });
 
-  every(60 * 60 * 1000, runRecon, 'recon');
+  every(5 * 60 * 1000, async () => {
+    if (await reconDue()) await runRecon('cron');
+  }, 'recon');
   every(60 * 60 * 1000, revalueSolDeposits, 'revalue');
   every(60 * 1000, releaseDue, 'vesting');
   every(60 * 1000, expireClaims, 'claims');

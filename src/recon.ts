@@ -5,21 +5,19 @@ import { usdMicro } from './solana/match.js';
 import { sweepDestination } from './sweeps.js';
 import { solPriceMicro } from './price.js';
 
-export const DRIFT_FREEZE_USD = 5_000_000n;
-
 /** Drift alarm as a share of liabilities, in basis points. */
 export const DRIFT_FREEZE_BP = BigInt(process.env.DRIFT_FREEZE_BP ?? '1000');
 /** ...but never tighter than this, in micro-USD. */
 export const DRIFT_FLOOR_USD = 2_000_000n;
+/** Minimum gap between automatic recon runs. */
+export const RECON_INTERVAL_MS = Number(process.env.RECON_INTERVAL_MS ?? 55 * 60 * 1000);
 
 const USDC_MINT = new PublicKey(
   process.env.USDC_MINT ?? 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
 );
 
 export async function freezeLevel(): Promise<number> {
-  const r = await one<{ value: string }>(
-    `select value from system_state where key = 'freeze_level'`,
-  );
+  const r = await one<{ value: string }>(`select value from system_state where key = 'freeze_level'`);
   return Number(r?.value ?? 0);
 }
 
@@ -57,6 +55,13 @@ export function isValidAddress(a: string): boolean {
   } catch {
     return false;
   }
+}
+
+/** True when the last run is old enough, so a restart cannot skip or double a run. */
+export async function reconDue(intervalMs = RECON_INTERVAL_MS): Promise<boolean> {
+  const r = await one<{ last: string | null }>(`select max(created_at)::text last from recon_runs`);
+  if (!r?.last) return true;
+  return Date.now() - new Date(r.last).getTime() >= intervalMs;
 }
 
 export async function chainTotals() {
@@ -139,9 +144,6 @@ export async function runRecon(actor = 'manual') {
 }
 
 export async function latestRuns(limit = 20) {
-  const { rows } = await pool.query(
-    `select * from recon_runs order by id desc limit $1`,
-    [limit],
-  );
+  const { rows } = await pool.query(`select * from recon_runs order by id desc limit $1`, [limit]);
   return rows;
 }
