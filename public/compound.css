@@ -1,0 +1,6 @@
+.cmp{position:absolute;top:15px;right:186px;display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border:1px solid var(--line-2);border-radius:99px;background:var(--panel2);color:var(--ink-3);font-family:"Space Mono",monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:color .15s ease,border-color .15s ease}
+.cmp:hover{color:var(--txt)}
+.cmp .dot{width:7px;height:7px;border-radius:50%;border:1px solid currentColor;background:transparent;transition:background .15s ease,box-shadow .15s ease}
+.cmp.on{color:#1bff80;border-color:rgba(27,255,128,.45)}
+.cmp.on .dot{background:#1bff80;border-color:#1bff80;box-shadow:0 0 8px rgba(27,255,128,.75)}
+@media (max-width:620px){.cmp{position:static;margin:0 0 0 8px;vertical-align:middle;font-size:9px;padding:3px 8px}}
