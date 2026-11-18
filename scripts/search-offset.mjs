@@ -1,0 +1,12 @@
+﻿import { readFileSync, writeFileSync } from 'node:fs';
+const f = 'public/search.js';
+let s = readFileSync(f, 'utf8');
+const a = "    box.style.setProperty('left', Math.round(r.left) + 'px', 'important');";
+const b = "    box.style.setProperty('left', (Math.round(r.left) - 10) + 'px', 'important');";
+const n = s.split(a).length - 1;
+if (n !== 1) throw new Error('anchor ' + n);
+s = s.split(a).join(b);
+writeFileSync(f, s);
+const h = 'public/app.html';
+writeFileSync(h, readFileSync(h, 'utf8').split('/search.js?v=10').join('/search.js?v=11'));
+console.log('offset applied');

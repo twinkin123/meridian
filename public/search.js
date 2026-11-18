@@ -46,7 +46,7 @@
     }
     var r = card.getBoundingClientRect();
     var w = document.documentElement.clientWidth;
-    box.style.setProperty('left', Math.round(r.left) + 'px', 'important');
+    box.style.setProperty('left', (Math.round(r.left) - 10) + 'px', 'important');
     box.style.setProperty('right', Math.round(w - r.right) + 'px', 'important');
   }
   align();
