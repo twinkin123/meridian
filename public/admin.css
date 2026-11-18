@@ -49,3 +49,19 @@ h1{font-size:24px;letter-spacing:-.03em;margin-bottom:6px}
 .card.alert{border-color:#f2ddb8;background:#fdf6e9;box-shadow:none}
 .card.alert .mono,.card.alert .lede{color:#8a5a08}
 .card.alert .lede{margin-bottom:0}
+
+.uhead{display:flex;gap:8px;align-items:center;margin-top:12px}
+.uhead input{flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font:inherit;font-size:13px;background:#0a0a0b;color:var(--ink)}
+.uhead input:focus{outline:none;border-color:var(--purple)}
+#uTotals{margin-top:10px;font-family:"Space Mono",monospace;font-size:10.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase}
+.tblwrap{overflow-x:auto;margin-top:10px;border:1px solid var(--line);border-radius:12px}
+table.tbl{width:100%;border-collapse:collapse;font-size:12.5px;min-width:1180px}
+table.tbl th{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;background:#0a0a0b}
+table.tbl th button{background:none;border:none;color:var(--ink-3);font:inherit;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:0}
+table.tbl th button:hover{color:var(--purple)}
+table.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tbl tr:last-child td{border-bottom:none}
+table.tbl td.num{font-family:"Space Mono",monospace;white-space:nowrap;text-align:right}
+table.tbl td.acts{white-space:nowrap}
+.btn.sm{padding:5px 9px;font-size:11px;border-radius:7px}
+select.tier{background:#0a0a0b;color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:4px 6px;font:inherit;font-size:11px}

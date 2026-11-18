@@ -70,6 +70,41 @@
     </div>
 
     <div class="card">
+      <span class="mono">Users</span>
+      <p class="lede" style="margin-top:8px">Every account with balances and activity. Actions apply immediately.</p>
+      <div class="uhead">
+        <input id="uSearch" type="search" placeholder="Search email, wallet, referral code or user id" spellcheck="false">
+        <button class="btn" id="uGo" type="button">Search</button>
+      </div>
+      <div class="msg" id="uMsg"></div>
+      <div id="uTotals"></div>
+      <div class="tblwrap">
+        <table class="tbl">
+          <thead><tr>
+            <th><button data-sort="email" type="button">User</button></th>
+            <th>Tier</th>
+            <th>Role</th>
+            <th><button data-sort="created_at" type="button">Joined</button></th>
+            <th><button data-sort="last_polled_at" type="button">Last seen</button></th>
+            <th><button data-sort="available" type="button">Available</button></th>
+            <th><button data-sort="reserve" type="button">Reserve</button></th>
+            <th><button data-sort="locked" type="button">Locked</button></th>
+            <th>Vesting</th>
+            <th>Rewards</th>
+            <th><button data-sort="deposited" type="button">Deposited</button></th>
+            <th><button data-sort="withdrawn" type="button">Withdrawn</button></th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody id="users"><tr><td colspan="13" class="empty">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="row">
+        <button class="btn" id="uPrev" type="button">Prev</button>
+        <button class="btn" id="uNext" type="button">Next</button>
+      </div>
+    </div>
+
+    <div class="card">
       <span class="mono">Withdrawal queue</span>
       <div class="msg" id="wMsg"></div>
       <ul class="list" id="queue"><li class="empty">Loading...</li></ul>
@@ -123,7 +158,7 @@
     token = t;
     sessionStorage.setItem('admin_token', t);
     var ok = await loadFreeze();
-    if (ok) { gate.classList.add('hide'); panel.classList.remove('hide'); loadQueue(); loadClaims(); loadSweeps(); loadRuns(); }
+    if (ok) { gate.classList.add('hide'); panel.classList.remove('hide'); loadQueue(); loadClaims(); loadSweeps(); loadRuns(); loadUsers(); }
     else msg('gateMsg', 'Token rejected.', 'err');
   }
 
@@ -289,6 +324,136 @@
       }).join('') : '<li class="empty">No runs yet.</li>';
     } catch (_) {}
   }
+
+  var uState = { q: '', sort: 'created_at', dir: 'desc', offset: 0 };
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .split('&').join('&amp;').split('<').join('&lt;')
+      .split('>').join('&gt;').split('"').join('&quot;');
+  }
+
+  function ago(d){
+    var s = (Date.now() - new Date(d).getTime()) / 1000;
+    if (s < 90) return 'just now';
+    if (s < 3600) return Math.round(s / 60) + 'm ago';
+    if (s < 86400) return Math.round(s / 3600) + 'h ago';
+    return Math.round(s / 86400) + 'd ago';
+  }
+
+  async function loadUsers(){
+    var box = document.getElementById('users');
+    var tot = document.getElementById('uTotals');
+    var url = '/admin/users?q=' + encodeURIComponent(uState.q) + '&sort=' + uState.sort +
+      '&dir=' + uState.dir + '&offset=' + uState.offset;
+    try {
+      var r = await fetch(url, { headers: h() });
+      var j = await r.json().catch(function(){ return {}; });
+      if (!r.ok) {
+        box.innerHTML = '<tr><td colspan="13" class="empty">' + esc(j.error || 'Could not load.') + '</td></tr>';
+        return;
+      }
+      var rows = j.users || [];
+      var t = j.totals || {};
+      tot.textContent = j.total + ' users match - available ' + money(t.available) +
+        ' - reserve ' + money(t.reserve) + ' - locked ' + money(t.locked) +
+        ' - deposited ' + money(t.dep) + ' - withdrawn ' + money(t.wd);
+      if (!rows.length) {
+        box.innerHTML = '<tr><td colspan="13" class="empty">No users match.</td></tr>';
+        return;
+      }
+
+      box.innerHTML = rows.map(function(u){
+        var acts =
+          '<button class="btn sm" data-act="admin" data-id="' + u.id + '" data-v="' +
+            (u.is_admin ? '0' : '1') + '" type="button">' + (u.is_admin ? 'Demote' : 'Make admin') + '</button> ' +
+          '<button class="btn sm" data-act="pw" data-id="' + u.id + '" type="button">Reset pw</button> ' +
+          '<button class="btn sm ' + (u.frozen_at ? '' : 'd') + '" data-act="freeze" data-id="' + u.id +
+            '" data-v="' + (u.frozen_at ? '0' : '1') + '" type="button">' + (u.frozen_at ? 'Unfreeze' : 'Freeze') + '</button>';
+        return '<tr>' +
+          '<td><b>' + esc(u.email) + '</b>' +
+            '<span class="sub">' + esc(u.id.slice(0, 8)) + ' - ' + esc(u.referral_code || 'no code') + '</span>' +
+            '<span class="sub">' + esc(u.privy_address || u.deposit_addr || 'no wallet') + '</span>' +
+            (u.frozen_at ? '<span class="sub">frozen ' + ago(u.frozen_at) +
+              (u.frozen_reason ? ': ' + esc(u.frozen_reason) : '') + '</span>' : '') +
+          '</td>' +
+          '<td><select class="tier" data-act="tier" data-id="' + u.id + '">' +
+            [0,1,2,3,4].map(function(n){
+              return '<option value="' + n + '"' + (Number(u.tier) === n ? ' selected' : '') + '>' + n + '</option>';
+            }).join('') +
+          '</select></td>' +
+          '<td>' + (u.is_admin ? '<span class="pill ok">admin</span>' : '<span class="pill">user</span>') +
+            (u.must_change_pw ? '<span class="sub">must change pw</span>' : '') + '</td>' +
+          '<td>' + new Date(u.created_at).toLocaleDateString() + '</td>' +
+          '<td>' + (u.last_polled_at ? ago(u.last_polled_at) : 'never') +
+            '<span class="sub">' + u.live_sessions + ' session(s)</span></td>' +
+          '<td class="num">' + money(u.available) + '</td>' +
+          '<td class="num">' + money(u.reserve) + '</td>' +
+          '<td class="num">' + money(u.locked) + '</td>' +
+          '<td class="num">' + money(u.vesting) + '</td>' +
+          '<td class="num">' + money(u.rewards) + '</td>' +
+          '<td class="num">' + money(u.dep_usd) + '<span class="sub">' + u.dep_n + ' dep</span></td>' +
+          '<td class="num">' + money(u.wd_usd) + '<span class="sub">' + u.wd_n + ' wd</span></td>' +
+          '<td class="acts">' + acts + '</td>' +
+        '</tr>';
+      }).join('');
+    } catch (_) {
+      box.innerHTML = '<tr><td colspan="13" class="empty">Could not load.</td></tr>';
+    }
+  }
+  async function userAct(act, id, v){
+    if (act === 'freeze' && v === '1' && !confirm('Freeze this user? They cannot request withdrawals until you unfreeze.')) return;
+    if (act === 'admin' && v === '0' && !confirm('Remove admin rights from this user?')) return;
+    if (act === 'pw' && !confirm('Set a new temporary password? All their sessions end now.')) return;
+    var body = act === 'tier' ? { tier: Number(v) }
+      : act === 'admin' ? { is_admin: v === '1' }
+      : act === 'freeze' ? { frozen: v === '1' } : {};
+    var r = await fetch('/admin/users/' + id + '/' + act, {
+      method: 'POST',
+      headers: h({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(body)
+    });
+    var j = await r.json().catch(function(){ return {}; });
+    if (!r.ok) { msg('uMsg', j.error || 'Failed.', 'err'); return; }
+    msg('uMsg', j.password
+      ? 'Temporary password: ' + j.password + ' - they must change it on next sign-in.'
+      : 'Saved.', 'ok');
+    loadUsers();
+  }
+
+  document.getElementById('uGo').onclick = function(){
+    uState.q = document.getElementById('uSearch').value.trim();
+    uState.offset = 0;
+    loadUsers();
+  };
+  document.getElementById('uSearch').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') document.getElementById('uGo').onclick();
+  });
+  document.getElementById('uPrev').onclick = function(){
+    uState.offset = Math.max(0, uState.offset - 50);
+    loadUsers();
+  };
+  document.getElementById('uNext').onclick = function(){
+    uState.offset += 50;
+    loadUsers();
+  };
+  document.querySelectorAll('[data-sort]').forEach(function(b){
+    b.onclick = function(){
+      if (uState.sort === b.dataset.sort) uState.dir = uState.dir === 'asc' ? 'desc' : 'asc';
+      else { uState.sort = b.dataset.sort; uState.dir = 'desc'; }
+      uState.offset = 0;
+      loadUsers();
+    };
+  });
+  document.getElementById('users').addEventListener('click', function(e){
+    var b = e.target.closest('[data-act]');
+    if (!b || b.tagName === 'SELECT') return;
+    userAct(b.dataset.act, b.dataset.id, b.dataset.v);
+  });
+  document.getElementById('users').addEventListener('change', function(e){
+    var s = e.target.closest('select[data-act]');
+    if (s) userAct('tier', s.dataset.id, s.value);
+  });
 
   document.getElementById('gateGo').onclick = unlock;
   document.getElementById('tok').addEventListener('keydown', function(e){ if (e.key === 'Enter') unlock(); });

@@ -39,6 +39,12 @@ const USDC_MINT = new PublicKey(
 
 export type Asset = 'SOL' | 'USDC';
 
+/** Per-user freeze set from the admin panel; independent of the global level. */
+export async function isUserFrozen(userId: string): Promise<boolean> {
+  const r = await pool.query<{ frozen_at: string | null }>(`select frozen_at from users where id = $1`, [userId]);
+  return Boolean(r.rows[0]?.frozen_at);
+}
+
 /**
  * $500 on an address we have not paid before, for its first 24 hours. After
  * that the whole available balance, with no ceiling.
@@ -72,6 +78,7 @@ export async function requestWithdrawal(
   if (usd <= 0n) return { ok: false, error: 'bad_amount' };
   // Referral commission is small and owed already, so a freeze does not hold it.
   if (source !== 'rewards' && (await freezeLevel()) >= 2) return { ok: false, error: 'frozen' };
+  if (source !== 'rewards' && (await isUserFrozen(userId))) return { ok: false, error: 'user_frozen' };
 
   return tx(async (c) => {
     await c.query('select id from users where id = $1 for update', [userId]);

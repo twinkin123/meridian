@@ -4,7 +4,9 @@ import { approveClaim, rejectClaim } from './locks.js';
 import { approveWithdrawal, rejectWithdrawal, payoutWithdrawal } from './withdrawals.js';
 import { runRecon, latestRuns, freezeLevel, setFreeze, freezeActor } from './recon.js';
 import { pool } from './db.js';
-import { breakGlassOk, sessionFromToken, isAdmin } from './auth.js';
+import { breakGlassOk, sessionFromToken, isAdmin, setPassword, revokeAllSessions } from './auth.js';
+import { notifyUser } from './notify.js';
+import { randomBytes } from 'node:crypto';
 
 export const adminRouter = Router();
 
@@ -191,6 +193,125 @@ adminRouter.get('/credit/runs', async (_req, res) => {
   res.json({ today: new Date().toISOString().slice(0, 10), rows });
 });
 
+const USER_SORTS: Record<string, string> = {
+  created_at: 'u.created_at', email: 'u.email', available: 'available',
+  reserve: 'reserve', locked: 'locked', deposited: 'dep_usd',
+  withdrawn: 'wd_usd', last_polled_at: 'u.last_polled_at',
+};
+
+function tempPassword(): string {
+  return randomBytes(12).toString('base64url').slice(0, 14);
+}
+
+adminRouter.get('/users', async (req, res) => {
+  const q = String(req.query.q ?? '').trim();
+  const sort = USER_SORTS[String(req.query.sort ?? '')] ?? USER_SORTS.created_at;
+  const dir = String(req.query.dir ?? '') === 'asc' ? 'asc' : 'desc';
+  const limit = Math.min(Math.max(Number(req.query.limit ?? 50) || 50, 1), 200);
+  const offset = Math.max(Number(req.query.offset ?? 0) || 0, 0);
+
+  const where = `where ($1 = '' or u.email ilike '%' || $1 || '%'
+      or u.deposit_addr = $1 or u.referral_code = upper($1) or u.id::text = $1)`;
+
+  const base = `
+    from users u
+    left join (
+      select user_id,
+             coalesce(sum(balance) filter (where code = '2000'), 0) available,
+             coalesce(sum(balance) filter (where code = '2050'), 0) reserve,
+             coalesce(sum(balance) filter (where code = '2070'), 0) locked,
+             coalesce(sum(balance) filter (where code = '2060'), 0) vesting,
+             coalesce(sum(balance) filter (where code = '2080'), 0) rewards,
+             coalesce(sum(balance) filter (where code = '2010'), 0) in_flight
+        from v_balance group by user_id
+    ) b on b.user_id = u.id
+    left join (
+      select user_id, count(*)::int dep_n, coalesce(sum(usd_at_det), 0) dep_usd
+        from deposits group by user_id
+    ) d on d.user_id = u.id
+    left join (
+      select user_id, count(*)::int wd_n, coalesce(sum(usd_amount), 0) wd_usd
+        from withdrawals group by user_id
+    ) w on w.user_id = u.id
+    ${where}`;
+
+  const { rows } = await pool.query(
+    `select u.id, u.email, u.tier, u.is_admin, u.must_change_pw, u.created_at,
+            u.deposit_addr, u.privy_address, u.referral_code, u.lifetime_dep,
+            u.last_polled_at, u.frozen_at, u.frozen_reason,
+            coalesce(b.available, 0) available, coalesce(b.reserve, 0) reserve,
+            coalesce(b.locked, 0) locked, coalesce(b.vesting, 0) vesting,
+            coalesce(b.rewards, 0) rewards, coalesce(b.in_flight, 0) in_flight,
+            coalesce(d.dep_n, 0) dep_n, coalesce(d.dep_usd, 0) dep_usd,
+            coalesce(w.wd_n, 0) wd_n, coalesce(w.wd_usd, 0) wd_usd,
+            (select count(*)::int from sessions s where s.user_id = u.id
+              and s.revoked_at is null and s.expires_at > now()) live_sessions
+       ${base}
+      order by ${sort} ${dir} nulls last, u.created_at desc
+      limit $2 offset $3`,
+    [q, limit, offset],
+  );
+
+  const t = await pool.query<{ n: string; available: string; reserve: string; locked: string; dep: string; wd: string }>(
+    `select count(*)::text n,
+            coalesce(sum(coalesce(b.available, 0)), 0)::text available,
+            coalesce(sum(coalesce(b.reserve, 0)), 0)::text reserve,
+            coalesce(sum(coalesce(b.locked, 0)), 0)::text locked,
+            coalesce(sum(coalesce(d.dep_usd, 0)), 0)::text dep,
+            coalesce(sum(coalesce(w.wd_usd, 0)), 0)::text wd
+       ${base}`,
+    [q],
+  );
+  const tt = t.rows[0];
+  res.json({ users: rows, total: Number(tt.n), totals: {
+    available: tt.available, reserve: tt.reserve, locked: tt.locked,
+    dep: tt.dep, wd: tt.wd } });
+});
+
+adminRouter.post('/users/:id/admin', async (req, res) => {
+  const want = req.body?.is_admin === true || req.body?.is_admin === 'true';
+  const r = await pool.query<{ is_admin: boolean }>(
+    `update users set is_admin = $2 where id = $1 returning is_admin`,
+    [req.params.id, want],
+  );
+  if (r.rowCount === 0) return res.status(404).json({ error: 'not_found' });
+  res.json({ ok: true, is_admin: r.rows[0].is_admin });
+});
+
+adminRouter.post('/users/:id/tier', async (req, res) => {
+  const tier = Number(req.body?.tier);
+  if (!Number.isInteger(tier) || tier < 0 || tier > 4) return res.status(400).json({ error: 'bad_tier' });
+  const r = await pool.query(`update users set tier = $2 where id = $1`, [req.params.id, tier]);
+  if (r.rowCount === 0) return res.status(404).json({ error: 'not_found' });
+  res.json({ ok: true, tier });
+});
+
+adminRouter.post('/users/:id/freeze', async (req, res) => {
+  const frozen = req.body?.frozen === true || req.body?.frozen === 'true';
+  const reason = typeof req.body?.reason === 'string' ? req.body.reason.slice(0, 200) : null;
+  const r = await pool.query(
+    `update users
+        set frozen_at = case when $2 then now() else null end,
+            frozen_reason = case when $2 then $3 else null end
+      where id = $1 returning id`,
+    [req.params.id, frozen, reason],
+  );
+  if (r.rowCount === 0) return res.status(404).json({ error: 'not_found' });
+  await notifyUser(req.params.id, frozen ? 'account_frozen' : 'account_unfrozen',
+    frozen ? 'Your account is frozen, so withdrawals are paused until an admin lifts it.'
+      : 'Your account is unfrozen. Withdrawals work again.');
+  res.json({ ok: true, frozen });
+});
+
+adminRouter.post('/users/:id/password', async (req, res) => {
+  const given = typeof req.body?.password === 'string' ? req.body.password : '';
+  const pw = given.length >= 8 ? given : tempPassword();
+  await setPassword(req.params.id, pw, true);
+  await revokeAllSessions(req.params.id);
+  await notifyUser(req.params.id, 'password_reset',
+    'An admin set a temporary password. You must change it on next sign-in.');
+  res.json({ ok: true, password: pw });
+});
 adminRouter.get('/stats', async (_req, res) => {
   const q = async (sql: string) => (await pool.query<{ n: number }>(sql)).rows[0].n;
   res.json({
