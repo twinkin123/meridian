@@ -36,5 +36,21 @@
     if (narrow()) expand(); else input.focus();
   });
 
+  function align() {
+    var card = document.querySelector('.main .card');
+    if (!card) return;
+    if (window.matchMedia('(max-width:900px)').matches) {
+      box.style.removeProperty('left');
+      box.style.removeProperty('right');
+      return;
+    }
+    var r = card.getBoundingClientRect();
+    var w = document.documentElement.clientWidth;
+    box.style.setProperty('left', Math.round(r.left) + 'px', 'important');
+    box.style.setProperty('right', Math.round(w - r.right) + 'px', 'important');
+  }
+  align();
+  window.addEventListener('resize', align);
+  window.addEventListener('pageshow', align);
   window.openSearch = function (q) { if (narrow()) expand(); if (q != null) input.value = q; input.focus(); fire(); };
 })();
