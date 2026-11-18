@@ -632,4 +632,8 @@ html body #claimBtn, html body #rwOut{
   html body .shell .main{padding-bottom:150px!important}
   html body .shell .main .panel.on .card:last-child{padding-bottom:36px!important}
   html body .shell .main .panel.on .card:last-child .list li:last-child{padding-bottom:16px!important}
+}@media (min-width:901px){
+  .side{height:auto!important;align-self:start!important}
+  .side .robot-card{margin-top:18px!important}
+  .grid > div:last-child > .card:last-child{flex:0 1 auto!important}
 }
