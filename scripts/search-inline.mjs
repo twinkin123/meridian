@@ -1,0 +1,17 @@
+﻿import { writeFileSync } from 'node:fs';
+writeFileSync('public/search.css', `.hsearch{display:flex;align-items:center;gap:9px;flex:1;max-width:520px;margin:0 auto;height:34px;padding:0 11px;border:1px solid var(--line-2);border-radius:9px;background:var(--panel2);color:var(--ink-3);transition:border-color .15s ease}
+.hsearch:focus-within{border-color:var(--pur)}
+.hsearch svg{flex:none;width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round}
+.hsearch input{flex:1;min-width:0;border:0;background:none;color:var(--txt);font:inherit;font-size:12.5px;padding:0;height:100%}
+.hsearch input:focus{outline:none;border:0}
+.hsearch input::-webkit-search-cancel-button{display:none}
+.hsearch kbd{flex:none;font-family:"Space Mono",monospace;font-size:10px;line-height:1;padding:4px 6px;border:1px solid var(--line-2);border-radius:5px;color:var(--ink-3);background:var(--panel)}
+@media (max-width:1100px){.hsearch{max-width:320px}}
+@media (max-width:860px){.hsearch kbd{display:none}.hsearch{max-width:240px}}
+@media (max-width:900px){
+  .top .hsearch{flex:1 1 auto !important;max-width:none !important;min-width:0;margin:0 6px;height:32px;padding:0 10px;border-radius:7px;background:rgba(255,255,255,.04)}
+  .top .hsearch input{font-size:12px}
+  .top .top-right{flex:0 0 auto !important}
+}
+`);
+console.log('inline mobile search');
