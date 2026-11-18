@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   var overlay = null, balEl = null, bal = '0';
 
   function el(tag, cls, text) {
@@ -12,6 +12,12 @@
     return '\u0024' + (Number(m) / 1e6).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  /** Exact decimal for a micro balance, trailing zeros trimmed. */
+  function exact(m) {
+    var s = String(m).padStart(7, '0');
+    var f = s.slice(-6).replace(/0+$/, '');
+    return f ? s.slice(0, -6) + '.' + f : s.slice(0, -6);
+  }
   function onKey(e) { if (e.key === 'Escape') close(); }
 
   function wmsg(t, k) {
@@ -107,7 +113,7 @@
     });
 
     if (all) all.addEventListener('click', function () {
-      if (Number(bal) > 0 && usd) usd.value = (Number(bal) / 1e6).toFixed(2);
+      if (Number(bal) > 0 && usd) { usd.value = exact(bal); usd.dispatchEvent(new Event('input')); }
     });
 
     if (sub) sub.addEventListener('click', function () { submit(sub); });
