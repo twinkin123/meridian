@@ -159,20 +159,23 @@
 
   function rewards() {
     var addr = document.getElementById('wAddr');
-    if (!addr || !addr.value.trim()) { open(); return; }
+    var mine = (addr && addr.value.trim()) || ((document.getElementById('addr') || {}).textContent || '').trim();
+    if (!mine) { open(); return; }
     fetch('/wallet/balance', { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) {
         var rw = (j && j.rewards) || '0';
-        if (!(Number(rw) > 0)) { open(); return; }
+        if (!(Number(rw) > 0)) { open(); return; } var b0 = document.getElementById('rwOut'); if (b0) b0.disabled = true;
         return fetch('/wallet/withdraw', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ asset: 'USDC', address: addr.value.trim(), usd: rw, source: 'rewards' })
+          body: JSON.stringify({ asset: 'USDC', address: mine, usd: rw, source: 'rewards' })
         })
           .then(function (r) { return r.json().catch(function () { return {}; }).then(function (x) { return { ok: r.ok, j: x }; }); })
           .then(function (res) {
             var note = document.getElementById('heldNote');
+            var btn = document.getElementById('rwOut');
+            if (btn) { btn.textContent = res.ok ? 'Queued' : 'Try again'; setTimeout(function () { btn.textContent = 'Claim Referral Rewards'; }, 2500); }
             if (note) note.textContent = res.ok ? 'Referral rewards withdrawal queued, awaiting payout.' : (res.j.error || 'failed');
             window.dispatchEvent(new Event('pageshow'));
           });
