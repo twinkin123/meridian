@@ -16,7 +16,7 @@ import { MIN_DEPOSIT as MIN, combineHeld } from '../../locks.js';
 import { notify, usdStr } from '../../notify.js';
 
 webhooks.post('/helius', async (req, res) => {
-  if (!safeEq(req.header('authorization') ?? '', env.webhookSecret)) {
+  if (!safeEq((req.header('authorization') ?? '').trim(), env.webhookSecret.trim())) {
     return res.status(401).json({ error: 'bad_auth' });
   }
 
@@ -86,8 +86,8 @@ export async function processSig(sig: string): Promise<void> {
       await c.query(
         `update deposits set status = $1, unlock_at = now() + interval '30 days' where sig = $2 and user_id = $3`,
         [dest === '2070' ? 'locked' : 'held',
-        sig, u.id,
-      ]);
+        sig, u.id],
+      );
 
       if (frozen) {
         await notify(c, u.id, 'deposit_held', `${usdStr(usd)} USD received. Withdrawals are frozen, so it waits in reserve.`);
@@ -102,5 +102,3 @@ export async function processSig(sig: string): Promise<void> {
     if (dest === '2050') await combineHeld(u.id);
   }
 }
-
-
