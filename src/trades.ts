@@ -101,18 +101,6 @@ export function utcToday(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-async function writeRows(day: string, rows: Row[]): Promise<void> {
-  for (let i = 0; i < rows.length; i++) {
-    const r = rows[i]!;
-    await pool.query(
-      `insert into trade_results (day, seq, symbol, side, open_px, close_px, opened_min, closed_min, ret_bp)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       on conflict (day, seq) do nothing`,
-      [day, i, r.symbol, r.side, r.open, r.close, r.opened, r.closed, Math.round(r.ret * 100)],
-    );
-  }
-}
-
 async function createDay(day: string, rateBp: number, source: 'recorded' | 'estimated'): Promise<void> {
   const rows = generate(day, rateBp);
   await tx(async (t) => {
