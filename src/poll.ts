@@ -19,8 +19,8 @@ export async function pollDeposits(): Promise<void> {
 
   let hits = 0;
   try {
-    const { rows } = await pool.query<{ a: string; id: string; last_deposit_sig: string | null }>(
-      `select privy_address a, id, last_deposit_sig from users
+    const { rows } = await pool.query<{ a: string; id: string; last_deposit_sig: string | null; last_ata_sig: string | null }>(
+      `select privy_address a, id, last_deposit_sig, last_ata_sig from users
         where privy_address is not null
         order by last_polled_at nulls first
         limit $1`,
@@ -41,31 +41,39 @@ export async function pollDeposits(): Promise<void> {
       }
 
       const seen = new Set<string>();
-      let newest: string | null = row.last_deposit_sig;
+      let nextNative: string | null = row.last_deposit_sig;
+      let nextAta: string | null = row.last_ata_sig;
 
       for (const addr of [a, ata]) {
+        const cursor = addr === a ? row.last_deposit_sig : row.last_ata_sig;
         let sigs: string[] = [];
+        let failed = false;
         try {
-          sigs = await getSigs(addr, PER_ADDRESS, addr === a ? row.last_deposit_sig : null);
+          sigs = await getSigs(addr, PER_ADDRESS, cursor);
         } catch (e) {
+          failed = true;
           console.error('poll', addr, e instanceof Error ? e.message : e);
         }
         for (const sig of sigs) {
           if (seen.has(sig)) continue;
           seen.add(sig);
-          if (!newest) newest = sig;
           try {
             await processSig(sig);
             hits++;
           } catch (e) {
+            failed = true;
             console.error('processSig', sig, e instanceof Error ? e.message : e);
           }
+        }
+        if (!failed && sigs.length) {
+          if (addr === a) nextNative = sigs[0];
+          else nextAta = sigs[0];
         }
       }
 
       await pool.query(
-        'update users set last_polled_at = now(), last_deposit_sig = coalesce($2, last_deposit_sig) where id = $1',
-        [row.id, newest],
+        'update users set last_polled_at = now(), last_deposit_sig = coalesce($2, last_deposit_sig), last_ata_sig = coalesce($3, last_ata_sig) where id = $1',
+        [row.id, nextNative, nextAta],
       );
       await sleep(120);
     }

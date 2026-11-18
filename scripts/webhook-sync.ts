@@ -1,9 +1,9 @@
-﻿import 'dotenv/config';
+import 'dotenv/config';
 import { pool } from '../src/db.js';
 import { env } from '../src/env.js';
 
 const BASE = 'https://api.helius.xyz/v0/webhooks';
-const URL = 'https://meridian-production-1fbbe685.up.railway.app/webhooks/helius';
+const URL = `https://${process.env.RAILWAY_PUBLIC_DOMAIN ?? 'meridian-production-fbf25a20.up.railway.app'}/webhooks/helius`;
 
 async function call(method: string, path: string, body?: unknown) {
   const r = await fetch(`${BASE}${path}?api-key=${env.heliusApiKey}`, {
@@ -40,7 +40,7 @@ if (!hook) {
   const merged = [...new Set([...have, ...want])];
   console.log('existing', have.length, 'merged', merged.length);
   await call('PUT', `/${hook.webhookID}`, {
-    webhookURL: hook.webhookURL,
+    webhookURL: URL,
     transactionTypes: ['ANY'],
     accountAddresses: merged,
     webhookType: 'raw',
