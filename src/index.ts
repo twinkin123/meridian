@@ -14,6 +14,7 @@ import { sqlRouter } from './admin-sql.js';
 import { runRecon } from './recon.js';
 import { runDailyCredit, runDailyCreditIfDue } from './jobs/daily.js';
 import { revalueSolDeposits } from './jobs/revalue.js';
+import { resumeStuckWithdrawals } from './jobs/resume.js';
 import { releaseMatured } from './locks.js';
 import { runReferral } from './jobs/referral.js';
 import { releaseDue } from './vesting.js';
@@ -98,7 +99,7 @@ function scheduleDailyCredit(): void {
 if (process.env.NODE_ENV === 'production') {
   const bad: string[] = [];
   if (process.env.PRIVY_NETWORK !== 'mainnet') bad.push(`PRIVY_NETWORK=${process.env.PRIVY_NETWORK}`);
-  if (process.env.WEBHOOK_SECRET === undefined || process.env.WEBHOOK_SECRET === 'dev-webhook') bad.push('WEBHOOK_SECRET is default');
+  if (process.env.WEBHOOK_SECRET === undefined || ['dev-webhook', 'devwebhook123456789012345678'].includes(process.env.WEBHOOK_SECRET)) bad.push('WEBHOOK_SECRET is default');
   if (process.env.SESSION_SECRET === undefined || process.env.SESSION_SECRET === 'dev-secret') bad.push('SESSION_SECRET is default');
   if (!process.env.USDC_MINT?.startsWith('EPjFWdd5')) bad.push('USDC_MINT not mainnet USDC');
   if (process.env.RPC_URL?.includes('devnet')) bad.push('RPC_URL is devnet');
@@ -115,6 +116,7 @@ const server = app.listen(port, () => {
   every(15 * 60 * 1000, pollDeposits, 'deposits');
   every(5 * 60 * 1000, () => runSweep({ dryRun: false, limit: 200 }), 'sweep');
   every(5 * 60 * 1000, runReferral, 'referral');
+  every(5 * 60 * 1000, resumeStuckWithdrawals, 'resume');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
   void runDailyCreditIfDue().catch((e) => console.error('credit', e));
   scheduleDailyCredit();

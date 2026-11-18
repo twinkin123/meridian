@@ -1,5 +1,7 @@
 export const USDC_MINT = process.env.USDC_MINT ?? 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 export const LAMPORTS = 1_000_000_000n;
+/** SOL deltas at or below this are float and fee noise, not a deposit. */
+const NOISE = BigInt(process.env.SOL_DEPOSIT_NOISE_LAMPORTS ?? '4000000');
 
 type TokenBal = { mint: string; owner?: string; uiTokenAmount: { amount: string } };
 
@@ -25,7 +27,7 @@ export function matchDeposit(tx: any, depositAddr: string): Match | null {
   const idx = keys.indexOf(depositAddr);
   if (idx >= 0) {
     const delta = BigInt(meta.postBalances[idx]) - BigInt(meta.preBalances[idx]);
-    if (delta > 4_000_000n) return { asset: 'SOL', qty: delta }; // ignore treasury float + fee noise
+    if (delta > NOISE) return { asset: 'SOL', qty: delta }; // ignore treasury float + fee noise
   }
 
   return null;
