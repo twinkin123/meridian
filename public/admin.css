@@ -79,3 +79,29 @@ select.tier{background:#0a0a0b;color:var(--ink);border:1px solid var(--line);bor
   --g1:#22d3ee;--g2:#3b82f6;--g3:#8b5cf6;--g4:#f97316;--g5:#ef4444;
   --spectrum:linear-gradient(90deg,var(--g1),var(--g2) 25%,var(--g3) 50%,var(--g4) 75%,var(--g5));
 }
+/* ---------- compact panels: everything fits, lists scroll inside ---------- */
+.card{min-height:0}
+.grid2 > .card{max-height:460px;display:flex;flex-direction:column}
+.card > .list{max-height:300px;overflow-y:auto;overscroll-behavior:contain}
+.grid2 > .card > .list{flex:1 1 auto;min-height:0}
+.card > .list li > div{min-width:0}
+.card > .list .sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
+
+.tblwrap{max-height:min(62vh,600px);overflow:auto;overscroll-behavior:contain}
+table.tbl thead th{position:sticky;top:0;z-index:2}
+table.tbl td{white-space:nowrap}
+table.tbl td:first-child{max-width:230px;overflow:hidden}
+table.tbl td:first-child b,
+table.tbl td:first-child .sub{display:block;max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
+
+.card > .list::-webkit-scrollbar,
+.tblwrap::-webkit-scrollbar{width:10px;height:10px}
+.card > .list::-webkit-scrollbar-thumb,
+.tblwrap::-webkit-scrollbar-thumb{background:#3a3a42;border-radius:99px}
+.card > .list::-webkit-scrollbar-track,
+.tblwrap::-webkit-scrollbar-track{background:transparent}
+
+@media (max-width:900px){
+  .grid2 > .card{max-height:none}
+  .card > .list{max-height:260px}
+}
