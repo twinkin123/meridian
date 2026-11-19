@@ -558,3 +558,6 @@ html body .totals b{display:block!important;font-size:17px!important;line-height
 }
 html body .amount{background:#000!important;background-image:none!important}
 html body .chart{background:#000!important;background-image:none!important}
+/* robot must never intercept clicks on the hero buttons */
+.robot-frame video{pointer-events:none!important}
+.robot-stage{z-index:1!important}
