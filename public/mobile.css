@@ -121,3 +121,20 @@ html body .main .stat{animation:glow-pulse 3.4s ease-in-out .7s infinite!importa
 @media (max-width:900px){
 html body .main .card.rainbow{background:conic-gradient(from var(--rw,0deg),#7c5cff,#22d3ee,#2fd48a,#eab308,#f97316,#ef4444,#7c5cff)!important;animation:rw-race 5s linear infinite,glow-pulse 3.4s ease-in-out infinite!important}
 }
+
+/* tune: softer, slower glow */
+@media (prefers-reduced-motion:no-preference){
+@keyframes glow-pulse{0%,100%{filter:drop-shadow(0 0 4px rgba(45,226,214,.10))}50%{filter:drop-shadow(0 0 12px rgba(45,226,214,.30))}}
+html body .main .card{animation:glow-pulse 5s ease-in-out infinite!important}
+html body .main .stat{animation:glow-pulse 5s ease-in-out .8s infinite!important}
+}
+
+/* value card: 3px racing rim + multicolour glow */
+@keyframes rw-glow{
+0%,100%{filter:drop-shadow(0 0 4px rgba(34,211,238,.26)) drop-shadow(0 0 10px rgba(139,92,246,.20)) drop-shadow(0 0 16px rgba(47,212,138,.16))}
+50%{filter:drop-shadow(0 0 10px rgba(34,211,238,.52)) drop-shadow(0 0 22px rgba(139,92,246,.44)) drop-shadow(0 0 34px rgba(47,212,138,.36))}
+}
+@media (max-width:900px){
+html body .main .card.rainbow::before{clip-path:polygon(27px 3px,calc(100% - 3px) 3px,calc(100% - 3px) calc(100% - 27px),calc(100% - 27px) calc(100% - 3px),3px calc(100% - 3px),3px 27px)!important}
+html body .main .card.rainbow{animation:rw-race 2.6s linear infinite,rw-glow 4.5s ease-in-out infinite!important}
+}
