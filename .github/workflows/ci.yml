@@ -56,5 +56,8 @@ jobs:
           "$PGDUMP" --schema-only --no-owner --no-privileges --no-comments --no-tablespaces "$DATABASE_URL" \
             | sed -e '/^SET /,$!d' -e '/^\(un\)restrict /d' > /tmp/actual.sql
           wc -l /tmp/actual.sql db/schema.sql
-          diff -u db/schema.sql /tmp/actual.sql
+          if ! diff -u db/schema.sql /tmp/actual.sql > /tmp/delta.txt; then
+            echo "::error::actual=$(wc -l < /tmp/actual.sql) lines snapshot=$(wc -l < db/schema.sql) | head: $(head -n 12 /tmp/actual.sql | tr '\n' '~') | delta: $(head -n 40 /tmp/delta.txt | tr '\n' '~')"
+            exit 1
+          fi
       - run: npm test
