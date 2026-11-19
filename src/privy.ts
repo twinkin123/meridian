@@ -370,7 +370,7 @@ export async function createCryptoDepositAccount(
   // Privy supports only ethereum and solana as source chains. An EVM address
   // accepts transfers on every EVM chain, so one ethereum source covers base,
   // polygon, arbitrum, optimism, bsc and robinhood alike.
-  const SUPPORTED = new Set(['ethereum', 'solana']);
+  const SUPPORTED = new Set(['ethereum']);
   const seenChain = new Set<string>();
   const filtered: { asset: string; chain: string }[] = [];
   for (const s of sources) {
@@ -379,7 +379,8 @@ export async function createCryptoDepositAccount(
     filtered.push(s);
   }
   if (!seenChain.has('ethereum')) filtered.push({ asset: 'usdc', chain: 'ethereum' });
-  if (!seenChain.has('solana')) filtered.push({ asset: 'usdc', chain: 'solana' });
+  // Solana source needs app-pays gas sponsorship, still pending; the user's own
+  // Solana wallet address covers that family instead.
 
   const res = await api.depositAccounts.crypto.create(walletId, {
     type: 'inline_route',

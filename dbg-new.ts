@@ -1,0 +1,17 @@
+﻿import 'dotenv/config';
+import { PrivyClient } from '@privy-io/node';
+import { pool } from './src/db.js';
+import { ensureDepositAddresses } from './src/deposits.js';
+const U = 'd0feabc0-4c96-464d-a4ca-42cbf920418f';
+const c = new PrivyClient({ appId: process.env.PRIVY_APP_ID!, appSecret: process.env.PRIVY_APP_SECRET! });
+const q = await pool.query('select privy_user_id from users where id = $1', [U]);
+const pid = q.rows[0]?.privy_user_id;
+if (!pid) throw new Error('no_privy_user');
+const w: any = await (c as any).wallets().create({ chain_type: 'solana', owner: { user_id: pid } });
+console.log('new wallet', w.id, w.address);
+await pool.query('update users set privy_wallet_id = $2, privy_address = $3 where id = $1', [U, w.id, w.address]);
+const out = await ensureDepositAddresses(U);
+console.log('families', Object.keys(out));
+const r = await pool.query('select privy_wallet_id, privy_address from users where id = $1', [U]);
+console.log('row', r.rows[0]);
+await pool.end();

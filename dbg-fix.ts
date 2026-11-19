@@ -1,0 +1,11 @@
+﻿import 'dotenv/config';
+import { pool } from './src/db.js';
+import { ensureDepositAddresses } from './src/deposits.js';
+const U = 'd0feabc0-4c96-464d-a4ca-42cbf920418f';
+await pool.query('update users set privy_address = null, privy_wallet_id = null where id = $1', [U]);
+await pool.query('delete from deposit_addresses where user_id = $1', [U]);
+const out = await ensureDepositAddresses(U);
+console.log('families', Object.keys(out));
+const r = await pool.query('select privy_wallet_id, privy_address from users where id = $1', [U]);
+console.log('wallet', r.rows[0]);
+await pool.end();
