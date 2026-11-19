@@ -75,3 +75,18 @@ body.hs-open{overflow:hidden}
     box-shadow:0 12px 16px -14px rgba(0,0,0,.9);
   }
 }
+
+/* desktop sheets: the overlay scrolls the whole sheet, nothing clips */
+@media (min-width:901px){
+  .hs-overlay,.st-overlay{
+    display:block!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain;
+    padding:24px 16px!important;
+  }
+  .hs-sheet,.st-sheet{
+    margin:0 auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+}
