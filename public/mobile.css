@@ -429,3 +429,12 @@ html body .calc-chips button.on,html body .preset.on{background:rgba(139,92,246,
 html body .side a.on{background:rgba(139,92,246,.16)!important;border-color:rgba(139,92,246,.55)!important;color:#fff!important}
 html body .sw2.on,html body .cmp.on{background:rgba(139,92,246,.22)!important;border-color:rgba(139,92,246,.6)!important}
 html body .btn:disabled,html body .btn[disabled]{opacity:.75!important;cursor:pointer!important}
+
+/* nav tabs: back out of the halo pass */
+html body .side a{background:transparent!important;border:0!important;box-shadow:none!important;color:var(--ink-2)!important}
+html body .side a:hover{background:transparent!important;border:0!important;box-shadow:none!important;color:#fff!important}
+html body .side a.on{background:transparent!important;border:0!important;box-shadow:none!important;color:#fff!important}
+@media (max-width:900px){
+  html body .side a{border-bottom:2px solid transparent!important}
+  html body .side a.on{border-bottom-color:#fff!important}
+}
