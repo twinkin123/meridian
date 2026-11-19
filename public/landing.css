@@ -544,3 +544,46 @@ img,video{display:block;max-width:100%}
 .robot-stage{width:min(26vw,300px) !important}
 .robot-frame{filter:contrast(1.07) saturate(1.06) !important;-webkit-mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 74%,transparent 100%) !important;mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 74%,transparent 100%) !important}
 @media (max-width:860px){.robot-stage{width:min(58vw,260px) !important}}
+
+/* ---------- calculator: match the dashboard ---------- */
+html body .calc h2{font-size:clamp(22px,2.8vw,30px)!important;max-width:24ch!important}
+html body .calc-panel{max-width:640px!important;margin-top:24px!important;padding:18px!important;border:1px solid #232327!important;border-radius:2px!important;background:#0e0e10!important;background-image:none!important;box-shadow:none!important}
+html body .calc-panel::before{display:none!important}
+html body .calc-grid{grid-template-columns:1fr!important;gap:0!important}
+html body .calc-label{font-family:"Space Mono",monospace!important;font-size:10px!important;letter-spacing:.16em!important;text-transform:uppercase!important;color:#8a8a99!important}
+html body .amount{margin-top:12px!important;padding:10px 12px!important;border:1px solid #232327!important;border-radius:8px!important;background:#0e0e10!important;gap:8px!important}
+html body .amount span{font-size:15px!important;color:#8a8a99!important}
+html body .amount input{font-size:18px!important;font-weight:700!important;letter-spacing:-.01em!important;color:#fff!important}
+html body .calc input[type=range]{height:4px!important;border-radius:2px!important;margin:14px 0 6px!important;border:0!important;background:linear-gradient(90deg,#8b5cf6 0,#8b5cf6 var(--p,0.4%),#ece9f5 var(--p,0.4%),#ece9f5 100%)!important}
+html body .calc input[type=range]::-webkit-slider-thumb{width:16px!important;height:16px!important;background:#0a0a0b!important;border:3px solid #8b5cf6!important}
+html body .bounds{font-size:11px!important;color:#8a8a99!important}
+html body .chips{grid-template-columns:repeat(5,1fr)!important;gap:6px!important;margin-top:10px!important}
+html body .chip{padding:7px 4px!important;border:1px solid #232327!important;border-radius:7px!important;background:#0e0e10!important;color:#c0c0cc!important;font-size:11.5px!important;font-weight:700!important}
+html body .chip:hover{border-color:#8b5cf6!important;color:#fff!important}
+html body .chip.on{border-color:#8b5cf6!important;color:#a78bfa!important;background:rgba(139,92,246,.1)!important}
+html body .compound{margin-top:14px!important;padding-top:12px!important;border-top:1px solid #232327!important}
+html body .compound h3{font-size:13px!important;font-weight:600!important;color:#fff!important}
+html body .compound p{font-size:11.5px!important;color:#8a8a99!important}
+html body .sw{width:42px!important;height:24px!important;background:#2a2a30!important}
+html body .sw::after{width:18px!important;height:18px!important;top:3px!important;left:3px!important}
+html body .sw.on{background:#8b5cf6!important}
+html body .sw.on::after{transform:translateX(18px)!important}
+html body .outs{gap:10px!important;margin-top:14px!important}
+html body .out{border:1px solid #232327!important;border-radius:9px!important;padding:12px!important;background:#0e0e10!important}
+html body .out span{font-family:"Space Mono",monospace!important;font-size:9.5px!important;letter-spacing:.14em!important;color:#8a8a99!important}
+html body .out b{font-size:22px!important;margin-top:6px!important;letter-spacing:-.02em!important}
+html body .out i{font-size:11.5px!important;color:#8a8a99!important}
+html body .out b.g,
+html body .totals b.g{color:#2fd48a!important}
+html body .chart{border:1px solid #232327!important;border-radius:9px!important;padding:12px!important;margin-top:10px!important;background:#0e0e10!important}
+html body .chart-top{font-family:"Space Mono",monospace!important;font-size:9.5px!important;letter-spacing:.14em!important;color:#8a8a99!important}
+html body .chart-top b{font-family:"Space Grotesk",sans-serif!important;font-size:17px!important;letter-spacing:-.02em!important;color:#fff!important}
+html body .chart svg{height:90px!important}
+html body .chart-foot{display:none!important}
+html body .totals{grid-template-columns:repeat(3,1fr)!important;gap:10px!important;margin-top:12px!important;padding-top:12px!important;border-top:1px solid #232327!important}
+html body .totals span{font-size:11.5px!important;color:#8a8a99!important}
+html body .totals b{font-size:15px!important;margin-top:4px!important}
+html body .disclaimer{font-size:11.5px!important;color:#8a8a99!important;max-width:64ch!important;margin-top:16px!important}
+html body #lineSimple{stroke:rgba(255,255,255,.22)!important}
+html body #lineComp{stroke:#2fd48a!important}
+@media (max-width:980px){html body .chips{grid-template-columns:repeat(3,1fr)!important}}
