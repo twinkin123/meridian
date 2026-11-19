@@ -165,11 +165,13 @@ export async function ensureDay(day: string): Promise<void> {
     return;
   }
 
-  const prev = await one<{ rate_bp: number }>(
-    `select rate_bp from credit_runs where day < $1::date order by day desc limit 1`,
+  /* No run yet: open the day empty. The date flips at 00:00 and the row stays
+     blank until the 00:15 run writes the real rate and its trades. */
+  await pool.query(
+    `insert into trade_days (day, rate_bp, source) values ($1, null, 'estimated')
+     on conflict (day) do nothing`,
     [day],
   );
-  await createDay(day, prev?.rate_bp ?? 150, 'estimated');
 }
 
 /** Writes a day at the real rate. Safe to call inside the credit transaction. */

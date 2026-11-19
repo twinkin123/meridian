@@ -75,7 +75,8 @@
     if (lastSig === sig) return;
     lastSig = sig;
 
-    var tot = d.rate_bp / 100;
+    var pend = d.rate_bp == null;
+    var tot = pend ? 0 : d.rate_bp / 100;
     var day = new Date(d.day + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 
     var rows = (d.rows || []).map(function(r){
@@ -88,8 +89,10 @@
         '<td class="' + cls + '">' + (v >= 0 ? '+' : '') + v.toFixed(2) + '%</td></tr>';
     }).join('');
 
-    card.innerHTML = head(day, (tot >= 0 ? '+' : '') + tot.toFixed(2) + '%') +
-      '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    card.innerHTML = head(day, pend ? '\u2014' : (tot >= 0 ? '+' : '') + tot.toFixed(2) + '%') +
+      (pend
+        ? '<p class="hint res-pend">Results post at 00:15 UTC.</p>'
+        : '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>') +
       '<div class="res-clock">next credit in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
 
     if (window.matchMedia("(max-width:900px)").matches){
