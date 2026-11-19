@@ -53,3 +53,11 @@
   html body .main > .tickers .tk{align-self:stretch!important}
   html body .main > .tickers .tk::after{top:-10px!important;bottom:-10px!important;right:-5px!important;background:rgba(255,255,255,.1)!important}
 }
+
+@keyframes tk-mob{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(-50% - 5px),0,0)}}
+html body .main > .tickers .tickers-track{animation:tk-mob 80s linear infinite!important;animation-fill-mode:both!important;animation-play-state:running!important;gap:10px!important;will-change:transform!important}
+@media (max-width:900px){
+  html body .main > .tickers{scroll-snap-type:none!important}
+  html body .main > .tickers .tk{width:170px!important;align-self:stretch!important;padding:6px 12px!important;scroll-snap-align:none!important}
+  html body .main > .tickers .tk::after{top:-40px!important;bottom:-40px!important;right:-5px!important;width:1px!important;background:rgba(255,255,255,.11)!important}
+}
