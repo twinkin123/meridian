@@ -699,3 +699,8 @@ html body #claimBtn, html body #rwOut{
 .tk .px{font-size:13px!important;font-weight:600!important;line-height:1.2!important}
 /* base cards wrap text in a bare div: let it shrink inside the grid track */
 .tickers .tk > div{min-width:0!important;overflow:hidden!important}
+/* ticker: give the name column room to breathe */
+.tickers{--tk-w:208px!important}
+.tickers .tk{grid-template-columns:30px minmax(0,1fr) 64px!important;gap:9px!important;padding:12px 13px!important}
+.tk .px{width:64px!important}
+.tk b,.tk small{min-width:0!important}

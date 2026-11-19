@@ -1,4 +1,4 @@
-/* ticker.js - extra assets, seamless scroll, one price fetch for the whole strip. Loaded last. */
+/* ticker.js - one asset table, uniform cards, one price fetch for the whole strip. */
 (function(){
   'use strict';
   var box = document.querySelector('.tickers');
@@ -6,7 +6,12 @@
 
   var CDN = 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/';
 
-  var EXTRA = [
+  var ASSETS = [
+    ['SOL','Solana','solana','#14F195'],
+    ['USDC','USD Coin','usd-coin','#2775CA'],
+    ['BTC','Bitcoin','bitcoin','#F7931A'],
+    ['ETH','Ethereum','ethereum','#627EEA'],
+    ['JUP','Jupiter','jupiter-exchange-solana','#C7F284'],
     ['BNB','BNB','binancecoin','#f3ba2f'],
     ['XRP','XRP','ripple','#23292f'],
     ['ADA','Cardano','cardano','#0033ad'],
@@ -24,28 +29,19 @@
     ['ARB','Arbitrum','arbitrum','#28a0f0']
   ];
 
-  var map = { solana:'SOL', 'usd-coin':'USDC', bitcoin:'BTC', ethereum:'ETH', 'jupiter-exchange-solana':'JUP' };
   var rev = {};
-  var color = { SOL:'#14F195', USDC:'#2775CA', BTC:'#F7931A', ETH:'#627EEA', JUP:'#C7F284' };
-  Object.keys(map).forEach(function(id){ rev[map[id]] = id; });
-  EXTRA.forEach(function(e){ map[e[2]] = e[0]; rev[e[0]] = e[2]; color[e[0]] = e[3]; });
+  ASSETS.forEach(function(a){ rev[a[0]] = a[2]; });
 
-  function build(sym, name, id){
+  function build(sym, name, id, color, price, chg, chgCls){
     var d = document.createElement('div');
     d.className = 'tk';
     d.dataset.id = id;
-    if (color[sym]) d.style.setProperty('--c', color[sym]);
+    d.dataset.sym = sym;
+    d.style.setProperty('--c', color);
 
     var ic = document.createElement('span');
     ic.className = 'ic';
     ic.textContent = sym.charAt(0);
-
-    var img = new Image();
-    img.alt = '';
-    img.decoding = 'async';
-    img.src = CDN + sym.toLowerCase() + '.svg';
-    img.addEventListener('load', function(){ ic.textContent = ''; ic.appendChild(img); ic.classList.add('has'); });
-    img.addEventListener('error', function(){ ic.classList.add('miss'); });
 
     var t = document.createElement('span');
     t.className = 'tk-t';
@@ -59,23 +55,56 @@
     px.className = 'px';
     var v = document.createElement('span');
     v.className = 'v';
-    v.textContent = '--';
+    v.textContent = price || '--';
     var em = document.createElement('em');
-    em.className = 'dn';
-    em.textContent = '--';
+    em.className = chgCls || 'dn';
+    em.textContent = chg || '--';
     px.appendChild(v); px.appendChild(em);
 
     d.appendChild(ic); d.appendChild(t); d.appendChild(px);
     return d;
   }
 
-  EXTRA.forEach(function(e){ box.appendChild(build(e[0], e[1], e[2])); });
+  /* normalise whatever the server rendered, keeping its current price text */
+  Array.prototype.slice.call(box.querySelectorAll('.tk')).forEach(function(card){
+    var b = card.querySelector('b');
+    var sym = b ? b.textContent.trim() : '';
+    var id = rev[sym];
+    if (!id) { card.remove(); return; }
+    var a = ASSETS.filter(function(x){ return x[0] === sym; })[0];
+    var small = card.querySelector('small');
+    var px = card.querySelector('.px');
+    var em = px ? px.querySelector('em') : null;
+    var price = px && px.childNodes[0] ? px.childNodes[0].nodeValue.trim() : '';
+    var chg = em ? em.textContent.trim() : '';
+    var cls = em ? em.className : 'dn';
+    card.parentNode.replaceChild(build(sym, small ? small.textContent : a[1], id, a[3], price, chg, cls), card);
+  });
+
+  ASSETS.forEach(function(a){
+    if (box.querySelector('.tk[data-sym="' + a[0] + '"]')) return;
+    box.appendChild(build(a[0], a[1], a[2], a[3], '', '', 'dn'));
+  });
 
   var track = document.createElement('div');
   track.className = 'tickers-track';
   while (box.firstChild) track.appendChild(box.firstChild);
   box.appendChild(track);
+
   track.querySelectorAll('.tk').forEach(function(c){ track.appendChild(c.cloneNode(true)); });
+
+  /* wire icons once, over originals and clones alike */
+  track.querySelectorAll('.tk').forEach(function(card){
+    var ic = card.querySelector('.ic');
+    var sym = card.dataset.sym;
+    if (!ic || !sym) return;
+    var img = new Image();
+    img.alt = '';
+    img.decoding = 'async';
+    img.addEventListener('load', function(){ ic.textContent = ''; ic.appendChild(img); ic.classList.add('has'); });
+    img.addEventListener('error', function(){ ic.classList.add('miss'); });
+    img.src = CDN + sym.toLowerCase() + '.svg';
+  });
 
   function fmt(n){
     if (n >= 1000) return n.toLocaleString('en-US', { maximumFractionDigits: 0 });
@@ -89,11 +118,6 @@
     var out = [];
     track.querySelectorAll('.tk').forEach(function(c){
       var id = c.dataset.id;
-      if (!id) {
-        var b = c.querySelector('b');
-        id = b ? rev[b.textContent.trim()] : null;
-        if (id) c.dataset.id = id;
-      }
       if (id && out.indexOf(id) < 0) out.push(id);
     });
     return out;
