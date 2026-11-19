@@ -270,7 +270,6 @@ CREATE TABLE public.deposits (
     claim_requested_at timestamp with time zone,
     claim_rejected_at timestamp with time zone,
     claim_reject_reason text,
-    price_micro bigint,
     stuck_at timestamp with time zone,
     relay_order text,
     relay_fill text,
@@ -522,18 +521,6 @@ CREATE TABLE public.trade_days (
 
 
 --
--- Name: trade_days_bak; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.trade_days_bak (
-    day date,
-    rate_bp integer,
-    source text,
-    created_at timestamp with time zone
-);
-
-
---
 -- Name: trade_results; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -548,23 +535,6 @@ CREATE TABLE public.trade_results (
     closed_min integer NOT NULL,
     ret_bp integer NOT NULL,
     CONSTRAINT trade_results_side_check CHECK ((side = ANY (ARRAY['long'::text, 'short'::text])))
-);
-
-
---
--- Name: trade_results_bak; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.trade_results_bak (
-    day date,
-    seq integer,
-    symbol text,
-    side text,
-    open_px numeric(24,10),
-    close_px numeric(24,10),
-    opened_min integer,
-    closed_min integer,
-    ret_bp integer
 );
 
 
