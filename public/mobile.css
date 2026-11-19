@@ -338,3 +338,22 @@ html body .main .stat{animation:glow-breathe 5s ease-in-out .6s infinite!importa
   html body .main .card{animation:glow-breathe 5s ease-in-out infinite!important}
   html body .main .stat{animation:glow-breathe 5s ease-in-out .6s infinite!important}
 }
+
+/* nav background + site-wide readability */
+html,html body{--mut:#dcdde6!important;--mut2:#cacbd5!important;--txt:#fbfcfd!important;--ink:#fbfcfd!important;--ink-2:#eceef3!important;--ink-3:#dcdee6!important;color:#fbfcfd!important}
+html body .side{background:#1a1a23!important;border-right-color:rgba(255,255,255,.18)!important}
+html body .side .navbox{background:rgba(255,255,255,.06)!important}
+html body .side a{color:#e2e3ec!important}
+html body .side a:hover,html body .side a.on{color:#fff!important}
+html body .side .sep{background:rgba(255,255,255,.3)!important}
+html body .top{background:#14141c!important}
+html body p,html body .hint,html body .small,html body .muted,html body .foot,html body .foot a,html body .bp-callout,html body .bp-list li,html body details p,html body .ticker span,html body .topstrip,html body .who{color:#dcdee6!important}
+html body .lbl,html body .label{color:#cfd0db!important}
+html body h1,html body h2,html body h3,html body h4{color:#fff!important}
+html body a{color:#eef0f6!important}
+html body input::placeholder,html body textarea::placeholder{color:#a8aab8!important}
+html body .res th{color:#e6e7ee!important;opacity:1!important}
+@media (max-width:900px){
+  html body .side{background:#1a1a23!important;border-bottom-color:rgba(255,255,255,.22)!important}
+  html body .side a{color:#e2e3ec!important}
+}
