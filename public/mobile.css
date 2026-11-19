@@ -380,3 +380,9 @@ html body .top{background:#000!important}
   html body .side{background:#07070b!important;border-bottom:1px solid rgba(255,255,255,.12)!important}
   html body .side a{color:var(--ink-2)!important}
 }
+
+/* claim referral rewards: purple */
+html body #rwOut{background:linear-gradient(180deg,#8b5cf6,#7343e0)!important;border:1px solid transparent!important;color:#fff!important;text-shadow:none!important;box-shadow:0 8px 22px -10px rgba(139,92,246,.95)!important}
+html body #rwOut:hover{filter:brightness(1.08)}
+html body #rwOut:active{transform:translateY(1px)}
+html body #rwOut:disabled{background:rgba(139,92,246,.15)!important;border:1px solid rgba(139,92,246,.5)!important;color:#cbb8ff!important;box-shadow:none!important;opacity:1!important}
