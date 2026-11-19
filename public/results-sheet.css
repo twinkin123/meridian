@@ -1,4 +1,5 @@
-.hero-actions .btn{flex:1 1 0;min-width:max-content;max-width:190px;white-space:nowrap}
+.hero-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:min(100%,392px);margin-left:auto;margin-right:auto}
+.hero-actions .btn{width:100%;white-space:nowrap;padding-left:10px;padding-right:10px}
 button.btn{font-family:inherit}
 .tr-overlay{position:fixed;inset:0;background:rgba(6,6,9,.72);backdrop-filter:blur(6px);z-index:120;display:flex;align-items:center;justify-content:center;padding:16px}
 .tr-overlay[hidden]{display:none}
