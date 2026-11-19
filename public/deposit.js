@@ -200,6 +200,7 @@
       var k = await r2.json();
       routes = k.routes || [];
       min = k.min || {};
+      routes = routes.filter(function (r5) { return !!addresses[r5.family]; });
       if (!routes.length) { setStatus('No deposit routes are available right now.'); return; }
       var def = null;
       routes.forEach(function (r3) {
