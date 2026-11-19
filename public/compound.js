@@ -16,8 +16,10 @@
     var kr = clock.getBoundingClientRect();
     if (!kr.width) return;
     if (window.matchMedia('(max-width:900px)').matches) {
-      btn.style.setProperty('right', Math.round(cr.right - kr.right) + 'px', 'important');
-      btn.style.setProperty('top', Math.round(kr.bottom - cr.top + 8) + 'px', 'important');
+      /* On phones the countdown sits in a different card, so a measured offset
+         puts the toggle off the card. Let the stylesheet pin it instead. */
+      btn.style.removeProperty('right');
+      btn.style.removeProperty('top');
     } else {
       btn.style.setProperty('right', Math.round(cr.right - kr.left + 12) + 'px', 'important');
       btn.style.setProperty('top', Math.round(kr.top - cr.top + (kr.height - btn.offsetHeight) / 2) + 'px', 'important');
