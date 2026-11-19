@@ -33,7 +33,9 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
   const key = day.toISOString().slice(0, 10);
   const rateBp = MIN_BP + Math.floor(Math.random() * (MAX_BP - MIN_BP + 1));
 
-  /* Level 1 means \
+  /* Level 1 means "start no new 30-day locks", so compounding holds off and the
+     credit vests instead. The money still arrives, it just does not extend a lock. */
+  const frozen = (await freezeLevel()) >= 1;
 
   /* The run and the trade day are written together, at the same rate, in one
      transaction - the day can never exist at a different number to the credit. */
