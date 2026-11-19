@@ -534,3 +534,10 @@ html body .hsearch:focus-within{border-color:rgba(255,255,255,.32)!important;box
   html body .side .robot-card img.robot-still,html body .navbox .robot-card img.robot-still{width:56px!important;height:56px!important}
   html body .side .robot-card{padding:5px 8px!important}
 }
+
+/* mobile robot: bigger still */
+@media (max-width:900px){
+  html body .side .robot-card video,html body .main .robot-card video{width:78px!important;height:78px!important}
+  html body .side .robot-card img.robot-still,html body .navbox .robot-card img.robot-still,html body .main .robot-card img.robot-still{width:78px!important;height:78px!important;object-fit:cover!important;border-radius:8px!important}
+  html body .side .robot-card{padding:4px 8px!important}
+}
