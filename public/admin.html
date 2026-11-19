@@ -183,7 +183,7 @@
     token = t;
     sessionStorage.setItem('admin_token', t);
     var ok = await loadFreeze();
-    if (ok) { gate.classList.add('hide'); panel.classList.remove('hide'); loadQueue(); loadClaims(); loadSweeps(); loadRuns(); loadUsers(); }
+    if (ok) { gate.classList.add('hide'); panel.classList.remove('hide'); loadQueue(); loadClaims(); loadSweeps(); loadRuns(); loadUsers(); loadFlow(); loadTreasury(); }
     else msg('gateMsg', 'Token rejected.', 'err');
   }
 
@@ -482,6 +482,36 @@
     if (s) userAct('tier', s.dataset.id, s.value);
   });
 
+  async function loadFlow(){
+    var el = document.getElementById('flowRows');
+    try {
+      var r = await fetch('/admin/flow', { headers: h() });
+      var j = await r.json().catch(function(){ return {}; });
+      if (!r.ok) { el.innerHTML = '<tr><td colspan="3" class="empty">' + (j.error || 'Failed.') + '</td></tr>'; return; }
+      var net = Number(j.deposits.usd) - Number(j.withdrawals.usd);
+      el.innerHTML =
+        '<tr><td>Deposits</td><td class="num">' + j.deposits.count + '</td><td class="num">' + money(j.deposits.usd) + '</td></tr>' +
+        '<tr><td>Withdrawals</td><td class="num">' + j.withdrawals.count + '</td><td class="num">' + money(j.withdrawals.usd) + '</td></tr>' +
+        '<tr><td>Net</td><td></td><td class="num">' + money(net) + '</td></tr>';
+    } catch (_) { el.innerHTML = '<tr><td colspan="3" class="empty">Could not load.</td></tr>'; }
+  }
+
+  async function loadTreasury(){
+    var el = document.getElementById('treRows');
+    try {
+      var r = await fetch('/admin/treasury', { headers: h() });
+      var j = await r.json().catch(function(){ return {}; });
+      if (!r.ok) { el.innerHTML = '<tr><td colspan="2" class="empty">' + (j.error || 'Failed.') + '</td></tr>'; return; }
+      document.getElementById('treAddr').textContent = j.address;
+      el.innerHTML =
+        '<tr><td>USDC on chain</td><td class="num">' + money(j.usdc) + '</td></tr>' +
+        '<tr><td>SOL on chain</td><td class="num">' + (Number(j.lamports) / 1e9).toFixed(4) + '</td></tr>' +
+        '<tr><td>SOL value</td><td class="num">' + money(j.solUsd) + '</td></tr>' +
+        '<tr><td>Ledger assets</td><td class="num">' + money(j.assets) + '</td></tr>' +
+        '<tr><td>Liabilities</td><td class="num">' + money(j.liabilities) + '</td></tr>' +
+        '<tr><td>Margin</td><td class="num">' + money(j.margin) + '</td></tr>';
+    } catch (_) { el.innerHTML = '<tr><td colspan="2" class="empty">Could not load.</td></tr>'; }
+  }
   document.getElementById('gateGo').onclick = unlock;
   document.getElementById('tok').addEventListener('keydown', function(e){ if (e.key === 'Enter') unlock(); });
   document.getElementById('lock').onclick = function(){
