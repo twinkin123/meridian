@@ -420,3 +420,12 @@ html body .main .addr:hover{border-color:rgba(255,255,255,.32)!important;box-sha
 html body #copy,html body #refCopy{background:transparent!important;border:1px solid rgba(255,255,255,.16)!important;color:#fff!important;text-shadow:none!important;cursor:pointer!important;box-shadow:0 0 30px -5px rgba(139,92,246,.85),0 0 62px -16px rgba(139,92,246,.62)!important}
 html body #copy:hover,html body #refCopy:hover{background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.32)!important;box-shadow:0 0 38px -5px rgba(139,92,246,.98),0 0 74px -16px rgba(139,92,246,.72)!important}
 html body .main .ref-stats>div{border:1px solid rgba(255,255,255,.16)!important;background:transparent!important;box-shadow:0 0 30px -5px rgba(139,92,246,.85),0 0 62px -16px rgba(139,92,246,.62)!important}
+
+/* halo on every remaining control */
+html body .btn,html body .btn.p,html body .btn.ghost,html body .btn.line,html body .btn.sm,html body .calc-chips button,html body .res-nav button,html body .cmp,html body .sw2,html body .dep-x,html body .wd-x,html body .hs-x,html body .ad-x,html body .fq-x,html body .st-x,html body .side a{background:transparent!important;border:1px solid rgba(255,255,255,.24)!important;color:#fff!important;text-shadow:none!important;cursor:pointer!important;box-shadow:0 0 34px -4px rgba(139,92,246,.95),0 0 70px -14px rgba(139,92,246,.7)!important}
+html body .btn:hover,html body .btn.p:hover,html body .btn.ghost:hover,html body .btn.line:hover,html body .btn.sm:hover,html body .calc-chips button:hover,html body .res-nav button:hover,html body .cmp:hover,html body .sw2:hover,html body .dep-x:hover,html body .wd-x:hover,html body .hs-x:hover,html body .ad-x:hover,html body .fq-x:hover,html body .st-x:hover,html body .side a:hover{background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.42)!important;box-shadow:0 0 42px -4px rgba(139,92,246,1),0 0 82px -14px rgba(139,92,246,.8)!important}
+html body .btn:active,html body .calc-chips button:active,html body .res-nav button:active{transform:translateY(1px)}
+html body .calc-chips button.on,html body .preset.on{background:rgba(139,92,246,.22)!important;border-color:rgba(139,92,246,.6)!important;color:#fff!important}
+html body .side a.on{background:rgba(139,92,246,.16)!important;border-color:rgba(139,92,246,.55)!important;color:#fff!important}
+html body .sw2.on,html body .cmp.on{background:rgba(139,92,246,.22)!important;border-color:rgba(139,92,246,.6)!important}
+html body .btn:disabled,html body .btn[disabled]{opacity:.75!important;cursor:pointer!important}
