@@ -2,6 +2,7 @@ import { pool, tx } from '../db.js';
 import { post } from '../ledger/post.js';
 import { notify, usdStr } from '../notify.js';
 import { recordDay } from '../trades.js';
+import { freezeLevel } from '../recon.js';
 
 const MIN_BP = 100;
 const MAX_BP = 350;
@@ -31,6 +32,8 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
      leaves a gap in the rate history that never gets filled. */
   const key = day.toISOString().slice(0, 10);
   const rateBp = MIN_BP + Math.floor(Math.random() * (MAX_BP - MIN_BP + 1));
+
+  /* Level 1 means \
 
   /* The run and the trade day are written together, at the same rate, in one
      transaction - the day can never exist at a different number to the credit. */
@@ -87,18 +90,19 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
       adds.push({ id: s.id, asset: s.asset, amount: n });
     }
     if (net <= 0n) continue;
+    const compound = ac && !frozen;
 
     await tx(async (c) => {
       await c.query('select ensure_user_accounts($1)', [userId]);
 
       const legs: { code: string; owner?: string; amount: bigint }[] = [
         { code: '5020', amount: gross },
-        { code: ac ? '2070' : '2060', owner: userId, amount: -net },
+        { code: compound ? '2070' : '2060', owner: userId, amount: -net },
       ];
       if (fee > 0n) legs.push({ code: '4000', amount: -fee });
       await post(c, 'SettlementCredit', `${key}:${userId}`, legs);
 
-      if (ac) {
+      if (compound) {
         /* Each stake keeps what it earned; the unlock date is left alone. */
         for (const a of adds) {
           if (a.asset === 'USDC') {
