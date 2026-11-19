@@ -69,10 +69,17 @@ html body .main > .tickers .tk::after{content:none!important}
   html body .main > .tickers .tk{width:170px!important}
 }
 
-@media (max-width:900px){html body .main > .tickers{margin:0 0 12px!important}}
+@media (max-width:900px){html body .main > .tickers{margin:0 -20px 14px!important;border-top:1px solid rgba(255,255,255,.1)!important;border-bottom:1px solid rgba(255,255,255,.1)!important;box-shadow:none!important}}
 
 /* hard clamp: nothing may pan the page sideways */
 @media (max-width:900px){
   html,body{overflow-x:hidden!important;max-width:100%!important}
-  html body .shell,html body .main{max-width:100%!important;overflow-x:hidden!important}
+  html body .shell,html body .main{max-width:100%!important;overflow-x:clip!important}
+}
+
+/* ticker: target proportions */
+@media (max-width:900px){
+  html body .main > .tickers{margin-top:0!important;padding:0 20px!important}
+  html body .main > .tickers .tk{padding:15px 12px!important}
+  html body .main > .tickers .tk::after{top:-30px!important;bottom:-30px!important}
 }
