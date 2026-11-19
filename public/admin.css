@@ -106,3 +106,21 @@ table.tbl td:first-child .sub{display:block;max-width:230px;white-space:nowrap;o
   .card > .list{max-height:260px}
 }
 table.tbl.compact{min-width:0}
+
+/* ---------- proportional fit ---------- */
+.wrap{width:100%;min-width:0}
+.top{min-width:0;padding:0 16px}
+.top .brand{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.card > .mono{align-self:flex-start}
+.card > .tblwrap{min-width:0}
+#uTotals{overflow-wrap:anywhere}
+
+.grid2{align-items:stretch}
+.grid2 > .card{height:100%;min-width:0}
+.card > .big ~ .row{margin-top:auto}
+
+table.tbl{min-width:900px}
+@media (max-width:1100px){table.tbl{min-width:720px}}
+
+#treAddr{text-transform:none;font-family:"Space Mono",monospace;font-size:11.5px;letter-spacing:0;line-height:1.45;overflow-wrap:anywhere;color:var(--ink-3)}
