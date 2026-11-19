@@ -97,3 +97,8 @@ html body .main > .tickers .tk::after{content:none!important}
   html body .main{width:100%!important;max-width:100%!important;overflow-x:hidden!important;overflow-y:auto!important}
   html body .main > .tickers{width:auto!important;max-width:none!important}
 }
+
+/* ticker content inset to the nav's own padding */
+@media (max-width:900px){
+  html body .main > .tickers{margin:0 -20px 14px!important;padding:0 14px 0 8px!important}
+}
