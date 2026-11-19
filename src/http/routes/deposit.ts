@@ -33,6 +33,8 @@ deposit.get('/quote', async (req, res) => {
     return res.status(400).json({ error: 'bad_amount' });
   }
 
+  const rounded = Math.max(Number(amount), 0.000001).toFixed(6);
+
   const allowed = new Set(
     env.depositChains.split(',').map((x) => x.trim().toLowerCase()).filter(Boolean),
   );
@@ -45,7 +47,7 @@ deposit.get('/quote', async (req, res) => {
     return res.status(404).json({ error: 'gated_chain' });
   }
 
-  const q = await quoteDeposit(asset, chainName, amount);
+  const q = await quoteDeposit(asset, chainName, rounded);
   if (!q) return res.status(502).json({ error: 'no_quote' });
   res.json({ input: q.input, output: q.output, rate: route.rate });
 });

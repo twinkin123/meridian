@@ -85,7 +85,7 @@
     var parts = [
       'asset=' + encodeURIComponent(selected.asset),
       'chain=' + encodeURIComponent(selected.chain),
-      'amount=' + units.toFixed(8)
+      'amount=' + Math.max(units, 0.000001).toFixed(6)
     ];
     try {
       var r = await fetch('/wallet/deposits/quote?' + parts.join('&'), { credentials: 'same-origin' });

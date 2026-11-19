@@ -1,5 +1,5 @@
 import { env } from './env.js';
-﻿import { pool } from './db.js';
+import { pool } from './db.js';
 import { quoteDeposit } from './privy.js';
 import { ASSETS, CHAINS, MIN_USD, familyOfChain, isDirect } from './deposit-matrix.js';
 
@@ -47,7 +47,8 @@ export async function refreshRoutes(): Promise<void> {
 
           if (!direct) {
             const prior = await priorRate(asset, chain);
-            const q = await once(asset, chain, prior ? (USD_PROBE / prior).toFixed(8) : PROBE);
+            const probe = prior ? Math.max(USD_PROBE / prior, 0.000001).toFixed(6) : PROBE;
+            const q = await once(asset, chain, probe);
             if (q) {
               viable = true;
               const inp = Number(q.input);
