@@ -707,3 +707,17 @@ html body #claimBtn, html body #rwOut{
 /* logos now come from the price payload: fit inside the disc, no letter bleed */
 .tk .ic.has{background:transparent!important;border-color:transparent!important}
 .tk .ic img{object-fit:cover!important;border-radius:50%!important}
+/* mobile: clear the nav row, narrower cards, tighter fade */
+@media (max-width:900px){
+  .tickers{margin-top:14px!important;margin-bottom:22px!important}
+  .tickers{--tk-w:170px!important}
+  .tickers{
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 16px),transparent 100%)!important;
+    mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 16px),transparent 100%)!important;
+  }
+  .tickers .tk{padding:11px 12px!important;gap:8px!important;grid-template-columns:28px minmax(0,1fr) 58px!important}
+  .tk .ic{width:28px!important;height:28px!important}
+  .tk .px{width:58px!important}
+  .tk .px .v{font-size:12.5px!important}
+  .side{margin-bottom:0!important}
+}
