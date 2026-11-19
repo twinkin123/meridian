@@ -49,3 +49,11 @@ body.hs-open{overflow:hidden}
 @media (max-width:900px){
   .stakes-empty{text-align:center;color:var(--mut2);font-size:12.5px;padding:18px 0;border-top:1px solid var(--line)}
 }
+
+/* active stakes: three rows, scroll for the rest */
+.stakes{overflow-y:auto;max-height:130px;overscroll-behavior:contain;scrollbar-width:thin}
+.stakes-t td{line-height:1.35}
+.stakes-t thead th{position:sticky;top:0;z-index:2;background:#000}
+@media (max-width:900px){
+  .stakes-t thead th{background:#0d0d10}
+}
