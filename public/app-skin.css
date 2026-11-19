@@ -641,3 +641,61 @@ html body #claimBtn, html body #rwOut{
   html body .grid > div:first-child > .card:last-child > .calc-chart{flex:1 1 auto!important;display:flex!important;flex-direction:column!important;min-height:110px!important}
   html body .grid > div:first-child > .card:last-child > .calc-chart svg{height:auto!important;max-height:none!important;flex:1 1 auto!important;min-height:60px!important}
 }
+/* ===== ticker: geometry, edge fade, seam ===== */
+.tickers{
+  --tk-w:176px;
+  position:relative;
+  padding:0!important;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%);
+}
+.tickers-track{
+  gap:10px!important;
+  animation-name:tk-slide2!important;
+  animation-duration:80s!important;
+  animation-timing-function:linear!important;
+  animation-iteration-count:infinite!important;
+}
+.tickers:hover .tickers-track{animation-play-state:paused!important}
+@keyframes tk-slide2{from{transform:translateX(0)}to{transform:translateX(calc(-50% - 5px))}}
+.tickers .tk{
+  width:var(--tk-w)!important;
+  display:grid!important;
+  grid-template-columns:30px minmax(0,1fr) 70px;
+  align-items:center!important;
+  gap:10px!important;
+  padding:13px 14px!important;
+}
+.tk .ic{
+  animation:none!important;
+  width:30px!important;height:30px!important;
+  border-radius:50%!important;
+  display:grid!important;place-items:center!important;
+  overflow:hidden!important;
+  font-size:12px!important;font-weight:700!important;
+  color:var(--c,currentColor)!important;
+  background:color-mix(in srgb,var(--c,currentColor) 16%,transparent)!important;
+  border:1px solid color-mix(in srgb,var(--c,currentColor) 34%,transparent)!important;
+}
+.tk .ic.has{background:transparent!important;border-color:transparent!important}
+.tk .ic img{
+  position:static!important;opacity:1!important;
+  width:100%!important;height:100%!important;
+  object-fit:contain!important;border-radius:0!important;display:block!important;
+}
+.tk-t{display:flex!important;flex-direction:column!important;gap:2px!important;min-width:0!important}
+.tk b{font-size:13.5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.tk small{font-size:10.5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.tk .px{
+  width:70px!important;margin-left:0!important;
+  display:flex!important;flex-direction:column!important;align-items:flex-end!important;gap:1px!important;
+  text-align:right!important;font-variant-numeric:tabular-nums!important;
+}
+.tk .px .v{font-size:13px!important;font-weight:600!important;line-height:1.2!important}
+.tk .px em{font-size:10.5px!important;margin-top:0!important}
+@media (prefers-reduced-motion:reduce){.tickers-track{animation:none!important}}
+/* svg icons (base cards) need no disc; base price text matches the new cards */
+.tk .ic:has(svg){background:transparent!important;border-color:transparent!important}
+.tk .px{font-size:13px!important;font-weight:600!important;line-height:1.2!important}
+/* base cards wrap text in a bare div: let it shrink inside the grid track */
+.tickers .tk > div{min-width:0!important;overflow:hidden!important}

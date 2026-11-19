@@ -4,6 +4,8 @@
   var box = document.querySelector('.tickers');
   if (!box) return;
 
+  var CDN = 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/';
+
   var EXTRA = [
     ['BNB','BNB','binancecoin','#f3ba2f'],
     ['XRP','XRP','ripple','#23292f'],
@@ -22,41 +24,58 @@
     ['ARB','Arbitrum','arbitrum','#28a0f0']
   ];
 
-  var map = {
-    solana: 'SOL', 'usd-coin': 'USDC', bitcoin: 'BTC',
-    ethereum: 'ETH', 'jupiter-exchange-solana': 'JUP'
-  };
+  var map = { solana:'SOL', 'usd-coin':'USDC', bitcoin:'BTC', ethereum:'ETH', 'jupiter-exchange-solana':'JUP' };
+  var rev = {};
+  var color = { SOL:'#14F195', USDC:'#2775CA', BTC:'#F7931A', ETH:'#627EEA', JUP:'#C7F284' };
+  Object.keys(map).forEach(function(id){ rev[map[id]] = id; });
+  EXTRA.forEach(function(e){ map[e[2]] = e[0]; rev[e[0]] = e[2]; color[e[0]] = e[3]; });
 
-  EXTRA.forEach(function(e){
-    map[e[2]] = e[0];
+  function build(sym, name, id){
     var d = document.createElement('div');
     d.className = 'tk';
-    d.innerHTML =
-      '<span class="ic" style="background:' + e[3] + '1a;color:' + e[3] + '">' +
-        '<img alt="" src="https://cdn.jsdelivr.net/gh/spothq/cryptocurrency-icons@master/svg/color/' + e[0].toLowerCase() + '.svg">' +
-      '</span>' +
-      '<div><b>' + e[0] + '</b><small>' + e[1] + '</small></div>' +
-      '<span class="px">--<em>--</em></span>';
-    box.appendChild(d);
-  });
+    d.dataset.id = id;
+    if (color[sym]) d.style.setProperty('--c', color[sym]);
+
+    var ic = document.createElement('span');
+    ic.className = 'ic';
+    ic.textContent = sym.charAt(0);
+
+    var img = new Image();
+    img.alt = '';
+    img.decoding = 'async';
+    img.src = CDN + sym.toLowerCase() + '.svg';
+    img.addEventListener('load', function(){ ic.textContent = ''; ic.appendChild(img); ic.classList.add('has'); });
+    img.addEventListener('error', function(){ ic.classList.add('miss'); });
+
+    var t = document.createElement('span');
+    t.className = 'tk-t';
+    var b = document.createElement('b');
+    b.textContent = sym;
+    var s = document.createElement('small');
+    s.textContent = name;
+    t.appendChild(b); t.appendChild(s);
+
+    var px = document.createElement('span');
+    px.className = 'px';
+    var v = document.createElement('span');
+    v.className = 'v';
+    v.textContent = '--';
+    var em = document.createElement('em');
+    em.className = 'dn';
+    em.textContent = '--';
+    px.appendChild(v); px.appendChild(em);
+
+    d.appendChild(ic); d.appendChild(t); d.appendChild(px);
+    return d;
+  }
+
+  EXTRA.forEach(function(e){ box.appendChild(build(e[0], e[1], e[2])); });
 
   var track = document.createElement('div');
   track.className = 'tickers-track';
   while (box.firstChild) track.appendChild(box.firstChild);
   box.appendChild(track);
-
-  track.querySelectorAll('.tk').forEach(function(c){
-    track.appendChild(c.cloneNode(true));
-  });
-
-  track.querySelectorAll('.ic img').forEach(function(img){
-    img.addEventListener('error', function(){
-      var ic = img.parentElement;
-      var sym = ic.parentElement.querySelector('b').textContent;
-      img.remove();
-      ic.textContent = sym.charAt(0);
-    });
-  });
+  track.querySelectorAll('.tk').forEach(function(c){ track.appendChild(c.cloneNode(true)); });
 
   function fmt(n){
     if (n >= 1000) return n.toLocaleString('en-US', { maximumFractionDigits: 0 });
@@ -64,29 +83,49 @@
     return n.toFixed(4);
   }
 
+  var data = {}, tries = 0, timer = null;
+
+  function ids(){
+    var out = [];
+    track.querySelectorAll('.tk').forEach(function(c){
+      var id = c.dataset.id;
+      if (!id) {
+        var b = c.querySelector('b');
+        id = b ? rev[b.textContent.trim()] : null;
+        if (id) c.dataset.id = id;
+      }
+      if (id && out.indexOf(id) < 0) out.push(id);
+    });
+    return out;
+  }
+
   function paint(){
-    fetch('https://api.coingecko.com/api/v3/simple/price?ids=' +
-      Object.keys(map).join(',') + '&vs_currencies=usd&include_24hr_change=true')
-      .then(function(r){ return r.json(); })
+    var list = ids();
+    if (!list.length) return;
+    fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + list.join(',') +
+          '&vs_currencies=usd&include_24hr_change=true', { cache: 'no-store' })
+      .then(function(r){ if (!r.ok) throw new Error('http'); return r.json(); })
       .then(function(d){
-        Object.keys(map).forEach(function(id){
-          var p = d[id], sym = map[id];
+        tries = 0;
+        Object.keys(d).forEach(function(k){ data[k] = d[k]; });
+        track.querySelectorAll('.tk').forEach(function(card){
+          var p = data[card.dataset.id];
           if (!p || typeof p.usd !== 'number') return;
-          track.querySelectorAll('.tk').forEach(function(card){
-            var b = card.querySelector('b');
-            if (!b || b.textContent.trim() !== sym) return;
-            var px = card.querySelector('.px');
-            if (!px) return;
-            px.childNodes[0].nodeValue = fmt(p.usd);
-            var em = px.querySelector('em');
-            if (!em) return;
-            var c = p.usd_24h_change || 0;
-            em.textContent = (c >= 0 ? '+' : '') + c.toFixed(2) + '%';
-            em.className = c >= 0 ? 'up' : 'dn';
-          });
+          var px = card.querySelector('.px');
+          if (!px) return;
+          var v = px.querySelector('.v');
+          if (v) v.textContent = fmt(p.usd);
+          else if (px.childNodes[0]) px.childNodes[0].nodeValue = fmt(p.usd);
+          var em = px.querySelector('em');
+          if (!em) return;
+          var c = p.usd_24h_change || 0;
+          em.textContent = (c >= 0 ? '+' : '') + c.toFixed(2) + '%';
+          em.className = c >= 0 ? 'up' : 'dn';
         });
       })
-      .catch(function(){});
+      .catch(function(){
+        if (tries++ < 4) { clearTimeout(timer); timer = setTimeout(paint, 3000 * tries); }
+      });
   }
 
   paint();
