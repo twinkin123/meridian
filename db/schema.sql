@@ -561,7 +561,6 @@ CREATE TABLE public.users (
     deposit_index integer DEFAULT nextval('public.deposit_index_seq'::regclass) NOT NULL,
     deposit_addr text NOT NULL,
     tier smallint DEFAULT 0 NOT NULL,
-    lifetime_dep bigint DEFAULT 0 NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     referral_code text,
     referred_by uuid,
@@ -951,13 +950,6 @@ CREATE INDEX deposits_locked ON public.deposits USING btree (unlock_at) WHERE (r
 --
 
 CREATE UNIQUE INDEX deposits_relay_uidx ON public.deposits USING btree (relay_order, COALESCE(relay_fill, ''::text)) WHERE (relay_order IS NOT NULL);
-
-
---
--- Name: deposits_sig_user_asset_uidx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX deposits_sig_user_asset_uidx ON public.deposits USING btree (sig, user_id, asset);
 
 
 --

@@ -237,7 +237,7 @@ adminRouter.get('/users', async (req, res) => {
 
   const { rows } = await pool.query(
     `select u.id, u.email, u.tier, u.is_admin, u.must_change_pw, u.created_at,
-            u.deposit_addr, u.privy_address, u.referral_code, u.lifetime_dep,
+            u.deposit_addr, u.privy_address, u.referral_code,
             u.last_polled_at, u.frozen_at, u.frozen_reason,
             coalesce(b.available, 0) available, coalesce(b.reserve, 0) reserve,
             coalesce(b.locked, 0) locked, coalesce(b.vesting, 0) vesting,
