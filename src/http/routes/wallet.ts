@@ -11,10 +11,10 @@ export const wallet = Router();
 
 wallet.get('/balance', requireUser, async (req, res) => {
   const uid = req.userId!;
-  const r = await one<{ b: string; h: string; p: string; nx: string | null; l: string; rw: string }>(
+  const r = await one<{ b: string; h: string; p: string; nx: string | null; l: string; rw: string; life: string }>(
     `select
        coalesce((select balance from v_balance where user_id=$1 and code='2000'),0) b,
-       coalesce((select balance from v_balance where user_id=$1 and code='2050'),0) h, coalesce((select balance from v_balance where user_id=$1 and code='2070'),0) l, coalesce((select balance from v_balance where user_id=$1 and code='2080'),0) rw, coalesce((select sum(amount) from vesting where user_id=$1 and released_at is null),0) p, (select min(due_at) from vesting where user_id=$1 and released_at is null) nx`,
+       coalesce((select balance from v_balance where user_id=$1 and code='2050'),0) h, coalesce((select balance from v_balance where user_id=$1 and code='2070'),0) l, coalesce((select balance from v_balance where user_id=$1 and code='2080'),0) rw, coalesce((select sum(amount) from vesting where user_id=$1 and released_at is null),0) p, (select min(due_at) from vesting where user_id=$1 and released_at is null) nx, ((select coalesce(sum(amount),0) from vesting where user_id=$1) + (select coalesce(sum(commission_usd),0) from referral_ledger where referrer_id=$1))::text life`,
     [uid],
   );
   res.json({
@@ -36,7 +36,7 @@ wallet.get('/balance', requireUser, async (req, res) => {
     )).rows,
     pending: r.p, locked: r.l, rewards: r.rw,
     nextRelease: r.nx,
-    held: r.h,
+    held: r.h, lifetimeEarned: r.life,
     minWithdraw: MIN_WITHDRAW.toString(),
     newAddressCap: NEW_ADDR_CAP.toString(),
     freeze: await freezeLevel(),
