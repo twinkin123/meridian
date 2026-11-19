@@ -69,4 +69,10 @@ html body .main > .tickers .tk::after{content:none!important}
   html body .main > .tickers .tk{width:170px!important}
 }
 
-@media (max-width:900px){html body .main > .tickers{margin:0 -20px 12px!important}}
+@media (max-width:900px){html body .main > .tickers{margin:0 0 12px!important}}
+
+/* hard clamp: nothing may pan the page sideways */
+@media (max-width:900px){
+  html,body{overflow-x:hidden!important;max-width:100%!important}
+  html body .shell,html body .main{max-width:100%!important;overflow-x:hidden!important}
+}
