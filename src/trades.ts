@@ -160,9 +160,17 @@ export async function ensureDay(day: string): Promise<void> {
     return;
   }
 
-  /* No run means no numbers yet. The day does not exist until the 00:15 run
-     writes it, and the API shows today blank rather than carrying yesterday. */
-  if (!run) return;
+  /* No run means no numbers yet. The day still opens at 00:00 so the calendar
+     flips like a page, but it carries no rate and no trades until the 00:15 run
+     fills it. Nullable rate_bp is what makes that blank gap expressible. */
+if (!run) {
+    await pool.query(
+      `insert into trade_days (day, rate_bp, source) values ($1, null, 'estimated')
+       on conflict (day) do nothing`,
+      [day],
+    );
+    return;
+  }
 
   await createDay(day, Math.max(MIN_RATE_BP, Math.min(MAX_RATE_BP, run.rate_bp)), 'recorded');
 }
