@@ -53,7 +53,7 @@ export async function ensureDepositAddresses(userId: string): Promise<DepositAdd
     for (const r of have.rows) out[r.family] = r.address;
     if (!out.sol) out.sol = solana;
 
-    if (walletId && (!out.evm || !out.tron)) {
+    if (walletId && !out.evm) {
       try {
         const chains = await createCryptoDepositAccount(walletId, await sponsoredSources());
         for (const [family, address] of Object.entries(chains)) {
