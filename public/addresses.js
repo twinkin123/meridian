@@ -1,5 +1,5 @@
 (function () {
-  var overlay = null, listEl = null, loaded = false;
+  var overlay = null, listEl = null, loaded = false, authOut = false;
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -84,6 +84,7 @@
 
   function render(rows) {
     if (!loaded || !listEl) return;
+    if (authOut) { listEl.innerHTML = '<li class="empty">Session expired. Log in again to see saved addresses.</li>'; return; }
     if (!rows.length) {
       listEl.innerHTML = '<li class="empty">No saved addresses yet. They appear here after your first withdrawal.</li>';
       setStat('adCount', '0', 'addresses');
@@ -125,9 +126,9 @@
   }
 
   function load() {
-    if (listEl) listEl.innerHTML = '<li class="empty">Loading\u2026</li>';
+    if (listEl) listEl.innerHTML = '<li class="empty">Loading\u2026</li>'; authOut = false;
     fetch('/wallet/withdrawals', { credentials: 'same-origin' })
-      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (r) { if (r.status === 401) { authOut = true; return {}; } return r.ok ? r.json() : {}; })
       .then(function (j) {
         var map = {};
         (j.withdrawals || []).forEach(function (w) {
