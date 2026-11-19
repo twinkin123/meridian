@@ -132,8 +132,8 @@
           var px = card.querySelector('.px');
           if (!px) return;
           var v = px.querySelector('.v');
-          if (v) v.textContent = fmt(p.usd);
-          else if (px.childNodes[0]) px.childNodes[0].nodeValue = fmt(p.usd);
+          if (v) v.textContent = '$' + fmt(p.usd);
+          else if (px.childNodes[0]) px.childNodes[0].nodeValue = '$' + fmt(p.usd);
           var em = px.querySelector('em');
           if (!em) return;
           var c = p.chg || 0;
