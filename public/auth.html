@@ -20,7 +20,7 @@
     </div>
     <div class="aside-foot">
       <span class="lab">Onboarding</span>
-      <h2>Your address is generated the second you sign up.</h2>
+      <h2>Welcome</h2>
       <p>Deposits are swept and re-verified on-chain before a cent is credited.</p>
     </div>
   </aside>
@@ -55,12 +55,8 @@
       <div class="done" id="doneView">
         <span class="lab">Step 02</span>
         <h1>You are in</h1>
-        <p class="lede">This is your personal USDC deposit address. Send at least $10 on Solana.</p>
-        <div class="addr">
-          <code id="addr"></code>
-          <button class="copy" id="copy" type="button">Copy</button>
-        </div>
-        <p class="note">Deposits under $10 go to reserve and combine with your next one.</p>
+        
+        
         <a class="btn" href="/app.html">Go to dashboard</a>
       </div>
 
@@ -143,7 +139,8 @@
       if (address) {
         document.getElementById('formView').style.display = 'none';
         document.getElementById('doneView').classList.add('show');
-        document.getElementById('addr').textContent = address;
+        var addrOut = document.getElementById('addr');
+        if (addrOut) addrOut.textContent = address;
       } else {
         location.href = '/app.html';
       }
@@ -154,8 +151,10 @@
     }
   });
 
-  document.getElementById('copy').addEventListener('click', function(){
-    var text = document.getElementById('addr').textContent;
+  var copyBtn = document.getElementById('copy');
+  if (copyBtn) copyBtn.addEventListener('click', function(){
+    var addrEl = document.getElementById('addr');
+    var text = addrEl ? addrEl.textContent : '';
     var btn = this;
     (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
       .then(function(){ btn.textContent = 'Copied'; })
