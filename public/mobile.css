@@ -478,3 +478,7 @@ html body .btn,html body .btn.p,html body .btn.ghost,html body .btn.line,html bo
 html body .btn:hover,html body .btn.p:hover,html body .btn.ghost:hover,html body .btn.line:hover,html body .btn.sm:hover,html body .calc-chips button:hover,html body .res-nav button:hover,html body .cmp:hover,html body .sw2:hover,html body .dep-x:hover,html body .wd-x:hover,html body .hs-x:hover,html body .ad-x:hover,html body .fq-x:hover,html body .st-x:hover,html body .bell:hover,html body .top-right .who:hover,html body .main .addr:hover,html body #copy:hover,html body #refCopy:hover,html body #rwOut:hover{border-color:rgba(255,255,255,.28)!important;box-shadow:0 0 24px -6px rgba(139,92,246,.78),0 0 52px -18px rgba(139,92,246,.46)!important}
 html body .side a .ico svg{filter:drop-shadow(0 0 3px rgba(139,92,246,.75)) drop-shadow(0 0 8px rgba(139,92,246,.5))!important}
 html body .side a:hover .ico svg,html body .side a.on .ico svg{filter:drop-shadow(0 0 4px rgba(139,92,246,.9)) drop-shadow(0 0 12px rgba(139,92,246,.65))!important}
+
+/* nav icons: no glow */
+html body .side a .ico svg{filter:none!important}
+html body .side a:hover .ico svg,html body .side a.on .ico svg{filter:none!important}
