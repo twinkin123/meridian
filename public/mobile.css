@@ -107,3 +107,17 @@ html body .main > .tickers .tk::after{content:none!important}
 @media (max-width:900px){
   html body .main > .tickers .tk{padding:10px 12px!important}
 }
+
+/* alive: pulsing glow */
+@media (prefers-reduced-motion:no-preference){
+@keyframes glow-pulse{0%,100%{filter:drop-shadow(0 0 5px rgba(45,226,214,.16))}50%{filter:drop-shadow(0 0 16px rgba(45,226,214,.5))}}
+html body .main .card{animation:glow-pulse 3.4s ease-in-out infinite!important}
+html body .main .stat{animation:glow-pulse 3.4s ease-in-out .7s infinite!important}
+}
+
+/* alive: colours racing round the rim */
+@property --rw{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes rw-race{to{--rw:360deg}}
+@media (max-width:900px){
+html body .main .card.rainbow{background:conic-gradient(from var(--rw,0deg),#7c5cff,#22d3ee,#2fd48a,#eab308,#f97316,#ef4444,#7c5cff)!important;animation:rw-race 5s linear infinite,glow-pulse 3.4s ease-in-out infinite!important}
+}
