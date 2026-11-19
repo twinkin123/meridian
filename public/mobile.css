@@ -466,3 +466,9 @@ html body .calc-chips button.on{background:rgba(139,92,246,.2)!important;border-
 html body .sw2.on,html body .cmp.on{background:rgba(139,92,246,.2)!important;border-color:rgba(139,92,246,.62)!important}
 html body .top-right .ghost{border-color:rgba(242,102,92,.72)!important;color:#ff9089!important;background:#000!important}
 html body .btn:disabled,html body #rwOut:disabled{opacity:.8!important;cursor:pointer!important}
+
+/* nav icons: purple glow only */
+html body .side a .ico{opacity:1!important;color:#c4b5fd!important}
+html body .side a .ico svg{filter:drop-shadow(0 0 5px rgba(139,92,246,1)) drop-shadow(0 0 12px rgba(139,92,246,.9)) drop-shadow(0 0 20px rgba(139,92,246,.6))!important}
+html body .side a:hover .ico,html body .side a.on .ico{color:#e9e3ff!important}
+html body .side a:hover .ico svg,html body .side a.on .ico svg{filter:drop-shadow(0 0 7px rgba(139,92,246,1)) drop-shadow(0 0 16px rgba(139,92,246,1)) drop-shadow(0 0 26px rgba(139,92,246,.7))!important}
