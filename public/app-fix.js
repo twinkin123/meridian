@@ -157,13 +157,3 @@
   el.textContent = seen ? 'Welcome back' : 'Welcome';
   try { localStorage.setItem('mrd_seen', '1'); } catch (_) {}
 })();
-/* fold the stats row into the value card so the action row stays at the bottom */
-(function(){
-  var t = document.getElementById('total');
-  if (!t) return;
-  var card = t.closest('.card');
-  var s = document.querySelector('.main .stats');
-  var row = card && card.querySelector('.row');
-  if (!card || !s || !row || s.parentElement === card) return;
-  card.insertBefore(s, row);
-})();

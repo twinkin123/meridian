@@ -1,4 +1,4 @@
-:root{
+﻿:root{
   --panel:#111214; --panel2:#17181b; --line:#1f2024; --line2:#2b2d33;
   --txt:#f2f3f5; --mut:#c8cad1; --mut2:#b3b5bd; --grn:#2fd48a; --red:#f2665c; --pur:#8b5cf6;
   --r:12px;
@@ -720,13 +720,4 @@ html body #claimBtn, html body #rwOut{
   .tk .px{width:58px!important}
   .tk .px .v{font-size:12.5px!important}
   .side{margin-bottom:0!important}
-}
-/* stats folded into the value card; action row pinned to the bottom */
-html body .main .card .stats{margin:16px 0 0!important}
-html body .main .card .row{margin-top:auto!important}
-@media (max-width:900px){
-  html body .main .card .stats{margin:14px 0 0!important;padding-top:12px!important;border-top:1px solid rgba(255,255,255,.1)!important;width:100%!important}
-  html body .main .card .stats .stat{padding:8px 0!important}
-  html body .main .card .stats .stat + .stat{border-left:1px solid rgba(255,255,255,.1)!important}
-  html body .main .card .row{margin-top:16px!important}
 }
