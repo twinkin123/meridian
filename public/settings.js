@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   var ov = null, listEl = null, msgEl = null;
 
   function esc(s) {
@@ -74,7 +74,7 @@
   async function revoke(id, cur) {
     var r = await fetch('/auth/sessions/' + id, { method: 'DELETE', credentials: 'same-origin' });
     if (!r.ok) return;
-    if (cur) { if (window.__logout) window.__logout(); else location.replace('/auth.html'); return; }
+    if (cur) { if (window.__logout) window.__logout(); else location.replace('/auth.html?mode=login'); return; }
     loadSessions();
   }
 
@@ -119,7 +119,7 @@
     ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
     ov.querySelector('.st-x').addEventListener('click', close);
     ov.querySelector('#stLogout').addEventListener('click', function () {
-      if (window.__logout) window.__logout(); else location.replace('/auth.html');
+      if (window.__logout) window.__logout(); else location.replace('/auth.html?mode=login');
     });
     ov.querySelector('#stAll').addEventListener('click', async function () {
       if (!confirm('Sign out every other session?')) return;
