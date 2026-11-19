@@ -20,3 +20,16 @@
   html body .main > .tickers{margin:12px -20px 14px!important;padding:0 20px!important;border-top:0!important}
   html body .main > .tickers .tk{min-width:0!important}
 }
+
+/* mobile ticker: proportional grid + full-height dividers */
+@media (max-width:900px){
+  html body .main > .tickers{margin:12px -20px 12px!important;padding:0 20px!important;border-top:0!important}
+  html body .main > .tickers .tk{position:relative!important;display:grid!important;grid-template-columns:18px minmax(0,1fr) 54px!important;align-items:center!important;gap:7px!important;padding:8px 10px!important;border-right:0!important;min-width:0!important}
+  html body .main > .tickers .tk::after{content:''!important;position:absolute!important;right:0!important;top:0!important;bottom:0!important;width:1px!important;background:rgba(255,255,255,.09)!important}
+  html body .main > .tickers .tk .ic{width:18px!important;height:18px!important;font-size:9px!important}
+  html body .main > .tickers .tk b{font-size:11.5px!important}
+  html body .main > .tickers .tk .px{width:54px!important;margin:0!important;display:flex!important;flex-direction:column!important;align-items:flex-end!important;gap:1px!important;text-align:right!important;font-variant-numeric:tabular-nums!important}
+  html body .main > .tickers .tk .px .v{font-size:11.5px!important;font-weight:600!important;white-space:nowrap!important}
+  html body .main > .tickers .tk .px em{font-size:9.5px!important;margin:0!important;white-space:nowrap!important}
+  html body .main > .tickers .tk > div,html body .main > .tickers .tk .tk-t{min-width:0!important;overflow:hidden!important}
+}
