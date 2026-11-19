@@ -1,4 +1,4 @@
-:root{
+﻿:root{
   --ink:#0a0a12;
   --ink-2:#3d3d52;
   --ink-3:#6b6b85;
@@ -544,10 +544,3 @@ img,video{display:block;max-width:100%}
 .robot-stage{width:min(26vw,300px) !important}
 .robot-frame{filter:contrast(1.07) saturate(1.06) !important;-webkit-mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 74%,transparent 100%) !important;mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 74%,transparent 100%) !important}
 @media (max-width:860px){.robot-stage{width:min(58vw,260px) !important}}
-
-/* video layers: let .is-active beat the positional !important pair */
-.robot-frame video.is-active{opacity:1 !important}
-.robot-frame video:not(.is-active){opacity:0 !important}
-/* surfaces left light under light text */
-.section{background:linear-gradient(180deg,rgba(10,10,11,.92),rgba(10,10,11,.98)) !important}
-.cta-band{background:linear-gradient(180deg,#0a0a0b,#101012) !important}

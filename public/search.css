@@ -12,7 +12,7 @@
   .top .top-right{flex:0 0 auto !important}
 }
 @media (min-width:901px){
-  .top .hsearch{position:absolute !important;left:50% !important;right:auto !important;top:50% !important;transform:translate(-50%,-50%) !important;width:min(520px,44vw) !important;max-width:520px !important;margin:0 !important}
+  .top .hsearch{position:absolute !important;left:16.7vw !important;right:35.9vw !important;top:50% !important;transform:translateY(-50%) !important;width:auto !important;max-width:none !important;margin:0 !important}
   html body .top .welcome{display:none !important}
 }
 @media (min-width:1100px){

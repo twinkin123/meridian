@@ -1,6 +1,6 @@
 (function () {
   var overlay = null, listEl = null, tabsEl = null, loaded = false, tab = 'deposits';
-  var data = { deposits: [], settlements: [], withdrawals: [], auth: false };
+  var data = { deposits: [], settlements: [], withdrawals: [] };
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -106,7 +106,6 @@
   function render() {
     if (tabsEl) tabsEl.querySelectorAll('.hs-tab').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === tab); });
     if (!loaded || !listEl) return;
-    if (data.auth) { listEl.innerHTML = '<li class="empty">Session expired. Log in again to see your history.</li>'; return; }
     var rows = data[tab] || [];
     if (!rows.length) {
       listEl.innerHTML = '<li class="empty">' + (tab === 'deposits' ? 'No stakes yet.' : tab === 'settlements' ? 'No credits yet.' : 'No withdrawals yet.') + '</li>';
@@ -117,10 +116,10 @@
   }
 
   function load() {
-    if (listEl) listEl.innerHTML = '<li class="empty">Loading\u2026</li>'; data.auth = false;
+    if (listEl) listEl.innerHTML = '<li class="empty">Loading\u2026</li>';
     function grab(u, k) {
       return fetch(u, { credentials: 'same-origin' })
-        .then(function (r) { if (r.status === 401) { data.auth = true; return {}; } return r.ok ? r.json() : {}; })
+        .then(function (r) { return r.ok ? r.json() : {}; })
         .then(function (j) { return j[k] || []; })
         .catch(function () { return []; });
     }
