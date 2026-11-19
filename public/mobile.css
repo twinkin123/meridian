@@ -541,3 +541,10 @@ html body .hsearch:focus-within{border-color:rgba(255,255,255,.32)!important;box
   html body .side .robot-card img.robot-still,html body .navbox .robot-card img.robot-still,html body .main .robot-card img.robot-still{width:78px!important;height:78px!important;object-fit:cover!important;border-radius:8px!important}
   html body .side .robot-card{padding:4px 8px!important}
 }
+
+/* stat help bubble */
+html body .main .stat:has(.q){overflow:visible!important}
+html body .main .stat .q{position:absolute!important;right:5px!important;bottom:4px!important;width:13px!important;height:13px!important;padding:0!important;display:grid!important;place-items:center!important;border:1px solid rgba(255,255,255,.3)!important;border-radius:50%!important;background:transparent!important;color:var(--mut)!important;font-family:"Space Mono",monospace!important;font-size:9px!important;line-height:1!important;cursor:pointer!important;z-index:5!important}
+html body .main .stat .q:hover,html body .main .stat .q:focus-visible{border-color:rgba(139,92,246,.8)!important;color:#fff!important;outline:none!important}
+html body .main .stat .q::after{content:attr(data-tip)!important;position:absolute!important;right:0!important;bottom:calc(100% + 7px)!important;width:196px!important;padding:9px 10px!important;background:#0b0b10!important;border:1px solid rgba(139,92,246,.45)!important;border-radius:8px!important;color:#dcdee6!important;font-family:Inter,sans-serif!important;font-size:10.5px!important;font-weight:400!important;line-height:1.45!important;letter-spacing:0!important;text-transform:none!important;text-align:left!important;white-space:normal!important;box-shadow:0 10px 26px rgba(0,0,0,.65)!important;opacity:0!important;visibility:hidden!important;transition:opacity .13s ease!important;pointer-events:none!important}
+html body .main .stat .q:hover::after,html body .main .stat .q:focus-visible::after{opacity:1!important;visibility:visible!important}
