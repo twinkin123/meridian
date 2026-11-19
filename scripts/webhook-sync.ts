@@ -45,27 +45,42 @@ function ours(hooks: Hook[]): Hook[] {
   return hooks.filter((h) => String(h.webhookURL ?? '').includes('/webhooks/helius'));
 }
 
+/** Helius caps addresses per hook, so the pool is spread across several. */
+const MAX = Number(process.env.HELIUS_MAX_ADDRESSES ?? '25');
+
 async function main(): Promise<void> {
   const want = await addresses();
   console.log(`addresses ${want.length}`);
 
+  const chunks: string[][] = [];
+  for (let i = 0; i < want.length; i += MAX) chunks.push(want.slice(i, i + MAX));
+  if (chunks.length === 0) chunks.push([]);
+  console.log(`chunks ${chunks.length} of up to ${MAX}`);
+
   const hooks = ours((await call<Hook[]>('GET', '')) ?? []);
   console.log(`existing hooks ${hooks.length}`);
 
-  let hook = hooks[0];
-  if (!hook) {
-    hook = (await call<Hook>('POST', '', payload(want)))!;
-    console.log('created', hook.webhookID);
-  } else {
-    await call('PUT', `/${hook.webhookID}`, payload(want));
-    console.log('patched', hook.webhookID);
+  for (let i = 0; i < chunks.length; i++) {
+    const hook = hooks[i];
+    if (hook) {
+      await call('PUT', `/${hook.webhookID}`, payload(chunks[i]));
+      console.log(`patched ${hook.webhookID} with ${chunks[i].length}`);
+    } else {
+      const made = (await call<Hook>('POST', '', payload(chunks[i])))!;
+      console.log(`created ${made.webhookID} with ${chunks[i].length}`);
+    }
   }
 
-  const d = await call<Hook>('GET', `/${hook.webhookID}`);
-  console.log(`verify: ${d?.accountAddresses?.length ?? 0} addresses`);
-  if ((d?.accountAddresses?.length ?? 0) !== want.length) {
-    throw new Error('address count mismatch');
+  for (const extra of hooks.slice(chunks.length)) {
+    await call('DELETE', `/${extra.webhookID}`);
+    console.log(`deleted surplus ${extra.webhookID}`);
   }
+
+  const after = ours((await call<Hook[]>('GET', '')) ?? []);
+  const total = after.reduce((n, h) => n + (h.accountAddresses?.length ?? 0), 0);
+  console.log(`verify: ${after.length} hooks, ${total} addresses`);
+  if (after.length !== chunks.length) throw new Error('hook count mismatch');
+  if (total !== want.length) throw new Error('address count mismatch');
 }
 
 main().catch((e) => {

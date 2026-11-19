@@ -1,7 +1,8 @@
 import { env } from '../../env.js';
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import QRCode from 'qrcode';
-import { pool } from '../../db.js';
+import { one, pool } from '../../db.js';
+import { quoteDeposit } from '../../privy.js';
 import { ensureDepositAddresses } from '../../deposits.js';
 import { MIN_USD, refreshRoutes, viableRoutes } from '../../deposit-routes.js';
 
@@ -22,7 +23,34 @@ deposit.post('/refresh', async (_req, res) => {
   res.json({ started: true });
 });
 
-deposit.get('/', async (req, res) => {
+/* Indicative conversion for the selected route. amount is in source-asset units. */
+deposit.get('/quote', async (req, res) => {
+  const asset = String(req.query.asset ?? '');
+  const chainName = String(req.query.chain ?? '').toLowerCase();
+  const amount = String(req.query.amount ?? '');
+  if (!asset || !chainName || !amount) return res.status(400).json({ error: 'bad_quote' });
+  if (!/^\d+(\.\d+)?$/.test(amount) || Number(amount) <= 0) {
+    return res.status(400).json({ error: 'bad_amount' });
+  }
+
+  const allowed = new Set(
+    env.depositChains.split(',').map((x) => x.trim().toLowerCase()).filter(Boolean),
+  );
+  const route = await one<{ rate: string | null; family: string; chain: string }>(
+    'select rate, family, chain from deposit_routes where asset = $1 and chain = $2 and viable',
+    [asset, chainName],
+  );
+  if (!route) return res.status(404).json({ error: 'unknown_route' });
+  if (route.family !== 'sol' && !allowed.has(route.chain)) {
+    return res.status(404).json({ error: 'gated_chain' });
+  }
+
+  const q = await quoteDeposit(asset, chainName, amount);
+  if (!q) return res.status(502).json({ error: 'no_quote' });
+  res.json({ input: q.input, output: q.output, rate: route.rate });
+});
+
+deposit.get('/address', async (req, res) => {
   const userId = req.userId!;
   let addrs: Record<string, string>;
   try {

@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   var overlay = null, timer = null, addrEl = null, statusEl = null, qrEl = null;
   var warnEl = null, quoteEl = null, selected = null;
   var routes = [], addresses = {}, min = {};
@@ -79,17 +79,19 @@
         return;
       }
     }
-    var amt = min[selected.family] || 15;
+    var usd = min[selected.family] || 15;
+    var rate = Number(selected.rate);
+    var units = rate > 0 ? usd / rate : usd;
     var parts = [
       'asset=' + encodeURIComponent(selected.asset),
       'chain=' + encodeURIComponent(selected.chain),
-      'amount=' + amt
+      'amount=' + units.toFixed(8)
     ];
     try {
-      var r = await fetch('/wallet/deposit/quote?' + parts.join('&'), { credentials: 'same-origin' });
+      var r = await fetch('/wallet/deposits/quote?' + parts.join('&'), { credentials: 'same-origin' });
       if (!r.ok) return;
       var j = await r.json();
-      quoteEl.textContent = 'Send ' + amt + ' ' + selected.symbol +
+      quoteEl.textContent = 'Send \u2248 ' + units.toFixed(6) + ' ' + selected.symbol +
         ', receive \u2248 ' + Number(j.output).toFixed(2) + ' USDC';
     } catch (e) {}
   }
@@ -188,14 +190,14 @@
 
   async function load() {
     try {
-      var r = await fetch('/wallet/deposit', { credentials: 'same-origin' });
+      var r = await fetch('/wallet/deposits/address', { credentials: 'same-origin' });
       if (!r.ok) { setStatus('Could not load your deposit address.'); return; }
       var j = await r.json();
       (j.addresses || []).forEach(function (a) { addresses[a.family] = a; });
     } catch (e) { setStatus('Could not load your deposit address.'); return; }
 
     try {
-      var r2 = await fetch('/wallet/deposit/assets', { credentials: 'same-origin' });
+      var r2 = await fetch('/wallet/deposits/assets', { credentials: 'same-origin' });
       if (!r2.ok) return;
       var k = await r2.json();
       routes = k.routes || [];
@@ -225,7 +227,7 @@
   function poll() {
     timer = setInterval(async function () {
       try {
-        var r = await fetch('/wallet/deposit', { credentials: 'same-origin' });
+        var r = await fetch('/wallet/deposits/address', { credentials: 'same-origin' });
         if (!r.ok) return;
         var j = await r.json();
         var l = j.latest;

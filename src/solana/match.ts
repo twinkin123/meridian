@@ -1,13 +1,24 @@
 export const USDC_MINT = process.env.USDC_MINT ?? 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 export const LAMPORTS = 1_000_000_000n;
-/** SOL deltas at or below this are float and fee noise, not a deposit. */
+/** SOL deltas at or below this are float and fee noise, not a deposit.
+    Expressed in dollars and converted at the call-time price so the cutoff
+    does not tighten as SOL appreciates. The floor stays well above the
+    ~5,000 lamport network fee. */
 const NOISE = BigInt(process.env.SOL_DEPOSIT_NOISE_LAMPORTS ?? '4000000');
+const NOISE_USD_MICRO = 300_000n;
+const NOISE_FLOOR = 100_000n;
+
+function noiseLamports(priceMicro?: bigint): bigint {
+  if (!priceMicro || priceMicro <= 0n) return NOISE;
+  const v = (NOISE_USD_MICRO * LAMPORTS) / priceMicro;
+  return v < NOISE_FLOOR ? NOISE_FLOOR : v;
+}
 
 type TokenBal = { mint: string; owner?: string; uiTokenAmount: { amount: string } };
 
 export type Match = { asset: 'USDC' | 'SOL'; qty: bigint };
 
-export function matchDeposit(tx: any, depositAddr: string): Match | null {
+export function matchDeposit(tx: any, depositAddr: string, priceMicro?: bigint): Match | null {
   const meta = tx?.meta;
   if (!meta || meta.err) return null;
 
@@ -27,7 +38,7 @@ export function matchDeposit(tx: any, depositAddr: string): Match | null {
   const idx = keys.indexOf(depositAddr);
   if (idx >= 0) {
     const delta = BigInt(meta.postBalances[idx]) - BigInt(meta.preBalances[idx]);
-    if (delta > NOISE) return { asset: 'SOL', qty: delta }; // ignore treasury float + fee noise
+    if (delta > noiseLamports(priceMicro)) return { asset: 'SOL', qty: delta };
   }
 
   return null;

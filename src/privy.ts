@@ -1,4 +1,4 @@
-﻿import { PrivyClient } from '@privy-io/node';
+import { PrivyClient } from '@privy-io/node';
 import { env } from './env.js';
 import { randomUUID } from 'node:crypto';
 import { SignJWT, importPKCS8 } from 'jose';
@@ -271,7 +271,7 @@ export async function findWalletByExternalId(
   const r = await fetch(url, {
     headers: { 'privy-app-id': env.privyAppId, Authorization: basic() },
   });
-  if (!r.ok) return null;
+  if (!r.ok) { console.error('privy', r.status, await r.text()); return null; }
   const j = (await r.json()) as { data?: { id: string; address: string; external_id?: string }[] };
   const rows = j.data ?? [];
   const w = rows.find((x) => x.external_id === externalId) ?? rows[0];
@@ -415,7 +415,7 @@ export async function quoteDeposit(
       input_amount: amount,
     }),
   });
-  if (!r.ok) return null;
+  if (!r.ok) { console.error('privy', r.status, await r.text()); return null; }
   const j = (await r.json()) as { input_amount?: string; estimated_output_amount?: string };
   if (!j.estimated_output_amount) return null;
   return { input: j.input_amount ?? amount, output: j.estimated_output_amount };
