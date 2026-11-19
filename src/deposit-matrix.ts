@@ -1,4 +1,4 @@
-﻿/** Chains Privy accepts for crypto deposits (from its own supported list). */
+/** Chains Privy accepts for crypto deposits (from its own supported list). */
 export const CHAINS: Record<string, string> = {
   ethereum: 'Ethereum', base: 'Base', polygon: 'Polygon', arbitrum: 'Arbitrum',
   optimism: 'Optimism', avalanche: 'Avalanche', bsc: 'BNB Chain', linea: 'Linea',
