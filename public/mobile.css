@@ -43,3 +43,13 @@
   html body .main > .tickers .tk b{font-size:12px!important}
   html body .main > .tickers .tk .px .v{font-size:12px!important}
 }
+
+/* mobile ticker: edge dissolve via inset shadow, full-bleed dividers */
+@media (max-width:900px){
+  html body .main > .tickers{
+    border-top:0!important;
+    box-shadow:inset 38px 0 26px -12px #000,inset -38px 0 26px -12px #000!important}
+  html body .main > .tickers .tickers-track{animation:tk-slide2 80s linear infinite!important;gap:10px!important;will-change:transform}
+  html body .main > .tickers .tk{align-self:stretch!important}
+  html body .main > .tickers .tk::after{top:-10px!important;bottom:-10px!important;right:-5px!important;background:rgba(255,255,255,.1)!important}
+}
