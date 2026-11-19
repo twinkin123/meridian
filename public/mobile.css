@@ -503,3 +503,7 @@ html body .cmp.on{background:none!important;border:0!important;box-shadow:none!i
 html body .cmp.on .cmp-track{background:#3b82f6!important;border-color:#3b82f6!important}
 html body .cmp.on .cmp-knob{background:#fff!important}
 html body .cmp.on .cmp-lbl{color:var(--txt)!important}
+
+/* referral link row: black interior */
+html body .main .ref-card .addr,html body .main .ref-card .addr code,html body #refLink,html body #addr,html body .main .addr code{background:#000!important}
+html body .main .ref-card .addr code,html body #refLink,html body #addr,html body .main .addr code{border:0!important;box-shadow:none!important}
