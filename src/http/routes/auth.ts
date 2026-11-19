@@ -114,6 +114,13 @@ auth.post('/logout', async (req, res) => {
   const token = req.cookies?.sid;
   if (token) await revokeSession(token);
   res.clearCookie('sid', { path: '/' });
+  res.cookie('bye', '1', {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 120_000,
+    path: '/',
+  });
   res.json({ ok: true });
 });
 

@@ -1,0 +1,57 @@
+/* bye.css — post-logout confirmation */
+.bye{
+  position:fixed; inset:0; z-index:9000;
+  display:flex; align-items:center; justify-content:center;
+  padding:24px;
+  background:rgba(6,6,7,.86);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  animation:byeIn .22s ease-out both;
+}
+@keyframes byeIn{from{opacity:0}to{opacity:1}}
+@keyframes byeUp{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+.bye .bye-card{
+  width:100%; max-width:404px;
+  border-radius:18px!important;
+  border:1px solid var(--line-2,#3a3a42)!important;
+  background:var(--panel,#000)!important;
+  padding:34px 28px 26px;
+  text-align:center;
+  box-shadow:0 30px 80px rgba(0,0,0,.72);
+  animation:byeUp .26s cubic-bezier(.2,.7,.3,1) both;
+}
+.bye .bye-ico{
+  width:56px; height:56px; margin:0 auto 18px;
+  display:grid; place-items:center;
+  border-radius:50%;
+  border:1px solid rgba(34,211,238,.4);
+  background:rgba(34,211,238,.1);
+  color:#22d3ee;
+}
+.bye .bye-ico svg{width:26px;height:26px;display:block}
+.bye h2{
+  margin:0; font-size:22px; line-height:1.2;
+  color:#fff; letter-spacing:-.01em;
+  font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+}
+.bye .bye-sub{
+  margin:10px 0 0; font-size:13.5px; line-height:1.55;
+  color:#c0c0cc!important;
+}
+.bye .bye-acts{display:flex;flex-direction:column;gap:10px;margin-top:24px}
+.bye .bye-btn{
+  display:flex; align-items:center; justify-content:center;
+  width:100%; height:44px; border-radius:10px;
+  font:inherit; font-size:14px; font-weight:600;
+  cursor:pointer; text-decoration:none;
+  transition:background .16s ease, border-color .16s ease, color .16s ease;
+}
+.bye .bye-btn.primary{background:#ededf0;color:#0a0a0b;border:1px solid transparent}
+.bye .bye-btn.primary:hover{background:#fff}
+.bye .bye-btn.ghost{background:transparent;color:#d8d8e2;border:1px solid #3a3a42}
+.bye .bye-btn.ghost:hover{color:#fff;border-color:#c4c4d0}
+body.bye-lock{overflow:hidden}
+@media (max-width:520px){
+  .bye{padding:16px}
+  .bye .bye-card{padding:28px 20px 20px;border-radius:16px!important}
+  .bye h2{font-size:20px}
+}
