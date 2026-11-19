@@ -78,3 +78,22 @@ export async function getSigs(
   ]);
   return (r ?? []).map((x: any) => x.signature).filter(Boolean);
 }
+export async function getSolLamports(address: string): Promise<bigint> {
+  const r = await call('getBalance', [address, { commitment: 'confirmed' }]);
+  return BigInt(r?.value ?? 0);
+}
+
+export async function getSplAmount(address: string, mint: string): Promise<bigint> {
+  if (!mint) return 0n;
+  const r = await call('getTokenAccountsByOwner', [
+    address,
+    { mint },
+    { commitment: 'confirmed', encoding: 'jsonParsed' },
+  ]);
+  let total = 0n;
+  for (const a of r?.value ?? []) {
+    const amt = a?.account?.data?.parsed?.info?.tokenAmount?.amount;
+    if (amt) total += BigInt(amt);
+  }
+  return total;
+}

@@ -105,3 +105,4 @@ table.tbl td:first-child .sub{display:block;max-width:230px;white-space:nowrap;o
   .grid2 > .card{max-height:none}
   .card > .list{max-height:260px}
 }
+table.tbl.compact{min-width:0}

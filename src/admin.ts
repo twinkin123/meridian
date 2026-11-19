@@ -5,6 +5,8 @@ import { approveWithdrawal, rejectWithdrawal, payoutWithdrawal } from './withdra
 import { runRecon, latestRuns, freezeLevel, setFreeze, freezeActor } from './recon.js';
 import { pool } from './db.js';
 import { breakGlassOk, sessionFromToken, isAdmin, setPassword, revokeAllSessions } from './auth.js';
+import { getSolLamports, getSplAmount } from './solana/rpc.js';
+import { solPriceMicro } from './price.js';
 import { notifyUser } from './notify.js';
 import { randomBytes } from 'node:crypto';
 
@@ -34,6 +36,45 @@ adminRouter.use(async (req, res, next) => {
 
 adminRouter.get('/treasury', (_req, res) => {
   res.json({ destination: treasuryAddress() });
+});
+
+adminRouter.get('/flow', async (_req, res) => {
+  const { rows } = await pool.query<{ dep_n: string; dep_usd: string; wd_n: string; wd_usd: string }>(
+    `with d0 as (select date_trunc('day', now() at time zone 'utc') at time zone 'utc' as t)
+     select
+       (select count(*) from deposits, d0 where created_at >= d0.t)::text dep_n,
+       (select coalesce(sum(usd_at_det), 0) from deposits, d0 where created_at >= d0.t)::text dep_usd,
+       (select count(*) from withdrawals, d0 where created_at >= d0.t)::text wd_n,
+       (select coalesce(sum(usd_amount), 0) from withdrawals, d0 where created_at >= d0.t)::text wd_usd`,
+  );
+  const r = rows[0];
+  res.json({
+    since: '00:00 UTC',
+    deposits: { count: Number(r.dep_n), usd: r.dep_usd },
+    withdrawals: { count: Number(r.wd_n), usd: r.wd_usd },
+  });
+});
+
+adminRouter.get('/treasury', async (_req, res) => {
+  const addr = treasuryAddress();
+  const [lamports, usdc, price, led] = await Promise.all([
+    getSolLamports(addr),
+    getSplAmount(addr, process.env.USDC_MINT ?? ''),
+    solPriceMicro(),
+    pool.query<{ a: string; li: string }>(`select total_client_assets() a, total_liabilities() li`),
+  ]);
+  const solUsd = (lamports * price) / 1_000_000_000n;
+  const assets = BigInt(led.rows[0].a);
+  const liabilities = BigInt(led.rows[0].li);
+  res.json({
+    address: addr,
+    usdc: usdc.toString(),
+    lamports: lamports.toString(),
+    solUsd: solUsd.toString(),
+    assets: assets.toString(),
+    liabilities: liabilities.toString(),
+    margin: (assets - liabilities).toString(),
+  });
 });
 
 adminRouter.get('/sweep/status', async (_req, res) => {
