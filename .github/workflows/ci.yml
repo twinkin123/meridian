@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16
+        image: postgres:18
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: meridian_test
@@ -37,8 +37,19 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: postgres client 18
+        run: |
+          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo $VERSION_CODENAME)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/pgdg.gpg
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-18
       - run: npm ci
       - run: npm run build
       - run: npx tsx scripts/check-migrations.ts
       - run: npm run migrate
+      - name: schema drift
+        run: |
+          pg_dump --schema-only --no-owner --no-privileges --no-comments --no-tablespaces "$DATABASE_URL" \
+            | sed -n '/^SET /,$p' > /tmp/actual.sql
+          diff -u db/schema.sql /tmp/actual.sql
       - run: npm test
