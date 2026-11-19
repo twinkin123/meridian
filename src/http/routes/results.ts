@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { pool, one } from '../../db.js';
-import { requireUser } from '../mw/session.js';
 import { ensureDay, utcToday } from '../../trades.js';
 
 export const results = Router();
@@ -8,7 +7,7 @@ export const results = Router();
 const DEFAULT_LIMIT = 30;
 const MAX_LIMIT = 120;
 
-results.get('/', requireUser, async (req, res) => {
+results.get('/', async (req, res) => {
   const today = utcToday();
 
   const rawLimit = Number(req.query.limit ?? DEFAULT_LIMIT);
