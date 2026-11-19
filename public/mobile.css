@@ -263,3 +263,18 @@ html body .main .stat{animation:glow-breathe 4.2s ease-in-out .5s infinite!impor
   html body .main .card{animation:glow-breathe 4.2s ease-in-out infinite!important}
   html body .main .stat{animation:glow-breathe 4.2s ease-in-out .5s infinite!important}
 }
+
+/* glow: a hair slower */
+html body .main .card,html body .main .stat{box-shadow:0 0 12px -10px rgba(139,92,246,.06),0 0 28px -26px rgba(139,92,246,.04)!important}
+html body .main .card.rainbow{box-shadow:0 0 12px -10px rgba(139,92,246,.07),0 0 30px -26px rgba(139,92,246,.05)!important}
+@media (prefers-reduced-motion:no-preference){
+@keyframes glow-breathe{0%,100%{filter:drop-shadow(0 0 4px rgba(139,92,246,.08)) drop-shadow(0 0 11px rgba(139,92,246,.05))}50%{filter:drop-shadow(0 0 7px rgba(139,92,246,.13)) drop-shadow(0 0 16px rgba(139,92,246,.08)) drop-shadow(0 0 30px rgba(139,92,246,.05))}}
+html body .main .card{animation:glow-breathe 5s ease-in-out infinite!important}
+html body .main .stat{animation:glow-breathe 5s ease-in-out .6s infinite!important}
+}
+@media (max-width:900px){
+  html body .main .card,html body .main .stat{box-shadow:0 0 12px -10px rgba(139,92,246,.06),0 0 28px -26px rgba(139,92,246,.04)!important}
+  html body .main .card.rainbow{box-shadow:0 0 12px -10px rgba(139,92,246,.07),0 0 30px -26px rgba(139,92,246,.05)!important}
+  html body .main .card{animation:glow-breathe 5s ease-in-out infinite!important}
+  html body .main .stat{animation:glow-breathe 5s ease-in-out .6s infinite!important}
+}
