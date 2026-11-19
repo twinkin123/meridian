@@ -195,3 +195,11 @@ html body .card.rainbow{background:linear-gradient(90deg,#22d3ee,#3b82f6 25%,#8b
 
 /* value card glow: purple */
 html body .card.rainbow{box-shadow:0 0 30px -6px rgba(139,92,246,.5),0 0 72px -26px rgba(139,92,246,.38)!important}
+
+/* screen-wide glow: purple */
+html body .main .card,html body .main .stat,html body .main .stats{box-shadow:0 0 26px -8px rgba(139,92,246,.32),0 0 60px -30px rgba(139,92,246,.24)!important}
+@media (prefers-reduced-motion:no-preference){
+@keyframes glow-pulse{0%,100%{filter:drop-shadow(0 0 8px rgba(139,92,246,0))}50%{filter:drop-shadow(0 0 10px rgba(139,92,246,.15))}}
+html body .main .card{animation:glow-pulse 3.2s ease-in-out infinite!important}
+html body .main .stat{animation:glow-pulse 3.2s ease-in-out .45s infinite!important}
+}
