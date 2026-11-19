@@ -328,9 +328,9 @@ var darkCount = 0, dObs = new IntersectionObserver(function(es){ es.forEach(func
   function close(){
     if (!ov) return;
     ov.hidden = true;
-    document.body.classList.remove('tr-open');
+    document.body.classList.remove('tr-open'); if (location.hash === '#trSheet') location.hash = '#!';
   }
-  function sync(){ if (location.hash === '#trSheet') open(); else document.body.classList.remove('tr-open'); } window.addEventListener('hashchange', sync); sync();
+  function sync(){ if (location.hash === '#trSheet') open(); else close(); } window.addEventListener('hashchange', sync); sync();
   window.trOpen = open;
 })();
 </script>
