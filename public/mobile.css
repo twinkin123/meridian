@@ -357,3 +357,15 @@ html body .res th{color:#e6e7ee!important;opacity:1!important}
   html body .side{background:#1a1a23!important;border-bottom-color:rgba(255,255,255,.22)!important}
   html body .side a{color:#e2e3ec!important}
 }
+
+/* nav bar: reversed to the earlier tone */
+html body .side{background:#13131a!important;border-right-color:rgba(255,255,255,.15)!important}
+html body .side .navbox{background:rgba(255,255,255,.045)!important}
+html body .side a{color:#d5d6e0!important}
+html body .side a:hover,html body .side a.on{color:#fff!important}
+html body .side .sep{background:rgba(255,255,255,.26)!important}
+html body .top{background:#000!important}
+@media (max-width:900px){
+  html body .side{background:#13131a!important;border-bottom-color:rgba(255,255,255,.2)!important}
+  html body .side a{color:#d5d6e0!important}
+}
