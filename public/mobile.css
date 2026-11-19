@@ -489,3 +489,7 @@ html body .hsearch input,html body .main .addr code,html body .calc-amount input
 html body .hsearch:focus-within,html body .res-clock:hover,html body .cmp:hover,html body .res-nav button:hover,html body .btn:hover,html body .btn.p:hover,html body .btn.ghost:hover,html body .btn.line:hover,html body .btn.sm:hover,html body .calc-chips button:hover,html body .preset:hover,html body .chip:hover,html body .sw2:hover,html body .dep-x:hover,html body .wd-x:hover,html body .hs-x:hover,html body .ad-x:hover,html body .fq-x:hover,html body .st-x:hover,html body .bell:hover,html body .top-right .who:hover,html body .main .addr:hover,html body #copy:hover,html body #refCopy:hover,html body #rwOut:hover{border-color:rgba(255,255,255,.28)!important;box-shadow:0 0 24px -5px rgba(139,92,246,.66),0 0 46px -16px rgba(139,92,246,.4)!important}
 html body .top-right .ghost{border-color:rgba(242,102,92,.7)!important;color:#ff9089!important;background:#000!important}
 html body .calc-chips button.on,html body .sw2.on,html body .cmp.on,html body .preset.on{background:rgba(139,92,246,.2)!important;border-color:rgba(139,92,246,.6)!important;color:#fff!important}
+
+/* nav icons: no glow, no tint */
+html body .side a .ico{color:inherit!important;opacity:.85!important}
+html body .side a:hover .ico,html body .side a.on .ico{color:inherit!important;opacity:1!important}
