@@ -556,3 +556,5 @@ html body .totals b{display:block!important;font-size:17px!important;line-height
   html body .totals span{font-size:10.5px!important}
   html body .totals b{font-size:15px!important}
 }
+html body .amount{background:#000!important;background-image:none!important}
+html body .chart{background:#000!important;background-image:none!important}
