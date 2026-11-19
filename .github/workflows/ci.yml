@@ -50,6 +50,6 @@ jobs:
       - name: schema drift
         run: |
           pg_dump --schema-only --no-owner --no-privileges --no-comments --no-tablespaces "$DATABASE_URL" \
-            | sed -n '/^SET /,$p' > /tmp/actual.sql
+            | sed -e '/^SET /,$!d' -e '/^\(un\)restrict /d' > /tmp/actual.sql
           diff -u db/schema.sql /tmp/actual.sql
       - run: npm test
