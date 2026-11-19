@@ -177,3 +177,10 @@ html body .main .stat{animation:glow-pulse 3.2s ease-in-out .45s infinite!import
 @media (max-width:900px){
 html body .main .card.rainbow{animation:rw-race 3.4s linear infinite,rw-glow 3.2s ease-in-out infinite!important}
 }
+
+/* value card: back to static */
+html body .main .card.rainbow{animation:none!important}
+@media (max-width:900px){
+  html body .main .card.rainbow{background:linear-gradient(115deg,#7c5cff,#22d3ee,#2fd48a,#eab308,#f97316,#ef4444)!important}
+  html body .main .card.rainbow::before{clip-path:polygon(23px 0,100% 0,100% calc(100% - 23px),calc(100% - 23px) 100%,0 100%,0 23px)!important}
+}
