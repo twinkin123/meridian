@@ -516,3 +516,7 @@ html body .res-clock{position:relative!important;overflow:hidden!important;borde
 html body .res-clock::after{content:''!important;position:absolute!important;left:0!important;top:0!important;bottom:0!important;width:var(--fill,0%)!important;pointer-events:none!important;background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.17) 0 6px,rgba(255,255,255,0) 6px 22px)!important;animation:liquid-slide 2.4s linear infinite!important;transition:width .9s linear!important}
 @keyframes liquid-slide{from{background-position:0 0}to{background-position:22px 0}}
 html body .res-clock span{position:relative!important;z-index:1!important}
+
+/* search: slightly brighter halo */
+html body .hsearch{border-color:rgba(255,255,255,.2)!important;box-shadow:0 0 24px -5px rgba(139,92,246,.72),0 0 46px -16px rgba(139,92,246,.44)!important}
+html body .hsearch:focus-within{border-color:rgba(255,255,255,.32)!important;box-shadow:0 0 30px -5px rgba(139,92,246,.88),0 0 56px -16px rgba(139,92,246,.54)!important}
