@@ -68,3 +68,5 @@ body.dep-open{overflow:hidden}
 .dep-hint{margin:0 0 14px;font-size:11.5px;line-height:1.45;color:var(--mut2)}
 .dep-opt .dep-lg{width:20px;height:20px;font-size:9px}
 .dep-opt .s{min-width:54px}
+
+@media (max-width:640px){.dep-sheet{max-width:400px;padding:16px;max-height:88vh}}

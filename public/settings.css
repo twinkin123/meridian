@@ -1,4 +1,4 @@
-﻿.st-overlay{position:fixed;inset:0;background:rgba(6,6,9,.72);backdrop-filter:blur(6px);z-index:120;display:flex;align-items:center;justify-content:center;padding:16px}
+.st-overlay{position:fixed;inset:0;background:rgba(6,6,9,.72);backdrop-filter:blur(6px);z-index:120;display:flex;align-items:center;justify-content:center;padding:16px}
 .st-sheet{width:100%;max-width:440px;background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:18px;color:var(--txt);box-shadow:0 24px 70px rgba(0,0,0,.6);max-height:92vh;overflow:auto}
 .st-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .st-ico{width:30px;height:30px;border-radius:9px;background:rgba(139,92,246,.16);color:var(--pur);display:grid;place-items:center;font-size:15px}
@@ -19,4 +19,4 @@
 .st-msg.ok{color:#6ee7a8}
 .st-msg.err{color:#ff7aa8}
 body.st-open{overflow:hidden}
-@media (max-width:520px){.st-overlay{padding:0;align-items:flex-end}.st-sheet{max-width:100%;border-radius:18px 18px 0 0;max-height:94vh}}
+@media (max-width:520px){.st-sheet{max-width:400px;padding:16px;max-height:88vh}}

@@ -21,4 +21,4 @@
 .ad-act{width:auto;padding:5px 11px;font-size:11.5px}
 .ad-foot{margin-top:14px;font-size:11.5px;color:var(--mut);border-top:1px solid var(--line);padding-top:11px;line-height:1.45}
 body.ad-open{overflow:hidden}
-@media (max-width:560px){.ad-overlay{padding:0;align-items:flex-end}.ad-sheet{max-width:100%;border-radius:18px 18px 0 0;max-height:94vh}}
+@media (max-width:560px){.ad-sheet{max-width:400px;padding:16px;max-height:88vh}}
