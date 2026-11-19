@@ -138,3 +138,15 @@ html body .main .stat{animation:glow-pulse 5s ease-in-out .8s infinite!important
 html body .main .card.rainbow::before{clip-path:polygon(27px 3px,calc(100% - 3px) 3px,calc(100% - 3px) calc(100% - 27px),calc(100% - 27px) calc(100% - 3px),3px calc(100% - 3px),3px 27px)!important}
 html body .main .card.rainbow{animation:rw-race 2.6s linear infinite,rw-glow 4.5s ease-in-out infinite!important}
 }
+
+/* glow: dim breath only */
+@media (prefers-reduced-motion:no-preference){
+@keyframes glow-pulse{0%,100%{filter:drop-shadow(0 0 3px rgba(45,226,214,.04))}50%{filter:drop-shadow(0 0 9px rgba(45,226,214,.13))}}
+html body .main .card{animation:glow-pulse 6s ease-in-out infinite!important}
+html body .main .stat{animation:glow-pulse 6s ease-in-out .9s infinite!important}
+}
+
+@keyframes rw-glow{
+0%,100%{filter:drop-shadow(0 0 3px rgba(34,211,238,.10)) drop-shadow(0 0 8px rgba(139,92,246,.07)) drop-shadow(0 0 14px rgba(47,212,138,.05))}
+50%{filter:drop-shadow(0 0 8px rgba(34,211,238,.22)) drop-shadow(0 0 18px rgba(139,92,246,.16)) drop-shadow(0 0 28px rgba(47,212,138,.12))}
+}
