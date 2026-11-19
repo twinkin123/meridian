@@ -15,8 +15,9 @@ export type CreditResult = { skipped?: boolean; reason?: string; posted: number;
 /**
  * Daily settlement. The gross rate is drawn from the 1-3.5% band, the platform
  * keeps FEE_BP of it, and the remaining 85% vests to the user in four slices
- * over 24 hours. The base is locked principal plus available; held dust does
- * not earn.
+ * over 24 hours. The platform generates the yield itself, so the gross is booked
+ * as an expense (5020) and no cash asset moves. The base is locked principal
+ * plus available; held dust does not earn.
  */
 export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
   /* Credit always posts, freeze or not: it is the product, and a skipped day
@@ -60,7 +61,7 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
     await tx(async (c) => {
       await c.query('select ensure_user_accounts($1)', [r.user_id]);
       const legs: { code: string; owner?: string; amount: bigint }[] = [
-        { code: '1010', amount: gross },
+        { code: '5020', amount: gross },
         { code: '2060', owner: r.user_id, amount: -net },
       ];
       if (fee > 0n) legs.push({ code: '4000', amount: -fee });

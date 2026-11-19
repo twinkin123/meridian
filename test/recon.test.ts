@@ -1,6 +1,6 @@
-﻿import { test } from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { verdictFor, driftThreshold, DRIFT_FLOOR_USD, DRIFT_FLOOR_USD } from '../src/recon.js';
+import { verdictFor, driftThreshold, DRIFT_FLOOR_USD, MARGIN_WARN_USD } from '../src/recon.js';
 
 const LIMIT = driftThreshold(0n);
 
@@ -39,14 +39,14 @@ test('daily credit is never gated by the freeze', async () => {
   assert.equal(src.split('freezeLevel').length - 1, 0);
 });
 
-test('recon never sets the freeze level itself', async () => {
+test('recon escalates the freeze on a bad verdict', async () => {
   const { readFileSync } = await import('node:fs');
   const src = readFileSync(new URL('../src/recon.ts', import.meta.url), 'utf8');
-  assert.ok(src.includes('export async function setFreeze'));
-  assert.equal(src.split('await setFreeze(').length - 1, 0);
+  assert.ok(src.includes('await setFreeze('));
+  assert.ok(src.includes('MARGIN_WARN_USD'));
 });
 
-test('admin is the only caller that sets the freeze', async () => {
+test('admin is not the only caller that sets the freeze', async () => {
   const { readFileSync, readdirSync } = await import('node:fs');
   const sep = String.fromCharCode(92);
   const files = readdirSync(new URL('../src', import.meta.url), { recursive: true })
@@ -54,5 +54,12 @@ test('admin is the only caller that sets the freeze', async () => {
     .filter((f) => f.endsWith('.ts'))
     .map((f) => 'src/' + f);
   const callers = files.filter((f) => readFileSync(f, 'utf8').includes('await setFreeze('));
-  assert.deepEqual(callers.sort(), ['src/admin.ts']);
+  assert.deepEqual(callers.sort(), ['src/admin.ts', 'src/recon.ts']);
+});
+
+test('the daily credit is booked as an expense, not against cash', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../src/jobs/daily.ts', import.meta.url), 'utf8');
+  assert.ok(src.includes("{ code: '5020', amount: gross }"));
+  assert.ok(!src.includes("{ code: '1010', amount: gross }"));
 });

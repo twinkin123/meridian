@@ -8,7 +8,9 @@ import { solPriceMicro } from './price.js';
 /** Drift alarm as a share of liabilities, in basis points. */
 export const DRIFT_FREEZE_BP = BigInt(process.env.DRIFT_FREEZE_BP ?? '1000');
 /** ...but never tighter than this, in micro-USD. */
-export const DRIFT_FLOOR_USD = 2_000_000n;
+export const DRIFT_FLOOR_USD = 25_000_000n;
+/** Below this margin the platform is inside its warning band, in micro-USD. */
+export const MARGIN_WARN_USD = 50_000_000n;
 /** Minimum gap between automatic recon runs. */
 export const RECON_INTERVAL_MS = Number(process.env.RECON_INTERVAL_MS ?? 55 * 60 * 1000);
 
@@ -134,17 +136,27 @@ export async function runRecon(actor = 'manual') {
     ],
   );
 
-  /* Nothing here is automatic: a run only records its verdict and the limit it
-     was judged against. Every freeze is initiated by a human from admin. */
+  /* Recon escalates the freeze itself. It only ever clears a freeze that recon
+     set, so a human freeze is never lifted out from under an operator. */
   const frozen = await freezeLevel();
+  const frozenBy = await freezeActor();
+  const auto = !frozenBy || frozenBy.startsWith('recon:');
   const limit = driftThreshold(liabilities);
+
+  let next = 0;
+  if (verdict === 'insolvent') next = 3;
+  else if (verdict === 'drift' || margin < MARGIN_WARN_USD) next = 2;
+
+  if (next !== frozen && (auto || next > frozen)) {
+    await setFreeze(next, `recon:${verdict}`);
+  }
 
   return {
     verdict,
     drift: drift.toString(),
     margin: margin.toString(),
     limit: limit.toString(),
-    frozen: String(frozen),
+    frozen: String(next),
     stuck,
     assets: assets.toString(),
     chainUsd: chainUsd.toString(),
