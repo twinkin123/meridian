@@ -510,3 +510,9 @@ html body .main .ref-card .addr code,html body #refLink,html body #addr,html bod
 
 /* next credit: liquid fill tied to the countdown */
 html body .res-clock{position:relative!important;overflow:hidden!important;border-radius:8px!important;background-color:#000!important;background-image:linear-gradient(to top,rgba(139,92,246,.55),rgba(139,92,246,.3)),linear-gradient(rgba(196,181,253,.9),rgba(196,181,253,.9))!important;background-repeat:no-repeat!important;background-size:100% var(--fill,0%),100% 1px!important;background-position:0 100%,0 calc(100% - var(--fill,0%))!important;transition:background-size .9s linear!important}
+
+/* next credit: liquid fill, left to right, animated */
+html body .res-clock{position:relative!important;overflow:hidden!important;border-radius:8px!important;background-color:#000!important;background-image:linear-gradient(to right,rgba(139,92,246,.58),rgba(139,92,246,.26)),linear-gradient(rgba(196,181,253,.95),rgba(196,181,253,.95))!important;background-repeat:no-repeat!important;background-size:var(--fill,0%) 100%,1px 100%!important;background-position:0 0,var(--fill,0%) 0!important;transition:background-size .9s linear!important}
+html body .res-clock::after{content:''!important;position:absolute!important;left:0!important;top:0!important;bottom:0!important;width:var(--fill,0%)!important;pointer-events:none!important;background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.17) 0 6px,rgba(255,255,255,0) 6px 22px)!important;animation:liquid-slide 2.4s linear infinite!important;transition:width .9s linear!important}
+@keyframes liquid-slide{from{background-position:0 0}to{background-position:22px 0}}
+html body .res-clock span{position:relative!important;z-index:1!important}
