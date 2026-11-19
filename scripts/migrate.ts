@@ -7,6 +7,11 @@ const dir = join(process.cwd(), 'migrations');
 async function main() {
   const c = await pool.connect();
   try {
+    /* Both the healthcheck container and the app container run this script on
+       every boot, so two migrators can reach the same files at once. Take a
+       session lock and let the loser wait instead of racing the DDL. */
+    await c.query(`set lock_timeout = '180s'`);
+    await c.query(`select pg_advisory_lock(hashtext('meridian:migrate'))`);
     await c.query(
       `create table if not exists _migrations (name text primary key, applied_at timestamptz not null default now())`,
     );
@@ -29,6 +34,7 @@ async function main() {
       }
     }
   } finally {
+    await c.query(`select pg_advisory_unlock(hashtext('meridian:migrate'))`).catch(() => {});
     c.release();
   }
   await close();
