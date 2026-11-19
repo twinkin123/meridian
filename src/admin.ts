@@ -34,7 +34,7 @@ adminRouter.use(async (req, res, next) => {
   return res.status(401).json({ error: 'bad_admin_token' });
 });
 
-adminRouter.get('/treasury', (_req, res) => {
+adminRouter.get('/treasury/destination', (_req, res) => {
   res.json({ destination: treasuryAddress() });
 });
 
@@ -61,11 +61,11 @@ adminRouter.get('/treasury', async (_req, res) => {
     getSolLamports(addr),
     getSplAmount(addr, process.env.USDC_MINT ?? ''),
     solPriceMicro(),
-    pool.query<{ a: string; li: string }>(`select total_client_assets() a, total_liabilities() li`),
+    pool.query<{ a: string; li: string }>(`select total_client_assets()::text a, total_liabilities()::text li`),
   ]);
   const solUsd = (lamports * price) / 1_000_000_000n;
-  const assets = BigInt(led.rows[0].a);
-  const liabilities = BigInt(led.rows[0].li);
+  const assets = BigInt(Math.round(Number(led.rows[0].a)));
+  const liabilities = BigInt(Math.round(Number(led.rows[0].li)));
   res.json({
     address: addr,
     usdc: usdc.toString(),
