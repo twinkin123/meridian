@@ -446,3 +446,13 @@ html body .hsearch:focus-within,html body .main .addr:hover,html body #copy:hove
 /* halo: back to the matched brightness */
 html body .hsearch,html body .main .addr,html body #copy,html body #refCopy,html body .main .ref-stats>div,html body .card.rainbow .row .btn,html body .card.rainbow .row .btn.p,html body #rwOut,html body .btn,html body .btn.p,html body .btn.ghost,html body .btn.line,html body .btn.sm,html body .calc-chips button,html body .res-nav button,html body .cmp,html body .sw2,html body .dep-x,html body .wd-x,html body .hs-x,html body .ad-x,html body .fq-x,html body .st-x{border-color:rgba(255,255,255,.24)!important;box-shadow:0 0 34px -4px rgba(139,92,246,.95),0 0 70px -14px rgba(139,92,246,.7)!important}
 html body .hsearch:focus-within,html body .main .addr:hover,html body #copy:hover,html body #refCopy:hover,html body .card.rainbow .row .btn:hover,html body .card.rainbow .row .btn.p:hover,html body #rwOut:hover,html body .btn:hover,html body .btn.p:hover,html body .btn.ghost:hover,html body .btn.line:hover,html body .btn.sm:hover,html body .calc-chips button:hover,html body .res-nav button:hover,html body .cmp:hover,html body .sw2:hover,html body .dep-x:hover,html body .wd-x:hover,html body .hs-x:hover,html body .ad-x:hover,html body .fq-x:hover,html body .st-x:hover{border-color:rgba(255,255,255,.42)!important;box-shadow:0 0 42px -4px rgba(139,92,246,1),0 0 82px -14px rgba(139,92,246,.8)!important}
+
+/* icons: glow */
+html body .side a .ico{opacity:.95!important}
+html body .side a .ico svg{filter:drop-shadow(0 0 4px rgba(139,92,246,.95))!important}
+html body .side a:hover .ico svg,html body .side a.on .ico svg{filter:drop-shadow(0 0 7px rgba(139,92,246,1))!important}
+html body .bell,html body .top-right .who{border-color:rgba(139,92,246,.55)!important;box-shadow:0 0 18px -4px rgba(139,92,246,.95),0 0 34px -12px rgba(139,92,246,.7)!important}
+html body .bell:hover,html body .top-right .who:hover{box-shadow:0 0 22px -4px rgba(139,92,246,1),0 0 40px -12px rgba(139,92,246,.8)!important}
+/* circled areas: halved */
+html body .main .addr,html body #copy,html body #refCopy,html body .main .ref-stats>div,html body #rwOut,html body .calc-chips button,html body .calc-amount,html body #dRange{border-color:rgba(255,255,255,.16)!important;box-shadow:0 0 22px -8px rgba(139,92,246,.7),0 0 48px -20px rgba(139,92,246,.45)!important}
+html body .main .addr:hover,html body #copy:hover,html body #refCopy:hover,html body #rwOut:hover,html body .calc-chips button:hover{border-color:rgba(255,255,255,.3)!important;box-shadow:0 0 26px -8px rgba(139,92,246,.85),0 0 56px -20px rgba(139,92,246,.55)!important}
