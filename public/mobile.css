@@ -552,3 +552,7 @@ html body .main .stat .q:hover::after,html body .main .stat .q:focus-visible::af
 /* green figures: match the daily yield green */
 html body .main .calc-out b.g,html body .main .calc-tot b.g,html body #dNet,html body #dNet2{color:#1bff80!important}
 html body .main .ref-ladder>div>b{color:#1bff80!important;font-weight:700!important}
+
+/* calc boxes: same black treatment as the rest */
+html body .main .calc-total,html body .main .calc-chart,html body .main .calc-out{background:#000!important;border:1px solid rgba(255,255,255,.15)!important;box-shadow:0 0 18px -5px rgba(139,92,246,.52),0 0 38px -16px rgba(139,92,246,.3)!important}
+html body .main .calc-out b.g,html body .main .calc-tot b.g,html body .main #dNet,html body .main #dNet2{color:#1bff80!important}
