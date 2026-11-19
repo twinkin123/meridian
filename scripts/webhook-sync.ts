@@ -77,7 +77,11 @@ async function main(): Promise<void> {
   }
 
   const after = ours((await call<Hook[]>('GET', '')) ?? []);
-  const total = after.reduce((n, h) => n + (h.accountAddresses?.length ?? 0), 0);
+  let total = 0;
+  for (const h of after) {
+    const full = await call<Hook>('GET', `/${h.webhookID}`);
+    total += full?.accountAddresses?.length ?? 0;
+  }
   console.log(`verify: ${after.length} hooks, ${total} addresses`);
   if (after.length !== chunks.length) throw new Error('hook count mismatch');
   if (total !== want.length) throw new Error('address count mismatch');
