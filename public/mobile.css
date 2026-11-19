@@ -566,3 +566,26 @@ html body .main .stats .stat:nth-child(3){box-shadow:inset 2px 0 0 #5b7fb0!impor
 html body .main .stats .stat:nth-child(4){box-shadow:inset 2px 0 0 var(--pur)!important}
 html body .main .stats .stat:nth-child(5){box-shadow:inset 2px 0 0 #c98a4b!important}
 html body .main .stats .stat:nth-child(6){box-shadow:inset 2px 0 0 var(--mut2)!important}
+
+
+/* mobile stats: same boxed 3x2 grid as desktop */
+@media (max-width:900px){
+  html body .main .stats{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:10px!important;
+    margin:12px 18px 14px!important;
+    background:transparent!important;
+  }
+  html body .main .stat{
+    border:1px solid rgba(255,255,255,.14)!important;
+    border-radius:10px!important;
+    background:#000!important;
+    margin:0!important;
+    padding:12px 10px!important;
+    min-width:0!important;
+    overflow:visible!important;
+  }
+  html body .main .stat .lbl{font-size:9px!important;letter-spacing:.03em!important;line-height:1.25!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  html body .main .stat b{font-size:16px!important;margin-top:4px!important}
+}
