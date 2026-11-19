@@ -392,3 +392,9 @@ html body #rwOut{background:transparent!important;border:1px solid rgba(255,255,
 html body #rwOut:hover{background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.3)!important;box-shadow:0 0 32px -6px rgba(139,92,246,.75),0 0 64px -18px rgba(139,92,246,.55)!important}
 html body #rwOut:active{transform:translateY(1px)}
 html body #rwOut:disabled{background:transparent!important;border-color:rgba(255,255,255,.13)!important;color:#e8e9ef!important;opacity:1!important;box-shadow:0 0 22px -8px rgba(139,92,246,.42),0 0 48px -20px rgba(139,92,246,.3)!important}
+
+/* claim referral rewards: neutral face, purple glow */
+html body #rwOut{background:transparent!important;border:1px solid rgba(255,255,255,.16)!important;color:#fff!important;text-shadow:none!important;box-shadow:0 0 26px -6px rgba(139,92,246,.6),0 0 56px -18px rgba(139,92,246,.45)!important}
+html body #rwOut:hover{background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.3)!important;box-shadow:0 0 32px -6px rgba(139,92,246,.75),0 0 64px -18px rgba(139,92,246,.55)!important}
+html body #rwOut:active{transform:translateY(1px)}
+html body #rwOut:disabled{background:transparent!important;border-color:rgba(255,255,255,.13)!important;color:#e8e9ef!important;opacity:1!important;box-shadow:0 0 22px -8px rgba(139,92,246,.42),0 0 48px -20px rgba(139,92,246,.3)!important}
