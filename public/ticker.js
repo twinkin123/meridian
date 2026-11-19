@@ -1,10 +1,8 @@
-/* ticker.js - one asset table, uniform cards, one price fetch for the whole strip. */
+/* ticker.js - uniform cards, prices and logos from one cached call. */
 (function(){
   'use strict';
   var box = document.querySelector('.tickers');
   if (!box) return;
-
-  var CDN = 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/';
 
   var ASSETS = [
     ['SOL','Solana','solana','#14F195'],
@@ -65,7 +63,6 @@
     return d;
   }
 
-  /* normalise whatever the server rendered, keeping its current price text */
   Array.prototype.slice.call(box.querySelectorAll('.tk')).forEach(function(card){
     var b = card.querySelector('b');
     var sym = b ? b.textContent.trim() : '';
@@ -90,21 +87,7 @@
   track.className = 'tickers-track';
   while (box.firstChild) track.appendChild(box.firstChild);
   box.appendChild(track);
-
   track.querySelectorAll('.tk').forEach(function(c){ track.appendChild(c.cloneNode(true)); });
-
-  /* wire icons once, over originals and clones alike */
-  track.querySelectorAll('.tk').forEach(function(card){
-    var ic = card.querySelector('.ic');
-    var sym = card.dataset.sym;
-    if (!ic || !sym) return;
-    var img = new Image();
-    img.alt = '';
-    img.decoding = 'async';
-    img.addEventListener('load', function(){ ic.textContent = ''; ic.appendChild(img); ic.classList.add('has'); });
-    img.addEventListener('error', function(){ ic.classList.add('miss'); });
-    img.src = CDN + sym.toLowerCase() + '.svg';
-  });
 
   function fmt(n){
     if (n >= 1000) return n.toLocaleString('en-US', { maximumFractionDigits: 0 });
@@ -112,7 +95,19 @@
     return n.toFixed(4);
   }
 
+  var KEY = 'tk.market.v1';
   var data = {}, tries = 0, timer = null;
+
+  function readCache(){
+    try {
+      var o = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (o && o.t && Date.now() - o.t < 300000) return o.d;
+    } catch (e) {}
+    return null;
+  }
+  function writeCache(d){
+    try { localStorage.setItem(KEY, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {}
+  }
 
   function ids(){
     var out = [];
@@ -123,35 +118,68 @@
     return out;
   }
 
+  function apply(d){
+    Object.keys(d).forEach(function(k){ data[k] = d[k]; });
+    track.querySelectorAll('.tk').forEach(function(card){
+      var p = data[card.dataset.id];
+      if (!p) return;
+
+      var ic = card.querySelector('.ic');
+      if (ic && p.img && !ic.classList.contains('has')) {
+        ic.dataset.pending = p.img;
+      }
+
+      if (typeof p.usd !== 'number') return;
+      var px = card.querySelector('.px');
+      if (!px) return;
+      var v = px.querySelector('.v');
+      if (v) v.textContent = fmt(p.usd);
+      else if (px.childNodes[0]) px.childNodes[0].nodeValue = fmt(p.usd);
+      var em = px.querySelector('em');
+      if (!em) return;
+      var c = p.chg || 0;
+      em.textContent = (c >= 0 ? '+' : '') + c.toFixed(2) + '%';
+      em.className = c >= 0 ? 'up' : 'dn';
+    });
+
+    track.querySelectorAll('.ic[data-pending]').forEach(function(ic){
+      var src = ic.dataset.pending;
+      delete ic.dataset.pending;
+      if (ic.classList.contains('has') || ic.querySelector('img')) return;
+      var img = new Image();
+      img.alt = '';
+      img.decoding = 'async';
+      img.referrerPolicy = 'no-referrer';
+      img.addEventListener('load', function(){ ic.textContent = ''; ic.appendChild(img); ic.classList.add('has'); });
+      img.addEventListener('error', function(){ ic.classList.add('miss'); });
+      img.src = src;
+    });
+  }
+
   function paint(){
+    var cached = readCache();
+    if (cached) { apply(cached); return; }
+
     var list = ids();
     if (!list.length) return;
-    fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + list.join(',') +
-          '&vs_currencies=usd&include_24hr_change=true', { cache: 'no-store' })
+
+    fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=' + list.join(',') +
+          '&price_change_percentage=24h&per_page=50&page=1&sparkline=false', { cache: 'no-store' })
       .then(function(r){ if (!r.ok) throw new Error('http'); return r.json(); })
-      .then(function(d){
+      .then(function(rows){
         tries = 0;
-        Object.keys(d).forEach(function(k){ data[k] = d[k]; });
-        track.querySelectorAll('.tk').forEach(function(card){
-          var p = data[card.dataset.id];
-          if (!p || typeof p.usd !== 'number') return;
-          var px = card.querySelector('.px');
-          if (!px) return;
-          var v = px.querySelector('.v');
-          if (v) v.textContent = fmt(p.usd);
-          else if (px.childNodes[0]) px.childNodes[0].nodeValue = fmt(p.usd);
-          var em = px.querySelector('em');
-          if (!em) return;
-          var c = p.usd_24h_change || 0;
-          em.textContent = (c >= 0 ? '+' : '') + c.toFixed(2) + '%';
-          em.className = c >= 0 ? 'up' : 'dn';
+        var d = {};
+        rows.forEach(function(row){
+          d[row.id] = { usd: row.current_price, chg: row.price_change_percentage_24h, img: row.image };
         });
+        writeCache(d);
+        apply(d);
       })
       .catch(function(){
-        if (tries++ < 4) { clearTimeout(timer); timer = setTimeout(paint, 3000 * tries); }
+        if (tries++ < 5) { clearTimeout(timer); timer = setTimeout(paint, 20000 * tries); }
       });
   }
 
   paint();
-  setInterval(paint, 60000);
+  setInterval(function(){ if (!readCache()) paint(); }, 120000);
 })();

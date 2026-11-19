@@ -704,3 +704,6 @@ html body #claimBtn, html body #rwOut{
 .tickers .tk{grid-template-columns:30px minmax(0,1fr) 64px!important;gap:9px!important;padding:12px 13px!important}
 .tk .px{width:64px!important}
 .tk b,.tk small{min-width:0!important}
+/* logos now come from the price payload: fit inside the disc, no letter bleed */
+.tk .ic.has{background:transparent!important;border-color:transparent!important}
+.tk .ic img{object-fit:cover!important;border-radius:50%!important}
