@@ -28,6 +28,7 @@ import { watchDeposits } from './jobs/deposit-watch.js';
 import { refreshRoutes } from './deposit-routes.js';
 import { runSweep, assertSweepDestination } from './sweeps.js';
 import { one, close } from './db.js';
+import { market } from './market.js';
 
 process.on('unhandledRejection', (e) => console.error('unhandledRejection', e));
 
@@ -57,6 +58,8 @@ app.use((_req, res, next) => {
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   next();
 });
+
+app.use('/market', market);
 
 app.use('/results', results);
 
