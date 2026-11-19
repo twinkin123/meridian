@@ -162,3 +162,18 @@ html body .main .stat{animation:glow-pulse 6s ease-in-out .9s infinite!important
 0%,100%{filter:drop-shadow(0 0 8px rgba(34,211,238,0)) drop-shadow(0 0 18px rgba(139,92,246,0)) drop-shadow(0 0 28px rgba(47,212,138,0))}
 50%{filter:drop-shadow(0 0 8px rgba(34,211,238,.22)) drop-shadow(0 0 18px rgba(139,92,246,.16)) drop-shadow(0 0 28px rgba(47,212,138,.12))}
 }
+
+/* glow: settled pace */
+@media (prefers-reduced-motion:no-preference){
+@keyframes glow-pulse{0%,100%{filter:drop-shadow(0 0 8px rgba(45,226,214,0))}50%{filter:drop-shadow(0 0 10px rgba(45,226,214,.15))}}
+html body .main .card{animation:glow-pulse 3.2s ease-in-out infinite!important}
+html body .main .stat{animation:glow-pulse 3.2s ease-in-out .45s infinite!important}
+}
+
+@keyframes rw-glow{
+0%,100%{filter:drop-shadow(0 0 8px rgba(34,211,238,0)) drop-shadow(0 0 18px rgba(139,92,246,0)) drop-shadow(0 0 28px rgba(47,212,138,0))}
+50%{filter:drop-shadow(0 0 8px rgba(34,211,238,.24)) drop-shadow(0 0 18px rgba(139,92,246,.17)) drop-shadow(0 0 28px rgba(47,212,138,.13))}
+}
+@media (max-width:900px){
+html body .main .card.rainbow{animation:rw-race 3.4s linear infinite,rw-glow 3.2s ease-in-out infinite!important}
+}
