@@ -6,18 +6,25 @@ import { recordDay } from '../trades.js';
 const MIN_BP = 100;
 const MAX_BP = 350;
 const FEE_BP = 1500;
-const MIN_BALANCE = 10_000_000n;
+const MIN_STAKE = 10_000_000n;
 const SLICES = 4;
 const SLICE_MS = 6 * 60 * 60 * 1000;
 
 export type CreditResult = { skipped?: boolean; reason?: string; posted: number; total: string };
 
+type Stake = { id: string; asset: string; usd_at_det: string };
+
 /**
- * Daily settlement. The gross rate is drawn from the 1-3.5% band, the platform
- * keeps FEE_BP of it, and the remaining 85% vests to the user in four slices
- * over 24 hours. The platform generates the yield itself, so the gross is booked
- * as an expense (5020) and no cash asset moves. The base is locked principal
- * plus available; held dust does not earn.
+ * Daily settlement.
+ *
+ * Credit is paid on locked principal only. Idle available balance earns
+ * nothing, so a user with no open stake gets nothing that day. The gross rate
+ * is drawn from the 1-3.5% band and the platform keeps FEE_BP of it; the
+ * remainder is what the user receives.
+ *
+ * With auto-compound on, each stake keeps its own profit and the row simply
+ * grows - the unlock date is never touched. With it off, the net vests to the
+ * user in four slices over 24 hours.
  */
 export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
   /* Credit always posts, freeze or not: it is the product, and a skipped day
@@ -38,49 +45,93 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
   });
   if (!claim) return { skipped: true, posted: 0, total: '0' };
 
-  const { rows } = await pool.query<{ user_id: string; b: string }>(
-    `select user_id, sum(balance)::text b from v_balance
-      where code in ('2000','2070')
-      group by user_id
-      having sum(balance) >= $1`,
-    [MIN_BALANCE.toString()],
+  const { rows } = await pool.query<Stake & { user_id: string; ac: boolean }>(
+    `select d.id, d.user_id, d.asset, d.usd_at_det, coalesce(u.auto_compound, true) ac
+       from deposits d
+       join users u on u.id = d.user_id
+      where d.status = 'locked' and d.released_at is null and d.usd_at_det > 0
+      order by d.user_id, d.created_at`,
   );
+
+  const byUser = new Map<string, { ac: boolean; stakes: Stake[] }>();
+  for (const r of rows) {
+    const hit = byUser.get(r.user_id);
+    const stake = { id: r.id, asset: r.asset, usd_at_det: r.usd_at_det };
+    if (hit) hit.stakes.push(stake);
+    else byUser.set(r.user_id, { ac: r.ac, stakes: [stake] });
+  }
 
   let posted = 0;
   let total = 0n;
   let grossTotal = 0n;
   let feeTotal = 0n;
 
-  for (const r of rows) {
-    const gross = (BigInt(r.b) * BigInt(rateBp)) / 10000n;
-    if (gross <= 0n) continue;
-    const fee = (gross * BigInt(FEE_BP)) / 10000n;
-    const net = gross - fee;
+  for (const [userId, { ac, stakes }] of byUser) {
+    const staked = stakes.reduce((a, s) => a + BigInt(s.usd_at_det), 0n);
+    if (staked < MIN_STAKE) continue;
+
+    let gross = 0n;
+    let fee = 0n;
+    let net = 0n;
+    const adds: { id: string; asset: string; amount: bigint }[] = [];
+
+    for (const s of stakes) {
+      const g = (BigInt(s.usd_at_det) * BigInt(rateBp)) / 10000n;
+      if (g <= 0n) continue;
+      const f = (g * BigInt(FEE_BP)) / 10000n;
+      const n = g - f;
+      if (n <= 0n) continue;
+      gross += g;
+      fee += f;
+      net += n;
+      adds.push({ id: s.id, asset: s.asset, amount: n });
+    }
     if (net <= 0n) continue;
 
     await tx(async (c) => {
-      await c.query('select ensure_user_accounts($1)', [r.user_id]);
+      await c.query('select ensure_user_accounts($1)', [userId]);
+
       const legs: { code: string; owner?: string; amount: bigint }[] = [
         { code: '5020', amount: gross },
-        { code: '2060', owner: r.user_id, amount: -net },
+        { code: ac ? '2070' : '2060', owner: userId, amount: -net },
       ];
       if (fee > 0n) legs.push({ code: '4000', amount: -fee });
-      await post(c, 'SettlementCredit', `${key}:${r.user_id}`, legs);
+      await post(c, 'SettlementCredit', `${key}:${userId}`, legs);
 
-      const base = net / BigInt(SLICES);
-      let left = net;
-      for (let i = 1; i <= SLICES; i++) {
-        const slice = i === SLICES ? left : base;
-        left -= slice;
-        if (slice <= 0n) continue;
-        await c.query(
-          `insert into vesting (user_id, day, amount, due_at) values ($1, $2, $3, $4)`,
-          [r.user_id, key, slice.toString(), new Date(day.getTime() + i * SLICE_MS)],
-        );
+      if (ac) {
+        /* Each stake keeps what it earned; the unlock date is left alone. */
+        for (const a of adds) {
+          if (a.asset === 'USDC') {
+            await c.query(
+              'update deposits set usd_at_det = usd_at_det + $2, qty = qty + $2 where id = $1',
+              [a.id, a.amount.toString()],
+            );
+          } else {
+            await c.query(
+              'update deposits set usd_at_det = usd_at_det + $2 where id = $1',
+              [a.id, a.amount.toString()],
+            );
+          }
+        }
+        await notify(c, userId, 'credit_compounded',
+          `Daily credit compounded: ${usdStr(net)} USD added back onto your stake at its existing unlock date.`);
+      } else {
+        const base = net / BigInt(SLICES);
+        let left = net;
+        for (let i = 1; i <= SLICES; i++) {
+          const slice = i === SLICES ? left : base;
+          left -= slice;
+          if (slice <= 0n) continue;
+          await c.query(
+            `insert into vesting (user_id, day, amount, due_at) values ($1, $2, $3, $4)`,
+            [userId, key, slice.toString(), new Date(day.getTime() + i * SLICE_MS)],
+          );
+        }
+        await notify(c, userId, 'credit_posted',
+          `Daily credit posted: ${usdStr(gross)} USD gross, ${usdStr(net)} USD net, vesting in four slices over 24 hours.`);
       }
-      await notify(c, r.user_id, 'credit_posted',
-        `Daily credit posted: ${usdStr(gross)} USD gross, ${usdStr(net)} USD net, vesting in four slices over 24 hours.`);
     });
+
     posted += 1;
     total += net;
     grossTotal += gross;
