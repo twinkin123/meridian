@@ -409,3 +409,14 @@ html body #rwOut:disabled{background:transparent!important;border-color:rgba(255
 html body .card.rainbow .row .btn,html body .card.rainbow .row .btn.p{background:transparent!important;border:1px solid rgba(255,255,255,.16)!important;color:#fff!important;text-shadow:none!important;cursor:pointer!important;box-shadow:0 0 30px -5px rgba(139,92,246,.85),0 0 62px -16px rgba(139,92,246,.62)!important}
 html body .card.rainbow .row .btn:hover,html body .card.rainbow .row .btn.p:hover{background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.32)!important;cursor:pointer!important;box-shadow:0 0 38px -5px rgba(139,92,246,.98),0 0 74px -16px rgba(139,92,246,.72)!important}
 html body .card.rainbow .row .btn:active,html body .card.rainbow .row .btn.p:active{transform:translateY(1px)}
+
+/* purple halo: search, address rows, referral stats */
+html body .hsearch{border:1px solid rgba(255,255,255,.16)!important;background:transparent!important;box-shadow:0 0 30px -5px rgba(139,92,246,.85),0 0 62px -16px rgba(139,92,246,.62)!important}
+html body .hsearch input{background:transparent!important}
+html body .hsearch:focus-within{border-color:rgba(255,255,255,.32)!important;box-shadow:0 0 38px -5px rgba(139,92,246,.98),0 0 74px -16px rgba(139,92,246,.72)!important}
+html body .main .addr{border:1px solid rgba(255,255,255,.16)!important;background:transparent!important;box-shadow:0 0 30px -5px rgba(139,92,246,.85),0 0 62px -16px rgba(139,92,246,.62)!important}
+html body .main .addr code{background:transparent!important;border:0!important}
+html body .main .addr:hover{border-color:rgba(255,255,255,.32)!important;box-shadow:0 0 38px -5px rgba(139,92,246,.98),0 0 74px -16px rgba(139,92,246,.72)!important}
+html body #copy,html body #refCopy{background:transparent!important;border:1px solid rgba(255,255,255,.16)!important;color:#fff!important;text-shadow:none!important;cursor:pointer!important;box-shadow:0 0 30px -5px rgba(139,92,246,.85),0 0 62px -16px rgba(139,92,246,.62)!important}
+html body #copy:hover,html body #refCopy:hover{background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.32)!important;box-shadow:0 0 38px -5px rgba(139,92,246,.98),0 0 74px -16px rgba(139,92,246,.72)!important}
+html body .main .ref-stats>div{border:1px solid rgba(255,255,255,.16)!important;background:transparent!important;box-shadow:0 0 30px -5px rgba(139,92,246,.85),0 0 62px -16px rgba(139,92,246,.62)!important}
