@@ -44,3 +44,8 @@ body.hs-open{overflow:hidden}
 .stakes-t .sx{background:transparent;border:1px solid rgba(255,255,255,.16);color:#fff;font:inherit;font-size:11px;font-weight:600;padding:5px 11px;border-radius:7px;cursor:pointer}
 .stakes-t .sx:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.3)}
 .stakes-t .sx:disabled{opacity:.55;cursor:default}
+
+/* stakes empty state: centred on the visible card, mobile only */
+@media (max-width:900px){
+  .stakes-empty{text-align:center;color:var(--mut2);font-size:12.5px;padding:18px 0;border-top:1px solid var(--line)}
+}
