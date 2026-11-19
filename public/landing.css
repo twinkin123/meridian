@@ -544,3 +544,15 @@ img,video{display:block;max-width:100%}
 .robot-stage{width:min(26vw,300px) !important}
 .robot-frame{filter:contrast(1.07) saturate(1.06) !important;-webkit-mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 74%,transparent 100%) !important;mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 74%,transparent 100%) !important}
 @media (max-width:860px){.robot-stage{width:min(58vw,260px) !important}}
+
+/* calculator: black output boxes, totals as a proper box */
+html body .out{background:#000!important;background-image:none!important;border:1px solid #232326!important;border-radius:12px!important}
+html body .totals{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:12px!important;margin-top:12px!important;padding:14px 16px!important;border:1px solid #232326!important;border-radius:12px!important;background:#000!important;background-image:none!important;align-items:start!important}
+html body .totals > div{min-width:0!important}
+html body .totals span{display:block!important;font-size:11.5px!important;line-height:1.3!important;margin-bottom:5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+html body .totals b{display:block!important;font-size:17px!important;line-height:1.2!important;margin-top:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+@media (max-width:980px){
+  html body .totals{gap:8px!important;padding:12px 13px!important}
+  html body .totals span{font-size:10.5px!important}
+  html body .totals b{font-size:15px!important}
+}
