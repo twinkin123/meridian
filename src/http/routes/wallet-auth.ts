@@ -78,7 +78,7 @@ walletAuth.post('/wallet/nonce', async (req, res) => {
      on conflict (addr) do update set nonce = excluded.nonce, created_at = now()`,
     [addr, nonce],
   );
-  res.json({ nonce });
+  res.json({ nonce, message: message(addr, nonce) });
 });
 
 walletAuth.post('/wallet', async (req, res) => {
