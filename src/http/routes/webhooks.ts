@@ -15,6 +15,15 @@ export const webhooks = Router();
 import { MIN_DEPOSIT as MIN, combineHeld } from '../../locks.js';
 import { notify, usdStr } from '../../notify.js';
 
+/** Relay attaches order and fill ids as memo instructions. */
+function memosFrom(t: any): string[] {
+  const out: string[] = [];
+  for (const ix of t?.transaction?.message?.instructions ?? []) {
+    if (ix?.programId === 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr' && typeof ix?.parsed === 'string') out.push(ix.parsed);
+  }
+  return out;
+}
+
 /** Helius puts the signature at the top level for raw payloads and at
     transaction.signatures[0] for enhanced ones. Accept both, and any wrapper. */
 function sigsFrom(body: any): string[] {
@@ -63,6 +72,8 @@ export async function processSig(sig: string): Promise<void> {
   const t = await getTx(sig);
   if (!t) throw new Error(`tx_not_found:` + sig);
 
+  const memos = memosFrom(t);
+
   const frozen = (await freezeLevel()) >= 1;
   const price = await solPriceMicro();
 
@@ -91,10 +102,10 @@ export async function processSig(sig: string): Promise<void> {
     const dest = frozen || usd < MIN ? '2050' : '2070';
     await tx(async (c) => {
       const row = await c.query(
-        `insert into deposits (user_id, sig, asset, qty, usd_at_det, status)
-         values ($1,$2,$3,$4,$5,'detected')
-         on conflict (sig, user_id) do nothing returning id`,
-        [u.id, sig, m.asset, qty.toString(), usd.toString()],
+        `insert into deposits (user_id, sig, asset, qty, usd_at_det, status, relay_order, relay_fill)
+         values ($1,$2,$3,$4,$5,'detected',$6,$7)
+         on conflict do nothing returning id`,
+        [u.id, sig, m.asset, qty.toString(), usd.toString(), memos[0] ?? null, memos[1] ?? null],
       );
       if (row.rowCount === 0) return;
       const depId = row.rows[0]?.id as string | undefined;

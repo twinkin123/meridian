@@ -8,7 +8,7 @@ import { USDC_MINT } from './solana/match.js';
 // Cursor lives in the database (users.last_polled_at) so it survives deploys.
 // Ordering is nulls-first, so new addresses are covered before old ones repeat.
 const SLICE = 50;
-const PER_ADDRESS = 20;
+const PER_ADDRESS = 100;
 let busy = false;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
