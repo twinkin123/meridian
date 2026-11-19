@@ -493,3 +493,13 @@ html body .calc-chips button.on,html body .sw2.on,html body .cmp.on,html body .p
 /* nav icons: no glow, no tint */
 html body .side a .ico{color:inherit!important;opacity:.85!important}
 html body .side a:hover .ico,html body .side a.on .ico{color:inherit!important;opacity:1!important}
+
+/* auto compound: no box, blue track */
+html body .cmp{border:0!important;background:none!important;box-shadow:none!important;padding:0!important;color:var(--ink-3)!important}
+html body .cmp:hover{box-shadow:none!important;border:0!important;background:none!important}
+html body .cmp-track{background:rgba(255,255,255,.1)!important;border:1px solid var(--line-2)!important;box-shadow:none!important}
+html body .cmp-knob{background:#cfcfda!important}
+html body .cmp.on{background:none!important;border:0!important;box-shadow:none!important}
+html body .cmp.on .cmp-track{background:#3b82f6!important;border-color:#3b82f6!important}
+html body .cmp.on .cmp-knob{background:#fff!important}
+html body .cmp.on .cmp-lbl{color:var(--txt)!important}
