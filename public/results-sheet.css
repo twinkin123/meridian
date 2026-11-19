@@ -1,8 +1,8 @@
 .hero-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:min(100%,392px);margin-left:auto;margin-right:auto}
 .hero-actions .btn{width:100%;white-space:nowrap;padding-left:10px;padding-right:10px}
 button.btn{font-family:inherit}
-.tr-overlay{position:fixed;inset:0;background:rgba(6,6,9,.72);backdrop-filter:blur(6px);z-index:120;display:flex;align-items:center;justify-content:center;padding:16px}
-.tr-overlay[hidden]{display:none}
+.tr-overlay{position:fixed;inset:0;background:rgba(6,6,9,.72);backdrop-filter:blur(6px);z-index:120;display:none;align-items:center;justify-content:center;padding:16px}
+.tr-overlay:target{display:flex}
 .tr-sheet{width:100%;max-width:460px;background:#0b0b0d;border:1px solid #2a2a30;border-radius:18px;padding:18px;color:#f5f5f8;box-shadow:0 24px 70px rgba(0,0,0,.6);max-height:90vh;overflow:auto}
 .tr-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .tr-ico{width:30px;height:30px;border-radius:9px;background:rgba(139,92,246,.16);color:#a78bfa;display:grid;place-items:center;font-size:15px}
