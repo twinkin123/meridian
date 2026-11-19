@@ -1,5 +1,5 @@
 (function () {
-  var overlay = null, timer = null, addrEl = null, statusEl = null, qrEl = null;
+  var overlay = null, timer = null, addrEl = null, statusEl = null, qrEl = null, rowLg = null;
   var warnEl = null, quoteEl = null, selected = null;
   var routes = [], addresses = {}, min = {};
 
@@ -8,6 +8,17 @@
     if (cls) n.className = cls;
     if (text != null) n.textContent = text;
     return n;
+  }
+
+  function logo(sym) {
+    var d = el('span', 'dep-lg');
+    d.textContent = sym.charAt(0);
+    var img = new Image();
+    img.alt = '';
+    img.loading = 'lazy';
+    img.addEventListener('load', function () { d.textContent = ''; d.appendChild(img); d.classList.add('has'); });
+    img.src = '/market/logo/' + sym.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    return d;
   }
 
   function close() {
@@ -100,6 +111,8 @@
     selected = route;
     var list = overlay.querySelector('.dep-list');
     if (list) list.remove();
+    if (rowLg && rowLg.parentNode) rowLg.parentNode.replaceChild(logo(route.symbol), rowLg);
+    rowLg = row.querySelector('.dep-lg');
     var cur = row.querySelector('.dep-cur');
     if (cur) cur.textContent = route.symbol + ' on ' + route.network;
     applyAddr(route.family);
@@ -119,6 +132,7 @@
       }
       var b = el('button', 'dep-opt');
       b.type = 'button';
+      b.appendChild(logo(route.symbol));
       b.appendChild(el('span', 's', route.symbol));
       b.appendChild(el('span', 'n', route.network));
       b.addEventListener('click', function () { pick(route, row); });
@@ -147,11 +161,14 @@
 
     var row = el('button', 'dep-row');
     row.type = 'button';
-    row.appendChild(el('span', 'dep-lbl', 'Asset'));
+    rowLg = logo('usdc');
+    row.appendChild(rowLg);
+    row.appendChild(el('span', 'dep-lbl', 'Deposit asset'));
     row.appendChild(el('span', 'dep-cur', 'Loading\u2026'));
-    row.appendChild(el('span', 'dep-chev', '\u203a'));
+    row.appendChild(el('span', 'dep-change', 'Change'));
     row.addEventListener('click', function () { openList(row); });
     sheet.appendChild(row);
+    sheet.appendChild(el('p', 'dep-hint', 'Tap Change to send a different asset or network. Anything other than USDC converts to USDC on arrival.'));
 
     var qr = el('div', 'dep-qr');
     qrEl = el('img');

@@ -9,6 +9,8 @@ const SYM: Record<string, string> = {
   uniswap: 'uni', near: 'near', cosmos: 'atom', arbitrum: 'arb',
 };
 const IDS = Object.keys(SYM);
+/** Deposit symbols with no CoinGecko id of their own, borrowing a sibling logo. */
+const ALIAS: Record<string, string> = { 'usdc-e': 'usdc' };
 
 type Row = { usd: number; chg: number; logo: string };
 type Cache = { at: number; data: Record<string, Row> };
@@ -71,7 +73,8 @@ const logos = new Map<string, { at: number; type: string; body: Buffer }>();
 
 market.get('/logo/:sym', async (req, res) => {
   const sym = String(req.params.sym).toLowerCase();
-  const id = IDS.find((k) => SYM[k] === sym);
+  const key = ALIAS[sym] ?? sym;
+  const id = IDS.find((k) => SYM[k] === key);
   if (!id) { res.status(404).end(); return; }
 
   const hit = logos.get(sym);
