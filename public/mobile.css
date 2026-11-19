@@ -102,3 +102,8 @@ html body .main > .tickers .tk::after{content:none!important}
 @media (max-width:900px){
   html body .main > .tickers{margin:0 -20px 14px!important;padding:0 14px 0 8px!important}
 }
+
+/* ticker band height matched to the nav bar */
+@media (max-width:900px){
+  html body .main > .tickers .tk{padding:10px 12px!important}
+}
