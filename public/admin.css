@@ -1,4 +1,4 @@
-﻿:root{--ink:#0a0a12;--ink-2:#3d3d52;--ink-3:#6b6b85;--bg:#0a0a0b;--line:#2a2a30;--purple:#6d3bf5;--cyan:#00b8e6;--green:#0d9b63;--bad:#d92d5c;--amber:#b4730a}
+:root{--ink:#0a0a12;--ink-2:#3d3d52;--ink-3:#6b6b85;--bg:#0a0a0b;--line:#2a2a30;--purple:#6d3bf5;--cyan:#00b8e6;--green:#0d9b63;--bad:#d92d5c;--amber:#b4730a}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(109,59,245,.10),transparent 70%),var(--bg);color:var(--ink);font-family:"Space Grotesk",system-ui,sans-serif;font-size:14px;line-height:1.55;min-height:100vh;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
@@ -65,3 +65,17 @@ table.tbl td.num{font-family:"Space Mono",monospace;white-space:nowrap;text-alig
 table.tbl td.acts{white-space:nowrap}
 .btn.sm{padding:5px 9px;font-size:11px;border-radius:7px}
 select.tier{background:#0a0a0b;color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:4px 6px;font:inherit;font-size:11px}
+
+/* self-contained dark palette — no longer relies on theme-dark.css */
+:root{
+  color-scheme:dark;
+  --bg:#0a0a0b;--surface:#000;--panel:#000;--panel2:#16161a;
+  --line:#2a2a30;--line-2:#3a3a42;--line2:#3a3a42;
+  --txt:#f5f5f8;--ink:#f5f5f8;--ink-2:#e6e6ee;--ink-3:#c4c4d0;--mut:#c4c4d0;--mut2:#8b8b98;
+  --pur:#8b5cf6;--purple:#8b5cf6;--pur2:#a78bfa;
+  --cyan:#22d3ee;--grn:#22d3ee;--red:#f2665c;--warn:#f97316;
+  --btn:#ededf0;--btn-txt:#0a0a0b;--r:2px;--radius:2px;
+  --bp:rgba(255,255,255,.07);--bp-2:rgba(255,255,255,.2);--bp-ac:rgba(139,92,246,.66);
+  --g1:#22d3ee;--g2:#3b82f6;--g3:#8b5cf6;--g4:#f97316;--g5:#ef4444;
+  --spectrum:linear-gradient(90deg,var(--g1),var(--g2) 25%,var(--g3) 50%,var(--g4) 75%,var(--g5));
+}
