@@ -507,3 +507,6 @@ html body .cmp.on .cmp-lbl{color:var(--txt)!important}
 /* referral link row: black interior */
 html body .main .ref-card .addr,html body .main .ref-card .addr code,html body #refLink,html body #addr,html body .main .addr code{background:#000!important}
 html body .main .ref-card .addr code,html body #refLink,html body #addr,html body .main .addr code{border:0!important;box-shadow:none!important}
+
+/* next credit: liquid fill tied to the countdown */
+html body .res-clock{position:relative!important;overflow:hidden!important;border-radius:8px!important;background-color:#000!important;background-image:linear-gradient(to top,rgba(139,92,246,.55),rgba(139,92,246,.3)),linear-gradient(rgba(196,181,253,.9),rgba(196,181,253,.9))!important;background-repeat:no-repeat!important;background-size:100% var(--fill,0%),100% 1px!important;background-position:0 100%,0 calc(100% - var(--fill,0%))!important;transition:background-size .9s linear!important}

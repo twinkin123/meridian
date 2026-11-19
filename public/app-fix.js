@@ -19,6 +19,8 @@
     if (s) s.textContent = pad(Math.floor(left / 1000) % 60);
     var rp = document.getElementById('ringProg');
     if (rp) rp.setAttribute('stroke-dashoffset', String(327 * (1 - left / 86400000)));
+    var rc = document.querySelector('.res-clock');
+    if (rc) rc.style.setProperty('--fill', ((1 - left / 86400000) * 100).toFixed(2) + '%');
   }
   clock();
   setInterval(clock, 1000);
