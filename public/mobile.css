@@ -68,3 +68,5 @@ html body .main > .tickers .tk::after{content:none!important}
   html body .main > .tickers .tickers-track{background-image:repeating-linear-gradient(90deg,transparent 0 179px,rgba(255,255,255,.11) 179px 180px)!important}
   html body .main > .tickers .tk{width:170px!important}
 }
+
+@media (max-width:900px){html body .main > .tickers{margin:0 -20px 12px!important}}
