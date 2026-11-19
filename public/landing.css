@@ -1,4 +1,4 @@
-﻿:root{
+:root{
   --ink:#0a0a12;
   --ink-2:#3d3d52;
   --ink-3:#6b6b85;
@@ -560,4 +560,5 @@ html body .amount{background:#000!important;background-image:none!important}
 html body .chart{background:#000!important;background-image:none!important}
 /* robot must never intercept clicks on the hero buttons */
 .robot-frame video{pointer-events:none!important}
-.robot-stage{z-index:1!important}
+.robot-stage{z-index:6!important}
+.robot-still{pointer-events:none!important}
