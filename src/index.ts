@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { join } from 'node:path';
 import { health } from './http/health.js';
 import { auth } from './http/routes/auth.js';
+import { walletAuth } from './http/routes/wallet-auth.js';
 import { webhooks } from './http/routes/webhooks.js';
 import { wallet } from './http/routes/wallet.js';
 import { deposit } from './http/routes/deposit.js';
@@ -74,6 +75,7 @@ app.get('/.well-known/jwks.json', (_req, res) => {
 });
 
 app.use('/auth', auth);
+app.use('/auth', walletAuth);
 app.use('/webhooks', webhooks);
 app.use('/wallet/deposits', requireUser, deposit);
 app.use('/wallet', wallet);
