@@ -83,3 +83,9 @@ html body .main > .tickers .tk::after{content:none!important}
   html body .main > .tickers .tk{padding:15px 12px!important}
   html body .main > .tickers .tk::after{top:-30px!important;bottom:-30px!important}
 }
+
+/* strip must be sized by its margins, not 100% */
+@media (max-width:900px){
+  html body .main > .tickers{width:auto!important;max-width:none!important}
+  html body .main{overflow-x:hidden!important}
+}
