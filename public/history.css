@@ -79,13 +79,15 @@ body.hs-open{overflow:hidden}
 /* desktop sheets: the overlay scrolls the whole sheet, nothing clips */
 @media (min-width:901px){
   .hs-overlay,.st-overlay{
-    display:block!important;
+    display:flex!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
     overflow-y:auto!important;
     overscroll-behavior:contain;
     padding:24px 16px!important;
   }
   .hs-sheet,.st-sheet{
-    margin:0 auto!important;
+    margin:auto!important;
     max-height:none!important;
     overflow:visible!important;
   }
