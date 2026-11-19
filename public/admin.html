@@ -92,11 +92,12 @@
             <th>Vesting</th>
             <th>Rewards</th>
             <th><button data-sort="lifetime" type="button">Lifetime</button></th>
+            <th><button data-sort="referred" type="button">Referred</button></th>
             <th><button data-sort="deposited" type="button">Staked</button></th>
             <th><button data-sort="withdrawn" type="button">Withdrawn</button></th>
             <th>Actions</th>
           </tr></thead>
-          <tbody id="users"><tr><td colspan="14" class="empty">Loading...</td></tr></tbody>
+          <tbody id="users"><tr><td colspan="15" class="empty">Loading...</td></tr></tbody>
         </table>
       </div>
       <div class="row">
@@ -351,16 +352,16 @@
       var r = await fetch(url, { headers: h() });
       var j = await r.json().catch(function(){ return {}; });
       if (!r.ok) {
-        box.innerHTML = '<tr><td colspan="14" class="empty">' + esc(j.error || 'Could not load.') + '</td></tr>';
+        box.innerHTML = '<tr><td colspan="15" class="empty">' + esc(j.error || 'Could not load.') + '</td></tr>';
         return;
       }
       var rows = j.users || [];
       var t = j.totals || {};
       tot.textContent = j.total + ' users match - available ' + money(t.available) +
         ' - reserve ' + money(t.reserve) + ' - locked ' + money(t.locked) +
-        ' - deposited ' + money(t.dep) + ' - withdrawn ' + money(t.wd) + ' - lifetime ' + money(t.life);
+        ' - deposited ' + money(t.dep) + ' - withdrawn ' + money(t.wd) + ' - lifetime ' + money(t.life) + ' - referred ' + money(t.ref);
       if (!rows.length) {
-        box.innerHTML = '<tr><td colspan="14" class="empty">No users match.</td></tr>';
+        box.innerHTML = '<tr><td colspan="15" class="empty">No users match.</td></tr>';
         return;
       }
 
@@ -394,13 +395,14 @@
           '<td class="num">' + money(u.vesting) + '</td>' +
           '<td class="num">' + money(u.rewards) + '</td>' +
           '<td class="num">' + money(u.life_usd) + '</td>' +
+          '<td class="num">' + money(u.ref_usd) + '<span class="sub">' + u.ref_n + ' referred</span></td>' +
           '<td class="num">' + money(u.dep_usd) + '<span class="sub">' + u.dep_n + ' staked</span></td>' +
           '<td class="num">' + money(u.wd_usd) + '<span class="sub">' + u.wd_n + ' wd</span></td>' +
           '<td class="acts">' + acts + '</td>' +
         '</tr>';
       }).join('');
     } catch (_) {
-      box.innerHTML = '<tr><td colspan="14" class="empty">Could not load.</td></tr>';
+      box.innerHTML = '<tr><td colspan="15" class="empty">Could not load.</td></tr>';
     }
   }
   async function userAct(act, id, v){

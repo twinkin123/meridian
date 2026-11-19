@@ -196,7 +196,7 @@ adminRouter.get('/credit/runs', async (_req, res) => {
 const USER_SORTS: Record<string, string> = {
   created_at: 'u.created_at', email: 'u.email', available: 'available',
   reserve: 'reserve', locked: 'locked', deposited: 'dep_usd',
-  withdrawn: 'wd_usd', lifetime: 'life_usd', last_polled_at: 'u.last_polled_at',
+  withdrawn: 'wd_usd', lifetime: 'life_usd', referred: 'ref_usd', last_polled_at: 'u.last_polled_at',
 };
 
 function tempPassword(): string {
@@ -241,6 +241,14 @@ adminRouter.get('/users', async (req, res) => {
         select referrer_id user_id, commission_usd amt from referral_ledger
       ) v group by v.user_id
     ) lf on lf.user_id = u.id
+    left join (
+      select u2.referred_by, count(*)::int ref_n,
+             coalesce(sum(case when d2.status = 'credited' then d2.usd_at_det else 0 end), 0) ref_usd
+        from users u2
+        left join deposits d2 on d2.user_id = u2.id
+       where u2.referred_by is not null
+       group by u2.referred_by
+    ) rf on rf.referred_by = u.id
     ${where}`;
 
   const { rows } = await pool.query(
@@ -251,7 +259,7 @@ adminRouter.get('/users', async (req, res) => {
             coalesce(b.locked, 0) locked, coalesce(b.vesting, 0) vesting,
             coalesce(b.rewards, 0) rewards, coalesce(b.in_flight, 0) in_flight,
             coalesce(d.dep_n, 0) dep_n, coalesce(d.dep_usd, 0) dep_usd,
-            coalesce(w.wd_n, 0) wd_n, coalesce(w.wd_usd, 0) wd_usd, coalesce(lf.life_usd, 0) life_usd,
+            coalesce(w.wd_n, 0) wd_n, coalesce(w.wd_usd, 0) wd_usd, coalesce(lf.life_usd, 0) life_usd, coalesce(rf.ref_n, 0) ref_n, coalesce(rf.ref_usd, 0) ref_usd,
             (select count(*)::int from sessions s where s.user_id = u.id
               and s.revoked_at is null and s.expires_at > now()) live_sessions
        ${base}
@@ -260,21 +268,22 @@ adminRouter.get('/users', async (req, res) => {
     [q, limit, offset],
   );
 
-  const t = await pool.query<{ n: string; available: string; reserve: string; locked: string; dep: string; wd: string; life: string }>(
+  const t = await pool.query<{ n: string; available: string; reserve: string; locked: string; dep: string; wd: string; life: string; ref: string }>(
     `select count(*)::text n,
             coalesce(sum(coalesce(b.available, 0)), 0)::text available,
             coalesce(sum(coalesce(b.reserve, 0)), 0)::text reserve,
             coalesce(sum(coalesce(b.locked, 0)), 0)::text locked,
             coalesce(sum(coalesce(d.dep_usd, 0)), 0)::text dep,
             coalesce(sum(coalesce(w.wd_usd, 0)), 0)::text wd,
-            coalesce(sum(coalesce(lf.life_usd, 0)), 0)::text life
+            coalesce(sum(coalesce(lf.life_usd, 0)), 0)::text life,
+            coalesce(sum(coalesce(rf.ref_usd, 0)), 0)::text ref
        ${base}`,
     [q],
   );
   const tt = t.rows[0];
   res.json({ users: rows, total: Number(tt.n), totals: {
     available: tt.available, reserve: tt.reserve, locked: tt.locked,
-    dep: tt.dep, wd: tt.wd, life: tt.life } });
+    dep: tt.dep, wd: tt.wd, life: tt.life, ref: tt.ref } });
 });
 
 adminRouter.post('/users/:id/admin', async (req, res) => {
