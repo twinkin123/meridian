@@ -19,7 +19,6 @@ import { resumeStuckWithdrawals } from './jobs/resume.js';
 import { payApproved } from './jobs/pay.js';
 import { releaseMatured } from './locks.js';
 import { backfillTrades, ensureToday } from './trades.js';
-import { runReferral } from './jobs/referral.js';
 import { releaseDue } from './vesting.js';
 import { requireUser } from './http/mw/session.js';
 import { pruneAuth } from './auth.js';
@@ -175,7 +174,6 @@ const server = app.listen(port, () => {
   every(2 * 60 * 1000, pollDeposits, 'deposits');
   every(10 * 60 * 1000, () => runSweep({ dryRun: false, limit: 200 }), 'sweep');
   every(10 * 60 * 1000, watchDeposits, 'deposit-watch');
-  every(5 * 60 * 1000, runReferral, 'referral');
   every(5 * 60 * 1000, resumeStuckWithdrawals, 'resume');
   every(60 * 1000, payApproved, 'payout');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');

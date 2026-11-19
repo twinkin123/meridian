@@ -1,6 +1,7 @@
 import type { Tx } from './db.js';
 import { post } from './ledger/post.js';
 import { notify, usdStr } from './notify.js';
+import { ensure } from './ledger/accounts.js';
 
 /** 4% up to $10k, 8% up to $20k, 12% above. Basis points. */
 export function bpFor(usd: bigint): number {
@@ -31,6 +32,8 @@ export async function payReferral(t: Tx, userId: string, depositId: string, usd:
     [referrer, userId],
   );
   const sameIp = ipq.rows[0]?.same === true;
+
+  await ensure(t, referrer);
 
   const txId = await post(t, 'ReferralCommission', `ref:first:${depositId}`, [
     { code: '2080', owner: referrer, amount: -commission },

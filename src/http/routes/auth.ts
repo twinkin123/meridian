@@ -1,4 +1,4 @@
-﻿import { createDepositWallet, createPrivyUser } from '../../privy.js';
+import { createDepositWallet, createPrivyUser } from '../../privy.js';
 import { Router } from 'express';
 import { one, none } from '../../db.js';
 import { address } from '../../solana/derive.js';
@@ -75,7 +75,7 @@ auth.post('/signup', async (req, res) => {
     addr = fallback;
   }  await none(
     `insert into accounts (code, kind, owner_type, owner_id)
-     select c, 'liability', 'user', $1 from unnest(array['2000','2010','2020','2050']) c`,
+     select c, 'liability', 'user', $1 from unnest(array['2000','2010','2020','2050','2060','2070','2080']) c`,
     [row.id],
   );
 
