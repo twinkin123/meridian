@@ -189,3 +189,6 @@ html body .main .card.rainbow{animation:none!important}
 @media (max-width:900px){
   html body .main .card.rainbow{background:linear-gradient(90deg,#22d3ee,#3b82f6 25%,#8b5cf6 50%,#f97316 75%,#ef4444)!important}
 }
+
+/* value card rim: spectrum colourway, all widths */
+html body .card.rainbow{background:linear-gradient(90deg,#22d3ee,#3b82f6 25%,#8b5cf6 50%,#f97316 75%,#ef4444)!important}
