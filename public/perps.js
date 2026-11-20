@@ -23,7 +23,7 @@
   function step() { return days <= 1 ? 1 : days <= 30 ? 3600 : 86400; }
 
   function candlesFrom(list) {
-    var s = step(), out = [], cur = null;
+    var s = days <= 1 ? 5 : step(), out = [], cur = null;
     list.forEach(function (p) {
       var b = Math.floor(p.t / s) * s;
       if (!cur || cur.time !== b) {
