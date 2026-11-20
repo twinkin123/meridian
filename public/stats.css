@@ -86,3 +86,11 @@ html body .main #p-dash .stakes{flex:1 1 auto!important;max-height:none!importan
 /* stakes card: fixed height, table scrolls inside */
 html body .main #p-dash .card:has(#stakesT){height:430px!important;display:flex!important;flex-direction:column;overflow:hidden}
 html body .main #p-dash .stakes{flex:1 1 auto!important;max-height:none!important;min-height:0!important;overflow-y:auto!important}
+
+/* fewer lines in the dashboard side boxes */
+html body .main #p-dash .card:has(#stakesT){height:300px!important}
+html body .main #notesCard{display:block!important}
+html body .main #notesCard .list{max-height:196px!important;overflow-y:auto!important;scrollbar-width:thin}
+html body .main .ref-list-card{display:block!important}
+html body .main .ref-list-card .list{flex:none!important;margin-bottom:0!important}
+html body .main .ref-list-card .notes-inline{margin-top:14px}
