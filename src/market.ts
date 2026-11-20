@@ -75,6 +75,33 @@ market.get('/prices', async (_req, res) => {
 
 const logos = new Map<string, { at: number; type: string; body: Buffer }>();
 
+let logoCache: { at: number; map: Record<string, string> } | null = null;
+let logoInflight: Promise<Record<string, string>> | null = null;
+
+async function logoMap(): Promise<Record<string, string>> {
+  if (logoCache && Date.now() - logoCache.at < 86_400_000) return logoCache.map;
+  if (!logoInflight) {
+    logoInflight = (async () => {
+      const r = await fetch(
+        `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${IDS.join(',')}&per_page=50&page=1&sparkline=false`,
+        { headers: { accept: 'application/json' } },
+      );
+      if (!r.ok) throw new Error(`coingecko ${r.status}`);
+      const rows = (await r.json()) as Array<{ id: string; image?: string }>;
+      const map: Record<string, string> = {};
+      for (const row of rows) if (row.image) map[row.id] = row.image;
+      logoCache = { at: Date.now(), map };
+      return map;
+    })().finally(() => { logoInflight = null; });
+  }
+  try {
+    return await logoInflight;
+  } catch (err) {
+    if (logoCache) return logoCache.map;
+    throw err;
+  }
+}
+
 market.get('/logo/:sym', async (req, res) => {
   const sym = String(req.params.sym).toLowerCase();
   const key = ALIAS[sym] ?? sym;
@@ -88,10 +115,8 @@ market.get('/logo/:sym', async (req, res) => {
     return;
   }
   try {
-    const cg = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${id}&per_page=1&page=1&sparkline=false`, { headers: { accept: 'application/json' } });
-    if (!cg.ok) { res.status(404).end(); return; }
-    const jj = (await cg.json()) as Array<{ image?: string }>;
-    const url = jj[0]?.image;
+    const map = await logoMap();
+    const url = map[id];
     if (!url) { res.status(404).end(); return; }
     const r = await fetch(url);
     if (!r.ok) { res.status(404).end(); return; }
