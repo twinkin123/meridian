@@ -230,7 +230,7 @@
 
     var tools = document.querySelectorAll('.pp-tools button');
     if (tools[0]) tools[0].addEventListener('click', function () { mode = 'line'; render(); });
-    if (tools[1]) tools[1].addEventListener('click', function () { mode = 'candles'; render(); });
+    if (tools[1]) tools[1].addEventListener('click', function () { mode = 'candles'; if (all.length < 3) loadHistory(); render(); });
 
     document.querySelectorAll('.pp-tf2 button').forEach(function (b, i) {
       b.addEventListener('click', function () {
