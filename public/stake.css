@@ -239,3 +239,9 @@ html body .main .st-bar-top b{font-variant-numeric:tabular-nums}
 
 /* top band bar ends on the bright green */
 html body .main .st-track i.grad{background:linear-gradient(90deg,var(--blue),#1bff80)!important}
+
+/* how-it-works text: brighter */
+html body .main .st-how h2,html body .main .st-step h3{color:#fff!important}
+html body .main .st-step p{color:#e9e9f2!important}
+html body .main .st-body{color:#e9e9f2!important}
+html body .main .st-step h3{letter-spacing:-.01em}
