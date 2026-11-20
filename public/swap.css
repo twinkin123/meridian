@@ -142,3 +142,17 @@ html body .main .sw-box-top{background:#000!important;border-radius:0!important}
 html body .main .sw-box-top{border:0!important;background:#000!important;padding:0!important}
 html body .main .sw-in{background:transparent!important;background-color:transparent!important;border:0!important;box-shadow:none!important}
 html body .main .sw-box{padding-top:14px!important}
+
+html body .main .sw-field{
+  background:#000!important;
+  color:#fff!important;
+  border:1px solid rgba(139,92,246,.45)!important;
+  border-radius:8px!important;
+  box-shadow:0 0 18px -6px rgba(139,92,246,.5),0 0 34px -16px rgba(139,92,246,.35)!important;
+}
+html body .main .sw-field::placeholder{color:rgba(255,255,255,.42)!important}
+html body .main .sw-field:focus{
+  border-color:rgba(139,92,246,.9)!important;
+  box-shadow:0 0 22px -5px rgba(139,92,246,.85)!important;
+  outline:none!important;
+}
