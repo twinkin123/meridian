@@ -288,3 +288,13 @@ html body .main .pp-amt b{font-size:26px!important}
 html body .main .pp-slider{margin-top:14px!important}
 html body .main .pp-bar{margin:16px 0 10px!important}
 html body .main .pp-roi{margin-top:2px!important}
+
+html body .main .pp-cap{display:block!important;margin:0 0 15px!important;line-height:1.4!important}
+html body .main .pp-block{padding:4px 2px 28px!important}
+html body .main .pp-amt{margin:0 0 20px!important}
+html body .main .pp-mult{margin:0 0 20px!important}
+html body .main .pp-slider{margin-top:22px!important}
+html body .main .pp-exp{row-gap:20px!important}
+html body .main .pp-bar{margin:20px 0 14px!important}
+html body .main .pp-roi{margin-top:14px!important;line-height:1.5!important}
+html body .main .pp-exp-r{gap:8px!important}
