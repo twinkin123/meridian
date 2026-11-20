@@ -37,9 +37,9 @@ perps.get('/state', async (req, res) => {
 perps.get('/quote', async (req, res) => {
   const market = String(req.query.market ?? '');
   const side = req.query.side === 'short' ? 'short' : 'long';
-  const lev = Number(req.query.leverage ?? 500);
+  const lev = Math.round(Number(req.query.leverage ?? 500));
   if (!MARKETS[market]) { res.status(400).json({ error: 'bad_market' }); return; }
-  if (lev !== 500 && lev !== 1000) { res.status(400).json({ error: 'bad_leverage' }); return; }
+  if (!Number.isFinite(lev) || lev < 500 || lev > 1000) { res.status(400).json({ error: 'bad_leverage' }); return; }
   try {
     const entry = await markOf(market);
     res.json({ entry, liq: liqPrice(entry, side, lev), leverage: lev });
@@ -52,7 +52,7 @@ perps.post('/open', async (req, res) => {
   const b = req.body as { market?: string; side?: string; stake?: string; leverage?: number };
   const stake = BigInt(Math.round(Number(b.stake ?? 0)));
   const side = b.side === 'short' ? 'short' : 'long';
-  const lev = Number(b.leverage ?? 500);
+  const lev = Math.round(Number(b.leverage ?? 500));
 
   const r = await open(req.userId!, String(b.market ?? ''), side, stake, lev);
   if (!r.ok) {
@@ -60,7 +60,7 @@ perps.post('/open', async (req, res) => {
       below_min: 'Minimum stake is $1.',
       above_max: 'Maximum stake is $10.',
       insufficient: 'Not enough available balance.',
-      bad_leverage: 'Pick 500x or 1000x.',
+      bad_leverage: 'Leverage must be 500x-1000x.',
       unknown_market: 'Unknown market.',
     };
     res.status(400).json({ error: r.error, message: msg[r.error] ?? 'Could not open.' });

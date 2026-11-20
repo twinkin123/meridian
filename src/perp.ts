@@ -119,7 +119,7 @@ export async function open(
   if (!MARKETS[market]) return { ok: false, error: 'unknown_market' };
   if (stake < MIN_STAKE) return { ok: false, error: 'below_min' };
   if (stake > MAX_STAKE) return { ok: false, error: 'above_max' };
-  if (leverage !== 500 && leverage !== 1000) return { ok: false, error: 'bad_leverage' };
+  if (!Number.isFinite(leverage) || leverage < 500 || leverage > 1000) return { ok: false, error: 'bad_leverage' };
 
   const entry = await markOf(market);
   const notional = Number(stake) / 1e6 * leverage;

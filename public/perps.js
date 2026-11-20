@@ -144,7 +144,7 @@
     $('ppChg').className = chg >= 0 ? 'up' : 'dn';
     $('ppExpo').textContent = (stake * lev).toLocaleString('en-US');
     $('ppAmt').textContent = stake.toFixed(2);
-    $('ppMult').textContent = 'x' + lev;
+    $('ppMult').textContent = lev + 'x';
   }
 
   function arm() {
@@ -270,8 +270,8 @@
     });
 
     $('ppLevSlider').addEventListener('input', function (e) {
-      lev = Number(e.target.value) >= 750 ? 1000 : 500;
-      $('ppMult').textContent = 'x' + lev;
+      lev = Math.round(Number(e.target.value));
+      $('ppMult').textContent = lev + 'x';
       $('ppExpo').textContent = (stake * lev).toLocaleString('en-US');
       quote();
     });
