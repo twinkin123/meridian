@@ -225,3 +225,9 @@ html body .main .st-main{height:100%}
 html body .main .st-side{height:100%}
 html body .main .st-side .calc-chart{flex:1 1 auto;display:flex;flex-direction:column;min-height:104px}
 html body .main .st-side .calc-chart svg{flex:1 1 auto;height:auto;min-height:70px}
+
+/* identical column heights */
+html body .main .st-grid>.card{margin-top:0!important;margin-bottom:0!important}
+html body .main .st-grid{grid-auto-rows:1fr;align-items:stretch}
+html body .main .st-main,
+html body .main .st-side{height:auto!important;min-height:0;align-self:stretch}
