@@ -6,7 +6,7 @@
 .pp-acct-r{margin-left:auto;flex-direction:row!important;align-items:center;gap:8px}
 .pp{display:grid;grid-template-columns:216px minmax(0,1fr) 300px;gap:12px;align-items:start}
 .pp .card{padding:0;overflow:hidden}
-.pp-mk-card{padding:12px}
+.pp-mk-card{padding:12px;height:100%}
 .pp-mk-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
 .pp-mk-count{font-size:10.5px;color:var(--mut);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
 .pp-mk-filter{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:9px;padding:7px 9px;color:var(--mut2);font-size:11.5px;margin-bottom:10px}
@@ -44,7 +44,7 @@
 .pp-chart .cb.up{fill:var(--grn)}
 .pp-chart .cb.dn{fill:var(--red)}
 .pp-yaxis{position:absolute;top:0;right:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:18px 0 26px;font-size:9.5px;color:var(--mut2);font-variant-numeric:tabular-nums;pointer-events:none}
-.pp-lasttag{position:absolute;right:2px;top:52px;background:var(--grn);color:#04140c;font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:4px}
+.pp-lasttag{position:absolute;right:2px;top:calc(26.9% - 8px);background:var(--grn);color:#04140c;font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:4px}
 .pp-chart-foot{display:flex;gap:18px;flex-wrap:wrap;border-top:1px solid var(--line);padding:10px 0 12px;margin:0}
 .pp-chart-foot>div{display:flex;flex-direction:column;gap:1px}
 .pp-chart-foot .lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut2)}
@@ -54,15 +54,18 @@
 .pp-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:8px 8px 0}
 .pp-tabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mut);font:inherit;font-size:11.5px;padding:7px 9px 8px;cursor:pointer}
 .pp-tabs button.on{color:var(--txt);border-bottom-color:var(--pur)}
-.pp-tbl{padding:0 0 4px;overflow-x:auto}
+.pp-tbl{padding:0 0 4px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+.pp-tbl::-webkit-scrollbar{height:6px}
+.pp-tbl::-webkit-scrollbar-track{background:transparent}
+.pp-tbl::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
 .pp-tbl table{width:100%;border-collapse:collapse;font-size:11.5px}
-.pp-tbl th{text-align:left;font-weight:500;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut2);padding:9px 10px 7px;white-space:nowrap}
-.pp-tbl td{padding:8px 10px;border-top:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pp-tbl th{text-align:left;font-weight:500;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut2);padding:9px 8px 7px;white-space:nowrap}
+.pp-tbl td{padding:8px 8px;border-top:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
 .pp-tbl td.g{color:var(--grn)}
 .pp-side{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:5px}
 .pp-side.l{color:var(--grn);background:rgba(47,212,138,.13)}
 .pp-empty{margin:0;padding:11px 12px;font-size:11px;color:var(--mut2);border-top:1px solid var(--line)}
-.pp-ticket{padding:12px}
+.pp-ticket{padding:12px;display:flex;flex-direction:column}
 .pp-tk-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .pp-tk-mk{font-size:11px;color:var(--mut)}
 .pp-seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:3px;margin-bottom:12px}
@@ -72,7 +75,7 @@
 .pp-field{display:block;margin-bottom:8px}
 .pp-field .lbl{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin-bottom:5px}
 .pp-input{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;background:var(--panel2);padding:0 10px}
-.pp-input input{flex:1;min-width:0;background:none;border:0;color:var(--txt);font:inherit;font-size:14px;padding:10px 0;font-variant-numeric:tabular-nums}
+.pp-input input{flex:1;min-width:0;background:none;border:0;color:var(--txt);-webkit-text-fill-color:var(--txt);opacity:1;font:inherit;font-size:14px;padding:10px 0;font-variant-numeric:tabular-nums}
 .pp-input input:focus{outline:none}
 .pp-input em{font-size:10.5px;font-style:normal;color:var(--mut2)}
 .pp-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:14px}
@@ -91,7 +94,7 @@
 .pp-sum .lbl{font-size:11px;color:var(--mut)}
 .pp-sum b{font-size:11.5px;font-weight:500;font-variant-numeric:tabular-nums}
 .pp-cta{width:100%;opacity:.75}
-.pp-note{margin:9px 0 0;font-size:10.5px;color:var(--mut2);line-height:1.45}
+.pp-note{margin:auto 0 0;padding-top:9px;font-size:10.5px;color:var(--mut2);line-height:1.45}
 @media (max-width:1180px){.pp{grid-template-columns:190px minmax(0,1fr) 270px}}
 @media (max-width:980px){.pp{grid-template-columns:1fr}.pp-mk-card{order:2}.pp-mid{order:1}.pp-ticket{order:3}.pp-chart{height:210px}}
 @media (max-width:620px){.pp-acct>div{min-width:78px}.pp-acct-r{margin-left:0;width:100%}.pp-chart-foot{gap:12px}}
