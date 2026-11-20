@@ -114,17 +114,17 @@ html body .main .ref-list-card .list{flex:none!important;margin-bottom:0!importa
 /* the notification list keeps every entry and scrolls */
 html body .main #notesCard .list{max-height:190px!important}
 
-/* dash-align: flush tops, shared bottom line, natural heights */
+/* dash-align: flush tops, shared bottom line */
 html body .main #p-dash .grid{align-items:stretch!important}
 html body .main #p-dash .grid > div{display:flex!important;flex-direction:column!important;min-width:0}
 html body .main #p-dash .grid > div > .card{flex:0 0 auto!important}
 html body .main #p-dash .grid > div > .card:first-child,
 html body .main #p-dash .grid > div > .card[data-results]{margin-top:0!important}
 
-/* pin the last card of each column to a shared bottom line */
+/* the two last cards fill their column so both bottoms land on one line */
 html body .main #p-dash .grid > div > #notesCard,
-html body .main #p-dash .grid > div > .ref-list-card{margin-top:auto!important}
+html body .main #p-dash .grid > div > .ref-list-card{flex:1 1 auto!important}
 
-/* notifications keeps its capped, scrollable list */
-html body .main #notesCard .list{max-height:190px!important;overflow-y:auto!important}
-html body .main .ref-list-card .list{flex:none!important}
+/* notification list stays capped and scrolls inside its card */
+html body .main #notesCard .list{max-height:190px!important;overflow-y:auto!important;flex:0 0 auto!important}
+html body .main .ref-list-card .list{flex:0 0 auto!important}
