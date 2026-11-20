@@ -23,7 +23,7 @@
 
   function paint(symEl, icEl, netEl, c) {
     symEl.textContent = c ? c.t.toUpperCase() : 'Select';
-    icEl.innerHTML = c ? '<img src="' + c.i + '" alt="">' : '';
+    icEl.innerHTML = c && c.i ? '<img src="' + c.i + '" alt="">' : '';
     netEl.textContent = c ? c.net.toUpperCase() : '';
   }
 
@@ -101,7 +101,7 @@
         for (var i = 0; i < list.length; i++) {
           var c = list[i];
           out += '<button type="button" data-t="' + c.t + '" data-net="' + c.net + '" data-x="' + (c.x ? 1 : 0) + '">' +
-            '<img src="' + c.i + '" alt=""><span>' + c.n + '</span><em>' + c.net.toUpperCase() + '</em></button>';
+            (c.i ? '<img src="' + c.i + '" alt="">' : '') + '<span>' + c.n + '</span><em>' + c.net.toUpperCase() + '</em></button>';
         }
         $('swPickList').innerHTML = out;
       })

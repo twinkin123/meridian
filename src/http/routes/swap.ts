@@ -101,7 +101,7 @@ swap.get('/currencies', async (req, res) => {
     .slice(0, 150)
     .map((c) => ({
       t: c.ticker, n: c.name, net: c.network, x: c.isExtraIdSupported,
-      i: `/swap/icon/${encodeURIComponent(c.ticker)}/${encodeURIComponent(c.network)}`,
+      i: c.image || '',
     }));
 
   res.set('Cache-Control', 'private, max-age=60');
