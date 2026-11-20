@@ -50,6 +50,10 @@
       candles.applyOptions({ visible: false });
       line.applyOptions({ visible: true });
       line.setData(all.map(function (p) { return { time: p.t, value: p.usd }; }));
+      var tip = all[all.length - 1];
+      if (tip) {
+        line.setMarkers([{ time: tip.t, position: 'inBar', shape: 'circle', color: '#2fd48a', size: 1 }]);
+      }
     }
     chart.priceScale('right').applyOptions({ autoScale: true });
     chart.timeScale().fitContent();
@@ -60,17 +64,17 @@
     if (!el || typeof LightweightCharts === 'undefined') return;
     chart = LightweightCharts.createChart(el, {
       layout: { background: { color: 'transparent' }, textColor: 'rgba(255,255,255,.45)' },
-      grid: { vertLines: { visible: false }, horzLines: { color: 'rgba(255,255,255,.04)' } },
-      rightPriceScale: { borderVisible: false },
-      timeScale: { borderVisible: false, timeVisible: true, secondsVisible: false },
+      grid: { vertLines: { visible: false }, horzLines: { visible: false } },
+      rightPriceScale: { visible: false },
+      timeScale: { visible: false },
       crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+      handleScroll: false,
+      handleScale: false,
       autoSize: true,
     });
-    line = chart.addAreaSeries({
-      lineColor: '#2fd48a',
+    line = chart.addLineSeries({
+      color: '#2fd48a',
       lineWidth: 2,
-      topColor: 'rgba(47,212,138,.28)',
-      bottomColor: 'rgba(47,212,138,0)',
       priceLineVisible: false,
       lastValueVisible: false,
     });
