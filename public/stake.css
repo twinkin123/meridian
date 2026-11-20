@@ -82,3 +82,8 @@
 .st-key i.blue{background:var(--blue)}
 .st-key i.lime{background:var(--lime)}
 @media (max-width:900px){.st-grid{grid-template-columns:1fr}.st-how{grid-template-columns:1fr}.st-art{order:-1}}
+
+/* the skin hides .sw2; bring it back inside this card */
+.st-side .sw2{display:block}
+.st-side .calc-chart svg{height:78px}
+.st-side .calc-amount input{color:var(--txt)}
