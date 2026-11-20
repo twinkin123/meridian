@@ -24,7 +24,7 @@
       var lo = (a * BigInt(rateBp)) / 10000n;
       var hi = (a * BigInt(rateBp) * 4n) / 10000n;
       proj.textContent = a ? usd(lo) + ' \u2013 ' + usd(hi) : '\u2013';
-      note.textContent = 'at ' + (rateBp / 100).toFixed(2) + '\u2013' + (rateBp / 25).toFixed(2) + '% daily, before the 15% fee';
+      note.textContent = 'before the 15% fee';
     }
     if (msg) { cta.textContent = msg; return; }
     if (a === 0n) return say('Enter an amount', true);

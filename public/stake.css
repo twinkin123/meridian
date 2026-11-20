@@ -168,3 +168,16 @@ html body .main .st-proj-v{color:#1bff80!important}
 html body .main .st-today-v{color:#1bff80!important}
 /* projected box takes the CTA plate */
 html body .main .st-proj{background:#131019!important;border-color:rgba(190,180,255,.15)!important}
+
+/* stats strip takes the projected plate */
+html body .main .st-stats{
+  background:#131019!important;
+  border:1px solid rgba(190,180,255,.15)!important;
+  border-radius:14px!important;
+  box-shadow:0 14px 28px -20px rgba(139,92,246,.6)!important;
+  padding:15px 0!important;
+  overflow:hidden;
+}
+html body .main .st-stats>div{border-left:1px solid rgba(255,255,255,.22)!important;padding:0 18px!important}
+html body .main .st-stats>div:first-child{border-left:0!important}
+html body .main .st-stats b{color:#fff!important}
