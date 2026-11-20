@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   var overlay = null, balEl = null, bal = '0';
 
   function el(tag, cls, text) {
@@ -56,7 +56,7 @@
         var n = Number(bal) / 1e6;
         if (balEl) balEl.textContent = n > 0 ? money(bal) + ' available to withdraw' : 'No available balance right now';
         var all = document.getElementById('wAll');
-        if (all) all.disabled = !(n > 0);
+        if (all) all.disabled = !(n >= 10);
         return j;
       })
       .catch(function () { return null; });
@@ -141,7 +141,7 @@
     sheet.appendChild(balEl);
 
     var card = el('div', 'wd-card');
-    card.innerHTML = '<p class="hint">$10 minimum, or your exact balance to close the account. New addresses are capped.</p>'
+    card.innerHTML = '<p class="hint">$10 minimum. Anything under $10 stays until it reaches $10. New addresses are capped.</p>'
       + '<div class="msg" id="wMsg"></div>'
       + '<div class="field"><label for="wAddr">Destination address</label><input id="wAddr" type="text" placeholder="Solana address" spellcheck="false" autocomplete="off"></div>'
       + '<div class="field"><label for="wAsset">Asset</label><select id="wAsset"><option value="SOL">SOL</option><option value="USDC">USDC</option></select></div>'
