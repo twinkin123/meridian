@@ -207,3 +207,9 @@ html body .main button.st-manage:hover{opacity:.8}
 
 /* manage button: same green as the net figure */
 html body .main button.st-manage{color:#1bff80!important}
+
+/* sheet carries the stakes table */
+.sm-sheet{max-width:560px!important}
+.sm-sheet .hint{margin:0 0 14px}
+.sm-sheet .stakes{max-height:46vh;overflow:auto}
+.sm-sheet .stakes-t th,.sm-sheet .stakes-t td{padding:11px 8px!important}

@@ -137,53 +137,60 @@
   setInterval(loadBalance, 30000);
 })();
 
-/* --- manage sheet v2 --- */
+/* --- manage sheet v3 --- */
 (function () {
-  var rows = [], ov = null, loaded = false;
+  var rows = [], ov = null;
 
   function el(id) { return document.getElementById(id); }
   function usd(v) { return '$' + (Number(v) / 1e6).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function sum() { return rows.reduce(function (n, d) { return n + Number(d.usd_at_det || 0); }, 0); }
 
-  function gap(iso) {
-    var ms = new Date(iso).getTime() - Date.now();
-    if (!isFinite(ms) || ms <= 0) return 'any moment';
-    var m = Math.floor(ms / 60000), h = Math.floor(m / 60), d = Math.floor(h / 24);
-    if (d) return d + 'd ' + (h % 24) + 'h';
-    if (h) return h + 'h ' + (m % 60) + 'm';
-    return m + 'm';
+  function dur(ms) {
+    if (!isFinite(ms)) return '-';
+    if (ms <= 0) return 'now';
+    var h = Math.floor(ms / 3600000), d = Math.floor(h / 24);
+    if (d > 0) return d + 'd ' + (h % 24) + 'h';
+    var m = Math.max(1, Math.floor(ms / 60000));
+    return m >= 60 ? h + 'h ' + (m % 60) + 'm' : m + 'm';
   }
 
   function paintBar() {
     var h = el('stHave'), n = el('stNextUnlock');
-    if (h) h.textContent = usd(sum());
+    var locked = rows.filter(function (d) { return d.status === 'locked'; });
+    if (h) h.textContent = usd(locked.reduce(function (a, d) { return a + Number(d.usd_at_det || 0); }, 0));
     if (n) {
       var soonest = null;
-      rows.forEach(function (d) {
+      locked.forEach(function (d) {
         var t = new Date(d.unlock_at).getTime();
-        if (isFinite(t) && (!soonest || t < soonest)) soonest = t;
+        if (isFinite(t) && t > Date.now() && (!soonest || t < soonest)) soonest = t;
       });
-      n.textContent = soonest ? 'Next unlock in ' + gap(new Date(soonest).toISOString()) : 'No active stakes';
+      n.textContent = soonest ? 'Next unlock in ' + dur(soonest - Date.now()) : 'No active stakes';
     }
+  }
+
+  function row(d) {
+    var now = Date.now();
+    var unl = d.unlock_at ? new Date(d.unlock_at).getTime() : 0;
+    var cls = 'st', label, btn = '';
+    if (d.status === 'held') { label = 'Reserve - needs $10'; }
+    else if (d.claim_requested_at) { cls += ' pend'; label = 'Awaiting review'; btn = '<button class="sx" data-cancel="' + d.id + '" type="button">Cancel</button>'; }
+    else if (d.claim_rejected_at && unl <= now) { cls += ' rej'; label = 'Declined' + (d.claim_reject_reason ? ': ' + esc(d.claim_reject_reason) : ''); btn = '<button class="sx" data-claim="' + d.id + '" type="button">Request again</button>'; }
+    else if (unl <= now) { cls += ' ready'; label = 'Ready to unlock'; btn = '<button class="sx" data-claim="' + d.id + '" type="button">Request unlock</button>'; }
+    else { label = 'Locked'; }
+    return '<tr><td><span class="as">' + esc(d.asset) + '</span></td>'
+      + '<td class="amt">' + usd(d.usd_at_det) + '</td>'
+      + '<td><span class="' + cls + '">' + label + '</span></td>'
+      + '<td class="unl">' + (d.status === 'held' ? '-' : dur(unl - now)) + '</td>'
+      + '<td>' + btn + '</td></tr>';
   }
 
   function paintSheet() {
     if (!ov) return;
     var body = ov.querySelector('.sm-body');
     if (!body) return;
-    body.innerHTML = '<div class="sm-tot"><span>Total staked</span><b>' + usd(sum()) + '</b></div>';
-    if (!rows.length) {
-      body.insertAdjacentHTML('beforeend', '<div class="sm-empty">'
-        + (loaded ? 'Nothing is locked right now. Lock $10 or more to start a stake.' : 'Loading stakes...')
-        + '</div>');
-      return;
-    }
-    rows.forEach(function (d) {
-      body.insertAdjacentHTML('beforeend',
-        '<div class="sm-item"><i class="sm-dot"></i><div><b>' + usd(d.usd_at_det) + '</b>'
-        + '<span>' + String(d.asset || 'USDC') + ' \u00b7 locked 30 days</span></div>'
-        + '<i>Unlocks in ' + gap(d.unlock_at) + '</i></div>');
-    });
+    body.innerHTML = rows.length ? rows.map(row).join('')
+      : '<tr><td colspan="5" class="empty">No active stakes.</td></tr>';
   }
 
   function loadStaked() {
@@ -191,18 +198,20 @@
       .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
       .then(function (d) {
         var all = Array.isArray(d) ? d : (d.deposits || d.rows || []);
-        rows = all.filter(function (x) { return x && x.status === 'locked'; });
-        loaded = true;
+        rows = all.filter(function (x) { return x && (x.status === 'held' || x.status === 'locked'); });
       })
       .catch(function () {})
-      .then(function () { paintBar(); if (ov) paintSheet(); });
+      .then(function () { paintBar(); paintSheet(); });
   }
 
-  function close() {
-    if (!ov) return;
-    ov.remove();
-    ov = null;
+  function act(id, path, btn) {
+    btn.disabled = true;
+    fetch('/wallet/deposits/' + id + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })
+      .catch(function () {})
+      .then(function () { loadStaked(); });
   }
+
+  function close() { if (ov) { ov.remove(); ov = null; } }
 
   function openSheet() {
     ov = document.createElement('div');
@@ -210,22 +219,25 @@
     ov.innerHTML = '<div class="sm-sheet" role="dialog" aria-modal="true" aria-label="Active stakes">'
       + '<div class="sm-head"><div class="sm-ico">&#9679;</div><h3>Active stakes</h3>'
       + '<button class="sm-x" type="button" aria-label="Close">&times;</button></div>'
-      + '<div class="sm-body"></div>'
-      + '<p class="sm-foot">Each stake is locked for 30 days. Credit lands in Available as it vests.</p></div>';
+      + '<p class="hint">Each stake locks for 30 days. Request an unlock once it matures and it moves to Available after review.</p>'
+      + '<div class="stakes"><table class="stakes-t"><thead><tr><th>Asset</th><th>Amount</th><th>Status</th><th>Unlocks</th><th></th></tr></thead>'
+      + '<tbody class="sm-body"></tbody></table></div>'
+      + '</div>';
     document.body.appendChild(ov);
     ov.querySelector('.sm-x').addEventListener('click', close);
     ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+    ov.querySelector('.sm-body').addEventListener('click', function (e) {
+      var x = e.target.closest('[data-claim]'), n = e.target.closest('[data-cancel]');
+      if (x) act(x.dataset.claim, '/claim', x);
+      if (n) act(n.dataset.cancel, '/claim/cancel', n);
+    });
     paintSheet();
     loadStaked();
   }
 
-  document.addEventListener('click', function (e) {
-    var t = e.target && e.target.closest ? e.target.closest('#stManage') : null;
-    if (!t) return;
-    e.preventDefault();
-    if (ov) close(); else openSheet();
-  });
-
+  window.stakeManage = function () { if (ov) close(); else openSheet(); };
+  var mb = document.getElementById('stManage');
+  if (mb) mb.onclick = window.stakeManage;
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadStaked);
