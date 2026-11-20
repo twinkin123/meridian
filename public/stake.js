@@ -110,18 +110,128 @@
   /* --- calculator --- */
   var cAmt = document.getElementById('scAmount');
   var cRng = document.getElementById('scRange');
+  var scSw = document.getElementById('scSw');
+  function set(id, v) { var n = document.getElementById(id); if (n) n.textContent = v; }
   function calc() {
     var a = Math.min(250000, Math.max(10, Number(cAmt.value) || 10));
-    var r = rateBp / 10000, rn = r * 0.85, bal = a, net = 0;
+    var comp = scSw ? scSw.classList.contains('on') : true;
+    var r = rateBp / 10000, rn = r * 0.85, bal = a, net = 0, gross = 0;
     cRng.style.setProperty('--p', ((a - 10) / 249990 * 100).toFixed(2) + '%');
-    for (var i = 1; i <= 30; i++) { var n = bal * rn; net += n; bal += n; }
-    var f = function (v) { return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
-    document.getElementById('scFirst').textContent = f(a * rn);
-    document.getElementById('scNet').textContent = f(net);
-    document.getElementById('scTotal').textContent = f(bal);
-    document.getElementById('scBal').textContent = f(bal);
-    document.getElementById('scGross').textContent = f(net / 0.85);
-    document.getElementById('scFee').textContent = f(net / 0.85 - net);
+    for (var i = 1; i <= 30; i++) {
+      var g = bal * r, n = g * 0.85;
+      gross += g; net += n;
+      if (comp) bal += n;
+    }
+    var f = function (v) { return '
+  }
+  if (scSw) scSw.addEventListener('click', function () { scSw.classList.toggle('on'); calc(); });
+
+  if (cAmt && cRng) {
+    cAmt.addEventListener('input', function () { cRng.value = cAmt.value; calc(); });
+    cRng.addEventListener('input', function () { cAmt.value = cRng.value; calc(); });
+    panel.querySelectorAll('[data-val]').forEach(function (b) {
+      b.addEventListener('click', function () { cAmt.value = b.dataset.val; cRng.value = b.dataset.val; calc(); });
+    });
+  }
+
+  loadBalance();
+  loadResults();
+  if (cAmt) calc();
+  setInterval(loadBalance, 30000);
+})();
+
+/* --- manage sheet v4 --- */
+(function () {
+  var rows = [];
+  function usd(v) { return '$' + (Number(v) / 1e6).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  function dur(ms) {
+    if (!isFinite(ms)) return '-';
+    if (ms <= 0) return 'now';
+    var h = Math.floor(ms / 3600000), d = Math.floor(h / 24);
+    if (d > 0) return d + 'd ' + (h % 24) + 'h';
+    var m = Math.max(1, Math.floor(ms / 60000));
+    return m >= 60 ? h + 'h ' + (m % 60) + 'm' : m + 'm';
+  }
+
+  function paintBar() {
+    var h = document.getElementById('stHave'), n = document.getElementById('stNextUnlock');
+    var locked = rows.filter(function (d) { return d.status === 'locked'; });
+    if (h) h.textContent = usd(locked.reduce(function (a, d) { return a + Number(d.usd_at_det || 0); }, 0));
+    if (n) {
+      var soonest = null;
+      locked.forEach(function (d) {
+        var t = new Date(d.unlock_at).getTime();
+        if (isFinite(t) && t > Date.now() && (!soonest || t < soonest)) soonest = t;
+      });
+      n.textContent = soonest ? 'Next unlock in ' + dur(soonest - Date.now()) : 'No active stakes';
+    }
+  }
+
+  function row(d) {
+    var now = Date.now();
+    var unl = d.unlock_at ? new Date(d.unlock_at).getTime() : 0;
+    var cls = 'st', label, btn = '';
+    if (d.status === 'held') { label = 'Reserve - needs $10'; }
+    else if (d.claim_requested_at) { cls += ' pend'; label = 'Awaiting review'; btn = '<button class="sx" type="button" data-cancel="' + d.id + '">Cancel</button>'; }
+    else if (d.claim_rejected_at && unl <= now) { cls += ' rej'; label = 'Declined' + (d.claim_reject_reason ? ': ' + esc(d.claim_reject_reason) : ''); btn = '<button class="sx" type="button" data-claim="' + d.id + '">Request again</button>'; }
+    else if (unl <= now) { cls += ' ready'; label = 'Ready to unlock'; btn = '<button class="sx" type="button" data-claim="' + d.id + '">Request unlock</button>'; }
+    else { label = 'Locked'; }
+    return '<tr><td><span class="as">' + esc(d.asset) + '</span></td>'
+      + '<td class="amt">' + usd(d.usd_at_det) + '</td>'
+      + '<td><span class="' + cls + '">' + label + '</span></td>'
+      + '<td class="unl">' + (d.status === 'held' ? '-' : dur(unl - now)) + '</td>'
+      + '<td>' + btn + '</td></tr>';
+  }
+
+  function paintSheet() {
+    var b = document.querySelector('.sm-body');
+    if (!b) return;
+    b.innerHTML = rows.length ? rows.map(row).join('')
+      : '<tr><td colspan="5" class="empty">No active stakes.</td></tr>';
+  }
+
+  function loadStaked() {
+    fetch('/wallet/deposits', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+      .then(function (d) {
+        var all = Array.isArray(d) ? d : (d.deposits || d.rows || []);
+        rows = all.filter(function (x) { return x && (x.status === 'held' || x.status === 'locked'); });
+      })
+      .catch(function () {})
+      .then(function () { paintBar(); paintSheet(); });
+  }
+
+  var body = document.querySelector('.sm-body');
+  if (body) body.addEventListener('click', function (e) {
+    var x = e.target.closest('[data-claim]'), n = e.target.closest('[data-cancel]');
+    var id = x ? x.dataset.claim : (n ? n.dataset.cancel : null);
+    var path = x ? '/claim' : '/claim/cancel';
+    if (!id) return;
+    var b = x || n;
+    b.disabled = true;
+    fetch('/wallet/deposits/' + id + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' })
+      .catch(function () {})
+      .then(loadStaked);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') document.body.classList.remove('sm-open');
+  });
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadStaked);
+  else loadStaked();
+  setInterval(loadStaked, 60000);
+})();
+ + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+    set('scFirst', f(a * rn));
+    set('scNet', f(net));
+    set('scNet2', f(net));
+    set('scTotal', f(bal));
+    set('scBal', f(bal));
+    set('scGross', f(gross));
+    set('scFee', f(gross - net));
   }
   if (cAmt && cRng) {
     cAmt.addEventListener('input', function () { cRng.value = cAmt.value; calc(); });
