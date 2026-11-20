@@ -156,3 +156,11 @@ html body .main .sw-field:focus{
   box-shadow:0 0 22px -5px rgba(139,92,246,.85)!important;
   outline:none!important;
 }
+
+html body .main .sw-amt,html body .main .sw-in{color:#fff!important}
+html body .main .sw-in::placeholder{color:rgba(255,255,255,.85)!important}
+html body .main .sw-side{color:#fff!important}
+html body .main .sw-field{color:#fff!important}
+html body .main .sw-field::placeholder{color:rgba(255,255,255,.62)!important}
+html body .main .sw-cta,html body .main .sw-cta:disabled{color:#fff!important}
+html body .main .sw-wallet{color:rgba(255,255,255,.72)!important}
