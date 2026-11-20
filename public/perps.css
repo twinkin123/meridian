@@ -241,3 +241,12 @@ html body .main .pp-mk-ic{width:20px!important;height:20px!important;border-radi
 html body .main .pp-badge-ic{width:34px!important;height:34px!important;border-radius:50%!important;object-fit:contain!important;display:block!important}
 
 html body .main .pp-badge img,html body .main .pp-mk-ic{transition:none!important;animation:none!important}
+
+html body .main .pp-exp{display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important;row-gap:9px!important;column-gap:10px!important}
+html body .main .pp-exp .pp-exp-l{grid-column:1!important;grid-row:1!important}
+html body .main .pp-exp .pp-exp-r{grid-column:2!important;grid-row:1!important;justify-self:end!important;white-space:nowrap!important}
+html body .main .pp-exp .pp-bar{grid-column:1/-1!important;grid-row:2!important}
+html body .main .pp-roi{grid-column:1/-1!important;grid-row:3!important;font-size:12px!important;line-height:1.3!important;white-space:nowrap!important;color:#9a9a9a!important}
+html body .main .pp-ck-id{min-width:0!important;margin-right:auto!important}
+html body .main .pp-ck-id b{display:block!important;line-height:1.1!important;letter-spacing:0!important}
+html body .main .pp-ck-id span{display:block!important;font-size:12.5px!important;line-height:1.2!important;color:#8f8f8f!important}
