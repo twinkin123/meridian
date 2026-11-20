@@ -106,3 +106,12 @@
 .st-cta:disabled{opacity:.55;cursor:not-allowed}
 .st-foot{margin:12px 0 0;font-size:11.5px;color:var(--mut2);line-height:1.55}
 @media (max-width:620px){.st-input{font-size:36px}}
+
+.st-today{margin-top:16px;border:1px solid var(--line);border-radius:14px;background:var(--panel2);padding:13px 15px}
+.st-today-top{display:flex;align-items:center;justify-content:space-between;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+.st-today-badge{font-style:normal;font-size:10px;letter-spacing:.04em;color:var(--lime);border:1px solid rgba(182,232,138,.3);border-radius:99px;padding:1px 7px}
+.st-today-v{display:block;font-size:26px;font-weight:700;letter-spacing:-.02em;margin:6px 0 11px}
+.st-today-rows{display:flex;gap:24px}
+.st-today-rows>div{display:flex;flex-direction:column;gap:1px}
+.st-today-rows span{font-size:11px;color:var(--mut2)}
+.st-today-rows b{font-size:13.5px;font-weight:600}
