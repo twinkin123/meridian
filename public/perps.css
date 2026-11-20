@@ -306,3 +306,7 @@ html body .main .pp-dir #ppUp.on{background:#28e664!important;border-color:#28e6
 html body .main .pp-dir #ppDown.on{background:#f0476a!important;border-color:#f0476a!important;color:#2b0710!important}
 html body .main .pp-dir #ppDown{color:#f0476a!important}
 html body .main .pp-dir #ppUp{color:#28e664!important}
+
+html body .main .pp-dir button{display:flex!important;align-items:center!important;justify-content:center!important;height:46px!important;padding:0!important;line-height:1!important}
+html body .main .pp-dir #ppDown.on{background:#ff2f4f!important;border-color:#ff2f4f!important;color:#1a0308!important;font-weight:700!important}
+html body .main .pp-dir #ppUp.on{background:#28e664!important;border-color:#28e664!important;color:#05220f!important;font-weight:700!important}
