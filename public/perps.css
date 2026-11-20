@@ -239,3 +239,5 @@ html body .main .pp-dir button{color:#e8e8e8!important}
 html body .main .pp-mk li{display:flex!important;align-items:center!important;gap:9px!important}
 html body .main .pp-mk-ic{width:20px!important;height:20px!important;border-radius:50%!important;object-fit:contain!important;flex:0 0 auto!important;background:#141414!important}
 html body .main .pp-badge-ic{width:34px!important;height:34px!important;border-radius:50%!important;object-fit:contain!important;display:block!important}
+
+html body .main .pp-badge img,html body .main .pp-mk-ic{transition:none!important;animation:none!important}

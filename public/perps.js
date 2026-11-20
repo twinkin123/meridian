@@ -209,6 +209,8 @@
 
   function pickMarket(id) {
     market = id;
+    var bdp = $('ppBadge') && $('ppBadge').querySelector('img');
+    if (bdp) bdp.src = '/market/logo/' + id;
     document.querySelectorAll('.pp-mk li').forEach(function (li) {
       li.classList.toggle('on', li.dataset.m === id);
     });
@@ -220,6 +222,7 @@
 
   function boot() {
     initChart();
+    ['sol', 'btc', 'eth'].forEach(function (k) { var im = new Image(); im.src = '/market/logo/' + k; });
 
     document.querySelectorAll('.pp-mk li[data-m]').forEach(function (li) {
       li.addEventListener('click', function () { pickMarket(li.dataset.m); });
