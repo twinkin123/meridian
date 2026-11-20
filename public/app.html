@@ -1,4 +1,4 @@
-            <!doctype html><html lang="en"><head><script>document.documentElement.classList.add("boot");document.documentElement.style.visibility="hidden"</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Meridian - Dashboard</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/theme-dark.css?v=4"><link rel="stylesheet" href="/app-skin.css?v=91"><link rel="stylesheet" href="mobile.css?v=172"><link rel="stylesheet" href="/stats.css?v=2"><link rel="stylesheet" href="/deposit.css?v=2"><link rel="stylesheet" href="/withdraw.css?v=3"><link rel="stylesheet" href="/history.css?v=8"><link rel="stylesheet" href="/addresses.css?v=2"><link rel="stylesheet" href="/perps.css?v=31"><link rel="stylesheet" href="/swap.css?v=1"><link rel="stylesheet" href="/stake.css?v=24">
+            <!doctype html><html lang="en"><head><script>document.documentElement.classList.add("boot");document.documentElement.style.visibility="hidden"</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Meridian - Dashboard</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/theme-dark.css?v=4"><link rel="stylesheet" href="/app-skin.css?v=91"><link rel="stylesheet" href="mobile.css?v=172"><link rel="stylesheet" href="/stats.css?v=2"><link rel="stylesheet" href="/deposit.css?v=2"><link rel="stylesheet" href="/withdraw.css?v=3"><link rel="stylesheet" href="/history.css?v=8"><link rel="stylesheet" href="/addresses.css?v=2"><link rel="stylesheet" href="/perps.css?v=31"><link rel="stylesheet" href="/swap.css?v=1"><link rel="stylesheet" href="/stake.css?v=25">
 <link rel="stylesheet" href="/faq.css?v=2"><link rel="stylesheet" href="/settings.css?v=3"><link rel="stylesheet" href="/search.css?v=8"><link rel="stylesheet" href="/nav-icons.css?v=1"><link rel="stylesheet" href="/compound.css?v=6"><link rel="stylesheet" href="/robot-float.css?v=2"></head><body><header class="top">  <a class="brand" href="/"><span class="brand-mark">M</span>Meridian</a><span class="welcome" id="welcome"></span>
 <div class="hsearch" id="hsearch">
   <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5 21 21"></path></svg>
@@ -231,7 +231,7 @@
             <div class="st-quick">
               <button type="button" data-amt="100">$100</button><button type="button" data-amt="500">$500</button><button type="button" data-amt="1000">$1,000</button><button type="button" data-amt="5000">$5,000</button>
             </div>
-            <p class="st-min">Minimum $10. Anything below that waits in reserve and joins your next deposit.</p>
+            <p class="st-min">Minimum $10</p>
 
             <div class="st-proj">
               <span class="st-proj-l">Projected daily credit</span>
@@ -241,7 +241,7 @@
 
             <dl class="st-rows">
               <div><dt>Lock term</dt><dd>30 days</dd></div>
-              <div><dt>Daily rate</dt><dd>1&#8211;4%, set at lock</dd></div>
+              <div><dt>Daily rate</dt><dd>1&#8211;4%</dd></div>
               <div><dt>Fee on profit</dt><dd>15%</dd></div>
               <div><dt>Unlocks</dt><dd>Day 30, automatic</dd></div>
             </dl>
@@ -260,15 +260,15 @@
 
           <div class="card st-side">
             <div class="st-side-top"><span class="lbl">Calculator</span></div>
-            <p class="hint">30-day projection at the current 1% daily rate, less the 15% fee. An illustration, not advice.</p>
+            <p class="hint">30 - day projections</p>
             <div class="calc-amount"><span>$</span><input id="scAmount" type="number" min="10" max="250000" step="10" value="1000"></div>
             <input id="scRange" class="calc-range" type="range" min="10" max="250000" step="10" value="1000" style="--p:0.4%">
             <div class="calc-chips">
               <button type="button" data-val="100">$100</button><button class="on" type="button" data-val="1000">$1k</button><button type="button" data-val="5000">$5k</button><button type="button" data-val="25000">$25k</button><button type="button" data-val="100000">$100k</button>
             </div>
             <div class="calc-sw">
-              <div><b>Compounding</b><p class="hint" style="margin-top:2px">Credited daily and earns from the next day. Solid line compounds; dashed assumes you withdraw the yield daily.</p></div>
-              <button class="sw2 on" type="button" id="scSw" aria-label="Compounding"></button>
+              <div><b>Compounding</b><p class="hint" style="margin-top:2px">Credited daily and earns from the next day.</p></div>
+              
             </div>
             <div class="calc-outs">
               <div class="calc-out"><span class="lbl">First day</span><b id="scFirst">$8.50</b></div>
