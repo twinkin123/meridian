@@ -75,32 +75,28 @@ market.get('/prices', async (_req, res) => {
 
 const logos = new Map<string, { at: number; type: string; body: Buffer }>();
 
-let logoCache: { at: number; map: Record<string, string> } | null = null;
-let logoInflight: Promise<Record<string, string>> | null = null;
-
-async function logoMap(): Promise<Record<string, string>> {
-  if (logoCache && Date.now() - logoCache.at < 86_400_000) return logoCache.map;
-  if (!logoInflight) {
-    logoInflight = (async () => {
-      const r = await fetch(
-        `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${IDS.join(',')}&per_page=50&page=1&sparkline=false`,
-        { headers: { accept: 'application/json' } },
-      );
-      if (!r.ok) throw new Error(`coingecko ${r.status}`);
-      const rows = (await r.json()) as Array<{ id: string; image?: string }>;
-      const map: Record<string, string> = {};
-      for (const row of rows) if (row.image) map[row.id] = row.image;
-      logoCache = { at: Date.now(), map };
-      return map;
-    })().finally(() => { logoInflight = null; });
-  }
-  try {
-    return await logoInflight;
-  } catch (err) {
-    if (logoCache) return logoCache.map;
-    throw err;
-  }
-}
+const LOGO: Record<string, string> = {
+  solana: 'https://assets.coingecko.com/coins/images/4128/large/solana.png',
+  'usd-coin': 'https://assets.coingecko.com/coins/images/6319/large/usdc.png',
+  bitcoin: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
+  ethereum: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',
+  'jupiter-exchange-solana': 'https://assets.coingecko.com/coins/images/34188/large/jup.png',
+  binancecoin: 'https://coin-images.coingecko.com/coins/images/825/large/bnb-icon2_2x.png',
+  ripple: 'https://coin-images.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png',
+  cardano: 'https://coin-images.coingecko.com/coins/images/975/large/cardano.png',
+  dogecoin: 'https://coin-images.coingecko.com/coins/images/5/large/dogecoin.png',
+  'avalanche-2': 'https://coin-images.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png',
+  tron: 'https://coin-images.coingecko.com/coins/images/1094/large/photo_2026-04-13_09-59-16.png',
+  chainlink: 'https://coin-images.coingecko.com/coins/images/877/large/Chainlink_Logo_500.png',
+  polkadot: 'https://coin-images.coingecko.com/coins/images/12171/large/polkadot.jpg',
+  litecoin: 'https://coin-images.coingecko.com/coins/images/2/large/litecoin.png',
+  'bitcoin-cash': 'https://coin-images.coingecko.com/coins/images/780/large/bitcoin-cash-circle.png',
+  stellar: 'https://coin-images.coingecko.com/coins/images/100/large/fmpFRHHQ_400x400.jpg',
+  uniswap: 'https://coin-images.coingecko.com/coins/images/12504/large/uniswap-logo.png',
+  near: 'https://coin-images.coingecko.com/coins/images/10365/large/near.jpg',
+  cosmos: 'https://coin-images.coingecko.com/coins/images/1481/large/cosmos_hub.png',
+  arbitrum: 'https://coin-images.coingecko.com/coins/images/16547/large/arb.jpg',
+};
 
 market.get('/logo/:sym', async (req, res) => {
   const sym = String(req.params.sym).toLowerCase();
@@ -115,8 +111,7 @@ market.get('/logo/:sym', async (req, res) => {
     return;
   }
   try {
-    const map = await logoMap();
-    const url = map[id];
+    const url = LOGO[id];
     if (!url) { res.status(404).end(); return; }
     const r = await fetch(url);
     if (!r.ok) { res.status(404).end(); return; }
