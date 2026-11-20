@@ -12,28 +12,32 @@ const IDS = Object.keys(SYM);
 /** Deposit symbols with no CoinGecko id of their own, borrowing a sibling logo. */
 const ALIAS: Record<string, string> = { 'usdc-e': 'usdc' };
 
-type Row = { usd: number; chg: number; logo: string };
+type Row = { usd: number; chg: number };
 type Cache = { at: number; data: Record<string, Row> };
 
-const TTL = 60_000;
+const TTL = 1_000;
 let cache: Cache | null = null;
 let inflight: Promise<Record<string, Row>> | null = null;
 
+const bin = (id: string) => `${SYM[id].toUpperCase()}USDT`;
+
 async function load(): Promise<Record<string, Row>> {
+  const syms = encodeURIComponent(JSON.stringify(IDS.map(bin)));
   const r = await fetch(
-    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${IDS.join(',')}` +
-      `&price_change_percentage=24h&per_page=50&page=1&sparkline=false`,
+    `https://data-api.binance.vision/api/v3/ticker/24hr?symbols=${syms}`,
     { headers: { accept: 'application/json' } },
   );
-  if (!r.ok) throw new Error(`coingecko ${r.status}`);
-  const rows = (await r.json()) as Array<{
-    id: string; current_price: number; price_change_percentage_24h: number | null; image: string;
-  }>;
+  if (!r.ok) throw new Error(`binance ${r.status}`);
+  const rows = (await r.json()) as Array<{ symbol: string; lastPrice: string; priceChangePercent: string }>;
   const out: Record<string, Row> = {};
   for (const row of rows) {
-    if (typeof row.current_price !== 'number') continue;
-    out[row.id] = { usd: row.current_price, chg: row.price_change_percentage_24h ?? 0, logo: row.image };
+    const id = IDS.find((k) => bin(k) === row.symbol);
+    if (!id) continue;
+    const usd = Number(row.lastPrice);
+    if (!Number.isFinite(usd)) continue;
+    out[id] = { usd, chg: Number(row.priceChangePercent) || 0 };
   }
+  if (!Object.keys(out).length) throw new Error('binance empty');
   return out;
 }
 
@@ -84,8 +88,10 @@ market.get('/logo/:sym', async (req, res) => {
     return;
   }
   try {
-    const data = await prices();
-    const url = data[id]?.logo;
+    const cg = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${id}&per_page=1&page=1&sparkline=false`, { headers: { accept: 'application/json' } });
+    if (!cg.ok) { res.status(404).end(); return; }
+    const jj = (await cg.json()) as Array<{ image?: string }>;
+    const url = jj[0]?.image;
     if (!url) { res.status(404).end(); return; }
     const r = await fetch(url);
     if (!r.ok) { res.status(404).end(); return; }

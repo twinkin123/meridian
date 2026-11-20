@@ -119,12 +119,14 @@
   }
 
   function paint(){
+    if (paint.busy) return;
+    paint.busy = 1;
     var list = ids();
     if (!list.length) return;
     fetch('/market/prices?ids=' + list.join(','), { cache: 'no-store' })
       .then(function(r){ if (!r.ok) throw new Error('http'); return r.json(); })
       .then(function(d){
-        tries = 0;
+        tries = 0; paint.busy = 0;
         Object.keys(d).forEach(function(k){ data[k] = d[k]; });
         track.querySelectorAll('.tk').forEach(function(card){
           var p = data[card.dataset.id];
@@ -142,6 +144,7 @@
         });
       })
       .catch(function(){
+        paint.busy = 0;
         clearTimeout(timer); timer = setTimeout(paint, tries++ < 5 ? 3000 * tries : 60000);
       });
   }
@@ -149,5 +152,5 @@
   paint();
   window.addEventListener('pageshow', paint);
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) paint(); });
-  setInterval(paint, 60000);
+  setInterval(paint, 1000);
 })();
