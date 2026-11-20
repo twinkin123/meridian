@@ -162,3 +162,9 @@ html body .main .st-amount .st-input{font-size:46px;font-weight:700}
 /* amount field: let the black plate show through */
 html body .main .st-amount .st-input{background:transparent!important;border:0!important;box-shadow:none!important}
 html body .main .st-amount .st-cur{background:transparent!important}
+
+/* one green for every figure */
+html body .main .st-proj-v{color:#1bff80!important}
+html body .main .st-today-v{color:#1bff80!important}
+/* projected box takes the CTA plate */
+html body .main .st-proj{background:#131019!important;border-color:rgba(190,180,255,.15)!important}
