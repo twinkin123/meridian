@@ -100,7 +100,7 @@
         var out = '';
         for (var i = 0; i < list.length; i++) {
           var c = list[i];
-          out += '<button type="button" data-t="' + c.t + '" data-net="' + c.net + '" data-x="' + (c.x ? 1 : 0) + '">' +
+          out += '<button type="button" data-t="' + c.t + '" data-net="' + c.net + '" data-x="' + (c.x ? 1 : 0) + '" data-i="' + (c.i || '') + '">' +
             (c.i ? '<img src="' + c.i + '" alt="">' : '') + '<span>' + c.n + '</span><em>' + c.net.toUpperCase() + '</em></button>';
         }
         $('swPickList').innerHTML = out;
@@ -173,7 +173,7 @@
     $('swPickList').addEventListener('click', function (e) {
       var b = e.target.closest('button[data-t]');
       if (!b) return;
-      choose({ t: b.dataset.t, net: b.dataset.net, x: b.dataset.x === '1' });
+      choose({ t: b.dataset.t, net: b.dataset.net, x: b.dataset.x === '1', i: b.dataset.i });
     });
 
     $('swAmt').addEventListener('input', function (e) {
