@@ -134,13 +134,10 @@
     var meta = META[id] || { n: '', c: '#888', g: '?' };
     $('ppName').textContent = meta.n;
     $('ppAboutT').textContent = 'About ' + meta.n;
-    var badge = $('ppBadge');
-    if (badge) {
-      var c = badge.querySelector('circle');
-      if (c) c.setAttribute('fill', meta.c);
-      var tx = badge.querySelector('text');
-      if (tx) tx.textContent = meta.g;
-    }
+    var dp = $('ppAboutP');
+    if (dp) dp.textContent = DESC[id] || '';
+    var bd = $('ppBadge') && $('ppBadge').querySelector('img');
+    if (bd) bd.src = '/market/logo/' + id;
     $('ppSym').textContent = id.toUpperCase();
     $('ppPrice').textContent = money(price);
     $('ppChg').textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
