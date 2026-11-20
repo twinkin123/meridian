@@ -5,6 +5,13 @@
   var $ = function (id) { return document.getElementById(id); };
   var market = 'sol', side = 'long', stake = 1, lev = 500, busy = false, poll = 0, chart = null, series = null, mark = 0, days = 1, bucket = 0;
 
+  var META = {
+    sol: { n: 'Solana', c: '#14f195', g: 'S' },
+    btc: { n: 'Bitcoin', c: '#f7931a', g: 'B' },
+    eth: { n: 'Ethereum', c: '#627eea', g: 'E' },
+    jup: { n: 'Jupiter', c: '#c7f284', g: 'J' },
+  };
+
   function usd(micro) { return (Number(micro) / 1e6).toFixed(2); }
   function money(n) {
     return '$' + Number(n).toLocaleString('en-US', {
@@ -38,8 +45,11 @@
     fetch('/perps/history?market=' + market + '&days=' + days)
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) {
-        if (!j || !series) return;
-        series.setData(j.points.map(function (p) { return { time: p.t, value: p.usd }; }));
+        if (!series) return;
+        var pts = j && j.points ? j.points : [];
+        if (!pts.length) return;
+        series.setData(pts.map(function (p) { return { time: p.t, value: p.usd }; }));
+        chart.priceScale('right').applyOptions({ autoScale: true });
         chart.timeScale().fitContent();
       })
       .catch(function () {});
@@ -48,7 +58,7 @@
   function pushTick(price) {
     mark = price;
     if (!series) return;
-    var b = Math.floor(Date.now() / 5000) * 5;
+    var b = Math.floor(Date.now() / 4000) * 4;
     if (b !== bucket) {
       bucket = b;
       series.update({ time: b, value: price });
@@ -70,6 +80,15 @@
   }
 
   function paintHeader(id, price, chg) {
+    var meta = META[id] || { n: '', c: '#888', g: '?' };
+    $('ppName').textContent = meta.n;
+    var badge = $('ppBadge');
+    if (badge) {
+      var c = badge.querySelector('circle');
+      if (c) c.setAttribute('fill', meta.c);
+      var tx = badge.querySelector('text');
+      if (tx) tx.textContent = meta.g;
+    }
     $('ppSym').textContent = id.toUpperCase();
     $('ppPrice').textContent = money(price);
     $('ppChg').textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
@@ -144,7 +163,10 @@
     document.querySelectorAll('.pp-mk li').forEach(function (li) {
       li.classList.toggle('on', li.dataset.m === id);
     });
-    if (series) series.setData([]);
+    if (series) {
+      series.setData([]);
+      chart.priceScale('right').applyOptions({ autoScale: true });
+    }
     loadHistory();
     quote();
   }
