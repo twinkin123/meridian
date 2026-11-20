@@ -213,3 +213,8 @@ html body .main button.st-manage{color:#1bff80!important}
 .sm-sheet .hint{margin:0 0 14px}
 .sm-sheet .stakes{max-height:46vh;overflow:auto}
 .sm-sheet .stakes-t th,.sm-sheet .stakes-t td{padding:11px 8px!important}
+
+/* sheet is always in the DOM, shown by a body class */
+.sm-overlay{display:none!important}
+body.sm-open .sm-overlay{display:flex!important}
+body.sm-open{overflow:hidden}
