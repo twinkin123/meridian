@@ -1,4 +1,4 @@
-﻿import {
+import {
   Connection,
   Keypair,
   PublicKey,
@@ -90,9 +90,11 @@ export async function requestWithdrawal(
     );
     const balance = BigInt(bal.rows[0]?.b ?? 0);
 
-    const closing = usd === balance;
     if (usd > balance) return { ok: false, error: 'insufficient' };
-    if (usd < MIN_WITHDRAW && !closing && source !== 'rewards') return { ok: false, error: 'below_min' };
+    /* The minimum is absolute. Closing a balance under $10 no longer bypasses it,
+       so a daily credit has to accumulate before it can leave. Referral
+       commission is still exempt, since it is small and already owed. */
+    if (usd < MIN_WITHDRAW && source !== 'rewards') return { ok: false, error: 'below_min' };
 
     /* Referral commission is unconditional: no cap, no minimum, no gate, and it
        never blocks or counts against the available balance. */
