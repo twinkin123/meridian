@@ -100,3 +100,8 @@
 @media (max-width:1180px){.pp{grid-template-columns:minmax(0,0.76fr) minmax(0,1.95fr) minmax(0,1fr)}}
 @media (max-width:980px){.pp{grid-template-columns:1fr}.pp-mk-card,.pp-mid,.pp-ticket,.pp-pos{width:100%}.pp-mk-card{order:2}.pp-mid{order:1}.pp-ticket{order:3}.pp-chart{height:210px}}
 @media (max-width:620px){.pp-acct>div{min-width:78px}.pp-acct-r{margin-left:0;width:100%}.pp-chart-foot{gap:12px}}
+
+/* panel is a flex column so the row absorbs any leftover panel height */
+#p-perps.on{display:flex!important;flex-direction:column!important;min-height:0!important}
+#p-perps>.pp{flex:1 1 auto;min-height:0}
+#p-perps>.pp-acct{flex:none}
