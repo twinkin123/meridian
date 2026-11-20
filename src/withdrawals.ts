@@ -32,6 +32,9 @@ export const FEE_HEADROOM = 100_000n;
 export const PRIORITY_MICRO = 200_000;
 export const MAX_ATTEMPTS = 3;
 
+/** A single withdrawal may not exceed this share of the treasury. */
+export const TREASURY_SHARE_PCT = 15n;
+
 const USDC_MINT = new PublicKey(
   process.env.USDC_MINT ?? 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
 );
@@ -141,7 +144,19 @@ export async function requestWithdrawal(
     const net = usd - fee;
     if (net <= 0n) return { ok: false, error: 'below_min' };
 
-    const autoOk = !needsApproval;
+    /* An auto-approved row never passes through approveWithdrawal, so the
+       treasury solvency and share checks have to run here too. A treasury that
+       cannot cover the payout queues it for review instead of letting it sail
+       into a Privy 400 at send time. */
+    let covered = true;
+    if (!needsApproval) {
+      const need = asset === 'USDC' ? net : qtyFor('SOL', net, await solPriceMicro()) + FEE_HEADROOM;
+      const head = await treasuryHeadroom().catch(() => null);
+      if (!head) return { ok: false, error: 'treasury_unreachable' };
+      const have = asset === 'USDC' ? head.usdc : head.sol;
+      covered = have >= need && need * 100n < have * TREASURY_SHARE_PCT;
+    }
+    const autoOk = !needsApproval && covered;
     const status = autoOk ? 'approved' : 'requested';
 
     const row = await c.query<{ id: string }>(
@@ -161,15 +176,15 @@ export async function requestWithdrawal(
     await notify(c, userId, autoOk ? 'withdrawal_approved' : 'withdrawal_requested',
       autoOk
         ? `Withdrawal of ${usdStr(usd)} USD approved. Sending now.`
-        : `Withdrawal of ${usdStr(usd)} USD requested. Waiting on admin approval.`);
+        : covered
+          ? `Withdrawal of ${usdStr(usd)} USD requested. Waiting on admin approval.`
+          : `Withdrawal of ${usdStr(usd)} USD requested. The payout wallet cannot cover it yet, so it will send once it is topped up.`);
 
     return { ok: true, id, status, cap: cap.toString() };
   });
 }
 
 export type ApproveResult = { ok: true } | { ok: false; error: string };
-/** A single withdrawal may not exceed this share of the treasury. */
-const TREASURY_SHARE_PCT = 15n;
 export async function approveWithdrawal(id: string, approver: string): Promise<ApproveResult> {
   const q = await pool.query<{ asset: Asset; usd_amount: string; status: string }>(`select asset, usd_amount, status from withdrawals where id = $1`, [id]);
   const row = q.rows[0];
@@ -326,6 +341,15 @@ export async function payoutWithdrawal(
     }
     if (settled === 'timeout') return { ok: false, error: 'pending', sig: row.privy_action_id };
   }
+
+  /* Solvency is re-checked at send time: an approved row can outlive the
+     balance it was approved against. The row stays approved, so it pays once
+     the treasury is topped up. */
+  const need = row.asset === 'USDC' ? usd : qty + FEE_HEADROOM;
+  const head = await treasuryHeadroom().catch(() => null);
+  if (!head) return { ok: false, error: 'treasury_unreachable' };
+  const have = row.asset === 'USDC' ? head.usdc : head.sol;
+  if (have < need) return { ok: false, error: `treasury_short:${have}:${need}` };
 
   const claimed = await tx(async (c) => {
     const w = await c.query<{
