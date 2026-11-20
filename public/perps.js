@@ -195,7 +195,8 @@
       fetch('/perps/markets')
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (j) {
-          if (j) {`n            lastMarks = j.markets;
+          if (j) {
+            lastMarks = j.markets;
             paintMarkets(j.markets);
             var cur = j.markets.find(function (m) { return m.id === market; });
             if (cur) { paintHeader(market, cur.usd, cur.chg); pushTick(cur.usd); }
