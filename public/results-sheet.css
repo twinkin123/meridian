@@ -36,5 +36,5 @@ td.neg{color:#f2665c}
 /* hold the sheet at a stable height when a day has no rows */
 .tr-sheet{min-height:min(740px,88vh);display:flex;flex-direction:column}
 .tr-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
-.tr-body > .res-scroll{flex:1 1 auto;max-height:none}
+.tr-body > .res-scroll{flex:0 0 auto;max-height:none}
 .tr-body > .res-empty{flex:1 1 auto;display:flex;align-items:center;justify-content:center;padding:0;text-align:center}
