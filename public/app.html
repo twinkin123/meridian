@@ -1,4 +1,4 @@
-            <!doctype html><html lang="en"><head><script>document.documentElement.classList.add("boot");document.documentElement.style.visibility="hidden"</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Meridian - Dashboard</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/theme-dark.css?v=4"><link rel="stylesheet" href="/app-skin.css?v=91"><link rel="stylesheet" href="mobile.css?v=172"><link rel="stylesheet" href="/stats.css?v=2"><link rel="stylesheet" href="/deposit.css?v=2"><link rel="stylesheet" href="/withdraw.css?v=3"><link rel="stylesheet" href="/history.css?v=8"><link rel="stylesheet" href="/addresses.css?v=2"><link rel="stylesheet" href="/perps.css?v=31"><link rel="stylesheet" href="/swap.css?v=1"><link rel="stylesheet" href="/stake.css?v=4">
+            <!doctype html><html lang="en"><head><script>document.documentElement.classList.add("boot");document.documentElement.style.visibility="hidden"</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Meridian - Dashboard</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/theme-dark.css?v=4"><link rel="stylesheet" href="/app-skin.css?v=91"><link rel="stylesheet" href="mobile.css?v=172"><link rel="stylesheet" href="/stats.css?v=2"><link rel="stylesheet" href="/deposit.css?v=2"><link rel="stylesheet" href="/withdraw.css?v=3"><link rel="stylesheet" href="/history.css?v=8"><link rel="stylesheet" href="/addresses.css?v=2"><link rel="stylesheet" href="/perps.css?v=31"><link rel="stylesheet" href="/swap.css?v=1"><link rel="stylesheet" href="/stake.css?v=5">
 <link rel="stylesheet" href="/faq.css?v=2"><link rel="stylesheet" href="/settings.css?v=3"><link rel="stylesheet" href="/search.css?v=8"><link rel="stylesheet" href="/nav-icons.css?v=1"><link rel="stylesheet" href="/compound.css?v=6"><link rel="stylesheet" href="/robot-float.css?v=2"></head><body><header class="top">  <a class="brand" href="/"><span class="brand-mark">M</span>Meridian</a><span class="welcome" id="welcome"></span>
 <div class="hsearch" id="hsearch">
   <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5 21 21"></path></svg>
@@ -208,33 +208,34 @@
 
         <div class="st-grid">
           <div class="card st-main">
-            <div class="st-tabs"><button class="on" type="button">Meridian</button><button type="button">Native</button></div>
-            <div class="st-earn">
-              <span>Earn <b>$1.16</b> in a year <em>+$0.06 vs LST average</em></span>
-              <button type="button">Calculate <span>&#8594;</span></button>
+            <div class="st-mhead">
+              <span class="st-mhead-l">Stake</span>
+              <div class="st-meta"><span class="st-bal">3.28942304 SOL</span><button type="button">MAX</button><i>&#183;</i><button type="button">50%</button><i>&#183;</i><button type="button">%</button></div>
             </div>
-            <div class="st-field">
-              <div class="st-field-top">
-                <span>Staking</span>
-                <div class="st-meta"><span class="st-bal">3.28942304 SOL</span><button type="button">MAX</button><i>&#183;</i><button type="button">50%</button><i>&#183;</i><button type="button">%</button></div>
-              </div>
-              <div class="st-big">0.328</div>
-              <div class="st-usd">&#8776; $22.61</div>
-              <button class="st-tok" type="button">SOL</button>
+            <div class="st-amount">
+              <span class="st-cur">$</span>
+              <input class="st-input" value="1000" inputmode="decimal" aria-label="Stake amount">
             </div>
-            <button class="st-flip" type="button" aria-label="Swap direction"><svg viewBox="0 0 24 24"><path d="M8 5v14"/><path d="m4.5 15.5 3.5 3.5 3.5-3.5"/><path d="M16 19V5"/><path d="m12.5 8.5 3.5-3.5 3.5 3.5"/></svg></button>
-            <div class="st-field st-recv">
-              <div class="st-field-top"><span>Receiving</span><span class="st-rate">1 Meridian = 1.22 SOL</span></div>
-              <div class="st-big">0.26871</div>
-              <div class="st-usd">&#8776; $22.64</div>
-              <button class="st-tok" type="button">Meridian</button>
+            <div class="st-quick">
+              <button type="button">$100</button><button type="button">$500</button><button class="on" type="button">$1,000</button><button type="button">$5,000</button>
             </div>
+            <p class="st-min">Minimum $10. Anything below that waits in reserve and joins your next deposit.</p>
+
+            <div class="st-proj">
+              <span class="st-proj-l">Projected daily credit</span>
+              <b class="st-proj-v">$10.00 &#8211; $40.00</b>
+              <em>at 1&#8211;4% daily, before the 15% fee</em>
+            </div>
+
             <dl class="st-rows">
-              <div><dt>APY</dt><dd>5.17%</dd></div>
-              <div><dt>Unstaking</dt><dd>Instant swap, or after the epoch ends</dd></div>
-              <div><dt>Estimated epoch duration</dt><dd>1d 1h</dd></div>
+              <div><dt>Lock term</dt><dd>30 days</dd></div>
+              <div><dt>Daily rate</dt><dd>1&#8211;4%, set at lock</dd></div>
+              <div><dt>Fee on profit</dt><dd>15%</dd></div>
+              <div><dt>Unlocks</dt><dd>Day 30, automatic</dd></div>
             </dl>
-            <button class="st-cta" type="button">Get Meridian</button>
+
+            <button class="st-cta" type="button" disabled>Lock $1,000 for 30 days</button>
+            <p class="st-foot">Stakes are locked for the full term. Credit vests in four 6-hour slices and can be withdrawn as it lands.</p>
           </div>
 
           <div class="card st-side">
