@@ -188,9 +188,9 @@
 .pp-roi{font-size:11.5px!important}
 
 /* spread the ticket down the column instead of stacking it at the top */
-.pp-ticket{justify-content:flex-start!important}
+.pp-ticket{justify-content:space-between!important}
 .pp-rule{margin:0!important}
-.pp-place{margin-top:0!important;margin-bottom:44px!important}
+.pp-place{margin-top:0!important}
 .pp-dir button{padding:9px!important;font-size:13px!important}
 .pp-exp{gap:5px!important}
 .pp-exp-l{font-size:11px!important}
@@ -199,8 +199,7 @@
 
 /* keep each label/value/slider group tight; dividers ride the blocks */
 .pp-block{display:flex;flex-direction:column}
-.pp-block,.pp-exp{border-top:1px solid var(--line);padding-top:13px}
-.pp-dir{border-top:1px solid var(--line);margin-top:12px}
+.pp-dir,.pp-block,.pp-exp{border-top:1px solid var(--line);padding-top:13px}
 .pp-cap{margin-bottom:6px!important}
 .pp-amt{margin-bottom:10px!important}
 .pp-mult{margin-bottom:10px!important}
