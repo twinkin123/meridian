@@ -9,7 +9,9 @@ export const perps = Router();
 perps.get('/markets', async (_req, res) => {
   try {
     const all = await marks();
-    res.json({ markets: Object.entries(all).map(([id, m]) => ({ id, usd: m.usd, chg: m.chg })) });
+    const byId: Record<string, string> = {};
+    for (const [k, v] of Object.entries(MARKETS)) byId[v.id] = k;
+    res.json({ markets: Object.entries(all).map(([id, m]) => ({ id: byId[id] ?? id, usd: m.usd, chg: m.chg })) });
   } catch {
     res.status(502).json({ error: 'no_prices' });
   }
