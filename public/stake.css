@@ -90,7 +90,7 @@
 
 .st-mhead{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .st-mhead-l{font-size:13.5px;font-weight:600}
-.st-amount{display:flex;align-items:baseline;gap:6px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.st-amount{display:flex;align-items:baseline;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin-bottom:12px}
 .st-cur{font-size:26px;font-weight:700;color:var(--mut)}
 .st-input{flex:1;min-width:0;background:none;border:0;color:var(--txt);font:inherit;font-size:46px;font-weight:700;letter-spacing:-.03em;padding:0;-webkit-text-fill-color:var(--txt)}
 .st-input:focus{outline:none}
