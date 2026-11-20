@@ -212,3 +212,7 @@
 .pp-line>svg{display:none}
 #ppChart{position:absolute;inset:0}
 .pp-line .pp-dot{display:none}
+
+html body .main .pp-line{position:relative!important;display:block!important;height:340px!important;min-height:340px!important;overflow:hidden!important}
+html body .main #ppChart{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+html body .main .pp-chart-card{overflow:hidden!important}
