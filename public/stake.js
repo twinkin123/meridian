@@ -136,3 +136,87 @@
   if (cAmt) calc();
   setInterval(loadBalance, 30000);
 })();
+
+/* --- staked total, next unlock, manage sheet --- */
+(function () {
+  var have = document.getElementById('stHave');
+  var next = document.getElementById('stNextUnlock');
+  var open = document.getElementById('stManage');
+  if (!have || !next || !open) return;
+
+  var rows = [], ov = null;
+
+  function usd(v) { return '$' + (Number(v) / 1e6).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  function gap(iso) {
+    var ms = new Date(iso).getTime() - Date.now();
+    if (!isFinite(ms) || ms <= 0) return 'any moment';
+    var m = Math.floor(ms / 60000), h = Math.floor(m / 60), d = Math.floor(h / 24);
+    if (d) return d + 'd ' + (h % 24) + 'h';
+    if (h) return h + 'h ' + (m % 60) + 'm';
+    return m + 'm';
+  }
+
+  function loadStaked() {
+    fetch('/wallet/deposits', { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var all = Array.isArray(j) ? j : (j.deposits || j.rows || []);
+        rows = all.filter(function (d) { return d.status === 'locked'; });
+        var sum = rows.reduce(function (n, d) { return n + Number(d.usd_at_det || 0); }, 0);
+        have.textContent = usd(sum);
+        var soonest = null;
+        rows.forEach(function (d) {
+          var t = new Date(d.unlock_at).getTime();
+          if (isFinite(t) && (!soonest || t < soonest)) soonest = t;
+        });
+        next.textContent = soonest ? 'Next unlock in ' + gap(new Date(soonest).toISOString()) : 'No active stakes';
+        if (ov) paintSheet(sum);
+      })
+      .catch(function () {});
+  }
+
+  function paintSheet(sum) {
+    var body = ov.querySelector('.sm-body');
+    body.innerHTML = '<div class="sm-tot"><span>Total staked</span><b>' + usd(sum) + '</b></div>';
+    if (!rows.length) {
+      body.insertAdjacentHTML('beforeend', '<div class="sm-empty">Nothing is locked right now. Lock $10 or more to start a stake.</div>');
+      return;
+    }
+    rows.forEach(function (d) {
+      body.insertAdjacentHTML('beforeend',
+        '<div class="sm-item"><i class="sm-dot"></i><div><b>' + usd(d.usd_at_det) + '</b>'
+        + '<span>' + String(d.asset || 'USDC') + ' · locked 30 days</span></div>'
+        + '<i>Unlocks in ' + gap(d.unlock_at) + '</i></div>');
+    });
+  }
+
+  function close() {
+    if (!ov) return;
+    ov.remove();
+    ov = null;
+    document.removeEventListener('keydown', esc);
+  }
+  function esc(e) { if (e.key === 'Escape') close(); }
+
+  open.addEventListener('click', function () {
+    if (ov) return close();
+    ov = document.createElement('div');
+    ov.className = 'sm-overlay';
+    ov.innerHTML = '<div class="sm-sheet" role="dialog" aria-modal="true" aria-label="Active stakes">'
+      + '<div class="sm-head"><div class="sm-ico">&#9679;</div><h3>Active stakes</h3>'
+      + '<button class="sm-x" type="button" aria-label="Close">&times;</button></div>'
+      + '<div class="sm-body"></div>'
+      + '<p class="sm-foot">Each stake is locked for 30 days. Credit lands in Available as it vests.</p></div>';
+    document.body.appendChild(ov);
+    ov.querySelector('.sm-x').addEventListener('click', close);
+    ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+    document.addEventListener('keydown', esc);
+    var sum = rows.reduce(function (n, d) { return n + Number(d.usd_at_det || 0); }, 0);
+    paintSheet(sum);
+    loadStaked();
+  });
+
+  loadStaked();
+  setInterval(loadStaked, 60000);
+})();
