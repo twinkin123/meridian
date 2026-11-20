@@ -138,3 +138,7 @@ html body .main .sw-tabs{gap:8px}
 .sw-pick-in{background:#0d0a14;box-shadow:0 24px 60px -20px rgba(0,0,0,.9)}
 
 html body .main .sw-box-top{background:#000!important;border-radius:0!important}
+
+html body .main .sw-box-top{border:0!important;background:#000!important;padding:0!important}
+html body .main .sw-in{background:transparent!important;background-color:transparent!important;border:0!important;box-shadow:none!important}
+html body .main .sw-box{padding-top:14px!important}
