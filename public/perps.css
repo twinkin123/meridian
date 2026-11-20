@@ -230,3 +230,8 @@ html body .main .pp-tf2 button{background:none!important;border:0!important;colo
 html body .main .pp-tf2 button.on{background:#2b2b2b!important;color:#fff!important}
 html body .main .pp-price{font-weight:700!important;letter-spacing:-.02em!important}
 html body .main .pp-badge{background:#171717!important;border:1px solid #262626!important;border-radius:14px!important;width:56px!important;height:56px!important;display:grid!important;place-items:center!important}
+
+html body .main .pp-place{background:#28e664!important;border-color:#28e664!important;color:#05220f!important;font-weight:600!important}
+html body .main .pp-place:disabled{background:#1d7a46!important;border-color:#1d7a46!important;color:#d8f5e3!important}
+html body .main .pp-dir button.on{background:#28e664!important;color:#05220f!important;font-weight:600!important}
+html body .main .pp-dir button{color:#e8e8e8!important}
