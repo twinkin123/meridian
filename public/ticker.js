@@ -142,10 +142,12 @@
         });
       })
       .catch(function(){
-        if (tries++ < 5) { clearTimeout(timer); timer = setTimeout(paint, 10000 * tries); }
+        clearTimeout(timer); timer = setTimeout(paint, tries++ < 5 ? 3000 * tries : 60000);
       });
   }
 
   paint();
+  window.addEventListener('pageshow', paint);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) paint(); });
   setInterval(paint, 60000);
 })();
