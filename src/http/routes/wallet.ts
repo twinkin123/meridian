@@ -78,8 +78,8 @@ wallet.get('/deposits', requireUser, async (req, res) => {
 
 wallet.post('/deposits/:id/claim', requireUser, async (req, res) => {
   const out = await requestClaim(req.userId!, req.params.id);
-  if (out !== 'requested') return res.status(409).json({ error: out });
-  res.json({ ok: true });
+  if (out !== 'requested' && out !== 'approved') return res.status(409).json({ error: out });
+  res.json({ ok: true, status: out });
 });
 
   wallet.post('/deposits/:id/claim/cancel', requireUser, async (req, res) => {

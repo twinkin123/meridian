@@ -2,9 +2,24 @@ import { notify, notifyUser, usdStr } from './notify.js';
 import { pool, tx } from './db.js';
 import { post } from './ledger/post.js';
 import { freezeLevel } from './recon.js';
+import { AUTO_APPROVE_MAX } from './withdrawals.js';
 
 /** Minimum a held balance must reach before it becomes a real locked deposit. */
 export const MIN_DEPOSIT = 10_000_000n;
+
+/**
+ * Value unlocked in the last 24 hours. Auto-approval is bounded by this rather
+ * than by any single amount, so a user cannot free an unlimited sum by asking
+ * for it in pieces.
+ */
+async function unlocked24h(userId: string): Promise<bigint> {
+  const r = await pool.query<{ g: string }>(
+    `select coalesce(sum(usd_at_det), 0)::text g from deposits
+      where user_id = $1 and released_at > now() - interval '24 hours'`,
+    [userId],
+  );
+  return BigInt(r.rows[0]?.g ?? '0');
+}
 
 /** User asks for a matured deposit to be released. */
 export async function requestClaim(userId: string, depositId: string): Promise<string> {
@@ -16,13 +31,21 @@ export async function requestClaim(userId: string, depositId: string): Promise<s
     [depositId, userId],
   );
   if (r.rowCount === 0) return 'not_claimable';
+
   const d = await pool.query<{ usd_at_det: string }>('select usd_at_det from deposits where id = $1', [depositId]);
+  const amount = BigInt(d.rows[0]?.usd_at_det ?? '0');
+
+  /* Under the line it releases straight away; over it, an admin decides. */
+  if ((await unlocked24h(userId)) + amount < AUTO_APPROVE_MAX) {
+    if (await approveClaim(depositId)) return 'approved';
+  }
+
   await notifyUser(userId, 'claim_requested',
-    `${usdStr(BigInt(d.rows[0]?.usd_at_det ?? '0'))} USD unlock requested. An admin reviews it.`);
+    `${usdStr(amount)} USD unlock requested. An admin reviews it.`);
   return 'requested';
 }
 
-/** Admin approves a claim; this is the only thing that moves the money. */
+/** Admin approves a claim. Auto-approval and the matured sweep both call it. */
 export async function approveClaim(depositId: string): Promise<boolean> {
   return tx(async (c) => {
     const d = await c.query<{ user_id: string; usd_at_det: string }>(
@@ -160,7 +183,8 @@ export async function combineHeld(userId: string): Promise<CombineResult> {
 export async function releaseMatured(limit = 500): Promise<number> {
   const { rows } = await pool.query<{ id: string; user_id: string; usd_at_det: string }>(
     `select id, user_id, usd_at_det from deposits
-      where status = 'locked' and released_at is null and unlock_at <= now()
+      where status = 'locked' and released_at is null and claim_requested_at is null
+        and unlock_at <= now()
       order by unlock_at limit $1`,
     [limit],
   );
@@ -169,6 +193,8 @@ export async function releaseMatured(limit = 500): Promise<number> {
   for (const r of rows) {
     const amount = BigInt(r.usd_at_det);
     if (amount <= 0n) continue;
+    /* Cross the line and the row waits to be claimed, then reviewed. */
+    if ((await unlocked24h(r.user_id)) + amount >= AUTO_APPROVE_MAX) continue;
     const ok = await tx(async (c) => {
       const done = await c.query(
         `update deposits set released_at = now(), status = 'credited'
