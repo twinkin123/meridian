@@ -31,6 +31,8 @@ import { runSweep, assertSweepDestination } from './sweeps.js';
 import { one, close } from './db.js';
 import { market } from './market.js';
 import { swap } from './http/routes/swap.js';
+import { perps } from './http/routes/perps.js';
+import { tick as perpTick } from './perp.js';
 
 process.on('unhandledRejection', (e) => console.error('unhandledRejection', e));
 
@@ -63,6 +65,7 @@ app.use((_req, res, next) => {
 
 app.use('/market', market);
 app.use('/swap', requireUser, swap);
+app.use('/perps', requireUser, perps);
 
 app.use('/results', results);
 
@@ -171,6 +174,7 @@ const server = app.listen(port, () => {
       process.exit(1);
     });
 
+  every(5 * 1000, perpTick, 'perp-tick');
   every(5 * 60 * 1000, async () => {
     if (await reconDue()) await runRecon('cron');
   }, 'recon');
