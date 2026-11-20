@@ -298,3 +298,6 @@ html body .main .pp-exp{row-gap:20px!important}
 html body .main .pp-bar{margin:20px 0 14px!important}
 html body .main .pp-roi{margin-top:14px!important;line-height:1.5!important}
 html body .main .pp-exp-r{gap:8px!important}
+
+html body .main .pp-exp .pp-bar{width:100%!important;height:1px!important;background:#2b2b2b!important}
+html body .main .pp-roi{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;padding-right:2px!important}
