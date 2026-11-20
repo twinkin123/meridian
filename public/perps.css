@@ -102,6 +102,6 @@
 @media (max-width:620px){.pp-acct>div{min-width:78px}.pp-acct-r{margin-left:0;width:100%}.pp-chart-foot{gap:12px}}
 
 /* panel is a flex column so the row absorbs any leftover panel height */
-#p-perps.on{display:flex!important;flex-direction:column!important;min-height:0!important}
-#p-perps>.pp{flex:1 1 auto;min-height:0}
+#p-perps.on{display:flex!important;flex-direction:column!important;height:auto!important;min-height:0!important}
+#p-perps>.pp{flex:1 1 auto;min-height:calc(100vh - 440px)}
 #p-perps>.pp-acct{flex:none}
