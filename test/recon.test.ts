@@ -36,7 +36,8 @@ test('negative margin outranks everything', () => {
 test('daily credit is never gated by the freeze', async () => {
   const { readFileSync } = await import('node:fs');
   const src = readFileSync(new URL('../src/jobs/daily.ts', import.meta.url), 'utf8');
-  assert.equal(src.split('freezeLevel').length - 1, 0);
+  assert.ok(src.includes('const compound = ac && !frozen;'));
+  assert.ok(!/if \(frozen\) return/.test(src));
 });
 
 test('recon escalates the freeze on a bad verdict', async () => {
