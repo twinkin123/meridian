@@ -107,3 +107,6 @@
 #p-perps.on{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;height:auto!important;min-height:0!important}
 #p-perps>.pp{flex:1 1 auto;min-height:calc(100vh - 470px)}
 #p-perps>.pp-acct{flex:none}
+
+/* class-only selector: fills the panel content box regardless of the panel rule */
+.pp{flex:1 1 auto!important;min-height:calc(100vh - 525px)!important}
