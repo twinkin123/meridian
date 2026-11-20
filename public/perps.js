@@ -4,7 +4,7 @@
 
   var $ = function (id) { return document.getElementById(id); };
   var market = 'sol', side = 'long', stake = 1, lev = 500, busy = false, poll = 0;
-  var chart = null, line = null, candles = null, all = [], days = 1, mode = 'line';
+  var chart = null, line = null, candles = null, all = [], days = 0, mode = 'line';
 
   var META = {
     sol: { n: 'Solana', c: '#14f195', g: 'S' },
@@ -20,10 +20,10 @@
     });
   }
 
-  function step() { return days <= 1 ? 1 : days <= 30 ? 3600 : 86400; }
+  function step() { return days === 0 ? 1 : days === 1 ? 60 : days <= 30 ? 3600 : 86400; }
 
   function candlesFrom(list) {
-    var s = days <= 1 ? 5 : step(), out = [], cur = null;
+    var s = days === 0 ? 5 : days === 1 ? 300 : step(), out = [], cur = null;
     list.forEach(function (p) {
       var b = Math.floor(p.t / s) * s;
       if (!cur || cur.time !== b) {
@@ -236,7 +236,7 @@
       b.addEventListener('click', function () {
         document.querySelectorAll('.pp-tf2 button').forEach(function (x) { x.classList.remove('on'); });
         b.classList.add('on');
-        days = [1, 1, 7, 30, 90][i] || 1;
+        days = [0, 1, 7, 30, 90][i];
         all = [];
         if (chart) { line.setData([]); candles.setData([]); }
         loadHistory();

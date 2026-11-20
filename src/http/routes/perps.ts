@@ -21,7 +21,7 @@ perps.get('/history', async (req, res) => {
   const m = String(req.query.market ?? '');
   if (!MARKETS[m]) { res.status(400).json({ error: 'bad_market' }); return; }
   const d = Number(req.query.days ?? 1);
-  res.json({ points: await historySeries(m, [1, 7, 30, 90].includes(d) ? d : 1) });
+  res.json({ points: await historySeries(m, [0, 1, 7, 30, 90].includes(d) ? d : 0) });
 });
 
 perps.get('/state', async (req, res) => {
