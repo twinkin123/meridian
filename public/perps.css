@@ -110,3 +110,7 @@
 
 /* class-only selector: fills the panel content box regardless of the panel rule */
 .pp{flex:1 1 auto!important;min-height:calc(100vh - 525px)!important}
+
+/* all three columns share the row height, no exceptions */
+.pp-mk-card,.pp-ticket,.pp-mid{align-self:stretch!important;height:100%!important;min-height:0!important}
+.pp-pos{align-self:stretch!important;height:auto!important}
