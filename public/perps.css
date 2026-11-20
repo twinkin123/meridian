@@ -4,10 +4,10 @@
 .pp-acct b{font-size:13.5px;font-weight:600}
 .pp-acct b.g{color:var(--grn)}
 .pp-acct-r{margin-left:auto;flex-direction:row!important;align-items:center;gap:8px}
-.pp{display:flex;gap:12px;align-items:stretch}
+.pp{display:grid;grid-template-columns:calc(22% - 8px) minmax(0,1fr) calc(22% - 8px);gap:12px;align-items:stretch}
 .pp .card{padding:0;overflow:hidden}
 .pp>.card{margin-top:0!important}
-.pp-mk-card{padding:12px!important;display:flex;flex-direction:column;justify-content:flex-start;flex:0 0 calc(22% - 8px);min-width:0}
+.pp-mk-card{padding:12px!important;display:flex;flex-direction:column;justify-content:flex-start;min-width:0}
 .pp-mk-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
 .pp-mk-count{font-size:10.5px;color:var(--mut);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
 .pp-mk-filter{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:9px;padding:7px 9px;color:var(--mut2);font-size:11.5px;margin-bottom:10px}
@@ -23,8 +23,8 @@
 .pp-mk-r em{display:block;font-size:10.5px;font-style:normal;font-variant-numeric:tabular-nums}
 .pp-fill{flex:1 1 auto;min-height:10px}
 .pp-mk-foot{margin-top:0;padding-top:10px;border-top:1px solid var(--line);font-size:10.5px;color:var(--mut2);line-height:1.45}
-.pp-mid{display:flex;flex-direction:column;gap:12px;min-width:0;flex:1 1 0}
-.pp-chart-card{padding:12px 12px 0!important;flex:none}
+.pp-mid{display:flex;flex-direction:column;gap:0;min-width:0}
+.pp-chart-card{padding:12px 12px 0!important;flex:none;border-bottom-left-radius:0!important;border-bottom-right-radius:0!important}
 .pp-chart-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
 .pp-pair{display:flex;align-items:center;gap:8px}
 .pp-ic{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:700;background:rgba(139,92,246,.16);color:var(--pur)}
@@ -52,7 +52,7 @@
 .pp-chart-foot .lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut2)}
 .pp-chart-foot b{font-size:11.5px;font-weight:600}
 .pp-chart-foot b.g{color:var(--grn)}
-.pp-pos{padding:0!important;margin-top:0!important;display:flex;flex-direction:column;flex:1}
+.pp-pos{padding:0!important;margin-top:0!important;display:flex;flex-direction:column;flex:1;border-top:0!important;border-top-left-radius:0!important;border-top-right-radius:0!important}
 .pp-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:8px 8px 0}
 .pp-tabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mut);font:inherit;font-size:11.5px;padding:7px 9px 8px;cursor:pointer}
 .pp-tabs button.on{color:var(--txt);border-bottom-color:var(--pur)}
@@ -67,7 +67,7 @@
 .pp-side{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:5px}
 .pp-side.l{color:var(--grn);background:rgba(47,212,138,.13)}
 .pp-empty{margin:auto 0 0;padding:11px 12px;font-size:11px;color:var(--mut2);border-top:1px solid var(--line)}
-.pp-ticket{padding:12px!important;display:flex;flex-direction:column;justify-content:flex-start;flex:0 0 calc(22% - 8px);min-width:0}
+.pp-ticket{padding:12px!important;display:flex;flex-direction:column;justify-content:flex-start;min-width:0}
 .pp-tk-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .pp-tk-mk{font-size:11px;color:var(--mut)}
 .pp-seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:3px;margin-bottom:12px}
@@ -98,5 +98,5 @@
 .pp-cta{flex:none;width:100%;opacity:.75}
 .pp-note{margin:0;padding-top:9px;font-size:10.5px;color:var(--mut2);line-height:1.45}
 @media (max-width:1180px){.pp{grid-template-columns:minmax(0,0.76fr) minmax(0,1.95fr) minmax(0,1fr)}}
-@media (max-width:980px){.pp{flex-direction:column}.pp-mk-card,.pp-mid,.pp-ticket,.pp-pos{flex:0 0 auto;width:100%}.pp-mk-card{order:2}.pp-mid{order:1}.pp-ticket{order:3}.pp-chart{height:210px}}
+@media (max-width:980px){.pp{grid-template-columns:1fr}.pp-mk-card,.pp-mid,.pp-ticket,.pp-pos{width:100%}.pp-mk-card{order:2}.pp-mid{order:1}.pp-ticket{order:3}.pp-chart{height:210px}}
 @media (max-width:620px){.pp-acct>div{min-width:78px}.pp-acct-r{margin-left:0;width:100%}.pp-chart-foot{gap:12px}}
