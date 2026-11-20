@@ -301,3 +301,8 @@ html body .main .pp-exp-r{gap:8px!important}
 
 html body .main .pp-exp .pp-bar{width:100%!important;height:1px!important;background:#2b2b2b!important}
 html body .main .pp-roi{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;padding-right:2px!important}
+
+html body .main .pp-dir #ppUp.on{background:#28e664!important;border-color:#28e664!important;color:#05220f!important}
+html body .main .pp-dir #ppDown.on{background:#f0476a!important;border-color:#f0476a!important;color:#2b0710!important}
+html body .main .pp-dir #ppDown{color:#f0476a!important}
+html body .main .pp-dir #ppUp{color:#28e664!important}
