@@ -10,3 +10,5 @@ out.txt
 privy-key.txt
 
 .railway
+
+.env

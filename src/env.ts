@@ -1,4 +1,4 @@
-﻿import 'dotenv/config';
+import 'dotenv/config';
 
 function need(k: string): string {
   const v = process.env[k];
@@ -23,4 +23,5 @@ export const env = {
   privyNetwork: process.env.PRIVY_NETWORK === 'mainnet' ? 'mainnet' : 'devnet',
   /** Comma-separated chains with app-pays sponsorship. One unsponsored chain fails the whole create. */
   depositChains: process.env.DEPOSIT_CHAINS ?? '',
+  changenowApiKey: process.env.CHANGENOW_API_KEY ?? '',
 };

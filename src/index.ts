@@ -30,6 +30,7 @@ import { refreshRoutes } from './deposit-routes.js';
 import { runSweep, assertSweepDestination } from './sweeps.js';
 import { one, close } from './db.js';
 import { market } from './market.js';
+import { swap } from './http/routes/swap.js';
 
 process.on('unhandledRejection', (e) => console.error('unhandledRejection', e));
 
@@ -61,6 +62,7 @@ app.use((_req, res, next) => {
 });
 
 app.use('/market', market);
+app.use('/swap', requireUser, swap);
 
 app.use('/results', results);
 
