@@ -204,6 +204,3 @@
 .pp-amt{margin-bottom:10px!important}
 .pp-mult{margin-bottom:10px!important}
 
-/* availability and direction are one block, no slot between them */
-.pp-head{display:flex;flex-direction:column;flex:none}
-.pp-dir{margin-top:0!important}
