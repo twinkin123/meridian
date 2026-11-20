@@ -20,7 +20,7 @@
     });
   }
 
-  function step() { return days <= 1 ? 60 : days <= 30 ? 3600 : 86400; }
+  function step() { return days <= 1 ? 1 : days <= 30 ? 3600 : 86400; }
 
   function candlesFrom(list) {
     var s = step(), out = [], cur = null;
@@ -55,6 +55,10 @@
     }
     chart.priceScale('right').applyOptions({ autoScale: true });
     chart.timeScale().fitContent();
+    if (mode === 'candles') {
+      var n = candlesFrom(all).length;
+      if (n > 120) chart.timeScale().setVisibleLogicalRange({ from: n - 120, to: n + 2 });
+    }
   }
 
   function initChart() {
@@ -103,7 +107,7 @@
     if (!chart) return;
     var t = Math.floor(Date.now() / 1000);
     var last = all[all.length - 1];
-    if (last && t - last.t < 4) { last.usd = price; }
+    if (last && t - last.t < 1) { last.usd = price; }
     else { all.push({ t: t, usd: price }); }
     if (all.length > 4000) all.shift();
     render();

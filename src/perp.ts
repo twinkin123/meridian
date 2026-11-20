@@ -295,9 +295,9 @@ export async function historySeries(market: string, days = 1): Promise<{ t: numb
   try {
     const hit = HCACHE[key];
     if (hit && Date.now() - hit.at < 5000) return hit.pts;
-    const bi = days <= 1 ? '1m' : days <= 7 ? '15m' : days <= 30 ? '1h' : '4h';
+    const bi = days <= 1 ? '1s' : days <= 7 ? '15m' : days <= 30 ? '1h' : '4h';
     const b = await fetch(
-      'https://data-api.binance.vision/api/v3/klines?symbol=' + PAIRS[market] + '&interval=' + bi + '&limit=500',
+      'https://data-api.binance.vision/api/v3/klines?symbol=' + PAIRS[market] + '&interval=' + bi + '&limit=' + (bi === '1s' ? 1000 : 500),
       { headers: { accept: 'application/json' } },
     );
     if (b.ok) {
