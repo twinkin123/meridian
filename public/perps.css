@@ -235,3 +235,7 @@ html body .main .pp-place{background:#28e664!important;border-color:#28e664!impo
 html body .main .pp-place:disabled{background:#1d7a46!important;border-color:#1d7a46!important;color:#d8f5e3!important}
 html body .main .pp-dir button.on{background:#28e664!important;color:#05220f!important;font-weight:600!important}
 html body .main .pp-dir button{color:#e8e8e8!important}
+
+html body .main .pp-mk li{display:flex!important;align-items:center!important;gap:9px!important}
+html body .main .pp-mk-ic{width:20px!important;height:20px!important;border-radius:50%!important;object-fit:contain!important;flex:0 0 auto!important;background:#141414!important}
+html body .main .pp-badge-ic{width:34px!important;height:34px!important;border-radius:50%!important;object-fit:contain!important;display:block!important}
