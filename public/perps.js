@@ -3,7 +3,7 @@
   'use strict';
 
   var $ = function (id) { return document.getElementById(id); };
-  var market = 'sol', side = 'long', stake = 1, lev = 500, busy = false, poll = 0, chart = null, series = null, mark = 0;
+  var market = 'sol', side = 'long', stake = 1, lev = 500, busy = false, poll = 0, chart = null, series = null, mark = 0, days = 1, bucket = 0;
 
   function usd(micro) { return (Number(micro) / 1e6).toFixed(2); }
   function money(n) {
@@ -35,7 +35,7 @@
 
   function loadHistory() {
     if (!series) return;
-    fetch('/perps/history?market=' + market)
+    fetch('/perps/history?market=' + market + '&days=' + days)
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) {
         if (!j || !series) return;
@@ -47,7 +47,15 @@
 
   function pushTick(price) {
     mark = price;
-    if (series) series.update({ time: Math.floor(Date.now() / 1000), value: price });
+    if (!series) return;
+    var b = Math.floor(Date.now() / 5000) * 5;
+    if (b !== bucket) {
+      bucket = b;
+      series.update({ time: b, value: price });
+      chart.timeScale().scrollToRealTime();
+    } else {
+      series.update({ time: b, value: price });
+    }
   }
 
   function paintMarkets(list) {
@@ -128,7 +136,7 @@
           tick();
         })
         .catch(function () { tick(); });
-    }, 2000);
+    }, 4000);
   }
 
   function pickMarket(id) {
