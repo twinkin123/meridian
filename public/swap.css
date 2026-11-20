@@ -1,0 +1,48 @@
+﻿.sw-wrap{max-width:700px;margin:0 auto;padding:6px 0 40px}
+.sw-card{padding:18px!important;border-radius:26px!important;border-color:var(--line)!important}
+.sw-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sw-tabs{display:flex;gap:2px}
+.sw-tabs button{background:none;border:0;font:inherit;font-size:15px;color:var(--mut);padding:8px 14px;border-radius:99px;cursor:pointer}
+.sw-tabs button.on{background:rgba(47,212,138,.13);color:var(--grn);font-weight:600}
+.sw-top-r{display:flex;align-items:center;gap:12px}
+.sw-ultra{font-size:13.5px;color:var(--grn);font-weight:600}
+.sw-ic{background:none;border:0;color:var(--mut);cursor:pointer;padding:4px}
+.sw-ic svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+.sw-box{display:flex;flex-direction:column;background:var(--panel2);border:1px solid var(--line);border-radius:18px;padding:13px 15px 16px;min-height:118px}
+.sw-box-top{display:flex;align-items:center;gap:9px}
+.sw-side{font-size:13.5px;font-weight:600}
+.sw-meta{margin-left:auto;display:flex;align-items:center;gap:8px}
+.sw-wallet{font-size:12.5px;color:var(--mut);font-variant-numeric:tabular-nums}
+.sw-pill{background:none;border:0;color:var(--mut);font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;padding:2px 4px}
+.sw-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:auto}
+.sw-amt{font-size:38px;font-weight:700;line-height:1;color:var(--mut2)}
+.sw-token{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line2);border-radius:99px;padding:6px 12px 6px 8px;color:var(--txt);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.sw-token b{font-weight:600}
+.sw-tok-ic{width:24px;height:24px;flex:none;display:block}
+.sw-chev{width:15px;height:15px;fill:none;stroke:var(--mut);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sw-flip{position:relative;z-index:2;display:block;margin:-21px auto;width:42px;height:42px;border-radius:50%;background:var(--panel2);border:1px solid var(--line2);color:var(--txt);cursor:pointer}
+.sw-flip svg{width:18px;height:18px;margin:auto;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.sw-box-buy{min-height:150px;padding-bottom:16px}
+.sw-paste{display:flex;align-items:center;gap:5px;background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:4px 8px;color:var(--txt);font:inherit;font-size:11.5px;font-weight:600;cursor:pointer}
+.sw-copy{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sw-cta{width:100%;margin-top:15px;padding:19px;border-radius:16px;border:1px solid #6d8c47;background:#7d9d54;color:#0d1408;font:inherit;font-size:19px;font-weight:700;cursor:pointer}
+.sw-chips{display:flex;gap:10px;margin-top:15px}
+.sw-chips button{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:99px;padding:9px 15px;color:var(--txt);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.sw-eye{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sw-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:15px}
+.sw-tok{padding:14px!important;border-radius:18px!important}
+.sw-tok-top{display:flex;align-items:center;gap:9px}
+.sw-tok-badge{width:34px;height:34px;flex:none;display:grid;place-items:center}
+.sw-tok-badge svg{width:30px;height:30px;display:block}
+.sw-tok-id b{display:block;font-size:14.5px;font-weight:700;line-height:1.2}
+.sw-tok-id span{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--mut)}
+.sw-tok-px{margin-left:auto;text-align:right}
+.sw-tok-px b{display:block;font-size:13.5px;font-weight:600}
+.sw-tok-px em{display:block;font-size:11.5px;font-style:normal}
+.up{color:var(--grn)}.dn{color:var(--red)}
+.sw-spark{width:100%;height:56px;display:block;margin:10px 0 8px}
+.sw-spark polyline{fill:none;stroke-width:1.8;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.sw-spark polyline.g{stroke:var(--grn)}
+.sw-spark polyline.r{stroke:#f0476a}
+.sw-open{font-size:12.5px;color:var(--mut)}
+@media (max-width:620px){.sw-cards{grid-template-columns:1fr}.sw-amt{font-size:32px}}
