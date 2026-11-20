@@ -246,9 +246,9 @@
           '<span class="sub">' + (w.address || '') + '</span>' +
           '<span class="sub">' + new Date(w.created_at).toLocaleString() + '</span></div>' +
           '<div style="text-align:right"><span class="pill ' + cls + '">' + w.status + '</span>' +
-          (w.status === 'requested' ? '<div class="row" style="margin-top:6px;justify-content:flex-end"><button class="btn" data-approve="' + w.id + '">Approve</button></div>' : '') +
+          (w.status === 'requested' ? '<div class="row" style="margin-top:6px;justify-content:flex-end"><button class="btn" data-approve="' + w.id + '">Approve</button><button class="btn d" data-cancel="' + w.id + '">Cancel</button></div>' : '') +
           (w.status === 'sending' ? '<div class="row" style="margin-top:6px;justify-content:flex-end"><button class="btn" data-pay="' + w.id + '">Retry</button></div>' : '') +
-          (w.status === 'approved' ? '<div class="row" style="margin-top:6px;justify-content:flex-end"><button class="btn p" data-pay="' + w.id + '">Pay</button></div>' : '') +
+          (w.status === 'approved' ? '<div class="row" style="margin-top:6px;justify-content:flex-end"><button class="btn p" data-pay="' + w.id + '">Pay</button><button class="btn d" data-cancel="' + w.id + '">Cancel</button></div>' : '') +
           '</div></li>';
       }).join('');
 
@@ -258,13 +258,19 @@
       el.querySelectorAll('[data-pay]').forEach(function(b){
         b.onclick = function(){ act('payout', b.dataset.pay); };
       });
+      el.querySelectorAll('[data-cancel]').forEach(function(b){
+        b.onclick = function(){ act('cancel', b.dataset.cancel); };
+      });
     } catch (_) { el.innerHTML = '<li class="empty">Could not load.</li>'; }
   }
 
   async function act(what, id){
+    if (what === 'cancel' && !confirm('Cancel this request? The full amount goes back to their available balance and they are told it was rejected.')) return;
     var r = await fetch('/admin/withdrawals/' + id + '/' + what + (what === 'payout' ? '?force=1' : ''), { method: 'POST', headers: h() });
     var j = await r.json().catch(function(){ return {}; });
-    msg('wMsg', r.ok ? (what === 'approve' ? 'Approved.' : 'Paid: ' + (j.sig || 'sent')) : (j.error || 'Failed.'), r.ok ? 'ok' : 'err');
+    msg('wMsg', r.ok
+      ? (what === 'approve' ? 'Approved.' : what === 'cancel' ? 'Cancelled and refunded.' : 'Paid: ' + (j.sig || 'sent'))
+      : (j.error || 'Failed.'), r.ok ? 'ok' : 'err');
     loadQueue(); loadClaims();
   }
 

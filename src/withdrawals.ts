@@ -282,6 +282,14 @@ async function refundWithdrawal(
 export async function rejectWithdrawal(id: string, reason: string | null): Promise<boolean> {
   return refundWithdrawal(id, 'failed', reason, 'withdrawal_rejected', 'Withdrawal rejected');
 }
+
+/**
+ * Admin cancel. Same full refund as a reject, but the row reads cancelled
+ * rather than failed, since nothing went wrong.
+ */
+export async function cancelByAdmin(id: string): Promise<boolean> {
+  return refundWithdrawal(id, 'cancelled', null, 'withdrawal_cancelled', 'Your request has been rejected');
+}
 async function finalize(
   id: string, sig: string, actionId: string, userId: string, address: string, usd: bigint, qty: bigint,
 ) {
