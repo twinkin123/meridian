@@ -69,7 +69,8 @@
 
   document.getElementById('stMax').addEventListener('click', function () { amt.value = (Number(avail) / 1e6).toString(); msg = ''; paint(); });
   document.getElementById('stHalf').addEventListener('click', function () { amt.value = (Number(avail) / 2e6).toString(); msg = ''; paint(); });
-  document.getElementById('stPct').addEventListener('click', function () {
+  var stPct = document.getElementById('stPct');
+  if (stPct) stPct.addEventListener('click', function () {
     var p = Number(prompt('Percent of available', '10'));
     if (!isFinite(p) || p <= 0) return;
     amt.value = (Number(avail) * Math.min(p, 100) / 100 / 1e6).toString();
