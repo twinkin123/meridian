@@ -236,3 +236,6 @@ html body .main .st-side{height:auto!important;min-height:0;align-self:stretch}
 html body .main .st-bar-top b.lime{color:#1bff80!important}
 html body .main .st-key i.lime{background:#1bff80!important}
 html body .main .st-bar-top b{font-variant-numeric:tabular-nums}
+
+/* top band bar ends on the bright green */
+html body .main .st-track i.grad{background:linear-gradient(90deg,var(--blue),#1bff80)!important}
