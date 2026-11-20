@@ -4,7 +4,7 @@
 
   var $ = function (id) { return document.getElementById(id); };
   var market = 'sol', side = 'long', stake = 1, lev = 500, busy = false, poll = 0;
-  var chart = null, line = null, candles = null, all = [], days = 0, mode = 'line';
+  var chart = null, line = null, candles = null, all = [], days = 0, mode = 'line', lastMarks = null;
 
   var META = {
     sol: { n: 'Solana', c: '#14f195', g: 'S' },
@@ -195,7 +195,7 @@
       fetch('/perps/markets')
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (j) {
-          if (j) {
+          if (j) {`n            lastMarks = j.markets;
             paintMarkets(j.markets);
             var cur = j.markets.find(function (m) { return m.id === market; });
             if (cur) { paintHeader(market, cur.usd, cur.chg); pushTick(cur.usd); }
@@ -209,6 +209,9 @@
 
   function pickMarket(id) {
     market = id;
+    var mm = lastMarks && lastMarks.find(function (m) { return m.id === id; });
+    if (mm) paintHeader(id, mm.usd, mm.chg);
+    else { $('ppSym').textContent = id.toUpperCase(); $('ppPrice').textContent = '--'; }
     var bdp = $('ppBadge') && $('ppBadge').querySelector('img');
     if (bdp) bdp.src = '/market/logo/' + id;
     document.querySelectorAll('.pp-mk li').forEach(function (li) {

@@ -278,3 +278,13 @@ html body .main .pp-slider{display:block!important;width:100%!important;position
 html body .main .pp-exp-l{white-space:nowrap!important;min-width:0!important;overflow:visible!important}
 html body .main .pp-exp-r .pp-coin{position:static!important;width:16px!important;height:16px!important;flex:0 0 auto!important}
 html body .main .pp-exp-r{display:flex!important;align-items:center!important;gap:7px!important}
+
+html body .main .pp-ticket{display:flex!important;flex-direction:column!important;justify-content:flex-start!important;padding:18px!important}
+html body .main .pp-block{flex:0 0 auto!important;padding:0 2px 20px!important}
+html body .main .pp-rule{margin:0 0 16px!important}
+html body .main .pp-place{margin-top:auto!important}
+html body .main .pp-amt{margin:2px 0 14px!important}
+html body .main .pp-amt b{font-size:26px!important}
+html body .main .pp-slider{margin-top:14px!important}
+html body .main .pp-bar{margin:16px 0 10px!important}
+html body .main .pp-roi{margin-top:2px!important}
