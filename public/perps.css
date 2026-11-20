@@ -333,3 +333,5 @@ html body .main .pp-ticket .pp-rule{flex:0 0 auto!important}
 html body .main .pp-place{flex:0 0 auto!important;height:48px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;margin-top:14px!important}
 
 html body .main #ppChart{right:18px!important;left:4px!important}
+
+html body .main #ppChart{right:66px!important}
