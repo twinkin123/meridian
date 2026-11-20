@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { available } from '../../ledger/balances.js';
 import {
-  history, liqPrice, marks, markOf, open, positions, close, MAX_STAKE, MIN_STAKE, MARKETS,
+  history, historySeries, liqPrice, marks, markOf, open, positions, close, MAX_STAKE, MIN_STAKE, MARKETS,
 } from '../../perp.js';
 
 export const perps = Router();
@@ -13,6 +13,12 @@ perps.get('/markets', async (_req, res) => {
   } catch {
     res.status(502).json({ error: 'no_prices' });
   }
+});
+
+perps.get('/history', async (req, res) => {
+  const m = String(req.query.market ?? '');
+  if (!MARKETS[m]) { res.status(400).json({ error: 'bad_market' }); return; }
+  res.json({ points: await historySeries(m) });
 });
 
 perps.get('/state', async (req, res) => {

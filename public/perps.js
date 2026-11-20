@@ -3,15 +3,51 @@
   'use strict';
 
   var $ = function (id) { return document.getElementById(id); };
-  var market = 'sol', side = 'long', stake = 1, lev = 500, busy = false, poll = 0;
+  var market = 'sol', side = 'long', stake = 1, lev = 500, busy = false, poll = 0, chart = null, series = null, mark = 0;
 
   function usd(micro) { return (Number(micro) / 1e6).toFixed(2); }
-
   function money(n) {
     return '$' + Number(n).toLocaleString('en-US', {
       minimumFractionDigits: n < 1 ? 4 : 2,
       maximumFractionDigits: n < 1 ? 6 : 2,
     });
+  }
+
+  function initChart() {
+    var el = $('ppChart');
+    if (!el || typeof LightweightCharts === 'undefined') return;
+    chart = LightweightCharts.createChart(el, {
+      layout: { background: { color: 'transparent' }, textColor: 'rgba(255,255,255,.5)' },
+      grid: { vertLines: { visible: false }, horzLines: { color: 'rgba(255,255,255,.05)' } },
+      rightPriceScale: { borderVisible: false },
+      timeScale: { borderVisible: false, timeVisible: true, secondsVisible: false },
+      crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+      autoSize: true,
+    });
+    series = chart.addAreaSeries({
+      lineColor: '#2fd48a',
+      lineWidth: 2,
+      topColor: 'rgba(47,212,138,.30)',
+      bottomColor: 'rgba(47,212,138,0)',
+      priceLineVisible: false,
+    });
+  }
+
+  function loadHistory() {
+    if (!series) return;
+    fetch('/perps/history?market=' + market)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j || !series) return;
+        series.setData(j.points.map(function (p) { return { time: p.t, value: p.usd }; }));
+        chart.timeScale().fitContent();
+      })
+      .catch(function () {});
+  }
+
+  function pushTick(price) {
+    mark = price;
+    if (series) series.update({ time: Math.floor(Date.now() / 1000), value: price });
   }
 
   function paintMarkets(list) {
@@ -25,9 +61,9 @@
     });
   }
 
-  function paintHeader(id, usd, chg) {
+  function paintHeader(id, price, chg) {
     $('ppSym').textContent = id.toUpperCase();
-    $('ppPrice').textContent = money(usd);
+    $('ppPrice').textContent = money(price);
     $('ppChg').textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
     $('ppChg').className = chg >= 0 ? 'up' : 'dn';
     $('ppExpo').textContent = (stake * lev).toLocaleString('en-US');
@@ -77,41 +113,6 @@
     }).join('');
   }
 
-  function draw(list) {
-    if (!list.length) return;
-    var svg = document.getElementById('ppLine').ownerSVGElement;
-    var dot = svg.querySelector('.pp-dot-c');
-    if (!dot) {
-      dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      dot.setAttribute('r', '5');
-      dot.setAttribute('fill', '#2fd48a');
-      dot.setAttribute('class', 'pp-dot-c');
-      svg.appendChild(dot);
-    }
-    var vals = list.map(function (s) { return s.usd; });
-    var lo = Math.min.apply(null, vals);
-    var hi = Math.max.apply(null, vals);
-    var span = hi - lo || hi * 0.0001;
-    var n = list.length;
-    var pts = [];
-    for (var i = 0; i < n; i++) {
-      var x = 20 + (i / Math.max(1, n - 1)) * 1072;
-      var y = 280 - ((list[i].usd - lo) / span) * 250;
-      pts.push(x.toFixed(1) + ',' + y.toFixed(1));
-    }
-    document.getElementById('ppLine').setAttribute('points', pts.join(' '));
-    var last = pts[pts.length - 1].split(',');
-    dot.setAttribute('cx', last[0]);
-    dot.setAttribute('cy', last[1]);
-  }
-
-  function fetchSeries() {
-    fetch('/perps/series?market=' + market)
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (j) { if (j) draw(j.series); })
-      .catch(function () {});
-  }
-
   function tick() {
     clearTimeout(poll);
     poll = setTimeout(function () {
@@ -121,14 +122,13 @@
           if (j) {
             paintMarkets(j.markets);
             var cur = j.markets.find(function (m) { return m.id === market; });
-            if (cur) paintHeader(market, cur.usd, cur.chg);
+            if (cur) { paintHeader(market, cur.usd, cur.chg); pushTick(cur.usd); }
           }
-          fetchSeries();
           loadState();
           tick();
         })
         .catch(function () { tick(); });
-    }, 4000);
+    }, 2000);
   }
 
   function pickMarket(id) {
@@ -136,10 +136,14 @@
     document.querySelectorAll('.pp-mk li').forEach(function (li) {
       li.classList.toggle('on', li.dataset.m === id);
     });
+    if (series) series.setData([]);
+    loadHistory();
     quote();
   }
 
   function boot() {
+    initChart();
+
     document.querySelectorAll('.pp-mk li[data-m]').forEach(function (li) {
       li.addEventListener('click', function () { pickMarket(li.dataset.m); });
     });
@@ -202,6 +206,7 @@
     });
 
     $('ppAmt').textContent = stake.toFixed(2);
+    loadHistory();
     quote();
     loadState();
     tick();

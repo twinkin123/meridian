@@ -267,3 +267,21 @@ export async function history(userId: string): Promise<any[]> {
 }
 
 export { available };
+const HCACHE: Record<string, { at: number; pts: { t: number; usd: number }[] }> = {};
+
+/** 24h of 5-minute closes, so the chart has a past the moment it opens. */
+export async function historySeries(market: string): Promise<{ t: number; usd: number }[]> {
+  const def = MARKETS[market];
+  if (!def) return [];
+  const hit = HCACHE[market];
+  if (hit && Date.now() - hit.at < 300_000) return hit.pts;
+  const r = await fetch(
+    `https://api.coingecko.com/api/v3/coins/${def.id}/market_chart?vs_currency=usd&days=1`,
+    { headers: { accept: 'application/json' } },
+  );
+  if (!r.ok) return hit?.pts ?? [];
+  const j = (await r.json()) as { prices?: [number, number][] };
+  const pts = (j.prices ?? []).map(([ms, usd]) => ({ t: Math.floor(ms / 1000), usd }));
+  HCACHE[market] = { at: Date.now(), pts };
+  return pts;
+}

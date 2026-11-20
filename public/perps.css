@@ -207,3 +207,8 @@
 
 /* dividers stretch with the gaps and keep the hairline centred in them */
 .pp-rule{flex:1 1 auto;min-height:20px;background:linear-gradient(var(--line),var(--line)) center/100% 1px no-repeat}
+
+.pp-line{position:relative;min-height:300px}
+.pp-line>svg{display:none}
+#ppChart{position:absolute;inset:0}
+.pp-line .pp-dot{display:none}
