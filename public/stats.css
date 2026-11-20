@@ -57,3 +57,8 @@
 #rwOut:not(:disabled){border-color:rgba(120,205,255,.95)}
 /* hide the dashboard calculator; the element and its ids stay in place */
 html body .main #p-dash .card:has(#dAmount){display:none!important}
+
+/* dashboard stakes: no inner scrollbar, full height */
+html body .main #p-dash .stakes{max-height:none!important;overflow:visible!important}
+html body .main #p-dash .stakes-t{overflow:visible!important}
+html body .main #p-dash .card{height:auto!important}
