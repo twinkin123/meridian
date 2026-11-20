@@ -1,10 +1,11 @@
-            <!doctype html><html lang="en"><head><script>document.documentElement.classList.add("boot");document.documentElement.style.visibility="hidden"</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Meridian - Dashboard</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/theme-dark.css?v=4"><link rel="stylesheet" href="/app-skin.css?v=91"><link rel="stylesheet" href="mobile.css?v=172"><link rel="stylesheet" href="/stats.css?v=2"><link rel="stylesheet" href="/deposit.css?v=2"><link rel="stylesheet" href="/withdraw.css?v=3"><link rel="stylesheet" href="/history.css?v=8"><link rel="stylesheet" href="/addresses.css?v=2"><link rel="stylesheet" href="/perps.css?v=31"><link rel="stylesheet" href="/swap.css?v=1">
+            <!doctype html><html lang="en"><head><script>document.documentElement.classList.add("boot");document.documentElement.style.visibility="hidden"</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Meridian - Dashboard</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/theme-dark.css?v=4"><link rel="stylesheet" href="/app-skin.css?v=91"><link rel="stylesheet" href="mobile.css?v=172"><link rel="stylesheet" href="/stats.css?v=2"><link rel="stylesheet" href="/deposit.css?v=2"><link rel="stylesheet" href="/withdraw.css?v=3"><link rel="stylesheet" href="/history.css?v=8"><link rel="stylesheet" href="/addresses.css?v=2"><link rel="stylesheet" href="/perps.css?v=31"><link rel="stylesheet" href="/swap.css?v=1"><link rel="stylesheet" href="/stake.css?v=1">
 <link rel="stylesheet" href="/faq.css?v=2"><link rel="stylesheet" href="/settings.css?v=3"><link rel="stylesheet" href="/search.css?v=8"><link rel="stylesheet" href="/nav-icons.css?v=1"><link rel="stylesheet" href="/compound.css?v=6"><link rel="stylesheet" href="/robot-float.css?v=2"></head><body><header class="top">  <a class="brand" href="/"><span class="brand-mark">M</span>Meridian</a><span class="welcome" id="welcome"></span>
 <div class="hsearch" id="hsearch">
   <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5 21 21"></path></svg>
   <input id="hq" type="search" placeholder="Search anything" spellcheck="false" autocomplete="off" aria-label="Search">
   <kbd>/</kbd>
-</div>  <div class="top-right">    <button class="bell" id="bell" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><i></i></button><span class="who" id="who"></span>    <div class="notif-pop" id="notifPop" hidden>      <div class="notif-head"><span class="lbl">Notifications</span><button class="btn line" id="notifClose" type="button">Close</button></div>      <ul class="list" id="notesPop"><li class="empty">Nothing yet.</li></ul>    </div>    <button class="ghost" id="logout" type="button">Log out</button>    <a class="ghost" href="/admin.html">Admin</a>  </div></header><div class="shell">  <nav class="side"><div class="navbox">    <a class="on" href="/app.html"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span> Dashboard</a>    <a href="#deposit" data-deposit><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 20h16"/></svg></span> Deposit</a>    <a href="#withdraw"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg></span> Withdraw</a>    <a href="#perps"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 16.5 9 11l3 3 7-7"/><path d="M15 7h5v5"/></svg></span> Perps<span class="nav-tag">New</span></a>
+</div>  <div class="top-right">    <button class="bell" id="bell" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><i></i></button><span class="who" id="who"></span>    <div class="notif-pop" id="notifPop" hidden>      <div class="notif-head"><span class="lbl">Notifications</span><button class="btn line" id="notifClose" type="button">Close</button></div>      <ul class="list" id="notesPop"><li class="empty">Nothing yet.</li></ul>    </div>    <button class="ghost" id="logout" type="button">Log out</button>    <a class="ghost" href="/admin.html">Admin</a>  </div></header><div class="shell">  <nav class="side"><div class="navbox">    <a class="on" href="/app.html"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span> Dashboard</a>    <a href="#deposit" data-deposit><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 20h16"/></svg></span> Deposit</a>
+    <a href="#stake"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 9.5 12 4l8 5.5"/><path d="M6 9.5V19h12V9.5"/><path d="M10 19v-5h4v5"/></svg></span> Stake</a>    <a href="#withdraw"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg></span> Withdraw</a>    <a href="#perps"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 16.5 9 11l3 3 7-7"/><path d="M15 7h5v5"/></svg></span> Perps<span class="nav-tag">New</span></a>
     <a href="#swap"><span class="ico"><svg viewBox="0 0 24 24"><path d="M7 20V4"/><path d="m3.5 7.5 3.5-3.5 3.5 3.5"/><path d="M17 4v16"/><path d="m13.5 16.5 3.5 3.5 3.5-3.5"/></svg></span> Swap</a>    <div class="sep">Account</div>    <a href="#history"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span> History</a>
     <a href="#addresses"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg></span> Addresses</a>    <a href="#settings"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 4.6 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 11.5 4.6a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.7 1.7 0 0 0 19.4 11a2 2 0 1 1 0 4Z"/></svg></span> Settings</a>    <div class="sep">Info</div>    <a href="#faq"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.3a2.6 2.6 0 1 1 3.6 2.4c-.7.3-1.2.9-1.2 1.7v.3"/><path d="M12 17.1h.01"/></svg></span> FAQ</a>    <a href="#docs"><span class="ico"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span> Docs</a>  </div></nav>  <main class="main"><div class="tickers"><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.2 17.4h10.6l3.1 2.6H9.3zM4.4 10.7h10.6l3.1 2.6H7.5zM7.1 4h10.6l3.1 2.6H10.2z"/></svg><img alt=""></span><div><b>SOL</b><small>Solana</small></div><span class="px">71.50<em class="up">+2.14%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.4v9.2M14.3 9.5c-.6-.7-1.6-1.1-2.7-1.1-1.5 0-2.5.7-2.5 1.8 0 1.2 1.1 1.6 2.6 1.9 1.5.3 2.6.7 2.6 1.9 0 1.1-1 1.8-2.5 1.8-1.1 0-2.1-.4-2.7-1.1"/></svg><img alt=""></span><div><b>USDC</b><small>USD Coin</small></div><span class="px">1.00<em class="dn">-0.01%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 3.6h2.1v1.9h1.9V3.6h2.1v2.1c1.8.6 3 2 3 3.8 0 1.6-.8 2.7-2 3.2 1.6.5 2.6 1.9 2.6 3.7 0 2.4-1.8 3.9-4.3 4.2v2h-2.1v-1.9h-1.9v1.9H9.4v-1.9H6.6v-2h1.6V7.7H6.6v-2h2.8zm2.1 2v4.9h2c1.3 0 2.2-.8 2.2-2.1 0-1.4-.9-2.2-2.2-2.2h-2zm0 6.9v5h2.4c1.5 0 2.4-.9 2.4-2.4 0-1.6-1-2.6-2.5-2.6h-2.3z"/></svg><img alt=""></span><div><b>BTC</b><small>Bitcoin</small></div><span class="px">76,779<em class="dn">-1.40%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2l5.9 9.9L12 15.6 6.1 12.1zM12 17.1l5.9-3.6L12 21.8 6.1 13.5z"/></svg><img alt=""></span><div><b>ETH</b><small>Ethereum</small></div><span class="px">2,391<em class="dn">-2.31%</em></span></div><div class="tk"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.4"/><path d="M14.2 7.2v7.3a3 3 0 0 1-4.3 2.7"/></svg><img alt=""></span><div><b>JUP</b><small>Jupiter</small></div><span class="px">0.44<em class="up">+0.87%</em></span></div></div>    <section class="panel on" id="p-dash">      <div class="grid">        <div>          <div class="card">            <span class="lbl">Total account value</span><button class="cmp on" id="cmpToggle" type="button" aria-label="Auto compound" aria-pressed="true"><span class="cmp-lbl">Auto compound</span><span class="cmp-track"><span class="cmp-knob"></span></span></button>            <div class="big" id="total">$0.00</div>            <p class="hint" id="heldNote">No reserve</p>            <div class="row">              <button class="btn p" data-goto="p-deposit" data-deposit type="button">Deposit</button>              <button class="btn" data-goto="p-withdraw" type="button">Withdraw</button>              <button class="btn" data-goto="p-history" type="button">History</button>            </div>          </div>          <div class="stats">            <div class="stat"><span class="lbl">Available</span><b id="avail">$0.00</b></div>            <div class="stat"><span class="lbl">Pending</span><b id="pend">$0.00</b><button class="q" type="button" aria-label="What pending means" data-tip="Credit still vesting in four 6-hour slices. Only used when auto compound is off; with it on, profit is added back onto your stake instead.">?</button></div><div class="stat"><span class="lbl">Staked</span><b id="locked">$0.00</b></div><div class="stat"><span class="lbl">Referral rewards</span><b id="rw">$0.00</b></div>            <div class="stat"><span class="lbl">Reserve</span><b id="held">$0.00</b><button class="q" type="button" aria-label="What reserve means" data-tip="Deposits under $10. They wait here and combine with your next deposit until the total reaches $10, then lock for 30 days.">?</button></div>            <div class="stat"><span class="lbl">Lifetime earnings</span><b id="life">$0.00</b></div>          </div><div class="card">
   <span class="lbl">Active stakes</span>
@@ -179,6 +180,94 @@
             <div class="sw-tok-top"><span class="sw-tok-badge"><svg class="sw-tok-ic" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="swg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9945ff"/><stop offset="1" stop-color="#14f195"/></linearGradient></defs><circle cx="12" cy="12" r="10" fill="url(#swg)"/><path d="M7.6 9.6h7.6l-1.2 1.4H6.4zM7.6 13.9h7.6l-1.2 1.4H6.4z" fill="#0b0b12"/></svg></span><div class="sw-tok-id"><b>SOL</b><span>So11...1112 <svg class="sw-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5.5H6a2 2 0 0 0-2 2V15"/></svg></span></div><div class="sw-tok-px"><b>$69.05</b><em class="dn">-6.29%</em></div></div>
             <svg class="sw-spark" viewBox="0 0 200 50" preserveAspectRatio="none" aria-hidden="true"><polyline class="r" points="0,12 8,16 16,12 24,20 32,15 40,22 48,18 56,26 64,22 72,30 80,26 88,34 96,28 104,36 112,30 120,38 128,32 136,40 144,34 152,42 160,36 168,44 176,38 184,44 192,40 200,44"/></svg>
             <span class="sw-open">Open Page &#8599;</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="panel" id="p-stake">
+      <div class="st-wrap">
+        <header class="st-hero">
+          <h1>Stake Your SOL with Jupiter</h1>
+          <p>Earn staking rewards with a top-performing Solana validator. Stake natively, or get JupSOL and use it across DeFi while it earns yield.</p>
+          <div class="st-stats">
+            <div><b>$659M</b><span>Total staked</span></div>
+            <div><b>31,109</b><span>JupSOL holders</span></div>
+            <div><b class="lime">4.75&#8211;5.17%</b><span>Estimated APY</span></div>
+          </div>
+        </header>
+
+        <div class="card st-have">
+          <div class="st-have-l"><b>You have 0.00 SOL staked</b><span>Next epoch in 20h 55m.</span></div>
+          <a class="st-manage" href="#stake">Manage <span>&#8594;</span></a>
+        </div>
+
+        <div class="st-grid">
+          <div class="card st-main">
+            <div class="st-tabs"><button class="on" type="button">JupSOL</button><button type="button">Native</button></div>
+            <div class="st-earn">
+              <span>Earn <b>$1.16</b> in a year <em>+$0.06 vs LST average</em></span>
+              <button type="button">Calculate <span>&#8594;</span></button>
+            </div>
+            <div class="st-field">
+              <div class="st-field-top">
+                <span>Staking</span>
+                <div class="st-meta"><span class="st-bal">3.28942304 SOL</span><button type="button">MAX</button><i>&#183;</i><button type="button">50%</button><i>&#183;</i><button type="button">%</button></div>
+              </div>
+              <div class="st-big">0.328</div>
+              <div class="st-usd">&#8776; $22.61</div>
+              <button class="st-tok" type="button">SOL</button>
+            </div>
+            <button class="st-flip" type="button" aria-label="Swap direction"><svg viewBox="0 0 24 24"><path d="M8 5v14"/><path d="m4.5 15.5 3.5 3.5 3.5-3.5"/><path d="M16 19V5"/><path d="m12.5 8.5 3.5-3.5 3.5 3.5"/></svg></button>
+            <div class="st-field st-recv">
+              <div class="st-field-top"><span>Receiving</span><span class="st-rate">1 JupSOL = 1.22 SOL</span></div>
+              <div class="st-big">0.26871</div>
+              <div class="st-usd">&#8776; $22.64</div>
+              <button class="st-tok" type="button">JupSOL</button>
+            </div>
+            <dl class="st-rows">
+              <div><dt>APY</dt><dd>5.17%</dd></div>
+              <div><dt>Unstaking</dt><dd>Instant swap, or after the epoch ends</dd></div>
+              <div><dt>Estimated epoch duration</dt><dd>1d 1h</dd></div>
+            </dl>
+            <button class="st-cta" type="button">Get JupSOL</button>
+          </div>
+
+          <div class="card st-side">
+            <div class="st-side-top"><span>If you stake <b>0.328</b> SOL</span><button class="st-x" type="button" aria-label="Close"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+            <div class="st-yield"><b>$1.16</b><span>= 0.0170 SOL in a year</span></div>
+            <div class="st-chart">
+              <div class="st-axis"><span>$1.2</span><span>$0.8</span><span>$0.4</span><span>$0</span></div>
+              <div class="st-plot">
+                <div class="st-grp"><i class="l" style="height:26%"></i><i class="g" style="height:22%"></i><span>3 months</span></div><div class="st-grp"><i class="l" style="height:55%"></i><i class="g" style="height:50%"></i><span>6 months</span></div><div class="st-grp"><i class="l" style="height:78%"></i><i class="g" style="height:72%"></i><span>9 months</span></div><div class="st-grp"><i class="l" style="height:100%"></i><i class="g" style="height:94%"></i><span>12 months</span></div>
+              </div>
+            </div>
+            <div class="st-legend"><span><i class="l"></i>JupSOL</span><span><i class="g"></i>Avg. of major LSTs</span></div>
+            <p class="st-fine">Compared with the average of bnSOL, jitoSOL, dSOL and mSOL at current APYs and SOL price. Rewards are not guaranteed.</p>
+          </div>
+        </div>
+
+        <div class="st-how">
+          <div class="st-how-l">
+            <h2>How JupSOL Works</h2>
+            <div class="st-step"><h3>1. Stake your SOL</h3><p>Deposit SOL and receive JupSOL, a liquid token representing your staked SOL.</p></div>
+            <div class="st-step"><h3>2. Your JupSOL grows in value</h3><p>Staking rewards accumulate in the token itself. Your balance stays the same while each JupSOL becomes worth more SOL.</p></div>
+            <div class="st-step"><h3>3. Swap back any time</h3><p>Swap JupSOL for SOL at any time, just like any other token. No lockups.</p></div>
+          </div>
+          <div class="st-how-r st-art"><svg class="st-coins" viewBox="0 0 420 330" aria-hidden="true">
+        <ellipse cx="210" cy="215" rx="158" ry="66" fill="#0d2a1d" stroke="#1d5c3a"/>
+        <g><rect x="96" y="150" width="44" height="92" rx="10" fill="#173627"/><ellipse cx="118" cy="150" rx="22" ry="9" fill="#255a3d"/><ellipse cx="118" cy="150" rx="15" ry="6" fill="#b6e88a"/></g><g><rect x="150" y="132" width="44" height="110" rx="10" fill="#173627"/><ellipse cx="172" cy="132" rx="22" ry="9" fill="#255a3d"/><ellipse cx="172" cy="132" rx="15" ry="6" fill="#b6e88a"/></g><g><rect x="204" y="122" width="44" height="120" rx="10" fill="#173627"/><ellipse cx="226" cy="122" rx="22" ry="9" fill="#255a3d"/><ellipse cx="226" cy="122" rx="15" ry="6" fill="#b6e88a"/></g><g><rect x="258" y="138" width="44" height="104" rx="10" fill="#173627"/><ellipse cx="280" cy="138" rx="22" ry="9" fill="#255a3d"/><ellipse cx="280" cy="138" rx="15" ry="6" fill="#b6e88a"/></g><g><rect x="312" y="158" width="44" height="84" rx="10" fill="#173627"/><ellipse cx="334" cy="158" rx="22" ry="9" fill="#255a3d"/><ellipse cx="334" cy="158" rx="15" ry="6" fill="#b6e88a"/></g>
+        <g><rect x="126" y="196" width="44" height="74" rx="10" fill="#173627"/><ellipse cx="148" cy="196" rx="22" ry="9" fill="#255a3d"/><ellipse cx="148" cy="196" rx="15" ry="6" fill="#b6e88a"/></g><g><rect x="232" y="200" width="44" height="70" rx="10" fill="#173627"/><ellipse cx="254" cy="200" rx="22" ry="9" fill="#255a3d"/><ellipse cx="254" cy="200" rx="15" ry="6" fill="#b6e88a"/></g><g><rect x="288" y="202" width="44" height="66" rx="10" fill="#173627"/><ellipse cx="310" cy="202" rx="22" ry="9" fill="#255a3d"/><ellipse cx="310" cy="202" rx="15" ry="6" fill="#b6e88a"/></g>
+        <g><rect x="120" y="96" width="44" height="34" rx="10" fill="#173627"/><ellipse cx="142" cy="96" rx="22" ry="9" fill="#255a3d"/><ellipse cx="142" cy="96" rx="15" ry="6" fill="#b6e88a"/></g><g><rect x="258" y="88" width="44" height="30" rx="10" fill="#173627"/><ellipse cx="280" cy="88" rx="22" ry="9" fill="#255a3d"/><ellipse cx="280" cy="88" rx="15" ry="6" fill="#b6e88a"/></g>
+        <ellipse cx="210" cy="222" rx="140" ry="52" fill="none" stroke="#2f7d52" opacity=".5"/>
+      </svg></div>
+          <div class="st-how-l">
+            <div class="st-bar"><div class="st-bar-top"><span>Native staking</span><b>4.75%</b></div><div class="st-track"><i class="blue" style="width:73%"></i></div></div>
+            <div class="st-bar"><div class="st-bar-top"><span>JupSOL</span><b class="lime">5.17%</b></div><div class="st-track"><i class="grad" style="width:100%"></i></div></div>
+            <div class="st-key"><span><i class="blue"></i>Native staking APY</span><span><i class="lime"></i>JupSOL APY</span></div>
+          </div>
+          <div class="st-how-r">
+            <h2 class="st-h2-lg">JupSOL rewards include priority-fee sharing</h2>
+            <p class="st-body">Every epoch, our validator collects priority fees on the transaction volume it routes. A share goes to JupSOL holders, alongside the usual staking rewards.</p>
           </div>
         </div>
       </div>
