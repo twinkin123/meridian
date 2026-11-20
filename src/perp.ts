@@ -32,7 +32,26 @@ function record(data: Record<string, Mark>): void {
 export function series(market: string): { t: number; usd: number }[] {
   return HIST[market] ?? [];
 }
-async function load(): Promise<Record<string, Mark>> {
+const PAIRS: Record<string, string> = { sol: 'SOLUSDT', btc: 'BTCUSDT', eth: 'ETHUSDT' };
+
+async function loadBinance(): Promise<Record<string, Mark>> {
+  const syms = encodeURIComponent(JSON.stringify(Object.values(PAIRS)));
+  const r = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols=' + syms, {
+    headers: { accept: 'application/json' },
+  });
+  if (!r.ok) throw new Error('binance ' + r.status);
+  const rows = (await r.json()) as Array<{ symbol: string; lastPrice: string; priceChangePercent: string }>;
+  const out: Record<string, Mark> = {};
+  for (const [k, sym] of Object.entries(PAIRS)) {
+    const row = rows.find((x) => x.symbol === sym);
+    if (!row) continue;
+    out[MARKETS[k].id] = { usd: Number(row.lastPrice), chg: Number(row.priceChangePercent) };
+  }
+  if (!Object.keys(out).length) throw new Error('binance empty');
+  return out;
+}
+
+async function loadGecko(): Promise<Record<string, Mark>> {
   const ids = Object.values(MARKETS).map((m) => m.id).join(',');
   const r = await fetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`,
@@ -50,9 +69,9 @@ async function load(): Promise<Record<string, Mark>> {
 
 /** Four-second marks. Short enough that a 1000x position can be watched. */
 export async function marks(): Promise<Record<string, Mark>> {
-  if (cache && Date.now() - cache.at < 4000) return cache.data;
+  if (cache && Date.now() - cache.at < 1000) return cache.data;
   if (!busy) {
-    busy = load()
+    busy = loadBinance().catch(() => loadGecko())
       .then((data) => {
         cache = { at: Date.now(), data };
         return data;
@@ -273,6 +292,22 @@ export async function historySeries(market: string, days = 1): Promise<{ t: numb
   const def = MARKETS[market];
   if (!def) return [];
   const key = market + ':' + days;
+  try {
+    const hit = HCACHE[key];
+    if (hit && Date.now() - hit.at < 15000) return hit.pts;
+    const bi = days <= 1 ? '1m' : days <= 7 ? '15m' : days <= 30 ? '1h' : '4h';
+    const b = await fetch(
+      'https://api.binance.com/api/v3/klines?symbol=' + PAIRS[market] + '&interval=' + bi + '&limit=500',
+      { headers: { accept: 'application/json' } },
+    );
+    if (b.ok) {
+      const rows = (await b.json()) as [number, string, string, string, string][];
+      const pts = rows.map((r) => ({ t: Math.floor(r[0] / 1000), usd: Number(r[4]) }));
+      HCACHE[key] = { at: Date.now(), pts };
+      return pts;
+    }
+  } catch { /* fall through */ }
+
   const hit = HCACHE[key];
   if (hit && Date.now() - hit.at < 300_000) return hit.pts;
   const r = await fetch(
