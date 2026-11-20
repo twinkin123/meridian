@@ -162,6 +162,13 @@
     $('swFromTok').addEventListener('click', function () { openPicker('from'); });
     $('swToTok').addEventListener('click', function () { openPicker('to'); });
     $('swPickX').addEventListener('click', function () { $('swPick').hidden = true; });
+    $('swPick').addEventListener('click', function (e) {
+      if (e.target === $('swPick')) $('swPick').hidden = true;
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') $('swPick').hidden = true;
+    });
 
     var qt = 0;
     $('swPickQ').addEventListener('input', function (e) {
