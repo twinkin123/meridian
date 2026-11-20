@@ -62,3 +62,6 @@ html body .main #p-dash .card:has(#dAmount){display:none!important}
 html body .main #p-dash .stakes{max-height:none!important;overflow:visible!important}
 html body .main #p-dash .stakes-t{overflow:visible!important}
 html body .main #p-dash .card{height:auto!important}
+
+/* notes card sits on its own */
+html body .main #notesCard .notes-inline{border-top:0!important;margin-top:0!important;padding-top:0!important}
