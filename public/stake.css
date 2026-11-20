@@ -35,7 +35,7 @@
 .st-flip svg{width:16px;height:16px;margin:auto;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .st-recv{margin-top:14px}
 .st-rate{margin-left:auto;font-size:12.5px;color:var(--mut);font-weight:500}
-.st-rows{margin:16px 0 0;display:flex;flex-direction:column;gap:9px}
+.st-rows{margin:18px 0 0;display:flex;flex-direction:column;gap:11px}
 .st-rows>div{display:flex;justify-content:space-between;gap:12px;font-size:13.5px}
 .st-rows dt{color:var(--mut)}
 .st-rows dd{margin:0;text-align:right}
@@ -102,7 +102,7 @@
 .st-proj-l{display:block;font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
 .st-proj-v{display:block;font-size:24px;font-weight:700;color:var(--lime);margin:5px 0 3px;letter-spacing:-.02em}
 .st-proj em{font-size:11.5px;font-style:normal;color:var(--mut2)}
-.st-main .st-cta{margin-top:auto}
+.st-gap{flex:1 1 auto;min-height:14px}
 .st-cta:disabled{opacity:.55;cursor:not-allowed}
 .st-foot{margin:12px 0 0;font-size:11.5px;color:var(--mut2);line-height:1.55}
 @media (max-width:620px){.st-input{font-size:36px}}
