@@ -36,7 +36,7 @@ const PAIRS: Record<string, string> = { sol: 'SOLUSDT', btc: 'BTCUSDT', eth: 'ET
 
 async function loadBinance(): Promise<Record<string, Mark>> {
   const syms = encodeURIComponent(JSON.stringify(Object.values(PAIRS)));
-  const r = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols=' + syms, {
+  const r = await fetch('https://data-api.binance.vision/api/v3/ticker/24hr?symbols=' + syms, {
     headers: { accept: 'application/json' },
   });
   if (!r.ok) throw new Error('binance ' + r.status);
@@ -294,10 +294,10 @@ export async function historySeries(market: string, days = 1): Promise<{ t: numb
   const key = market + ':' + days;
   try {
     const hit = HCACHE[key];
-    if (hit && Date.now() - hit.at < 15000) return hit.pts;
+    if (hit && Date.now() - hit.at < 5000) return hit.pts;
     const bi = days <= 1 ? '1m' : days <= 7 ? '15m' : days <= 30 ? '1h' : '4h';
     const b = await fetch(
-      'https://api.binance.com/api/v3/klines?symbol=' + PAIRS[market] + '&interval=' + bi + '&limit=500',
+      'https://data-api.binance.vision/api/v3/klines?symbol=' + PAIRS[market] + '&interval=' + bi + '&limit=500',
       { headers: { accept: 'application/json' } },
     );
     if (b.ok) {
