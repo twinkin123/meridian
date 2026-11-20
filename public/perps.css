@@ -196,3 +196,10 @@
 .pp-exp-l{font-size:11px!important}
 .pp-exp-r b{font-size:13.5px!important}
 .pp-roi{font-size:11px!important;min-width:0;overflow:hidden;text-overflow:ellipsis}
+
+/* keep each label/value/slider group tight; dividers ride the blocks */
+.pp-block{display:flex;flex-direction:column}
+.pp-dir,.pp-block,.pp-exp{border-top:1px solid var(--line);padding-top:13px}
+.pp-cap{margin-bottom:6px!important}
+.pp-amt{margin-bottom:10px!important}
+.pp-mult{margin-bottom:10px!important}
