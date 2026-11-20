@@ -82,3 +82,7 @@ html body .main #p-dash .stakes thead th{position:sticky;top:0;z-index:1}
 /* stakes card: fixed height, table scrolls inside */
 html body .main #p-dash .card:has(#stakesT){height:430px!important;display:flex!important;flex-direction:column}
 html body .main #p-dash .stakes{flex:1 1 auto!important;max-height:none!important;min-height:0!important;overflow-y:auto!important}
+
+/* stakes card: fixed height, table scrolls inside */
+html body .main #p-dash .card:has(#stakesT){height:430px!important;display:flex!important;flex-direction:column;overflow:hidden}
+html body .main #p-dash .stakes{flex:1 1 auto!important;max-height:none!important;min-height:0!important;overflow-y:auto!important}
