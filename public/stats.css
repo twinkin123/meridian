@@ -128,3 +128,12 @@ html body .main #p-dash .grid > div > .ref-list-card{flex:1 1 auto!important}
 /* notification list stays capped and scrolls inside its card */
 html body .main #notesCard .list{max-height:190px!important;overflow-y:auto!important;flex:0 0 auto!important}
 html body .main .ref-list-card .list{flex:0 0 auto!important}
+
+
+/* dash-align-v3: explicit equal bottoms */
+html body .main #p-dash .grid > div > #notesCard,
+html body .main #p-dash .grid > div > .ref-list-card{flex:0 0 auto!important}
+html body .main #notesCard,
+html body .main .ref-list-card{display:flex!important;flex-direction:column!important;min-height:0!important}
+html body .main #notesCard .list{flex:0 0 auto!important;max-height:190px!important;overflow-y:auto!important}
+html body .main .ref-list-card .list{flex:0 0 auto!important}
