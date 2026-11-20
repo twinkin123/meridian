@@ -55,3 +55,5 @@
 }
 #rwOut:disabled{opacity:.55;color:#9dc4da;border-color:rgba(120,205,255,.32);text-shadow:none;box-shadow:none}
 #rwOut:not(:disabled){border-color:rgba(120,205,255,.95)}
+/* hide the dashboard calculator; the element and its ids stay in place */
+html body .main #p-dash .card:has(#dAmount){display:none!important}
