@@ -190,7 +190,7 @@
 /* spread the ticket down the column instead of stacking it at the top */
 .pp-ticket{justify-content:space-between!important}
 .pp-rule{margin:0!important}
-.pp-place{margin-top:0!important}
+.pp-place{margin-top:0!important;margin-bottom:24px!important}
 .pp-dir button{padding:9px!important;font-size:13px!important}
 .pp-exp{gap:5px!important}
 .pp-exp-l{font-size:11px!important}
@@ -199,8 +199,11 @@
 
 /* keep each label/value/slider group tight; dividers ride the blocks */
 .pp-block{display:flex;flex-direction:column}
-.pp-dir,.pp-block,.pp-exp{border-top:1px solid var(--line);padding-top:13px}
+.pp-dir,.pp-block,.pp-exp{padding-top:0}
 .pp-cap{margin-bottom:6px!important}
 .pp-amt{margin-bottom:10px!important}
 .pp-mult{margin-bottom:10px!important}
 
+
+/* dividers stretch with the gaps and keep the hairline centred in them */
+.pp-rule{flex:1 1 auto;min-height:20px;background:linear-gradient(var(--line),var(--line)) center/100% 1px no-repeat}
