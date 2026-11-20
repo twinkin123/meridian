@@ -199,3 +199,8 @@ html body .main .st-stats b{color:#fff!important}
 .sm-item i{margin-left:auto;font-style:normal;font-size:11.5px;color:var(--mut2);text-align:right}
 .sm-empty{padding:16px 2px;font-size:12.5px;color:var(--mut2)}
 .sm-foot{margin:6px 0 0;font-size:11.5px;line-height:1.5;color:var(--mut2)}
+
+/* have bar: inline total, bare manage button */
+html body .main .st-have-l b #stHave{display:inline;font-size:inherit;font-weight:inherit;color:inherit;margin:0}
+html body .main button.st-manage{background:none!important;border:0!important;padding:0!important;box-shadow:none!important;font:inherit!important;font-size:14.5px!important;font-weight:600!important;color:var(--lime)!important;cursor:pointer;display:flex;align-items:center;gap:8px}
+html body .main button.st-manage:hover{opacity:.8}
