@@ -110,3 +110,6 @@ html body .main #notesCard .list::-webkit-scrollbar-thumb{background:rgba(255,25
 html body .main #notesCard .list::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.28)}
 html body .main .ref-list-card{display:block!important}
 html body .main .ref-list-card .list{flex:none!important;margin-bottom:0!important}
+
+/* the notification list keeps every entry and scrolls */
+html body .main #notesCard .list{max-height:190px!important}
