@@ -158,3 +158,7 @@ html body .main .st-today-v{color:var(--grn)!important}
 html body .main .st-amount{align-items:baseline;gap:6px}
 html body .main .st-amount .st-cur{font-size:26px;font-weight:700}
 html body .main .st-amount .st-input{font-size:46px;font-weight:700}
+
+/* amount field: let the black plate show through */
+html body .main .st-amount .st-input{background:transparent!important;border:0!important;box-shadow:none!important}
+html body .main .st-amount .st-cur{background:transparent!important}
