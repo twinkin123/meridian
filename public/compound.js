@@ -16,8 +16,6 @@
     var kr = clock.getBoundingClientRect();
     if (!kr.width) return;
     if (window.matchMedia('(max-width:900px)').matches) {
-      /* On phones the countdown sits in a different card, so a measured offset
-         puts the toggle off the card. Let the stylesheet pin it instead. */
       btn.style.removeProperty('right');
       btn.style.removeProperty('top');
     } else {
@@ -26,15 +24,28 @@
     }
   }
 
-  var saved = null;
-  try { saved = localStorage.getItem('mrd_auto_compound'); } catch (_) {}
-  paint(saved !== '0');
+  /* The server owns this flag - the daily run reads users.auto_compound. */
+  function load() {
+    fetch('/wallet/balance', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { if (j && typeof j.autoCompound === 'boolean') paint(j.autoCompound); })
+      .catch(function () {});
+  }
 
   btn.addEventListener('click', function () {
     var on = !btn.classList.contains('on');
     paint(on);
-    try { localStorage.setItem('mrd_auto_compound', on ? '1' : '0'); } catch (_) {}
-    document.dispatchEvent(new CustomEvent('compound', { detail: { on: on } }));
+    fetch('/wallet/compound', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ on: on })
+    })
+      .then(function (r) { if (!r.ok) throw new Error('save failed'); })
+      .catch(function () { paint(!on); })
+      .finally(function () {
+        document.dispatchEvent(new CustomEvent('compound', { detail: { on: btn.classList.contains('on') } }));
+      });
   });
 
   place();
@@ -46,4 +57,7 @@
     place();
     if (++tries > 20) clearInterval(timer);
   }, 500);
+
+  load();
+  window.addEventListener('pageshow', load);
 })();

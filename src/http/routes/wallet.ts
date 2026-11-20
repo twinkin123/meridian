@@ -11,9 +11,10 @@ export const wallet = Router();
 
 wallet.get('/balance', requireUser, async (req, res) => {
   const uid = req.userId!;
-  const r = await one<{ b: string; h: string; p: string; nx: string | null; l: string; rw: string; life: string }>(
+  const r = await one<{ b: string; h: string; p: string; nx: string | null; l: string; rw: string; life: string; ac: boolean }>(
     `select
        coalesce((select balance from v_balance where user_id=$1 and code='2000'),0) b,
+       (select auto_compound from users where id=$1) ac,
        coalesce((select balance from v_balance where user_id=$1 and code='2050'),0) h, coalesce((select balance from v_balance where user_id=$1 and code='2070'),0) l, coalesce((select balance from v_balance where user_id=$1 and code='2080'),0) rw, coalesce((select sum(amount) from vesting where user_id=$1 and released_at is null),0) p, (select min(due_at) from vesting where user_id=$1 and released_at is null) nx, ((select coalesce(sum(amount),0) from vesting where user_id=$1) + (select coalesce(sum(commission_usd),0) from referral_ledger where referrer_id=$1))::text life`,
     [uid],
   );
@@ -37,12 +38,18 @@ wallet.get('/balance', requireUser, async (req, res) => {
     pending: r.p, locked: r.l, rewards: r.rw,
     nextRelease: r.nx,
     held: r.h, lifetimeEarned: r.life,
+    autoCompound: r.ac,
     minWithdraw: MIN_WITHDRAW.toString(),
     newAddressCap: NEW_ADDR_CAP.toString(),
     freeze: await freezeLevel(),
   });
 });
 
+wallet.post('/compound', requireUser, async (req, res) => {
+  const on = req.body?.on !== false;
+  await pool.query('update users set auto_compound = $2 where id = $1', [req.userId!, on]);
+  res.json({ ok: true, autoCompound: on });
+});
 wallet.get('/withdrawals', requireUser, async (req, res) => {
   const { rows } = await pool.query(
     `select id, asset, address, usd_amount, fee, status, sig as tx_sig, error, created_at, sent_at
