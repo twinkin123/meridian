@@ -55,6 +55,3 @@
 }
 #rwOut:disabled{opacity:.55;color:#9dc4da;border-color:rgba(120,205,255,.32);text-shadow:none;box-shadow:none}
 #rwOut:not(:disabled){border-color:rgba(120,205,255,.95)}
-/* dashboard columns: stack and share the height */
-html body .main .grid>div{display:flex;flex-direction:column;min-width:0}
-html body .main .grid>div>.card:last-of-type{flex:1 1 auto}
