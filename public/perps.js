@@ -87,23 +87,16 @@
     });
   }
 
-  function loadHistory() {
+  function loadHistory(retry) {
     if (!chart) return;
     fetch('/perps/history?market=' + market + '&days=' + days)
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) {
         all = j && j.points ? j.points : [];
         if (all.length) { render(); return; }
-        fetch('/perps/series?market=' + market)
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .then(function (s) {
-            if (!s || !s.series) return;
-            all = s.series.map(function (p) { return { t: Math.floor(p.t / 1000), usd: p.usd }; });
-            if (all.length) render();
-          })
-          .catch(function () {});
+        if (!retry) setTimeout(function () { loadHistory(1); }, 1500);
       })
-      .catch(function () {});
+      .catch(function () { if (!retry) setTimeout(function () { loadHistory(1); }, 1500); });
   }
 
   function pushTick(price) {
