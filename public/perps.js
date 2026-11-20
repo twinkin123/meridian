@@ -84,7 +84,6 @@
       wickDownColor: '#f0476a',
       priceLineVisible: false,
       lastValueVisible: false,
-      visible: false,
     });
   }
 
