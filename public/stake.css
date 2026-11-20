@@ -133,3 +133,23 @@
 .st-cta{background:#131019;border:1px solid rgba(190,180,255,.28);border-radius:14px;color:#fff;box-shadow:0 18px 36px -18px rgba(139,92,246,.95)}
 .st-cta:hover:not(:disabled){background:#171227}
 .st-cta:disabled{opacity:1;cursor:not-allowed;border-color:rgba(190,180,255,.15);color:rgba(255,255,255,.6);box-shadow:0 14px 28px -20px rgba(139,92,246,.6)}
+
+/* amount + results boxes: match the calculator */
+html body .main .st-amount{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px!important;
+  border:1px solid rgba(255,255,255,.15)!important;
+  border-radius:8px!important;
+  background:#000!important;
+  box-shadow:0 0 18px -5px rgba(139,92,246,.52),0 0 38px -16px rgba(139,92,246,.3)!important;
+}
+html body .main .st-amount .st-cur{font-size:15px;font-weight:600;color:var(--mut)}
+html body .main .st-amount .st-input{font-size:18px;font-weight:700}
+html body .main .st-today{
+  border:1px solid rgba(255,255,255,.15)!important;
+  border-radius:9px!important;
+  background:#000!important;
+  padding:12px 14px!important;
+  box-shadow:0 0 18px -5px rgba(139,92,246,.52),0 0 38px -16px rgba(139,92,246,.3)!important;
+}
+html body .main .st-today-v{color:var(--grn)!important}
