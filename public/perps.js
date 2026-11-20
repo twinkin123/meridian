@@ -50,7 +50,7 @@
       line.setData(all.map(function (p) { return { time: p.t, value: p.usd }; }));
       var tip = all[all.length - 1];
       if (tip) {
-        line.setMarkers([{ time: tip.t, position: 'inBar', shape: 'circle', color: '#2fd48a', size: 1 }]);
+        line.setMarkers([{ time: tip.t, position: 'inBar', shape: 'circle', color: '#28e664', size: 1 }]);
       }
     }
     chart.priceScale('right').applyOptions({ autoScale: true });
@@ -75,16 +75,16 @@
       autoSize: true,
     });
     line = chart.addLineSeries({
-      color: '#2fd48a',
+      color: '#28e664',
       lineWidth: 2,
       priceLineVisible: false,
       lastValueVisible: false,
     });
     candles = chart.addCandlestickSeries({
-      upColor: '#2fd48a',
+      upColor: '#28e664',
       downColor: '#f0476a',
       borderVisible: false,
-      wickUpColor: '#2fd48a',
+      wickUpColor: '#28e664',
       wickDownColor: '#f0476a',
       priceLineVisible: false,
       lastValueVisible: false,
