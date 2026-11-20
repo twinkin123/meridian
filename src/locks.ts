@@ -132,12 +132,12 @@ export type CombineResult =
 
 /**
  * Held dust never becomes spendable directly. Once the held rows clear
- * MIN_DEPOSIT they are combined into the locked bucket with a fresh
- * 30-day clock, and only then can they be claimed and released.
+ * MIN_DEPOSIT they are combined and paid straight into available. Starting a
+ * 30-day lock is a separate, deliberate action on the stake page.
  */
 export async function combineHeld(userId: string): Promise<CombineResult> {
-  // Level 1 means "start no new 30-day locks"; reserve simply accumulates.
-  if ((await freezeLevel()) >= 1) return { state: 'nothing' };
+  // No new locks are created here any more, so a level-1 freeze does not stop it.
+  if ((await freezeLevel()) >= 2) return { state: 'nothing' };
 
   return tx(async (c) => {
     const rows = await c.query<{ id: string; usd_at_det: string }>(
@@ -163,14 +163,15 @@ export async function combineHeld(userId: string): Promise<CombineResult> {
     const amount = total < held ? total : held;
 
     await c.query('select ensure_user_accounts($1)', [userId]);
-    await post(c, 'HeldCombined', `combine:${userId}:${Date.now()}`, [
+    await post(c, 'HeldCredited', `combine:${userId}:${Date.now()}`, [
       { code: '2050', owner: userId, amount },
-      { code: '2070', owner: userId, amount: -amount },
+      { code: '2000', owner: userId, amount: -amount },
     ]);
-    await notify(c, userId, 'reserve_locked', `${usdStr(amount)} USD moved from reserve into a 30-day lock.`);
+    await notify(c, userId, 'reserve_available',
+      `${usdStr(amount)} USD moved from reserve to your available balance.`);
 
     await c.query(
-      `update deposits set status = 'locked', unlock_at = now() + interval '30 days'
+      `update deposits set status = 'credited', released_at = now()
         where id = any($1::uuid[]) and status = 'held'`,
       [rows.rows.map((r) => r.id)],
     );

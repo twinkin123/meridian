@@ -3,6 +3,7 @@ import { requireUser } from '../mw/session.js';
 import { one, pool, tx } from '../../db.js';
 import { freezeLevel } from '../../recon.js';
 import { requestClaim, cancelClaim } from '../../locks.js';
+import { stake, MIN_STAKE } from '../../stakes.js';
 import {
   requestWithdrawal, cancelWithdrawal, payoutWithdrawal, computeCap, MIN_WITHDRAW, NEW_ADDR_CAP,
 } from '../../withdrawals.js'; import { post } from '../../ledger/post.js';
@@ -74,6 +75,15 @@ wallet.get('/deposits', requireUser, async (req, res) => {
     [req.userId!],
   );
   res.json({ deposits: rows });
+});
+
+wallet.post('/stakes', requireUser, async (req, res) => {
+  const { usd } = req.body ?? {};
+  if (!/^\d+$/.test(String(usd))) return res.status(400).json({ error: 'bad_amount' });
+
+  const out = await stake(req.userId!, BigInt(usd));
+  if (!out.ok) return res.status(400).json({ error: out.error, min: MIN_STAKE.toString() });
+  res.json({ id: out.id });
 });
 
 wallet.post('/deposits/:id/claim', requireUser, async (req, res) => {
