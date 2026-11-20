@@ -3,7 +3,8 @@
   'use strict';
 
   var $ = function (id) { return document.getElementById(id); };
-  var market = 'sol', side = 'long', stake = 1, lev = 500, busy = false, poll = 0, chart = null, series = null, mark = 0, days = 1, bucket = 0;
+  var market = 'sol', side = 'long', stake = 1, lev = 500, busy = false, poll = 0;
+  var chart = null, line = null, candles = null, all = [], days = 1, mode = 'line';
 
   var META = {
     sol: { n: 'Solana', c: '#14f195', g: 'S' },
@@ -20,52 +21,90 @@
     });
   }
 
+  function step() { return days <= 1 ? 60 : days <= 30 ? 3600 : 86400; }
+
+  function candlesFrom(list) {
+    var s = step(), out = [], cur = null;
+    list.forEach(function (p) {
+      var b = Math.floor(p.t / s) * s;
+      if (!cur || cur.time !== b) {
+        if (cur) out.push(cur);
+        cur = { time: b, open: p.usd, high: p.usd, low: p.usd, close: p.usd };
+      } else {
+        cur.high = Math.max(cur.high, p.usd);
+        cur.low = Math.min(cur.low, p.usd);
+        cur.close = p.usd;
+      }
+    });
+    if (cur) out.push(cur);
+    return out;
+  }
+
+  function render() {
+    if (!chart) return;
+    if (mode === 'candles') {
+      line.applyOptions({ visible: false });
+      candles.applyOptions({ visible: true });
+      candles.setData(candlesFrom(all));
+    } else {
+      candles.applyOptions({ visible: false });
+      line.applyOptions({ visible: true });
+      line.setData(all.map(function (p) { return { time: p.t, value: p.usd }; }));
+    }
+    chart.priceScale('right').applyOptions({ autoScale: true });
+    chart.timeScale().fitContent();
+  }
+
   function initChart() {
     var el = $('ppChart');
     if (!el || typeof LightweightCharts === 'undefined') return;
     chart = LightweightCharts.createChart(el, {
-      layout: { background: { color: 'transparent' }, textColor: 'rgba(255,255,255,.5)' },
-      grid: { vertLines: { visible: false }, horzLines: { color: 'rgba(255,255,255,.05)' } },
+      layout: { background: { color: 'transparent' }, textColor: 'rgba(255,255,255,.45)' },
+      grid: { vertLines: { visible: false }, horzLines: { color: 'rgba(255,255,255,.04)' } },
       rightPriceScale: { borderVisible: false },
       timeScale: { borderVisible: false, timeVisible: true, secondsVisible: false },
       crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
       autoSize: true,
     });
-    series = chart.addAreaSeries({
+    line = chart.addAreaSeries({
       lineColor: '#2fd48a',
       lineWidth: 2,
-      topColor: 'rgba(47,212,138,.30)',
+      topColor: 'rgba(47,212,138,.28)',
       bottomColor: 'rgba(47,212,138,0)',
       priceLineVisible: false,
+      lastValueVisible: false,
+    });
+    candles = chart.addCandlestickSeries({
+      upColor: '#2fd48a',
+      downColor: '#f0476a',
+      borderVisible: false,
+      wickUpColor: '#2fd48a',
+      wickDownColor: '#f0476a',
+      priceLineVisible: false,
+      lastValueVisible: false,
+      visible: false,
     });
   }
 
   function loadHistory() {
-    if (!series) return;
+    if (!chart) return;
     fetch('/perps/history?market=' + market + '&days=' + days)
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) {
-        if (!series) return;
-        var pts = j && j.points ? j.points : [];
-        if (!pts.length) return;
-        series.setData(pts.map(function (p) { return { time: p.t, value: p.usd }; }));
-        chart.priceScale('right').applyOptions({ autoScale: true });
-        chart.timeScale().fitContent();
+        all = j && j.points ? j.points : [];
+        if (all.length) render();
       })
       .catch(function () {});
   }
 
   function pushTick(price) {
-    mark = price;
-    if (!series) return;
-    var b = Math.floor(Date.now() / 4000) * 4;
-    if (b !== bucket) {
-      bucket = b;
-      series.update({ time: b, value: price });
-      chart.timeScale().scrollToRealTime();
-    } else {
-      series.update({ time: b, value: price });
-    }
+    if (!chart) return;
+    var t = Math.floor(Date.now() / 1000);
+    var last = all[all.length - 1];
+    if (last && t - last.t < 4) { last.usd = price; }
+    else { all.push({ t: t, usd: price }); }
+    if (all.length > 4000) all.shift();
+    render();
   }
 
   function paintMarkets(list) {
@@ -82,6 +121,7 @@
   function paintHeader(id, price, chg) {
     var meta = META[id] || { n: '', c: '#888', g: '?' };
     $('ppName').textContent = meta.n;
+    $('ppAboutT').textContent = 'About ' + meta.n;
     var badge = $('ppBadge');
     if (badge) {
       var c = badge.querySelector('circle');
@@ -163,10 +203,8 @@
     document.querySelectorAll('.pp-mk li').forEach(function (li) {
       li.classList.toggle('on', li.dataset.m === id);
     });
-    if (series) {
-      series.setData([]);
-      chart.priceScale('right').applyOptions({ autoScale: true });
-    }
+    all = [];
+    if (chart) { line.setData([]); candles.setData([]); }
     loadHistory();
     quote();
   }
@@ -176,6 +214,21 @@
 
     document.querySelectorAll('.pp-mk li[data-m]').forEach(function (li) {
       li.addEventListener('click', function () { pickMarket(li.dataset.m); });
+    });
+
+    var tools = document.querySelectorAll('.pp-tools button');
+    if (tools[0]) tools[0].addEventListener('click', function () { mode = 'line'; render(); });
+    if (tools[1]) tools[1].addEventListener('click', function () { mode = 'candles'; render(); });
+
+    document.querySelectorAll('.pp-tf2 button').forEach(function (b, i) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('.pp-tf2 button').forEach(function (x) { x.classList.remove('on'); });
+        b.classList.add('on');
+        days = [1, 1, 7, 30, 90][i] || 1;
+        all = [];
+        if (chart) { line.setData([]); candles.setData([]); }
+        loadHistory();
+      });
     });
 
     $('ppUp').addEventListener('click', function () {
