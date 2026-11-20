@@ -42,12 +42,11 @@
   function render() {
     if (!chart) return;
     if (mode === 'candles') {
-      line.applyOptions({ visible: false });
-      candles.applyOptions({ visible: true });
+      line.setData([]);
+      line.setMarkers([]);
       candles.setData(candlesFrom(all));
     } else {
-      candles.applyOptions({ visible: false });
-      line.applyOptions({ visible: true });
+      candles.setData([]);
       line.setData(all.map(function (p) { return { time: p.t, value: p.usd }; }));
       var tip = all[all.length - 1];
       if (tip) {
