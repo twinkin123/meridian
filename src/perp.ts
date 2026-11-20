@@ -6,7 +6,6 @@ export const MARKETS: Record<string, { id: string; name: string }> = {
   sol: { id: 'solana', name: 'Solana' },
   btc: { id: 'bitcoin', name: 'Bitcoin' },
   eth: { id: 'ethereum', name: 'Ethereum' },
-  jup: { id: 'jupiter-exchange-solana', name: 'Jupiter' },
 };
 
 export const MIN_STAKE = 1_000_000n;

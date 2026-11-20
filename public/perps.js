@@ -10,7 +10,6 @@
     sol: { n: 'Solana', c: '#14f195', g: 'S' },
     btc: { n: 'Bitcoin', c: '#f7931a', g: 'B' },
     eth: { n: 'Ethereum', c: '#627eea', g: 'E' },
-    jup: { n: 'Jupiter', c: '#c7f284', g: 'J' },
   };
 
   function usd(micro) { return (Number(micro) / 1e6).toFixed(2); }
@@ -96,7 +95,15 @@
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) {
         all = j && j.points ? j.points : [];
-        if (all.length) render();
+        if (all.length) { render(); return; }
+        fetch('/perps/series?market=' + market)
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (s) {
+            if (!s || !s.series) return;
+            all = s.series.map(function (p) { return { t: Math.floor(p.t / 1000), usd: p.usd }; });
+            if (all.length) render();
+          })
+          .catch(function () {});
       })
       .catch(function () {});
   }
@@ -121,6 +128,12 @@
       em.className = m.chg >= 0 ? 'up' : 'dn';
     });
   }
+
+  var DESC = {
+    sol: 'Solana is a high-throughput layer 1, built for cheap, fast transactions.',
+    btc: 'Bitcoin is the first and largest cryptocurrency, secured by proof-of-work.',
+    eth: 'Ethereum is the largest smart-contract network, secured by proof-of-stake.',
+  };
 
   function paintHeader(id, price, chg) {
     var meta = META[id] || { n: '', c: '#888', g: '?' };
