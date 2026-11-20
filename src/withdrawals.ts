@@ -14,7 +14,6 @@ import {
 import { pool, tx } from './db.js';
 import { post } from './ledger/post.js';
 import { ensure } from './ledger/accounts.js';
-import { combineHeld } from './locks.js';
 import { notify, notifyUser, usdStr } from './notify.js';
 import { treasuryKeypair, treasuryAddress, treasuryHeadroom } from './sweeps.js';
 import { solPriceMicro } from './price.js';
@@ -194,7 +193,7 @@ export async function approveWithdrawal(id: string, approver: string): Promise<A
     [id, userId],
   );
   if (r.rowCount === 0) return false;
-  return refundToReserve(id, 'cancelled', null, 'withdrawal_cancelled', 'Withdrawal cancelled');
+  return refundWithdrawal(id, 'cancelled', null, 'withdrawal_cancelled', 'Withdrawal cancelled');
 }
 type Conf = 'confirmed' | 'reverted' | 'expired' | 'timeout';
 
@@ -219,12 +218,13 @@ async function confirmSig(
 }
 
 /**
- * Puts a rejected, cancelled or failed withdrawal back into reserve - or back to
- * referral rewards if it came from there. The reserve is backed by a synthetic
- * held deposit row so the normal $10 combine path picks it up and re-locks it.
+ * Puts a rejected, cancelled or failed withdrawal straight back where it came
+ * from: referral rewards, or the available balance. Available money returns to
+ * available rather than to reserve, so cancelling does not reclassify profit as
+ * deposit money and does not start a fresh 30-day lock.
  * Terminal: the user re-requests rather than retrying in place.
  */
-async function refundToReserve(
+async function refundWithdrawal(
   id: string,
   final: 'failed' | 'cancelled',
   msg: string | null,
@@ -242,8 +242,8 @@ async function refundToReserve(
     const net = BigInt(w.usd_amount);
     const fee = BigInt(w.fee);
     const gross = net + fee;
-    const back = w.source === 'rewards' ? '2080' : '2050';
-    const where = w.source === 'rewards' ? 'your referral rewards' : 'reserve';
+    const back = w.source === 'rewards' ? '2080' : '2000';
+    const where = w.source === 'rewards' ? 'your referral rewards' : 'your available balance';
 
     await ensure(c, w.user_id);
     await c.query(`update withdrawals set status = $2, error = $3 where id = $1`, [
@@ -255,27 +255,17 @@ async function refundToReserve(
       { code: '4000', amount: fee },
     ]);
 
-    if (w.source !== 'rewards') {
-      await c.query(
-        `insert into deposits (user_id, sig, asset, qty, usd_at_det, status)
-         values ($1, $2, 'USDC', $3, $3, 'held')
-         on conflict (sig, user_id) do nothing`,
-        [w.user_id, `reserve:${id}`, gross.toString()],
-      );
-    }
-
     await notify(c, w.user_id, kind,
       `${label}. ${usdStr(gross)} USD returned to ${where}.` + (msg ? ` Reason: ${msg}` : ''));
     return w.user_id;
   });
 
-  if (out) await combineHeld(out).catch(() => undefined);
   return Boolean(out);
 }
 
-/** Admin rejects a pending withdrawal. The money goes back to reserve. */
+/** Admin rejects a pending withdrawal. The money goes back to the available balance. */
 export async function rejectWithdrawal(id: string, reason: string | null): Promise<boolean> {
-  return refundToReserve(id, 'failed', reason, 'withdrawal_rejected', 'Withdrawal rejected');
+  return refundWithdrawal(id, 'failed', reason, 'withdrawal_rejected', 'Withdrawal rejected');
 }
 async function finalize(
   id: string, sig: string, actionId: string, userId: string, address: string, usd: bigint, qty: bigint,
@@ -375,13 +365,13 @@ export async function payoutWithdrawal(
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'payout_failed';
       if (attempt === MAX_ATTEMPTS) {
-        await refundToReserve(id, 'failed', msg, 'withdrawal_failed', 'Withdrawal could not be sent');
+        await refundWithdrawal(id, 'failed', msg, 'withdrawal_failed', 'Withdrawal could not be sent');
         return { ok: false, error: msg, sig: lastAction ?? undefined };
       }
     }
   }
 
-  await refundToReserve(id, 'failed', 'not_confirmed_after_attempts', 'withdrawal_failed', 'Withdrawal could not be sent');
+  await refundWithdrawal(id, 'failed', 'not_confirmed_after_attempts', 'withdrawal_failed', 'Withdrawal could not be sent');
   return { ok: false, error: 'not_confirmed', sig: lastAction ?? undefined };
 }
 
