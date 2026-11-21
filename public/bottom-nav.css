@@ -513,3 +513,10 @@ html body #p-stake .st-wrap{padding:0!important}
 html body:has(#p-stake.panel.on) .main{padding-bottom:18px!important}
 html body #p-stake.panel.on{padding-bottom:16px!important;margin-bottom:0!important}
 html body #p-stake .st-side{margin-bottom:0!important}
+
+/* stake: contain the casing to the viewport */
+html body:has(#p-stake.panel.on) .main{overflow-x:hidden!important;padding-left:14px!important;padding-right:14px!important}
+html body #p-stake.panel.on{width:auto!important;max-width:none!important;box-sizing:border-box!important}
+html body #p-stake .st-wrap{width:100%!important;max-width:none!important;box-sizing:border-box!important}
+html body #p-stake .st-grid{grid-template-columns:1fr!important;width:100%!important;max-width:100%!important}
+html body #p-stake .st-wrap *,html body #p-stake .card{box-sizing:border-box!important;max-width:100%!important;min-width:0!important}
