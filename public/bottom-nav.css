@@ -507,3 +507,9 @@ html body:has(#p-stake.panel.on) .main{padding-bottom:0!important}
 /* stake: top and bottom match the dashboard */
 html body #p-stake.panel.on{margin-top:14px!important}
 html body:has(#p-stake.panel.on) .main{padding-bottom:34px!important}
+
+/* stake: foot spacing matches the dash */
+html body #p-stake .st-wrap{padding:0!important}
+html body:has(#p-stake.panel.on) .main{padding-bottom:18px!important}
+html body #p-stake.panel.on{padding-bottom:16px!important;margin-bottom:0!important}
+html body #p-stake .st-side{margin-bottom:0!important}
