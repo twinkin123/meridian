@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-const BASE = 'https://frontend-api-v3.pump.fun/coins';
+const HOSTS = ['https://frontend-api-v3.pump.fun/coins', 'https://frontend-api-v2.pump.fun/coins'];
 const TTL = 8000;
 
 type Coin = Record<string, any>;
@@ -8,13 +8,32 @@ type Coin = Record<string, any>;
 let cache: { at: number; data: unknown } | null = null;
 let busy: Promise<unknown> | null = null;
 
-async function get(q: Record<string, string>): Promise<Coin[]> {
-  const u = new URL(BASE);
+const H: Record<string, string> = {
+  accept: 'application/json',
+  'accept-language': 'en-US,en;q=0.9',
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  referer: 'https://pump.fun/',
+  origin: 'https://pump.fun',
+  'sec-fetch-dest': 'empty',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-site': 'same-site',
+};
+
+async function fetchAt(base: string, q: Record<string, string>): Promise<Coin[]> {
+  const u = new URL(base);
   for (const [k, v] of Object.entries(q)) u.searchParams.set(k, v);
   u.searchParams.set('includeNsfw', 'true');
-  const r = await fetch(u, { headers: { accept: 'application/json', 'user-agent': 'meridian-pulse' } });
-  if (!r.ok) throw new Error('pump ' + r.status);
+  const r = await fetch(u, { headers: H });
+  if (!r.ok) throw new Error(r.status + ' @ ' + new URL(base).host);
   return (await r.json()) as Coin[];
+}
+
+async function get(q: Record<string, string>): Promise<Coin[]> {
+  let last = '';
+  for (const h of HOSTS) {
+    try { return await fetchAt(h, q); } catch (e) { last = e instanceof Error ? e.message : String(e); }
+  }
+  throw new Error(last || 'no_host');
 }
 
 function shape(c: Coin) {
@@ -61,8 +80,8 @@ pulse.get('/', async (_req, res) => {
         .finally(() => { busy = null; });
     }
     res.json(await busy);
-  } catch {
+  } catch (e) {
     if (cache) { res.json(cache.data); return; }
-    res.status(502).json({ error: 'feed_down' });
+    res.status(502).json({ error: 'feed_down', detail: e instanceof Error ? e.message : String(e) });
   }
 });

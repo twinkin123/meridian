@@ -15,7 +15,7 @@ h1{font-size:20px;margin:0;letter-spacing:-.2px}
 .pill b{color:var(--up)}
 .back{margin-left:auto;color:var(--dim);text-decoration:none;font-size:13px}
 .back:hover{color:var(--txt)}
-.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);min-height:calc(100vh - 62px)}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);align-items:start}
 .col{background:var(--bg);min-width:0}
 .ch{display:flex;align-items:center;gap:8px;padding:11px 12px;border-bottom:1px solid var(--line);position:sticky;top:62px;background:var(--bg);z-index:4}
 .ch b{font-size:13px;font-weight:600}
@@ -109,7 +109,7 @@ function tick(){
     .then(function(r){ return r.json(); })
     .then(function(d){
       if(mine!==seq) return;
-      if(d.error){ document.getElementById('stat').innerHTML='feed down'; return; }
+      if(d.error){ document.getElementById('stat').textContent='feed down: '+(d.detail||'?'); return; }
       fill('new','n-new',d.fresh);
       fill('stretch','n-str',d.stretch);
       fill('migrating','n-mig',d.migrating);
