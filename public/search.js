@@ -37,18 +37,8 @@
   });
 
   function align() {
-    var card = document.querySelector('.main .panel.on .card') || document.querySelector('.main .card');
-    if (!card) return;
-    if (!card.getBoundingClientRect().width) return;
-    if (window.matchMedia('(max-width:900px)').matches) {
-      box.style.removeProperty('left');
-      box.style.removeProperty('right');
-      return;
-    }
-    var r = card.getBoundingClientRect();
-    var w = document.documentElement.clientWidth;
-    box.style.setProperty('left', (Math.round(r.left) - 10) + 'px', 'important');
-    box.style.setProperty('right', Math.round(w - r.right) + 'px', 'important');
+    box.style.removeProperty('left');
+    box.style.removeProperty('right');
   }
   align();
   window.addEventListener('resize', align);
