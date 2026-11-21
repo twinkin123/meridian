@@ -28,8 +28,15 @@ html body .shell{margin-top:0!important}
 html body > .tickers{margin-bottom:14px!important}
 @media (max-width:980px){html body .main{padding-top:6px!important}}
 
-/* value card: gap above the casing, card flush inside it */
+/* value card: gap above the casing, card flush, top-left round corner blacked out */
 @media (max-width:980px){
-html body .main .panel.on{margin-top:34px!important}
-html body .main .panel.on > .grid > div > .card.rainbow{margin:0!important}
+html body .main .panel.on{margin-top:34px!important;position:relative!important}
+html body .main .panel.on > .grid > div > .card.rainbow{margin:0!important;position:relative!important;z-index:1!important}
+html body .main .panel.on::after{
+  content:""!important;position:absolute!important;
+  top:0!important;left:0!important;
+  width:20px!important;height:20px!important;
+  background:#000!important;border-radius:0!important;
+  z-index:3!important;pointer-events:none!important;
+}
 }
