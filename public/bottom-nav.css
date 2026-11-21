@@ -439,3 +439,8 @@ html body #p-dash .ref-stats > div b{color:#fff!important}
 
 /* dash: ref controls black with the deposit btn purple glow */
 html body #p-dash .ref-stats > div,html body #p-dash .addr code,html body #p-dash .addr .btn,html body #p-dash #rwOut{background:#000!important;background-image:none!important;border:1px solid #2b2d33!important;box-shadow:0 0 22px -6px rgba(139,92,246,.75),0 0 44px -20px rgba(139,92,246,.55)!important}
+
+/* withdraw: no boxes, both buttons identical */
+html body .wd-card,html body .wd-card .field,html body .wd-card .msg,html body .wd-card #capLine,html body .wd-card #feeLine,html body .wd-foot{border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important}
+html body .wd-card .field input,html body .wd-card .field select{background:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important;padding-left:0!important;padding-right:0!important}
+html body #wSubmit,html body #wAll{background:#000!important;background-image:none!important;border:1px solid #2b2d33!important;border-radius:9px!important;color:#fff!important;font-weight:600!important;text-shadow:none!important;box-shadow:0 0 22px -6px rgba(139,92,246,.75),0 0 44px -20px rgba(139,92,246,.55)!important}
