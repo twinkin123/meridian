@@ -771,3 +771,7 @@ html body .main .pp-pos .pp-tbl table{min-width:0!important;width:100%!important
 html body .main .pp-pos .pp-tbl th,html body .main .pp-pos .pp-tbl td{padding-left:6px!important;padding-right:6px!important}
 html body .main .pp-pos .pp-tbl .sx{background:transparent!important;border:1px solid #8b5cf6!important;color:#e9e4ff!important;border-radius:8px!important;padding:5px 11px!important;font:inherit!important;font-size:11px!important;line-height:1.3!important;cursor:pointer!important;white-space:nowrap!important}
 html body .main .pp-pos .pp-tbl .sx:hover{background:rgba(139,92,246,.14)!important}
+
+html body .main .pp-pos .pp-tbl .pp-side.l{color:#28e664!important;background:rgba(40,230,100,.14)!important}
+html body .main .pp-pos .pp-tbl .pp-side.s{color:#ff7a6e!important;background:rgba(255,122,110,.14)!important}
+html body .main .pp-pos .pp-tbl .pp-side{font-size:10px!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:.04em!important;padding:2px 7px!important;border-radius:5px!important}
