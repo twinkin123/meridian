@@ -11,6 +11,9 @@ export const MARKETS: Record<string, { id: string; name: string }> = {
 export const MIN_STAKE = 1_000_000n;
 export const MAX_STAKE = 10_000_000n;
 
+/** Fee per side, as a divisor of stake: 10%, i.e. 2bp of notional at 500x and 1bp at 1000x. */
+export const FEE_DIV = 10n;
+
 type Mark = { usd: number; chg: number };
 
 let cache: { at: number; data: Record<string, Mark> } | null = null;
@@ -143,7 +146,7 @@ export async function open(
   if (stake > MAX_STAKE) return { ok: false, error: 'above_max' };
   if (!Number.isFinite(leverage) || leverage < 500 || leverage > 1000) return { ok: false, error: 'bad_leverage' };
 
-  const fee = stake / 200n;
+  const fee = stake / FEE_DIV;
 
   const entry = await markOfNow(market);
   const notional = Number(stake) / 1e6 * leverage;
@@ -196,12 +199,22 @@ async function settle(
   const stake = BigInt(p.stake);
   /* A liquidation can gap past zero; the stake is the floor of the loss. */
   if (pnl < -stake) pnl = -stake;
-  const openFee = stake / 200n;
+  /* Read the fee actually posted, so a position opened under an older rate still settles at the rate it paid. */
+  const feeRow = await c.query<{ s: string }>(
+    `select coalesce(sum(p.amount),0)::text s
+       from postings p
+       join transactions t on t.id = p.tx_id
+       join accounts a on a.id = p.account_id
+      where t.kind = 'PerpFee' and t.external_ref = $1 and a.code = '2000'`,
+    [p.id],
+  );
+  const openFee = BigInt(feeRow.rows[0]?.s ?? '0');
   let back = stake + pnl;
-  if (back < 0n) back = 0n;
-  /* Close fee: 0.5% of what they actually get back. */
-  if (status === 'closed') { back -= back / 200n; if (back < 0n) back = 0n; }
-  if (back < 0n) back = 0n;
+  /* Close fee: 10% of stake, capped at the proceeds. A liquidation pays none. */
+  if (status === 'closed') {
+    const cf = stake / FEE_DIV;
+    back -= cf < back ? cf : back;
+  }
 
   await c.query(
     `update perp_positions

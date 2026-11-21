@@ -179,7 +179,14 @@
     $('ppMult').textContent = lev + 'x';
   }
 
+  /* Round trip: 10% of stake each way. */
+  function paintFee() {
+    var el = $('ppFee');
+    if (el) el.textContent = money(stake / 5);
+  }
+
   function arm() {
+    paintFee();
     $('ppPlace').disabled = busy || !stake || stake < 1 || stake > 10;
     $('ppPlace').textContent = busy ? 'Placing...' : 'Place Trade';
   }

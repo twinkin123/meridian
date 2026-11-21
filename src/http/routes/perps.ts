@@ -66,7 +66,7 @@ perps.post('/open', async (req, res) => {
     const msg: Record<string, string> = {
       below_min: 'Minimum stake is $1.',
       above_max: 'Maximum stake is $10.',
-      insufficient: 'Not enough available balance.',
+      insufficient: 'Not enough available balance for stake plus fee.',
       bad_leverage: 'Leverage must be 500x-1000x.',
       unknown_market: 'Unknown market.',
     };
