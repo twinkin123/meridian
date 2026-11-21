@@ -275,3 +275,14 @@ html body #p-perps.panel.on{padding:9px 15px 14px!important}
 html body #p-perps.panel.on .pp-dir button.on{background:#16c784!important;background-image:none!important;color:#04120a!important}
 html body #p-perps.panel.on .pp-dir button:last-child.on{background:#ef4b3f!important;color:#fff!important}
 }
+
+
+
+/* black pass 9: one bright green across every green accent */
+@media (max-width:980px){
+html body #p-perps.panel.on .pp-dir button.on{background:#1ee08a!important;background-image:none!important;color:#04120a!important}
+html body #p-perps.panel.on .pp-tf2 button.on{background:#1ee08a!important;background-image:none!important;border-color:#1ee08a!important;color:#04120a!important}
+html body #p-perps.panel.on .pp-ticket > button{background:#1ee08a!important;background-image:none!important;color:#04120a!important}
+html body #p-perps.panel.on .pp-side.l{color:#1ee08a!important;border-color:rgba(30,224,138,.55)!important}
+html body #p-perps.panel.on .pp-grad{background-image:linear-gradient(90deg,#1ee08a,#c8d13a,#e8a33d,#ef4b3f)!important}
+}
