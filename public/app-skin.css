@@ -755,3 +755,9 @@ html body .main .pp-line #ppChart{right:0!important}
 html body .main .pp-pos{flex:0 0 auto!important;height:372px!important;overflow:hidden!important}
 html body .main .pp-pos .pp-tbl{max-height:250px!important;overflow-y:auto!important}
 html body .main .pp-pos .pp-empty{display:block!important}
+
+html body .main .pp-pos{flex:0 0 192px!important;height:192px!important;min-height:192px!important;max-height:192px!important}
+html body .main .pp-pos .pp-tbl{max-height:120px!important;overflow-y:auto!important}
+html body .main .pp-chart-card{flex:1 1 auto!important;min-height:0!important}
+html body .main .pp-line{flex:1 1 auto!important;min-height:0!important}
+html body .main .pp-about{flex:none!important}
