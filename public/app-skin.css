@@ -779,10 +779,16 @@ html body .main .pp-pos .pp-tbl .pp-side{font-size:10px!important;font-weight:60
 html body .main .pp-pos .pp-tbl .pp-liqcell{color:#ff7a6e!important;font-variant-numeric:tabular-nums!important;white-space:nowrap!important}
 
 /* clip without making body a scroll container, so .top can stick */
-html body{overflow-x:clip!important}
+html body{overflow:clip!important}
 
 /* header: pinned out of flow, so no scroll or overlay can displace it */
 @media (min-width:901px){
   html body .top{position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:60!important}
   html body{padding-top:60px!important}
+}
+
+/* body must never be a scroll container: .main and .side are the scrollers */
+html body{overflow:clip!important}
+@media (min-width:901px){
+  html body{height:100vh!important;max-height:100vh!important}
 }
