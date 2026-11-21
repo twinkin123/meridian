@@ -552,3 +552,11 @@ html body #p-stake.panel.on{padding-bottom:6px!important}
 html body #p-stake .st-side{padding-bottom:8px!important}
 html body #p-stake .st-side .calc-tot{margin-bottom:0!important;padding-bottom:0!important}
 }
+
+@media (max-width:980px){
+html body #p-stake .st-grid{align-items:start!important;grid-auto-rows:auto!important}
+html body #p-stake .st-side{height:auto!important;align-self:start!important}
+html body #p-stake .st-main{height:auto!important}
+html body #p-stake.panel.on{padding-bottom:16px!important}
+html body #p-stake .st-side{padding-bottom:16px!important}
+}
