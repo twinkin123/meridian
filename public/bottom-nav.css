@@ -644,3 +644,7 @@ html body .wd-overlay .wd-sheet .wd-head,html body .wd-overlay .wd-sheet .wd-hea
 html body .dep-overlay .dep-sheet .dep-warn{display:block!important;background:#000!important;background-color:#000!important;background-image:none!important;border:1px solid rgba(224,183,106,.8)!important;border-radius:9px!important;padding:10px 12px!important;color:#e0b76a!important;box-shadow:none!important}
 /* wd: amber casing around the warning box */
 html body .wd-overlay .wd-sheet .wd-foot{display:block!important;background:#000!important;background-color:#000!important;background-image:none!important;border:1px solid rgba(224,183,106,.8)!important;border-radius:9px!important;padding:10px 12px!important;color:#e0b76a!important;box-shadow:none!important}
+/* wd: address, asset and amount pills match the buttons */
+html body #wAddr,html body #wAsset,html body #wUsd{background:#000!important;background-color:#000!important;background-image:none!important;border:1px solid #2b2d33!important;border-radius:9px!important;color:#f2f3f5!important;font-size:13px!important;font-weight:500!important;padding:12px 16px!important;box-shadow:0 0 22px -6px rgba(139,92,246,.75),0 0 44px -20px rgba(139,92,246,.55)!important}
+html body #wAddr::placeholder,html body #wUsd::placeholder{color:rgba(255,255,255,.45)!important}
+html body #wAddr:focus,html body #wAsset:focus,html body #wUsd:focus{border-color:rgba(139,92,246,.6)!important;outline:none!important;box-shadow:0 0 22px -6px rgba(139,92,246,.75),0 0 44px -20px rgba(139,92,246,.55)!important}
