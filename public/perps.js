@@ -185,6 +185,7 @@
   }
 
   var liqSeries = null, openLiqs = [], liqLines = [], liqAnchors = [];
+  var tab = 'pos', lastPos = [], lastHist = [];
   var openCount = 0;
 
   /* One price line per open position in this market. Each gets its own series
@@ -280,7 +281,8 @@
         }
         if (o.j.error) { $('ppEmpty').hidden = false; $('ppEmpty').textContent = o.j.error; }
         $('ppAvail').textContent = usd(o.j.available);
-        renderRows(o.j.positions || []); openCount = (o.j.positions || []).length; setLiq(o.j.positions); quote();
+        lastPos = o.j.positions || []; lastHist = o.j.history || [];
+        openCount = (o.j.positions || []).length; setLiq(o.j.positions); paintRows(); quote();
       })
       .catch(function (e) {
         $('ppAvail').textContent = '--';
@@ -291,6 +293,7 @@
 
   function renderRows(rows) {
     $('ppEmpty').hidden = rows.length > 0;
+    $('ppEmpty').textContent = 'No open positions yet.';
     $('ppRows').innerHTML = rows.map(function (p) {
       var pnl = Number(p.pnl) / 1e6;
       return '<tr><td><b>' + p.market.toUpperCase() + '-PERP</b></td>' +
@@ -304,6 +307,35 @@
         (pnl >= 0 ? '+' : '-') + '$' + Math.abs(pnl).toFixed(2) + '</td>' +
         '<td><button class="sx" data-close="' + p.id + '" type="button">Close</button></td></tr>';
     }).join('');
+  }
+
+  function headers() {
+    $('ppHead').innerHTML = tab === 'pos'
+      ? '<tr><th>Market</th><th>Side</th><th>Size</th><th>Entry</th><th>Mark</th><th>Liq</th><th>PnL</th><th></th></tr>'
+      : '<tr><th>Market</th><th>Side</th><th>Size</th><th>Entry</th><th>Exit</th><th>PnL</th><th>Result</th></tr>';
+  }
+
+  function renderHist(rows) {
+    $('ppEmpty').hidden = rows.length > 0;
+    $('ppEmpty').textContent = 'No closed trades yet.';
+    $('ppRows').innerHTML = rows.map(function (p) {
+      var pnl = Number(p.pnl) / 1e6;
+      var liq = p.status === 'liquidated';
+      return '<tr><td><b>' + p.market.toUpperCase() + '-PERP</b></td>' +
+        '<td><span class="pp-side ' + (p.side === 'long' ? 'l' : 's') + '">' +
+        (p.side === 'long' ? 'Long' : 'Short') + '</span></td>' +
+        '<td>' + p.leverage + 'x</td>' +
+        '<td>' + money(Number(p.entry)) + '</td>' +
+        '<td>' + money(Number(p.exit_price)) + '</td>' +
+        '<td class="' + (pnl >= 0 ? 'g' : 'dn') + '">' +
+        (pnl >= 0 ? '+' : '-') + '$' + Math.abs(pnl).toFixed(2) + '</td>' +
+        '<td>' + (liq ? '<span class="pp-side s">Liq</span>' : 'Closed') + '</td></tr>';
+    }).join('');
+  }
+
+  function paintRows() {
+    if (tab === 'hist') { renderHist(lastHist); return; }
+    renderRows(lastPos);
   }
 
   function tick() {
