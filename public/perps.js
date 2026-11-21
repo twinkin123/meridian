@@ -22,6 +22,17 @@
 
   function step() { return days === 0 ? 1 : days === 1 ? 60 : days <= 30 ? 3600 : 86400; }
 
+  /* One point per 5s bucket, last value wins, so tick jitter does not draw. */
+  function smooth(list) {
+    var b = 5, out = [], cur = -1;
+    for (var i = 0; i < list.length; i++) {
+      var k = Math.floor(list[i].t / b);
+      if (k !== cur) { out.push({ t: k * b, usd: list[i].usd }); cur = k; }
+      else { out[out.length - 1].usd = list[i].usd; }
+    }
+    return out;
+  }
+
   /* autoSize drifts after the card resizes, leaving the plot on a stale
      canvas. Size the chart to the box explicitly instead. */
   var lastW = 0, lastH = 0;
@@ -55,14 +66,15 @@
   function render() {
     if (!chart) return;
     fitChart();
+    var pts = smooth(all);
     if (mode === 'candles') {
       line.setData([]);
       line.setMarkers([]);
       candles.setData(candlesFrom(all));
     } else {
       candles.setData([]);
-      line.setData(all.map(function (p) { return { time: p.t, value: p.usd }; }));
-      var tip = all[all.length - 1];
+      line.setData(pts.map(function (p) { return { time: p.t, value: p.usd }; }));
+      var tip = pts[pts.length - 1];
       if (tip) {
         line.setMarkers([{ time: tip.t, position: 'inBar', shape: 'circle', color: '#28e664', size: 1 }]);
       }
@@ -71,7 +83,7 @@
     paintLiq();
     chart.timeScale().fitContent();
     paintLiq();
-    var m = all.length;
+    var m = pts.length;
     if (m > 1) chart.timeScale().setVisibleLogicalRange({ from: 0, to: m + 5 });
     if (mode === 'candles') {
       var n = candlesFrom(all).length;
