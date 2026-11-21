@@ -375,9 +375,12 @@ html body .dep-sheet .dep-x{position:static!important}
 
 
 
-/* popouts grey: deposit and withdraw surfaces off black */
+/* popouts grey: lighter surfaces, no stray frames, no safe line */
 html body .dep-sheet,html body .dep-sheet *,
-html body .wd-sheet,html body .wd-sheet *{background-color:#16161d!important}
+html body .wd-sheet,html body .wd-sheet *{background-color:#2a2a33!important}
 html body .dep-sheet .dep-qr,html body .dep-sheet .dep-addr code,html body .dep-sheet .dep-copy,
-html body .wd-sheet .wd-addr code,html body .wd-sheet .wd-copy{background-color:#1c1c25!important}
+html body .wd-sheet .wd-addr code,html body .wd-sheet .wd-copy{background-color:#34343f!important}
+html body .dep-sheet .dep-addr,html body .dep-sheet .dep-status,
+html body .wd-sheet .wd-addr,html body .wd-sheet .wd-status{border:0!important;background:transparent!important}
+html body .dep-sheet .dep-safe,html body .wd-sheet .wd-safe{display:none!important}
 html body .dep-overlay,html body .wd-overlay{background:rgba(10,10,14,.72)!important}
