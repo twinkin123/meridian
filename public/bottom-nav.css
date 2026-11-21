@@ -632,3 +632,6 @@ html body .dep-sheet .dep-quote:empty{display:none!important}
 /* dep: warn line also sits on the sheet grey */
 html body .dep-sheet .dep-warn{background:#2a2a33!important;background-image:none!important;border:0!important;box-shadow:none!important;color:#e0b76a!important}
 html body .dep-sheet .dep-warn:empty{display:none!important}
+/* popouts: black sheet, blended lines follow it */
+html body .dep-sheet,html body .dep-sheet *,html body .wd-sheet,html body .wd-sheet *{background-color:#000!important;background-image:none!important}
+html body .dep-sheet .dep-quote,html body .dep-sheet .dep-status,html body .dep-sheet .dep-warn{background:#000!important}
