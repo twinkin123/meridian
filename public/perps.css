@@ -344,3 +344,5 @@ html body .main .pp-line{margin:12px 0 0 -16px!important;padding-right:56px!impo
 html body .main #ppChart{left:0!important;right:0!important;width:100%!important}
 
 html body .main .pp-line{padding-right:104px!important}
+
+html body .main #ppChart{left:0!important;right:104px!important;width:auto!important}
