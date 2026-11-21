@@ -406,3 +406,9 @@ html body .dep-sheet .dep-lg{background:rgba(255,255,255,.07)!important}
 
 /* dep text: no grey boxes behind labels */
 html body .dep-sheet .dep-lbl,html body .dep-sheet .dep-cur,html body .dep-sheet .dep-group,html body .dep-sheet .dep-opt .s,html body .dep-sheet .dep-opt .n,html body .dep-sheet .dep-head h2,html body .dep-sheet .dep-x,html body .dep-sheet .dep-hint,html body .dep-sheet .dep-quote,html body .dep-sheet .dep-status,html body .dep-sheet .dep-warn,html body .dep-sheet .dep-addr code span{background:transparent!important;background-image:none!important}
+
+/* dash: no wrapper boxes on stats, ref link, ref stats */
+html body #p-dash .stats{border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;padding:0!important}
+html body #p-dash .addr{border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;padding:0!important}
+html body #p-dash .addr code{background:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important}
+html body #p-dash .ref-stats > div{border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;padding:0!important}
