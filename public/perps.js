@@ -154,12 +154,42 @@
     $('ppPlace').textContent = busy ? 'Placing...' : 'Place Trade';
   }
 
+  var liqLines = [];
+  function drawLiq(liq) {
+    liqLines.forEach(function (p) { try { p.s.removePriceLine(p.l); } catch (_) {} });
+    liqLines = [];
+    if (!liq || typeof LightweightCharts === 'undefined') return;
+    [line, candles].forEach(function (s) {
+      if (!s) return;
+      try {
+        liqLines.push({
+          s: s,
+          l: s.createPriceLine({
+            price: liq,
+            color: '#f0476a',
+            lineWidth: 1,
+            lineStyle: LightweightCharts.LineStyle.Dashed,
+            axisLabelVisible: true,
+            title: 'Liq',
+          }),
+        });
+      } catch (_) {}
+    });
+  }
+
   function quote() {
     fetch('/perps/quote?market=' + market + '&side=' + side + '&leverage=' + lev)
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (q) {
-        if (!q) { $('ppLiq').textContent = 'Liq. --'; $('ppLiq').style.color = ''; return; }
-        $('ppLiq').textContent = 'Liq. ' + money(q.liq); $('ppLiq').style.color = '#f0476a';
+        if (!q) {
+          $('ppLiq').textContent = 'Liq. --';
+          $('ppLiq').style.color = '';
+          drawLiq(null);
+          return;
+        }
+        $('ppLiq').textContent = 'Liq. ' + money(q.liq);
+        $('ppLiq').style.color = '#f0476a';
+        drawLiq(q.liq);
       })
       .catch(function () {});
   }

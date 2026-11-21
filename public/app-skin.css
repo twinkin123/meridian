@@ -744,3 +744,6 @@ html body #claimBtn, html body #rwOut{
 
 .top .brand,.top .brand:focus,.top .brand:focus-visible,.topbar .brand:focus{outline:none!important;box-shadow:none!important}
 .top .brand-mark{flex:none!important;line-height:1!important;text-align:center!important}
+
+.pp-pos .pp-tbl{max-height:190px!important;overflow-y:auto!important}
+.pp-pos .pp-tbl thead th{position:sticky!important;top:0!important;background:var(--panel)!important;z-index:1!important}
