@@ -428,3 +428,11 @@ html body #p-dash .ref-stats > div{padding:9px 12px!important;font-size:12.5px!i
 html body #p-dash .addr code{padding:10px 12px!important;font-size:12px!important}
 html body #p-dash .addr .btn{padding:9px 15px!important;font-size:12.5px!important}
 html body #p-dash .ref-stats > div .lbl{color:rgba(191,230,255,.6)!important;text-shadow:none!important}
+
+/* dash: ref controls match the deposit btn */
+html body #p-dash .ref-stats > div,html body #p-dash .addr code,html body #p-dash .addr .btn,html body #p-dash #rwOut{background:#17181b!important;background-image:none!important;border:1px solid #2b2d33!important;border-radius:9px!important;color:#f2f3f5!important;font-weight:500!important;font-size:13px!important;text-shadow:none!important;box-shadow:none!important}
+html body #p-dash .ref-stats > div{padding:12px 14px!important}
+html body #p-dash .addr code{padding:12px 13px!important;font-size:12px!important}
+html body #p-dash .addr .btn{padding:12px 18px!important}
+html body #p-dash .ref-stats > div .lbl{color:#b3b5bd!important;text-shadow:none!important}
+html body #p-dash .ref-stats > div b{color:#fff!important}
