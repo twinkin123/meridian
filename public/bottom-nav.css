@@ -629,3 +629,6 @@ html body .dep-sheet .dep-opt:hover{background:#0c0c10!important;border-color:#3
 /* dep: quote and status sit on the sheet grey, no pill */
 html body .dep-sheet .dep-quote,html body .dep-sheet .dep-status{background:#2a2a33!important;background-image:none!important;border:0!important;box-shadow:none!important;color:#f2f3f5!important}
 html body .dep-sheet .dep-quote:empty{display:none!important}
+/* dep: warn line also sits on the sheet grey */
+html body .dep-sheet .dep-warn{background:#2a2a33!important;background-image:none!important;border:0!important;box-shadow:none!important;color:#e0b76a!important}
+html body .dep-sheet .dep-warn:empty{display:none!important}
