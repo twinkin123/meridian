@@ -671,3 +671,5 @@ html body #p-stake .st-main{padding-bottom:22px!important}
 html body #p-stake .st-side{padding-bottom:22px!important}
 html body #p-stake.panel.on{padding-bottom:18px!important}
 }
+/* wd: asset select glow, filter only since select ignores box-shadow */
+html body .wd-overlay .wd-sheet #wAsset,html body .wd-overlay .wd-sheet #wAsset:focus{filter:drop-shadow(0 0 9px rgba(139,92,246,.42)) drop-shadow(0 0 20px rgba(139,92,246,.26))!important;border-color:#2b2d33!important}
