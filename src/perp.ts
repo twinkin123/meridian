@@ -1,6 +1,6 @@
 import { one, tx } from './db.js';
 import { available } from './ledger/balances.js';
-import { post } from './ledger/post.js';
+import { post, type Leg } from './ledger/post.js';
 
 export const MARKETS: Record<string, { id: string; name: string }> = {
   sol: { id: 'solana', name: 'Solana' },
@@ -179,12 +179,15 @@ async function settle(
     [p.id, status, mark, pnl.toString()],
   );
 
-  if (back > 0n) {
-    await post(c, status === 'liquidated' ? 'PerpLiquidated' : 'PerpClose', p.id, [
-      { code: '2000', owner: p.user_id, amount: -back },
-      { code: '2100', amount: back },
-    ]);
-  }
+  /* Release the whole house obligation (stake + fee) and book the result:
+     whatever the user does not get back is revenue, anything above is expense. */
+  const obligation = stake + fee;
+  const legs: Leg[] = [{ code: '2100', amount: obligation }];
+  if (back > 0n) legs.push({ code: '2000', owner: p.user_id, amount: -back });
+  const result = obligation - back;
+  if (result > 0n) legs.push({ code: '4000', amount: -result });
+  else if (result < 0n) legs.push({ code: '5020', amount: -result });
+  await post(c, status === 'liquidated' ? 'PerpLiquidated' : 'PerpClose', p.id, legs);
 }
 
 export type CloseResult = { ok: true; pnl: bigint } | { ok: false; error: string };

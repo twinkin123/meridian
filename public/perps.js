@@ -168,7 +168,7 @@
     fetch('/perps/state')
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (s) {
-        if (!s) return;
+        if (!s) { $('ppAvail').textContent = '--'; return; }
         $('ppAvail').textContent = usd(s.available);
         renderRows(s.positions || []);
       })
@@ -287,9 +287,9 @@
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ market: market, side: side, stake: String(stake * 1e6), leverage: lev }),
       })
-        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (r) { return r.text().then(function (t) { var j = {}; try { j = JSON.parse(t); } catch (_) {} return { ok: r.ok, status: r.status, j: j }; }); })
         .then(function (o) {
-          if (!o.ok) $('ppEmpty').textContent = o.j.message || 'Could not place.';
+          if (!o.ok) { $('ppEmpty').hidden = false; $('ppEmpty').textContent = o.j.message || 'Could not place (' + o.status + ').'; }
           loadState();
         })
         .catch(function () {})
