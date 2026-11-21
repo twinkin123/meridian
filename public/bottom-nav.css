@@ -467,3 +467,7 @@ html body .wd-foot{background:#1c1c22!important;background-image:none!important;
 /* withdraw: fields take the request button shape */
 html body .wd-card .field input,html body .wd-card .field select{background:#1c1c22!important;background-image:none!important;border:1px solid #2b2d33!important;border-radius:9px!important;color:#fff!important;box-shadow:none!important;padding:12px 16px!important}
 html body .wd-card .field input:focus,html body .wd-card .field select:focus{border-color:rgba(139,92,246,.6)!important;border-radius:9px!important;outline:none!important;box-shadow:none!important}
+
+/* withdraw: fields filled #34343e */
+html body .wd-card .field input,html body .wd-card .field select{background:#34343e!important;background-image:none!important}
+html body .wd-card .field input::placeholder{color:rgba(255,255,255,.45)!important}
