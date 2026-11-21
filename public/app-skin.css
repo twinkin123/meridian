@@ -358,26 +358,22 @@ table.res th{padding-right:9px}
   border:0!important;
   border-radius:0!important;
   background:linear-gradient(115deg,#7c5cff,#22d3ee,#2fd48a,#eab308,#f97316,#ef4444)!important;
-  clip-path:polygon(24px 0,100% 0,100% calc(100% - 24px),calc(100% - 24px) 100%,0 100%,0 24px);
-}
+  }
 .rainbow::before{
   content:"";position:absolute;inset:1px;
   background:var(--panel);
-  clip-path:polygon(23px 0,100% 0,100% calc(100% - 23px),calc(100% - 23px) 100%,0 100%,0 23px);
-}
+  }
 .rainbow > *{position:relative;z-index:1}
 .rainbow{
   position:relative!important;
   border:0!important;
   border-radius:0!important;
   background:linear-gradient(115deg,#7c5cff,#22d3ee,#2fd48a,#eab308,#f97316,#ef4444)!important;
-  clip-path:polygon(24px 0,100% 0,100% calc(100% - 24px),calc(100% - 24px) 100%,0 100%,0 24px);
-}
+  }
 .rainbow::before{
   content:"";position:absolute;inset:1px;
   background:var(--panel);
-  clip-path:polygon(23px 0,100% 0,100% calc(100% - 23px),calc(100% - 23px) 100%,0 100%,0 23px);
-}
+  }
 .rainbow > *{position:relative;z-index:1}
 .top-right #logout{background:#6d3bf5;border-color:#6d3bf5;color:#fff;font-weight:600}
 .top-right #logout:hover{background:#7d4dff;border-color:#7d4dff;color:#fff}
