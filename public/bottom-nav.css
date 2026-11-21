@@ -637,3 +637,6 @@ html body .dep-sheet,html body .dep-sheet *,html body .wd-sheet,html body .wd-sh
 html body .dep-sheet .dep-quote,html body .dep-sheet .dep-status,html body .dep-sheet .dep-warn{background:#000!important}
 /* dep: qr frame black */
 html body .dep-sheet .dep-qr{background:#000!important;background-image:none!important;border:0!important;box-shadow:none!important}
+/* popouts: head black, specificity above the grey block */
+html body .dep-overlay .dep-sheet .dep-head,html body .dep-overlay .dep-sheet .dep-head h2{background:#000!important;background-color:#000!important;background-image:none!important;border:0!important;box-shadow:none!important}
+html body .wd-overlay .wd-sheet .wd-head,html body .wd-overlay .wd-sheet .wd-head h2{background:#000!important;background-color:#000!important;background-image:none!important;border:0!important;box-shadow:none!important}
