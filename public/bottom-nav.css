@@ -37,42 +37,59 @@ html body .main .panel.on > .grid > div > .card.rainbow{filter:drop-shadow(0 6px
 html body:has(#p-perps.panel.on) .main{display:flex!important;flex-direction:column!important;min-height:0!important;overflow:hidden!important;padding:10px 14px!important}
 html body:has(#p-perps.panel.on) .main > .grid,
 html body:has(#p-perps.panel.on) .main > .grid > div{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;width:100%!important;height:100%!important;padding:0!important;margin:0!important}
+
 html body #p-perps.panel.on{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;height:auto!important;margin:0!important;padding:8px 10px!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;background:#0a0c0a!important;overflow:hidden!important}
-html body #p-perps.panel.on *{position:static!important;inset:auto!important;grid-area:auto!important;grid-row:auto!important;grid-column:auto!important;min-height:0!important;max-height:none!important;height:auto!important}
-html body #p-perps.panel.on .card{border:0!important;outline:0!important;box-shadow:none!important;border-radius:0!important;background:transparent!important;margin:0!important;padding:0!important;filter:none!important;flex:1 1 auto!important;display:flex!important;flex-direction:column!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important}
-html body #p-perps.panel.on .card::-webkit-scrollbar{display:none!important}
-html body #p-perps.panel.on .card > *{margin-top:0!important;margin-bottom:2px!important}
+html body #p-perps.panel.on *{position:static!important;inset:auto!important;grid-area:auto!important;grid-row:auto!important;grid-column:auto!important;min-height:0!important;max-height:none!important;height:auto!important;box-shadow:none!important}
+html body #p-perps.panel.on .pp{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;gap:4px!important}
+html body #p-perps.panel.on .card{border:0!important;border-radius:0!important;background:transparent!important;margin:0!important;padding:0!important;filter:none!important}
 
-html body #p-perps.panel.on .card > div:has(table),
-html body #p-perps.panel.on .card > div:has(.res),
-html body #p-perps.panel.on .card > div:has([class*="tab"]),
-html body #p-perps.panel.on .card > div:has([class*="pos"]){display:none!important}
+html body #p-perps.panel.on .pp-mk-card{order:-1!important;flex:0 0 auto!important;padding-bottom:4px!important;border-bottom:1px solid rgba(255,255,255,.07)!important}
+html body #p-perps.panel.on .pp-mk-filter,
+html body #p-perps.panel.on .pp-mk-foot,
+html body #p-perps.panel.on .pp-fill,
+html body #p-perps.panel.on .pp-about{display:none!important}
+html body #p-perps.panel.on .pp-mk-head{height:auto!important;margin:0 0 3px!important;font-size:9px!important;letter-spacing:.14em!important}
+html body #p-perps.panel.on .pp-mk{display:flex!important;flex-direction:column!important;gap:2px!important;margin:0!important;padding:0!important;list-style:none!important}
+html body #p-perps.panel.on .pp-mk li{display:grid!important;grid-template-columns:16px minmax(0,1fr) auto!important;align-items:center!important;gap:6px!important;padding:3px 5px!important;border-radius:6px!important;border:1px solid transparent!important}
+html body #p-perps.panel.on .pp-mk li.on{background:#16121f!important;border-color:#4b3a86!important}
+html body #p-perps.panel.on .pp-mk-ic{width:15px!important;height:15px!important;border-radius:4px!important}
+html body #p-perps.panel.on .pp-mk b{font-size:11px!important;line-height:1.15!important}
+html body #p-perps.panel.on .pp-mk .sub{display:block!important;font-size:9px!important;opacity:.6!important}
+html body #p-perps.panel.on .pp-mk-r{font-size:11px!important;text-align:right!important;line-height:1.15!important}
+html body #p-perps.panel.on .pp-mk-r em{display:block!important;font-size:9px!important;font-style:normal!important}
 
-html body #p-perps.panel.on .hsearch,
-html body #p-perps.panel.on [class*="search"],
-html body #p-perps.panel.on [class*="filter"],
-html body #p-perps.panel.on .card > div:has(> input:not([type=range]):not([type=number])){display:none!important}
-html body #p-perps.panel.on input:not([type=range]):not([type=number]){display:none!important}
+html body #p-perps.panel.on .pp-mid{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;gap:3px!important}
+html body #p-perps.panel.on .pp-chart-card{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;overflow:hidden!important}
+html body #p-perps.panel.on .pp-ck-top{display:flex!important;align-items:center!important;gap:6px!important;height:auto!important}
+html body #p-perps.panel.on .pp-badge{width:16px!important;height:16px!important;flex:0 0 auto!important}
+html body #p-perps.panel.on .pp-badge-ic{width:16px!important;height:16px!important;border-radius:4px!important}
+html body #p-perps.panel.on .pp-ck-id{line-height:1.1!important}
+html body #p-perps.panel.on .pp-ck-id b{font-size:11px!important;letter-spacing:.04em!important}
+html body #p-perps.panel.on .pp-ck-id span{font-size:9px!important;opacity:.6!important;display:block!important}
+html body #p-perps.panel.on .pp-share{width:20px!important;height:20px!important;padding:0!important;margin-left:auto!important;border:0!important;background:transparent!important}
+html body #p-perps.panel.on .pp-share svg{width:13px!important;height:13px!important}
+html body #p-perps.panel.on .pp-price{font-size:19px!important;line-height:1!important;font-weight:700!important;letter-spacing:-.02em!important;margin:1px 0 0!important}
+html body #p-perps.panel.on .pp-px-row{display:flex!important;align-items:center!important;gap:6px!important;height:auto!important;margin:0!important}
+html body #p-perps.panel.on .pp-delta{font-size:10px!important;line-height:1!important}
+html body #p-perps.panel.on .pp-tf2{display:flex!important;gap:2px!important;margin-left:auto!important}
+html body #p-perps.panel.on .pp-tf2 button{height:18px!important;padding:0 6px!important;font-size:9px!important;border:1px solid rgba(255,255,255,.14)!important;border-radius:4px!important;background:transparent!important;color:#9aa39a!important}
+html body #p-perps.panel.on .pp-tf2 button.on{background:#16c784!important;border-color:#16c784!important;color:#04120a!important;font-weight:700!important}
+html body #p-perps.panel.on .pp-line{flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;margin-top:2px!important}
+html body #p-perps.panel.on .pp-tools{display:none!important}
 
-html body #p-perps.panel.on .hint,
-html body #p-perps.panel.on .small,
-html body #p-perps.panel.on [class*="limit"],
-html body #p-perps.panel.on [class*="note"]{display:none!important}
+html body #p-perps.panel.on [class*="pos"]{display:none!important}
+html body #p-perps.panel.on .pp-mid > .card:not(.pp-chart-card){flex:0 0 auto!important;display:flex!important;flex-direction:column!important;gap:3px!important;padding-top:5px!important;border-top:1px solid rgba(255,255,255,.08)!important}
+html body #p-perps.panel.on [class*="avail"]{font-size:9.5px!important;opacity:.65!important;margin:0!important}
 
-html body #p-perps.panel.on [class*="about"]{display:none!important}
-html body #p-perps.panel.on [class*="chart"]{flex:0 0 auto!important;width:100%!important;height:70px!important}
-html body #p-perps.panel.on .big{font-size:17px!important;line-height:1!important;margin:0!important;letter-spacing:-.02em!important}
+html body #p-perps.panel.on .pp-side,html body #p-perps.panel.on .pills,html body #p-perps.panel.on .preset{display:flex!important;width:100%!important;height:30px!important;padding:3px!important;gap:3px!important;border-radius:999px!important;background:#1b1d1b!important;border:0!important;margin:0!important}
+html body #p-perps.panel.on .pp-side > *,html body #p-perps.panel.on .pills > *,html body #p-perps.panel.on .preset > *{flex:1 1 0!important;width:auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border:0!important;border-radius:999px!important;background:transparent!important;color:#9aa39a!important;font-size:11px!important;font-weight:600!important;margin:0!important}
+html body #p-perps.panel.on .pp-side > *:first-child,html body #p-perps.panel.on .pills > *:first-child,html body #p-perps.panel.on .preset > *:first-child{background:#16c784!important;color:#04120a!important}
 
-html body #p-perps.panel.on .pills,html body #p-perps.panel.on .preset,html body #p-perps.panel.on .chipset,html body #p-perps.panel.on .cmp{display:flex!important;width:100%!important;height:32px!important;padding:3px!important;gap:3px!important;border-radius:999px!important;background:#1b1d1b!important;border:0!important;margin:2px 0!important;box-shadow:none!important}
-html body #p-perps.panel.on .pills > *,html body #p-perps.panel.on .preset > *,html body #p-perps.panel.on .chipset > *,html body #p-perps.panel.on .cmp > *{flex:1 1 0!important;width:auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border:0!important;border-radius:999px!important;background:transparent!important;color:#9aa39a!important;font-size:11px!important;font-weight:600!important;margin:0!important;box-shadow:none!important}
-html body #p-perps.panel.on .pills > *:first-child,html body #p-perps.panel.on .preset > *:first-child,html body #p-perps.panel.on .chipset > *:first-child,html body #p-perps.panel.on .cmp > *:first-child{background:#16c784!important;color:#04120a!important}
-
-html body #p-perps.panel.on .calc-amount{font-size:17px!important;line-height:1.1!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;margin:0!important}
-html body #p-perps.panel.on input[type=range]{-webkit-appearance:none!important;appearance:none!important;width:100%!important;height:3px!important;border-radius:2px!important;background:#3a3d3a!important;margin:2px 0!important;box-shadow:none!important;border:0!important}
+html body #p-perps.panel.on .calc-amount,html body #p-perps.panel.on [class*="amt"]{font-size:17px!important;line-height:1.1!important;padding:0!important;border:0!important;background:transparent!important;margin:0!important}
+html body #p-perps.panel.on input[type=range]{-webkit-appearance:none!important;appearance:none!important;width:100%!important;height:3px!important;border-radius:2px!important;background:#3a3d3a!important;margin:2px 0!important;border:0!important}
 html body #p-perps.panel.on input[type=range]::-webkit-slider-thumb{-webkit-appearance:none!important;width:12px!important;height:12px!important;border-radius:50%!important;background:#fff!important;border:0!important}
 html body #p-perps.panel.on input[type=range]:nth-of-type(2){background:linear-gradient(90deg,#16c784,#c8d13a,#e8a33d,#ef4b3f)!important}
 
-html body #p-perps.panel.on .btn{width:auto!important;height:26px!important;padding:0 10px!important;border-radius:7px!important;font-size:11px!important;font-weight:500!important;margin:0!important;box-shadow:none!important}
+html body #p-perps.panel.on .btn{width:auto!important;height:26px!important;padding:0 10px!important;border-radius:7px!important;font-size:11px!important;margin:0!important}
 html body #p-perps.panel.on .btn.p{width:100%!important;height:34px!important;border-radius:9px!important;background:#16c784!important;border-color:#16c784!important;color:#04120a!important;font-size:12px!important;font-weight:700!important;margin-top:2px!important}
-html body #p-perps.panel.on .pills .btn.p,html body #p-perps.panel.on .preset .btn.p,html body #p-perps.panel.on .chipset .btn.p,html body #p-perps.panel.on .cmp .btn.p{width:auto!important;height:100%!important;border-radius:999px!important;margin:0!important}
 }
