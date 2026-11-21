@@ -44,7 +44,8 @@
     overlay = null; balEl = null;
     document.body.classList.remove('wd-open');
     document.body.style.top = '';
-    window.scrollTo(0, lockY);
+    setTimeout(function(){ window.scrollTo(0, lockY); }, 0);
+    setTimeout(function(){ window.scrollTo(0, lockY); }, 80);
     document.removeEventListener('keydown', onKey);
     window.dispatchEvent(new Event('pageshow'));
   }
