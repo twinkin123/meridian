@@ -640,3 +640,5 @@ html body .dep-sheet .dep-qr{background:#000!important;background-image:none!imp
 /* popouts: head black, specificity above the grey block */
 html body .dep-overlay .dep-sheet .dep-head,html body .dep-overlay .dep-sheet .dep-head h2{background:#000!important;background-color:#000!important;background-image:none!important;border:0!important;box-shadow:none!important}
 html body .wd-overlay .wd-sheet .wd-head,html body .wd-overlay .wd-sheet .wd-head h2{background:#000!important;background-color:#000!important;background-image:none!important;border:0!important;box-shadow:none!important}
+/* dep: amber casing around the warn sentence */
+html body .dep-overlay .dep-sheet .dep-warn{display:block!important;background:#000!important;background-color:#000!important;background-image:none!important;border:1px solid rgba(224,183,106,.8)!important;border-radius:9px!important;padding:10px 12px!important;color:#e0b76a!important;box-shadow:none!important}
