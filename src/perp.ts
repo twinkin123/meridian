@@ -187,10 +187,11 @@ async function settle(
   status: 'closed' | 'liquidated',
 ): Promise<void> {
   /* A liquidation fills at the liq price, never past it: the overshoot is unbooked. */
+  /* The mark decides whether to liquidate, never at what price, so this needs no side. */
   let exit = mark;
-  if (status === 'liquidated' && p.liq_price) {
+  if (status === 'liquidated') {
     const liq = Number(p.liq_price);
-    exit = p.side === 'long' ? Math.max(mark, liq) : Math.min(mark, liq);
+    if (Number.isFinite(liq) && liq > 0) exit = liq;
   }
   let pnl = pnlOf(p, exit);
   const stake = BigInt(p.stake);
