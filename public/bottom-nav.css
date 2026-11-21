@@ -238,3 +238,10 @@ html body #p-perps.panel.on .pp-dir button.on{background:#16c784!important;backg
 html body #p-perps.panel.on .pp-tf2 button.on{background:#16c784!important;background-image:none!important}
 html body #p-perps.panel.on .pp-ticket > button{background:#16c784!important;background-image:none!important}
 }
+
+
+
+/* black pass 4: grey casing border */
+@media (max-width:980px){
+html body #p-perps.panel.on{border-color:#6e6e6e!important}
+}
