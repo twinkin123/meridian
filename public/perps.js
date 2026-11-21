@@ -453,6 +453,8 @@
         body: JSON.stringify({ id: b.dataset.close }),
       }).then(loadState).catch(function () {});
 
+    });
+
     function setTab(t) {
       tab = t;
       $('ppTabPos').classList.toggle('on', t === 'pos');
@@ -463,7 +465,6 @@
     }
     $('ppTabPos').addEventListener('click', function () { setTab('pos'); });
     $('ppTabHist').addEventListener('click', function () { setTab('hist'); });
-    });
 
     $('ppAmt').textContent = stake.toFixed(2);
     loadHistory();
