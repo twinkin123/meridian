@@ -651,3 +651,6 @@ html body #wAddr:focus,html body #wAsset:focus,html body #wUsd:focus{border-colo
 /* wd: stronger glow on the asset select */
 html body #wAsset{box-shadow:0 0 0 1px rgba(139,92,246,.3),0 0 24px -4px rgba(139,92,246,.85),0 0 52px -18px rgba(139,92,246,.7)!important;border-color:rgba(139,92,246,.45)!important}
 html body #wAsset:focus{box-shadow:0 0 0 1px rgba(139,92,246,.45),0 0 28px -3px rgba(139,92,246,.95),0 0 60px -16px rgba(139,92,246,.8)!important}
+/* swap: cta black, including the disabled state */
+html body #swCta,html body #swCta:disabled{background:#000!important;background-color:#000!important;background-image:none!important;border:1px solid #2b2d33!important;border-radius:9px!important;color:#f2f3f5!important;font-weight:500!important;opacity:1!important;box-shadow:0 0 22px -6px rgba(139,92,246,.75),0 0 44px -20px rgba(139,92,246,.55)!important}
+html body #swCta:disabled{color:#b3b5bd!important}
