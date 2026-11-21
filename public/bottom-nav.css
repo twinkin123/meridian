@@ -677,3 +677,5 @@ html body .wd-overlay .wd-sheet #wAsset,html body .wd-overlay .wd-sheet #wAsset:
 html body #p-stake.panel.on{border-color:#000!important}
 /* stake: no outer casing */
 html body #p-stake.panel.on{border:0!important;box-shadow:none!important}
+/* stake: no outer casing, matching the rule that sets it */
+html body .main #p-stake.panel.on{border:0!important;box-shadow:none!important}
