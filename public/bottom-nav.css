@@ -34,21 +34,21 @@ html body .main #p-stake.panel.on{border:1px solid rgba(255,255,255,.1)!importan
 html body .main #p-stake.panel.on .card{margin-left:0!important;margin-right:0!important}
 html body .main .panel.on > .grid > div > .card.rainbow{filter:drop-shadow(0 6px 12px rgba(0,0,0,.6))!important}
 
-html body .main #p-perps.panel.on{display:flex!important;flex-direction:column!important;height:calc(100dvh + 1px)!important;padding:10px!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;background:#0a0c0a!important;overflow:hidden!important}
+html body .main #p-perps.panel.on{display:flex!important;flex-direction:column!important;height:calc(100dvh + 226px)!important;padding:10px!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;background:#0a0c0a!important;overflow:hidden!important}
 html body .main #p-perps.panel.on > *{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;padding:0!important;gap:0!important}
 html body .main #p-perps.panel.on *{position:static!important;inset:auto!important;grid-area:auto!important;grid-row:auto!important;grid-column:auto!important;min-height:0!important;max-height:none!important}
 html body .main #p-perps.panel.on .card{border:0!important;outline:0!important;box-shadow:none!important;border-radius:0!important;background:transparent!important;margin:0!important;padding:0 6px!important;filter:none!important;height:auto!important}
 
-html body .main #p-perps.panel.on .card:nth-of-type(1){flex:1 1 auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important}
-html body .main #p-perps.panel.on .card:nth-of-type(1)::-webkit-scrollbar{display:none!important}
+html body .main #p-perps.panel.on .card:nth-of-type(1){flex:0 0 auto!important;overflow:visible!important}
 html body .main #p-perps.panel.on .card:nth-of-type(1) [class*="about"]{display:none!important}
-html body .main #p-perps.panel.on .card:nth-of-type(1) [class*="chart"]{flex:1 1 auto!important;width:100%!important;height:auto!important;min-height:80px!important}
+html body .main #p-perps.panel.on .card:nth-of-type(1) [class*="chart"]{flex:0 0 auto!important;width:100%!important;height:160px!important}
 
 html body .main #p-perps.panel.on .card:nth-of-type(2){display:none!important}
 
-html body .main #p-perps.panel.on > * > *:last-child{flex:0 0 auto!important;margin-top:0!important;background:#0d0f0d!important;padding:10px 6px 12px!important;border-top:1px solid rgba(255,255,255,.08)!important;display:flex!important;flex-direction:column!important}
+html body .main #p-perps.panel.on > * > *:last-child{flex:0 0 auto!important;margin-top:auto!important;background:#0d0f0d!important;padding:10px 6px 12px!important;border-top:1px solid rgba(255,255,255,.08)!important;display:flex!important;flex-direction:column!important}
 
-html body .main #p-perps.panel.on input[placeholder]{display:none!important}
+html body .main #p-perps.panel.on input[placeholder],
+html body .main #p-perps.panel.on [class*="filter"]{display:none!important}
 html body .main #p-perps.panel.on [class*="limit"]{display:none!important}
 
 html body .main #p-perps.panel.on > * > *:last-child [class*="amount"],
