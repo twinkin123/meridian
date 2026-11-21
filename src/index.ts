@@ -33,6 +33,7 @@ import { market } from './market.js';
 import { swap } from './http/routes/swap.js';
 import { perps } from './http/routes/perps.js';
 import { tick as perpTick } from './perp.js';
+import { singleFlight } from './jobs/guard.js';
 
 process.on('unhandledRejection', (e) => console.error('unhandledRejection', e));
 
@@ -111,7 +112,7 @@ const timers: NodeJS.Timeout[] = [];
 
 function every(ms: number, fn: () => Promise<unknown>, label: string): void {
   const tick = () => {
-    void fn().catch((e) => console.error(label, e instanceof Error ? e.message : e));
+    void singleFlight(label, fn).catch((e) => console.error(label, e instanceof Error ? e.message : e));
   };
   timers.push(setInterval(tick, ms));
 }
@@ -129,7 +130,7 @@ function scheduleDailyCredit(): void {
   ));
   if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
   dailyTimer = setTimeout(() => {
-    void runSettlement()
+    void singleFlight('settle', runSettlement)
       .catch((e) => console.error('settle', e))
       .finally(() => scheduleDailyCredit());
   }, next.getTime() - now.getTime());
@@ -149,7 +150,7 @@ function scheduleDayOpen(): void {
   ));
   if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
   dayTimer = setTimeout(() => {
-    void ensureToday()
+    void singleFlight('day-open', ensureToday)
       .catch((e) => console.error('day-open', e))
       .finally(() => scheduleDayOpen());
   }, next.getTime() - now.getTime());
@@ -189,10 +190,10 @@ const server = app.listen(port, () => {
   every(60 * 1000, payApproved, 'payout');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
   every(6 * 60 * 60 * 1000, refreshRoutes, 'routes');
-  void runSettlementIfDue().catch((e) => console.error('settle', e));
-  void backfillTrades().catch((e) => console.error('trades', e));
-  void ensureToday().catch((e) => console.error('day-open', e));
-  void refreshRoutes().catch((e) => console.error('routes', e));
+  void singleFlight('settle', runSettlementIfDue).catch((e) => console.error('settle', e));
+  void singleFlight('trades', backfillTrades).catch((e) => console.error('trades', e));
+  void singleFlight('day-open', ensureToday).catch((e) => console.error('day-open', e));
+  void singleFlight('routes', refreshRoutes).catch((e) => console.error('routes', e));
   scheduleDayOpen();
   scheduleDailyCredit();
 });
