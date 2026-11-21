@@ -155,6 +155,7 @@
   }
 
   var liqLines = [];
+  var openCount = 0;
   function drawLiq(liq) {
     liqLines.forEach(function (p) { try { p.s.removePriceLine(p.l); } catch (_) {} });
     liqLines = [];
@@ -167,8 +168,8 @@
           l: s.createPriceLine({
             price: liq,
             color: '#f0476a',
-            lineWidth: 1,
-            lineStyle: LightweightCharts.LineStyle.Dashed,
+            lineWidth: 2,
+            lineStyle: LightweightCharts.LineStyle.Solid,
             axisLabelVisible: true,
             title: 'Liq',
           }),
@@ -189,7 +190,7 @@
         }
         $('ppLiq').textContent = 'Liq. ' + money(q.liq);
         $('ppLiq').style.color = '#f0476a';
-        drawLiq(q.liq);
+        drawLiq(openCount ? q.liq : null);
       })
       .catch(function () {});
   }
@@ -212,7 +213,7 @@
         }
         if (o.j.error) { $('ppEmpty').hidden = false; $('ppEmpty').textContent = o.j.error; }
         $('ppAvail').textContent = usd(o.j.available);
-        renderRows(o.j.positions || []);
+        renderRows(o.j.positions || []); openCount = (o.j.positions || []).length; quote();
       })
       .catch(function (e) {
         $('ppAvail').textContent = '--';
