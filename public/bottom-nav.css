@@ -321,3 +321,10 @@ html body #p-swap.panel.on{margin:0!important}
 html body:has(#p-swap.panel.on) .main{justify-content:center!important;align-items:stretch!important;padding:16px!important}
 html body #p-swap.panel.on{margin:0!important}
 }
+
+
+
+/* dash gap: smaller space above the value card */
+@media (max-width:980px){
+html body #p-dash.panel.on{margin-top:14px!important}
+}
