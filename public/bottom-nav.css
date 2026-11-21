@@ -485,3 +485,7 @@ html body .sw-fields{border:0!important;background:transparent!important;backgro
 html body:has(#p-swap.panel.on) .main{padding:16px 16px 4px!important;justify-content:center!important}
 html body .sw-card{padding:16px!important}
 html body .sw-wrap{padding-bottom:0!important}
+
+/* swap: equal gaps around the two address fields and the CTA */
+html body .sw-fields{display:flex!important;flex-direction:column!important;gap:10px!important}
+html body .sw-cta{margin-top:10px!important}
