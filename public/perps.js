@@ -158,8 +158,8 @@
     fetch('/perps/quote?market=' + market + '&side=' + side + '&leverage=' + lev)
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (q) {
-        if (!q) { $('ppLiq').textContent = 'Liq. --'; return; }
-        $('ppLiq').textContent = 'Liq. ' + money(q.liq);
+        if (!q) { $('ppLiq').textContent = 'Liq. --'; $('ppLiq').style.color = ''; return; }
+        $('ppLiq').textContent = 'Liq. ' + money(q.liq); $('ppLiq').style.color = '#f0476a';
       })
       .catch(function () {});
   }
