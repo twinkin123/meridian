@@ -578,3 +578,5 @@ html body .side a{padding:13px 9px!important;height:auto!important;align-items:c
 html body:has(#p-stake.panel.on){padding-bottom:0!important}
 html body:has(#p-stake.panel.on) .main{padding-bottom:76px!important;background:#0a0a0b!important;background-image:none!important}
 }
+/* nav: drop the backing strip, the bar itself covers the band */
+html body .shell::after{display:none!important}
