@@ -56,7 +56,7 @@
     chart.priceScale('right').applyOptions({ autoScale: true, scaleMargins: { top: 0.12, bottom: 0.12 } });
     chart.timeScale().fitContent();
     var m = all.length;
-    if (m > 1) chart.timeScale().setVisibleLogicalRange({ from: 0, to: m + Math.max(3, Math.round(m * 0.012)) });
+    if (m > 1) chart.timeScale().setVisibleLogicalRange({ from: 0, to: m + Math.max(6, Math.round(m * 0.03)) });
     if (mode === 'candles') {
       var n = candlesFrom(all).length;
       if (n > 120) chart.timeScale().setVisibleLogicalRange({ from: n - 120, to: n + 2 });

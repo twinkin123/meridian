@@ -342,3 +342,5 @@ html body .main .pp-place{height:46px!important;min-height:46px!important;max-he
 
 html body .main .pp-line{margin:12px 0 0 -16px!important;padding-right:56px!important}
 html body .main #ppChart{left:0!important;right:0!important;width:100%!important}
+
+html body .main .pp-line{padding-right:104px!important}
