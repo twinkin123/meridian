@@ -259,3 +259,11 @@ html body #p-perps.panel.on{border:0!important}
 @media (max-width:980px){
 html body #p-perps.panel.on{box-shadow:none!important}
 }
+
+
+
+/* black pass 7: nudge content up a hair */
+@media (max-width:980px){
+html body:has(#p-perps.panel.on) .main{padding:6px 14px 10px!important}
+html body #p-perps.panel.on{padding:9px 15px 14px!important}
+}
