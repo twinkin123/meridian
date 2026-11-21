@@ -34,17 +34,18 @@ html body .main #p-stake.panel.on{border:1px solid rgba(255,255,255,.1)!importan
 html body .main #p-stake.panel.on .card{margin-left:0!important;margin-right:0!important}
 html body .main .panel.on > .grid > div > .card.rainbow{filter:drop-shadow(0 6px 12px rgba(0,0,0,.6))!important}
 
-html body .main{display:flex!important;flex-direction:column!important;min-height:0!important;overflow:hidden!important;padding:12px 14px!important}
-html body .main > .grid,html body .main > .grid > div{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;width:100%!important;padding:0!important;margin:0!important}
+html body:has(#p-perps.panel.on) .main{display:flex!important;flex-direction:column!important;min-height:0!important;overflow:hidden!important;padding:12px 14px!important}
+html body:has(#p-perps.panel.on) .main > .grid,
+html body:has(#p-perps.panel.on) .main > .grid > div{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;width:100%!important;height:100%!important;padding:0!important;margin:0!important}
 html body #p-perps.panel.on{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;height:auto!important;margin:0!important;padding:10px!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;background:#0a0c0a!important;overflow:hidden!important}
-html body .main > .grid > div{height:100%!important}
 html body #p-perps.panel.on *{position:static!important;inset:auto!important;grid-area:auto!important;grid-row:auto!important;grid-column:auto!important;min-height:0!important;max-height:none!important}
 html body #p-perps.panel.on .card{border:0!important;outline:0!important;box-shadow:none!important;border-radius:0!important;background:transparent!important;margin:0!important;padding:0 6px!important;filter:none!important;height:auto!important}
 
-html body #p-perps.panel.on .card:first-of-type{flex:1 1 auto!important;min-height:0!important;overflow:hidden!important}
+html body #p-perps.panel.on .card:first-of-type{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important}
+html body #p-perps.panel.on .card:first-of-type::-webkit-scrollbar{display:none!important}
 html body #p-perps.panel.on .card:first-of-type [class*="about"]{display:none!important}
 html body #p-perps.panel.on .card:first-of-type .hsearch{display:none!important}
-html body #p-perps.panel.on .card:first-of-type [class*="chart"]{flex:0 0 auto!important;width:100%!important;height:130px!important}
+html body #p-perps.panel.on .card:first-of-type [class*="chart"]{flex:0 0 auto!important;width:100%!important;height:120px!important}
 
 html body #p-perps.panel.on .card:last-of-type{flex:0 0 auto!important;background:#0d0f0d!important;padding:10px 6px 12px!important;border-top:1px solid rgba(255,255,255,.08)!important;display:flex!important;flex-direction:column!important}
 
