@@ -28,29 +28,8 @@ html body .shell{margin-top:0!important}
 html body > .tickers{margin-bottom:14px!important}
 @media (max-width:980px){html body .main{padding-top:6px!important}}
 
-/* value card: content must clear the 24px notched corners */
+/* value card: gap above the casing, card flush, no round corner on the casing */
 @media (max-width:980px){
-html body .main .card.rainbow{padding:30px 20px 26px!important}
-html body .main .card.rainbow .lbl{margin:0!important}
-html body .main .card.rainbow .row{margin-top:18px!important}
-html body .main .card.rainbow .hint{margin:10px 0 0!important}
-html body .main .card.has-clock .res-clock{top:26px!important;right:26px!important}
-}
-
-/* referral + notes cards: even, generous inner padding top and bottom */
-@media (max-width:980px){
-html body .main .ref-list-card,html body .main #notesCard{padding:30px 18px 32px!important}
-html body .main .ref-list-card .lbl,html body .main #notesCard .lbl{display:block!important;margin:0 0 10px!important}
-html body .main .ref-list-card .hint,html body .main #notesCard .hint{margin:0!important}
-html body .main .ref-list-card .list,html body .main #notesCard .list{margin:10px 0 0!important}
-}
-
-/* gap above the value card */
-@media (max-width:980px){
-html body .main .card.rainbow{margin-top:34px!important}
-}
-
-/* value card: no gutter between the card and the panel edge */
-@media (max-width:980px){
-html body .main .panel.on > .grid > div > .card.rainbow{margin:34px 0 0!important}
+html body .main .panel.on{margin-top:34px!important;border-top-left-radius:0!important}
+html body .main .panel.on > .grid > div > .card.rainbow{margin:0!important}
 }
