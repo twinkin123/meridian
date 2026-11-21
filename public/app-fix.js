@@ -67,7 +67,7 @@
       if (lastSig === 'none|' + offset) return;
       lastSig = 'none|' + offset;
       card.innerHTML = head('No session recorded', '-') +
-        '<div class="res-clock">Trade results in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
+        '<div class="res-clock">trade results in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
       wireNav();
       clock();
       return;
@@ -95,7 +95,7 @@
       (pend
         ? '<p class="hint res-pend">Results post at 00:15 UTC.</p>'
         : '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>') +
-      '<div class="res-clock">Trade results in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
+      '<div class="res-clock">trade results in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
 
     if (window.matchMedia("(max-width:900px)").matches){
       var _a = document.getElementById("addr");
