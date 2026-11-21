@@ -775,3 +775,5 @@ html body .main .pp-pos .pp-tbl .sx:hover{background:rgba(139,92,246,.14)!import
 html body .main .pp-pos .pp-tbl .pp-side.l{color:#28e664!important;background:rgba(40,230,100,.14)!important}
 html body .main .pp-pos .pp-tbl .pp-side.s{color:#ff7a6e!important;background:rgba(255,122,110,.14)!important}
 html body .main .pp-pos .pp-tbl .pp-side{font-size:10px!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:.04em!important;padding:2px 7px!important;border-radius:5px!important}
+
+html body .main .pp-pos .pp-tbl .pp-liqcell{color:#ff7a6e!important;font-variant-numeric:tabular-nums!important;white-space:nowrap!important}

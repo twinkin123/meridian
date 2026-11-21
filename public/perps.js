@@ -279,6 +279,7 @@
         '<td>' + p.leverage + 'x</td>' +
         '<td>' + money(Number(p.entry)) + '</td>' +
         '<td>' + money(Number(p.mark)) + '</td>' +
+        '<td class="pp-liqcell">' + (p.liq ? money(Number(p.liq)) : '--') + '</td>' +
         '<td class="' + (pnl >= 0 ? 'g' : 'dn') + '">' +
         (pnl >= 0 ? '+' : '-') + '$' + Math.abs(pnl).toFixed(2) + '</td>' +
         '<td><button class="sx" data-close="' + p.id + '" type="button">Close</button></td></tr>';
