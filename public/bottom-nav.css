@@ -474,3 +474,6 @@ html body .wd-card .field input::placeholder{color:rgba(255,255,255,.45)!importa
 
 /* withdraw: hide the minimum explainer line */
 html body .wd-card > .hint:first-child{display:none!important}
+
+/* withdraw: keep only the minimum line */
+html body .wd-card::before{content:"$10 minimum."!important;display:block!important;font-size:11.5px!important;color:#b3b5bd!important;margin:0 0 12px!important;line-height:1.5!important}
