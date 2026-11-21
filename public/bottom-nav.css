@@ -46,6 +46,11 @@ html body #p-dash .card.rainbow{margin-top:4px!important}
 html body:has(#p-swap.panel.on) .main{overflow:hidden!important;display:flex!important;flex-direction:column!important;min-height:0!important}
 html body #p-swap.panel.on{flex:0 0 auto!important;margin-bottom:0!important;max-height:100%!important}
 }
+/* swap: hold position, no page scroll */
+@media (max-width:980px){
+html body:has(#p-swap.panel.on) .main{overflow:hidden!important;display:flex!important;flex-direction:column!important;min-height:0!important}
+html body #p-swap.panel.on{flex:0 0 auto!important;margin-bottom:0!important;max-height:100%!important}
+}
 
 /* value card: dash borderless, stake boxed, perp single screen */
 @media (max-width:980px){
@@ -58,7 +63,7 @@ html body:has(#p-perps.panel.on) .main{display:flex!important;flex-direction:col
 html body:has(#p-perps.panel.on) .main > .grid,
 html body:has(#p-perps.panel.on) .main > .grid > div{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;width:100%!important;height:100%!important;padding:0!important;margin:0!important}
 
-html body #p-perps.panel.on{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;height:auto!important;margin:0!important;padding:14px 15px!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;background:#0a0c0a!important;overflow:hidden!important}
+html body #p-perps.panel.on{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;height:auto!important;margin:0!important;padding:14px 15px!important;border:2px solid rgba(255,255,255,.2)!important;border-radius:14px!important;background:#000!important;overflow:hidden!important;box-shadow:0 0 0 1px rgba(255,255,255,.05),0 0 26px -14px rgba(139,92,246,.6)!important}
 html body #p-perps.panel.on *{position:static!important;inset:auto!important;grid-area:auto!important;grid-row:auto!important;grid-column:auto!important;min-height:0!important;max-height:none!important;height:auto!important;box-shadow:none!important;margin-top:0!important;margin-bottom:0!important}
 html body #p-perps.panel.on .pp{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;height:100%!important;width:100%!important;min-width:0!important;min-height:0!important;gap:6px!important}
 html body #p-perps.panel.on .card{border:0!important;border-radius:0!important;background:transparent!important;margin:0!important;padding:0!important;filter:none!important;min-width:0!important;width:100%!important}
