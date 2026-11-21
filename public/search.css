@@ -19,3 +19,8 @@
   .top .hsearch{right:35.9vw !important}
   html body .top .welcome{display:block !important;left:auto !important;right:27vw !important}
 }
+
+/* search: aligned to the card, but capped so it cannot reach the header controls */
+@media (min-width:901px){
+  html body .top .hsearch{max-width:520px!important}
+}
