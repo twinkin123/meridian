@@ -22,6 +22,19 @@
 
   function step() { return days === 0 ? 1 : days === 1 ? 60 : days <= 30 ? 3600 : 86400; }
 
+  /* autoSize drifts after the card resizes, leaving the plot on a stale
+     canvas. Size the chart to the box explicitly instead. */
+  var lastW = 0, lastH = 0;
+  function fitChart() {
+    var el = $('ppChart');
+    if (!chart || !el) return;
+    var w = el.clientWidth, h = el.clientHeight;
+    if (!w || !h) return;
+    if (w === lastW && h === lastH) return;
+    lastW = w; lastH = h;
+    chart.resize(w, h);
+  }
+
   function candlesFrom(list) {
     var s = days === 0 ? 5 : days === 1 ? 300 : days <= 7 ? 3600 : days <= 30 ? 14400 : 86400, out = [], cur = null;
     list.forEach(function (p) {
@@ -41,6 +54,7 @@
 
   function render() {
     if (!chart) return;
+    fitChart();
     if (mode === 'candles') {
       line.setData([]);
       line.setMarkers([]);
@@ -76,7 +90,7 @@
       crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
       handleScroll: false,
       handleScale: false,
-      autoSize: true,
+      autoSize: false,
     });
     line = chart.addLineSeries({
       color: '#28e664',
@@ -372,7 +386,7 @@
     loadState();
     tick();
     arm();
-    window.addEventListener('resize', paintLiq);
+    window.addEventListener('resize', function () { fitChart(); paintLiq(); });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
