@@ -1,4 +1,4 @@
-﻿html body > .tickers{display:flex!important;align-items:stretch!important;width:100%!important;max-width:none!important;margin:0!important;padding:0 0 0 12px!important;background:#000!important;border:0!important;border-bottom:1px solid #2a2a30!important;overflow:hidden!important;position:static!important;box-shadow:none!important}
+html body > .tickers{display:flex!important;align-items:stretch!important;width:100%!important;max-width:none!important;margin:0!important;padding:0 0 0 12px!important;background:#000!important;border:0!important;border-bottom:1px solid #2a2a30!important;overflow:hidden!important;position:static!important;box-shadow:none!important}
 html body > .tickers .tickers-track{display:flex!important;align-items:stretch!important;height:auto!important;gap:0!important;background-image:none!important;animation:tk-mob 80s linear infinite!important}
 html body > .tickers .tk{width:auto!important;height:auto!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;padding:9px 11px!important;border:0!important;position:relative!important;background:none!important;align-self:stretch!important;white-space:nowrap!important}
 html body > .tickers .tk .ic{width:14px!important;height:14px!important;flex:0 0 14px!important;font-size:8px!important}
@@ -48,4 +48,9 @@ html body .main .ref-list-card .list,html body .main #notesCard .list{margin:10p
 /* gap above the value card */
 @media (max-width:980px){
 html body .main .card.rainbow{margin-top:34px!important}
+}
+
+/* value card: no gutter between the card and the panel edge */
+@media (max-width:980px){
+html body .main .panel.on > .grid > div > .card.rainbow{margin:34px 0 0!important}
 }
