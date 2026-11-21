@@ -416,3 +416,8 @@ html body #p-dash .ref-stats > div{border:0!important;background:transparent!imp
 /* dash: ref stats strip itself */
 html body #p-dash .ref-stats{border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;padding:0!important}
 html body #p-dash .ref-stats > div + div{border-left:0!important}
+
+/* dash: ref stat pills match claim button */
+html body #p-dash .ref-stats > div{background:transparent!important;background-image:none!important;border:1px solid rgba(120,205,255,.95)!important;border-radius:12px!important;padding:10px 12px!important;color:#bfe6ff!important;font-weight:600!important;text-shadow:0 0 12px rgba(120,205,255,.65)!important;box-shadow:0 0 24px -4px rgba(120,205,255,.95),0 16px 34px -18px rgba(120,205,255,.95)!important}
+html body #p-dash .ref-stats > div .lbl{color:rgba(191,230,255,.7)!important;text-shadow:none!important}
+html body #p-dash .ref-stats > div b{color:#bfe6ff!important}
