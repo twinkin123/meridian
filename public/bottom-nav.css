@@ -412,3 +412,7 @@ html body #p-dash .stats{border:0!important;background:transparent!important;bac
 html body #p-dash .addr{border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;padding:0!important}
 html body #p-dash .addr code{background:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important}
 html body #p-dash .ref-stats > div{border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;padding:0!important}
+
+/* dash: ref stats strip itself */
+html body #p-dash .ref-stats{border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;padding:0!important}
+html body #p-dash .ref-stats > div + div{border-left:0!important}
