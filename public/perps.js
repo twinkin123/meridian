@@ -66,7 +66,8 @@
   function render() {
     if (!chart) return;
     fitChart();
-    var pts = smooth(all);
+    var raw = openLiqs.length > 0 || stickyLiqs.some(function (s) { return s.until > Date.now(); });
+    var pts = raw ? all : smooth(all);
     if (mode === 'candles') {
       line.setData([]);
       line.setMarkers([]);
@@ -184,13 +185,22 @@
     $('ppPlace').textContent = busy ? 'Placing...' : 'Place Trade';
   }
 
-  var liqSeries = null, openLiqs = [], liqLines = [], liqAnchors = [];
+  var liqSeries = null, openLiqs = [], stickyLiqs = [], liqLines = [], liqAnchors = [];
   var tab = 'pos', lastPos = [], lastHist = [];
-  var openCount = 0;
+  var openCount = 0, prevOpen = -1;
 
   /* One price line per open position in this market. Each gets its own series
      anchor so auto-scale keeps every one of them on screen; price lines alone
      do not participate in auto-scale. */
+  /* Live liq lines, plus ones that just fired and are kept dashed for a minute. */
+  function liqSet() {
+    var now = Date.now(), out = [], i;
+    for (i = 0; i < stickyLiqs.length; i++) { if (stickyLiqs[i].until > now) out.push({ v: stickyLiqs[i].v, dash: true }); }
+    for (i = 0; i < openLiqs.length; i++) out.push({ v: openLiqs[i], dash: false });
+    out.sort(function (a, b) { return a.v - b.v; });
+    return out;
+  }
+
   function paintLiq() {
     var i;
     for (i = 0; i < liqLines.length; i++) {
@@ -198,7 +208,8 @@
     }
     liqLines = [];
 
-    var n = openLiqs.length;
+    var set = liqSet();
+    var n = set.length;
     for (i = 0; i < n; i++) {
       if (!liqAnchors[i] && chart) {
         liqAnchors[i] = chart.addLineSeries({
@@ -214,8 +225,8 @@
       if (i >= n || all.length < 2) { try { liqAnchors[i].setData([]); } catch (_) {} continue; }
       try {
         liqAnchors[i].setData([
-          { time: all[0].t, value: openLiqs[i] },
-          { time: all[all.length - 1].t, value: openLiqs[i] },
+          { time: all[0].t, value: set[i].v },
+          { time: all[all.length - 1].t, value: set[i].v },
         ]);
       } catch (_) {}
     }
@@ -227,12 +238,12 @@
         liqLines.push({
           owner: target,
           line: target.createPriceLine({
-            price: openLiqs[i],
+            price: set[i].v,
             color: '#ff2f4f',
             lineWidth: 2,
-            lineStyle: LightweightCharts.LineStyle.Solid,
+            lineStyle: set[i].dash ? LightweightCharts.LineStyle.Dashed : LightweightCharts.LineStyle.Solid,
             axisLabelVisible: true,
-            title: i === 0 ? 'Liq' : '',
+            title: set[i].dash ? '' : 'Liq',
           }),
         });
       } catch (_) {}
@@ -241,10 +252,16 @@
 
   /* One line per open position in this market, lowest first. */
   function setLiq(rows) {
-    openLiqs = (rows || [])
+    var next = (rows || [])
       .filter(function (p) { return p.market === market && p.liq; })
       .map(function (p) { return Number(p.liq); })
       .sort(function (a, b) { return a - b; });
+    var until = Date.now() + 60000;
+    openLiqs.forEach(function (v) {
+      if (next.indexOf(v) < 0) stickyLiqs.push({ v: v, until: until });
+    });
+    openLiqs = next;
+    if (stickyLiqs.length > 8) stickyLiqs = stickyLiqs.slice(-8);
     paintLiq();
   }
 
@@ -283,6 +300,8 @@
         $('ppAvail').textContent = usd(o.j.available);
         lastPos = o.j.positions || []; lastHist = o.j.history || [];
         openCount = (o.j.positions || []).length; setLiq(o.j.positions); paintRows(); quote();
+        if (prevOpen >= 0 && openCount < prevOpen) loadHistory();
+        prevOpen = openCount;
       })
       .catch(function (e) {
         $('ppAvail').textContent = '--';
@@ -369,6 +388,7 @@
     });
     all = [];
     openLiqs = [];
+    stickyLiqs = [];
     if (chart) { line.setData([]); candles.setData([]); paintLiq(); }
     loadHistory();
     quote();
