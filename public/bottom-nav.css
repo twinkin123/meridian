@@ -28,3 +28,7 @@ html body .main > .tickers .tk{align-self:center!important;height:34px!important
 html body .side a{padding:13px 7px!important}
 html body .side a:first-child{padding-left:12px!important}
 }
+@media (max-width:980px){
+html body .main{padding-top:0!important}
+html body .main > .tickers{margin:0 -20px 12px!important}
+}
