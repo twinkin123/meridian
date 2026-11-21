@@ -12,3 +12,6 @@ privy-key.txt
 .railway
 
 .env
+
+.env.local
+

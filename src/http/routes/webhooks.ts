@@ -12,7 +12,7 @@ import { safeEq } from '../../auth.js';
 
 export const webhooks = Router();
 
-import { MIN_DEPOSIT as MIN, combineHeld } from '../../locks.js';
+import { combineHeld } from '../../locks.js';
 import { notify, usdStr } from '../../notify.js';
 
 /** Relay attaches order and fill ids as memo instructions. */
@@ -99,7 +99,7 @@ export async function processSig(sig: string): Promise<void> {
 
     if (usd <= 0n) continue;
 
-    const dest = frozen || usd < MIN ? '2050' : '2070';
+    const dest: string = '2050';
     await tx(async (c) => {
       const row = await c.query(
         `insert into deposits (user_id, sig, asset, qty, usd_at_det, status, relay_order, relay_fill)
