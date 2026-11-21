@@ -635,3 +635,5 @@ html body .dep-sheet .dep-warn:empty{display:none!important}
 /* popouts: black sheet, blended lines follow it */
 html body .dep-sheet,html body .dep-sheet *,html body .wd-sheet,html body .wd-sheet *{background-color:#000!important;background-image:none!important}
 html body .dep-sheet .dep-quote,html body .dep-sheet .dep-status,html body .dep-sheet .dep-warn{background:#000!important}
+/* dep: qr frame black */
+html body .dep-sheet .dep-qr{background:#000!important;background-image:none!important;border:0!important;box-shadow:none!important}
