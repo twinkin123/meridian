@@ -54,10 +54,9 @@
       }
     }
     chart.priceScale('right').applyOptions({ autoScale: true, scaleMargins: { top: 0.12, bottom: 0.12 } });
+    paintLiq();
     chart.timeScale().fitContent();
-  paintLiq();
     var m = all.length;
-    if (m > 1) chart.timeScale().setVisibleLogicalRange({ from: 0, to: m + Math.max(6, Math.round(m * 0.03)) });
     if (mode === 'candles') {
       var n = candlesFrom(all).length;
       if (n > 1) chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, n - 120), to: n + 2 });
@@ -157,20 +156,26 @@
     $('ppPlace').textContent = busy ? 'Placing...' : 'Place Trade';
   }
 
-  var liqSeries = null, liqVal = null;
+  var liqSeries = null, openLiq = null;
   var openCount = 0;
   function paintLiq() {
     if (!liqSeries) return;
-    if (!liqVal || all.length < 2) { liqSeries.setData([]); return; }
+    if (!openLiq || all.length < 2) { liqSeries.setData([]); return; }
     var pad = Math.max(6, Math.round(all.length * 0.03)) * step();
     liqSeries.setData([
-      { time: all[0].t, value: liqVal },
-      { time: all[all.length - 1].t + pad, value: liqVal },
+      { time: all[0].t, value: openLiq },
+      { time: all[all.length - 1].t + pad, value: openLiq },
     ]);
   }
 
-  function drawLiq(liq) {
-    liqVal = liq || null;
+  /* The line follows the open position, not the ticket preview. */
+  function setLiq(rows) {
+    var best = null;
+    (rows || []).forEach(function (p) {
+      if (p.market !== market || !p.liq) return;
+      if (!best || Math.abs(Number(p.liq) - Number(p.mark)) < Math.abs(Number(best.liq) - Number(best.mark))) best = p;
+    });
+    openLiq = best ? Number(best.liq) : null;
     paintLiq();
   }
 
@@ -181,12 +186,10 @@
         if (!q) {
           $('ppLiq').textContent = 'Liq. --';
           $('ppLiq').style.color = '';
-          drawLiq(null);
           return;
         }
         $('ppLiq').textContent = 'Liq. ' + money(q.liq);
         $('ppLiq').style.color = '#f0476a';
-        drawLiq(openCount ? q.liq : null);
       })
       .catch(function () {});
   }
@@ -209,7 +212,7 @@
         }
         if (o.j.error) { $('ppEmpty').hidden = false; $('ppEmpty').textContent = o.j.error; }
         $('ppAvail').textContent = usd(o.j.available);
-        renderRows(o.j.positions || []); openCount = (o.j.positions || []).length; quote();
+        renderRows(o.j.positions || []); openCount = (o.j.positions || []).length; setLiq(o.j.positions); quote();
       })
       .catch(function (e) {
         $('ppAvail').textContent = '--';
@@ -264,7 +267,8 @@
       li.classList.toggle('on', li.dataset.m === id);
     });
     all = [];
-    if (chart) { line.setData([]); candles.setData([]); }
+    openLiq = null;
+    if (chart) { line.setData([]); candles.setData([]); paintLiq(); }
     loadHistory();
     quote();
   }
