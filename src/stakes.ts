@@ -38,8 +38,8 @@ export async function stake(userId: string, amount: bigint): Promise<StakeResult
     const id = d.rows[0]!.id;
 
     await post(c, 'StakeLocked', `stake:${id}`, [
-      { code: '2000', owner: userId, amount: -amount },
-      { code: '2070', owner: userId, amount },
+      { code: '2000', owner: userId, amount },
+      { code: '2070', owner: userId, amount: -amount },
     ]);
     await notify(c, userId, 'stake_started', `${usdStr(amount)} USD locked for ${STAKE_DAYS} days.`);
 
