@@ -765,3 +765,9 @@ html body .main .pp-about{flex:none!important}
 html body .main .pp-pos .pp-empty[hidden]{display:none!important}
 html body .main .pp-pos .pp-tbl table{min-width:600px}
 html body .main .pp-pos .pp-tbl th,html body .main .pp-pos .pp-tbl td{padding-top:6px!important;padding-bottom:6px!important}
+
+html body .main .pp-pos .pp-tbl{overflow-x:hidden!important}
+html body .main .pp-pos .pp-tbl table{min-width:0!important;width:100%!important}
+html body .main .pp-pos .pp-tbl th,html body .main .pp-pos .pp-tbl td{padding-left:6px!important;padding-right:6px!important}
+html body .main .pp-pos .pp-tbl .sx{background:transparent!important;border:1px solid #8b5cf6!important;color:#e9e4ff!important;border-radius:8px!important;padding:5px 11px!important;font:inherit!important;font-size:11px!important;line-height:1.3!important;cursor:pointer!important;white-space:nowrap!important}
+html body .main .pp-pos .pp-tbl .sx:hover{background:rgba(139,92,246,.14)!important}
