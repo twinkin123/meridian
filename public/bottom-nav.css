@@ -267,3 +267,11 @@ html body #p-perps.panel.on{box-shadow:none!important}
 html body:has(#p-perps.panel.on) .main{padding:6px 14px 10px!important}
 html body #p-perps.panel.on{padding:9px 15px 14px!important}
 }
+
+
+
+/* black pass 8: short side turns red */
+@media (max-width:980px){
+html body #p-perps.panel.on .pp-dir button.on{background:#16c784!important;background-image:none!important;color:#04120a!important}
+html body #p-perps.panel.on .pp-dir button:last-child.on{background:#ef4b3f!important;color:#fff!important}
+}
