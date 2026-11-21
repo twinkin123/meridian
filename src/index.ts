@@ -33,6 +33,7 @@ import { market } from './market.js';
 import { swap } from './http/routes/swap.js';
 import { perps } from './http/routes/perps.js';
 import { tick as perpTick } from './perp.js';
+import { pulse } from './pulse.js';
 import { singleFlight } from './jobs/guard.js';
 
 process.on('unhandledRejection', (e) => console.error('unhandledRejection', e));
@@ -67,6 +68,7 @@ app.use((_req, res, next) => {
 app.use('/market', market);
 app.use('/swap', requireUser, swap);
 app.use('/perps', requireUser, perps);
+app.use('/api/pulse', pulse);
 
 app.use('/results', results);
 
