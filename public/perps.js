@@ -166,13 +166,29 @@
 
   function loadState() {
     fetch('/perps/state')
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (s) {
-        if (!s) { $('ppAvail').textContent = '--'; return; } if (s.error) { $('ppEmpty').hidden = false; $('ppEmpty').textContent = s.error; }
-        $('ppAvail').textContent = usd(s.available);
-        renderRows(s.positions || []);
+      .then(function (r) {
+        return r.text().then(function (t) {
+          var j = {};
+          try { j = JSON.parse(t); } catch (_) { j = { raw: t.slice(0, 200) }; }
+          return { ok: r.ok, status: r.status, j: j };
+        });
       })
-      .catch(function () {});
+      .then(function (o) {
+        if (!o.ok) {
+          $('ppAvail').textContent = '--';
+          $('ppEmpty').hidden = false;
+          $('ppEmpty').textContent = o.j.error || o.j.message || o.j.raw || ('state ' + o.status);
+          return;
+        }
+        if (o.j.error) { $('ppEmpty').hidden = false; $('ppEmpty').textContent = o.j.error; }
+        $('ppAvail').textContent = usd(o.j.available);
+        renderRows(o.j.positions || []);
+      })
+      .catch(function (e) {
+        $('ppAvail').textContent = '--';
+        $('ppEmpty').hidden = false;
+        $('ppEmpty').textContent = 'net: ' + e.message;
+      });
   }
 
   function renderRows(rows) {

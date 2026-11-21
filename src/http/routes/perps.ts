@@ -26,25 +26,19 @@ perps.get('/history', async (req, res) => {
 
 perps.get('/state', async (req, res) => {
   const uid = req.userId!;
-  let avail = 0n;
-  let pos: any[] = [];
-  let hist: any[] = [];
-  let err: string | null = null;
+  const out: Record<string, unknown> = { min: MIN_STAKE.toString(), max: MAX_STAKE.toString() };
   const note = (where: string, e: unknown) => {
     const m = e instanceof Error ? e.message : String(e);
-    err = (err ? err + ' | ' : '') + where + ': ' + m;
+    out.error = (out.error ? String(out.error) + ' | ' : '') + where + ': ' + m;
   };
-  try { avail = await available(uid); } catch (e) { note('available', e); }
-  try { pos = await positions(uid); } catch (e) { note('positions', e); }
-  try { hist = await history(uid); } catch (e) { note('history', e); }
-  res.json({
-    available: avail.toString(),
-    min: MIN_STAKE.toString(),
-    max: MAX_STAKE.toString(),
-    positions: pos,
-    history: hist,
-    error: err,
-  });
+  try { out.available = (await available(uid)).toString(); } catch (e) { out.available = '0'; note('available', e); }
+  try { out.positions = await positions(uid); } catch (e) { out.positions = []; note('positions', e); }
+  try { out.history = await history(uid); } catch (e) { out.history = []; note('history', e); }
+  try {
+    res.json(out);
+  } catch (e) {
+    res.status(500).json({ error: 'serialize', message: e instanceof Error ? e.message : String(e) });
+  }
 });
 
 perps.get('/quote', async (req, res) => {
