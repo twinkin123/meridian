@@ -43,9 +43,8 @@
     overlay.remove();
     overlay = null; balEl = null;
     document.body.classList.remove('wd-open');
-    document.body.style.top = '';
-    setTimeout(function(){ window.scrollTo(0, lockY); }, 0);
-    setTimeout(function(){ window.scrollTo(0, lockY); }, 80);
+    setTimeout(function(){ document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }, 0);
+    setTimeout(function(){ document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }, 80);
     document.removeEventListener('keydown', onKey);
     window.dispatchEvent(new Event('pageshow'));
   }
@@ -160,8 +159,8 @@
 
     overlay.appendChild(sheet);
     document.body.appendChild(overlay);
-    lockY = window.pageYOffset || document.documentElement.scrollTop || 0;
-    document.body.style.top = (-lockY) + 'px';
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
     document.body.classList.add('wd-open');
     document.addEventListener('keydown', onKey);
 
@@ -198,7 +197,7 @@
     if (overlay) return;
     build();
     loadBal();
-    setTimeout(function () { var a = document.getElementById('wAddr'); if (a) a.focus({ preventScroll: true }); }, 60);
+    setTimeout(function () { var a = document.getElementById('wAddr'); if (a) { a.focus({ preventScroll: true }); } var s = document.querySelector('.wd-sheet'); if (s) s.scrollTop = 0; }, 60);
   }
 
   window.openWithdraw = open;
