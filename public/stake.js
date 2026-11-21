@@ -30,7 +30,7 @@
     if (a === 0n) return say('Enter an amount', true);
     if (a < MIN) return say('Minimum ' + usd(MIN), true);
     if (a > avail) return say('More than your available balance', true);
-    say('Lock ' + usd(a) + ' for 30 days', false);
+    cta.disabled = false; say('Lock ' + usd(a) + ' for 30 days', false);
   }
 
   async function loadBalance() {
