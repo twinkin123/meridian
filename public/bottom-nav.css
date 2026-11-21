@@ -36,7 +36,6 @@ html body #p-dash [data-results],html body #resCard,
 html body #claimBtn,html body #rwOut{margin:18px!important}
 html body #p-dash .stats{margin:18px!important}
 }
-
 /* value card: dash borderless, stake boxed, perp single screen */
 @media (max-width:980px){
 html body .main .panel.on{border:0!important;margin-top:34px!important}
