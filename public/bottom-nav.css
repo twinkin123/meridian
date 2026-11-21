@@ -286,3 +286,13 @@ html body #p-perps.panel.on .pp-ticket > button{background:#1ee08a!important;bac
 html body #p-perps.panel.on .pp-side.l{color:#1ee08a!important;border-color:rgba(30,224,138,.55)!important}
 html body #p-perps.panel.on .pp-grad{background-image:linear-gradient(90deg,#1ee08a,#c8d13a,#e8a33d,#ef4b3f)!important}
 }
+
+
+
+/* perp green: one bright mint accent, all widths */
+html body #p-perps.panel.on .pp-dir button.on{background:#4ade80!important;background-image:none!important;color:#04120a!important}
+html body #p-perps.panel.on .pp-tf2 button.on{background:#4ade80!important;background-image:none!important;border-color:#4ade80!important;color:#04120a!important}
+html body #p-perps.panel.on .pp-ticket > button{background:#4ade80!important;background-image:none!important;color:#04120a!important}
+html body #p-perps.panel.on .pp-side.l{color:#4ade80!important;border-color:rgba(74,222,128,.55)!important}
+html body #p-perps.panel.on .pp-grad{background-image:linear-gradient(90deg,#4ade80,#c8d13a,#e8a33d,#ef4b3f)!important}
+html body #p-perps.panel.on .pp-dir button:last-child.on{background:#ef4b3f!important;color:#fff!important}
