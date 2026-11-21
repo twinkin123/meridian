@@ -619,3 +619,6 @@ html body .side{border-bottom:1px solid #2a2a30!important;box-shadow:inset 0 -1p
 @media (max-width:980px){
 html body .side{border-bottom:1px solid #2a2a30!important;box-shadow:inset 0 -1px 0 #2a2a30!important}
 }
+/* dash: no first-deposit sub-labels on the tiers */
+html body #p-dash .ref-ladder .s{display:none!important}
+html body #p-dash .ref-ladder > div{padding:7px 0!important}
