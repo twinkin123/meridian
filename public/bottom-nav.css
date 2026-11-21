@@ -626,3 +626,6 @@ html body #p-dash .ref-ladder > div{padding:7px 0!important}
 html body .dep-sheet .dep-row,html body .dep-sheet .dep-opt,html body .dep-sheet .dep-lg,html body .dep-sheet .dep-addr code,html body .dep-sheet .dep-copy,html body .dep-sheet .dep-quote,html body .dep-sheet .dep-status,html body .dep-sheet .dep-warn,html body .dep-sheet .dep-x,html body .wd-sheet .wd-addr code,html body .wd-sheet .wd-copy,html body .wd-sheet .wd-foot,html body .wd-card .field input,html body .wd-card .field select,html body #wSubmit,html body #wAll,html body .wd-x{background:#000!important;background-image:none!important;border:1px solid #2b2d33!important;border-radius:9px!important;color:#f2f3f5!important;font-weight:500!important;box-shadow:0 0 22px -6px rgba(139,92,246,.75),0 0 44px -20px rgba(139,92,246,.55)!important}
 html body .dep-sheet .dep-warn,html body .wd-sheet .wd-foot{color:#e0b76a!important}
 html body .dep-sheet .dep-opt:hover{background:#0c0c10!important;border-color:#3a3c44!important}
+/* dep: quote and status sit on the sheet grey, no pill */
+html body .dep-sheet .dep-quote,html body .dep-sheet .dep-status{background:#2a2a33!important;background-image:none!important;border:0!important;box-shadow:none!important;color:#f2f3f5!important}
+html body .dep-sheet .dep-quote:empty{display:none!important}
