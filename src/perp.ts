@@ -168,8 +168,11 @@ async function settle(
   const stake = BigInt(p.stake);
   /* A liquidation can gap past zero; the stake is the floor of the loss. */
   if (pnl < -stake) pnl = -stake;
-  const fee = stake / 200n;
+  const openFee = stake / 200n;
   let back = stake + pnl;
+  if (back < 0n) back = 0n;
+  /* Close fee: 0.5% of what they actually get back. */
+  back -= back / 200n;
   if (back < 0n) back = 0n;
 
   await c.query(
@@ -181,7 +184,7 @@ async function settle(
 
   /* Release the whole house obligation (stake + fee) and book the result:
      whatever the user does not get back is revenue, anything above is expense. */
-  const obligation = stake + fee;
+  const obligation = stake + openFee;
   const legs: Leg[] = [{ code: '2100', amount: obligation }];
   if (back > 0n) legs.push({ code: '2000', owner: p.user_id, amount: -back });
   const result = obligation - back;
