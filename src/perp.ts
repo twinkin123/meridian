@@ -89,7 +89,7 @@ export async function marks(): Promise<Record<string, Mark>> {
 export async function markOf(market: string): Promise<number> {
   const m = MARKETS[market];
   if (!m) throw new Error('unknown market');
-  const all = await marks();
+  const all = await marksNow();
   const p = all[m.id];
   if (!p) throw new Error('no price');
   return p.usd;
@@ -295,7 +295,7 @@ export async function positions(userId: string): Promise<View[]> {
        from perp_positions where user_id = $1 and status = 'open' order by opened_at desc`,
     [userId],
   );
-  const all = await marks().catch(() => ({}) as Record<string, Mark>);
+  const all = await marksNow().catch(() => ({}) as Record<string, Mark>);
 
   return rows.map((r) => {
     const price = all[MARKETS[r.market]?.id]?.usd ?? Number(r.entry);
