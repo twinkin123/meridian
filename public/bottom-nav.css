@@ -21,3 +21,10 @@ html body .main > .tickers .tk .px .v{font-size:10.5px!important;font-weight:600
 html body .main > .tickers .tk .px em{font-size:9px!important;line-height:1.15!important}
 html body .main > .tickers .tk::after{content:""!important;position:absolute!important;right:0!important;top:0!important;bottom:0!important;width:1px!important;background:rgba(255,255,255,.09)!important}
 }
+@media (max-width:980px){
+html body .main{margin-top:0!important;padding-top:12px!important}
+html body .main > .tickers{flex:0 0 auto!important;min-height:34px!important;overflow:visible!important;margin:0 -20px 14px!important;padding:0 14px 0 8px!important}
+html body .main > .tickers .tk{align-self:center!important;height:34px!important;padding:0 10px!important;align-content:center!important}
+html body .side a{padding:13px 7px!important}
+html body .side a:first-child{padding-left:12px!important}
+}

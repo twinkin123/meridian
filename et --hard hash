@@ -1,0 +1,30 @@
+[33md57dea9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m nav: kill the phantom box, flush left, compact ticker
+[33me48cd4d[m nav: flush-left bottom bar, tighter ticker
+[33m79c4d65[m nav: bottom bar in the old top-bar style, drop the robot, compact the ticker
+[33ma4b39a9[m nav: pin the mobile nav to the bottom of the screen
+[33m0d0cc0d[m perp fee: fix untyped query generic
+[33mec72de9[m perp fee: 10% of stake per side, taken from available balance
+[33mb28ddc3[m Remove Pulse page and nav button
+[33m8296ee2[m Remove Pulse page and nav button
+[33mc509e66[m Revert "Remove Pulse page"
+[33m7cebe7a[m Remove Pulse page
+[33m7db6578[m Pulse: read DexScreener instead of pump
+[33m9dc7149[m Pulse: browser headers, host fallback, visible feed error
+[33m911062f[m Pulse: live new / final-stretch / migrating feed
+[33me69d9a2[m Nav: stake icon is a coin with a cash sign
+[33m0b3d0c6[m Jobs: fleet-wide advisory lock so crons cannot double-run
+[33mb6e7675[m Perp: skip the close fee on liquidation
+[33m33c38ac[m perps: a liquidation always fills at the liq price
+[33m0f479df[m perps: read the fresh feed everywhere a price is quoted
+[33m7e81439[m perps: fresh Binance marks for open and liquidation, 5s bucket
+[33me3a7e5c[m perps: liq line clears on liquidation
+[33m66d6a97[m perps: never discard ticks while live, refetch the series after a close
+[33m184661d[m perps: cap liquidation fills at the liq price
+[33m8de58c0[m withdraw: remove the diagnostic readout
+[33ma35b651[m search: restore the original bar geometry, keep offsets cleared
+[33mcea142e[m search: fixed position in the bar, drop card alignment
+[33mdf26fb7[m search: cap the aligned box so it clears the header controls
+[33mbc11556[m search: align to the active panel's card, skip zero-width rects
+[33m7f2b117[m withdraw: diagnostic readout for the header shift
+[33mbe357b2[m skin: body is never a scroll container
+[33m642c0bb[m fix: pin header out of flow on desktop; sheet scrolls itself
