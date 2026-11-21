@@ -471,3 +471,6 @@ html body .wd-card .field input:focus,html body .wd-card .field select:focus{bor
 /* withdraw: fields filled #34343e */
 html body .wd-card .field input,html body .wd-card .field select{background:#34343e!important;background-image:none!important}
 html body .wd-card .field input::placeholder{color:rgba(255,255,255,.45)!important}
+
+/* withdraw: hide the minimum explainer line */
+html body .wd-card > .hint:first-child{display:none!important}
