@@ -76,7 +76,7 @@
       line.setData(pts.map(function (p) { return { time: p.t, value: p.usd }; }));
       var tip = pts[pts.length - 1];
       if (tip) {
-        line.setMarkers([{ time: tip.t, position: 'inBar', shape: 'circle', color: '#28e664', size: 1 }]);
+        line.setMarkers([{ time: tip.t, position: 'inBar', shape: 'circle', color: '#ff7a6e', size: 2 }]);
       }
     }
     chart.priceScale('right').applyOptions({ autoScale: true, scaleMargins: { top: 0.06, bottom: 0.06 } });
@@ -105,7 +105,7 @@
       autoSize: false,
     });
     line = chart.addLineSeries({
-      color: '#28e664',
+      color: '#ff7a6e',
       lineWidth: 2,
       priceLineVisible: false,
       lastValueVisible: false,
@@ -184,46 +184,66 @@
     $('ppPlace').textContent = busy ? 'Placing...' : 'Place Trade';
   }
 
-  var liqSeries = null, openLiq = null, liqLine = null, liqOwner = null;
+  var liqSeries = null, openLiqs = [], liqLines = [], liqAnchors = [];
   var openCount = 0;
 
-  /* A price line is positioned by the library itself, so there is no
-     coordinate to compute and no timing to get wrong. */
+  /* One price line per open position in this market. Each gets its own series
+     anchor so auto-scale keeps every one of them on screen; price lines alone
+     do not participate in auto-scale. */
   function paintLiq() {
-    if (liqLine && liqOwner) {
-      try { liqOwner.removePriceLine(liqLine); } catch (_) {}
-      liqLine = null;
+    var i;
+    for (i = 0; i < liqLines.length; i++) {
+      if (liqLines[i]) { try { liqLines[i].owner.removePriceLine(liqLines[i].line); } catch (_) {} }
     }
-    /* Anchor the value on a series so auto-scale keeps the liq in view;
-       a price line alone does not participate in auto-scale. */
-    if (liqSeries) {
-      if (!openLiq || all.length < 2) liqSeries.setData([]);
-      else liqSeries.setData([
-        { time: all[0].t, value: openLiq },
-        { time: all[all.length - 1].t, value: openLiq },
-      ]);
+    liqLines = [];
+
+    var n = openLiqs.length;
+    for (i = 0; i < n; i++) {
+      if (!liqAnchors[i] && chart) {
+        liqAnchors[i] = chart.addLineSeries({
+          color: '#ff2f4f',
+          lineWidth: 2,
+          priceLineVisible: false,
+          lastValueVisible: false,
+          crosshairMarkerVisible: false,
+        });
+      }
     }
+    for (i = 0; i < liqAnchors.length; i++) {
+      if (i >= n || all.length < 2) { try { liqAnchors[i].setData([]); } catch (_) {} continue; }
+      try {
+        liqAnchors[i].setData([
+          { time: all[0].t, value: openLiqs[i] },
+          { time: all[all.length - 1].t, value: openLiqs[i] },
+        ]);
+      } catch (_) {}
+    }
+
     var target = mode === 'candles' ? candles : line;
-    if (!openLiq || !target) return;
-    liqOwner = target;
-    liqLine = target.createPriceLine({
-      price: openLiq,
-      color: '#f0476a',
-      lineWidth: 2,
-      lineStyle: LightweightCharts.LineStyle.Solid,
-      axisLabelVisible: true,
-      title: 'Liq',
-    });
+    if (!n || !target) return;
+    for (i = 0; i < n; i++) {
+      try {
+        liqLines.push({
+          owner: target,
+          line: target.createPriceLine({
+            price: openLiqs[i],
+            color: '#ff2f4f',
+            lineWidth: 2,
+            lineStyle: LightweightCharts.LineStyle.Solid,
+            axisLabelVisible: true,
+            title: i === 0 ? 'Liq' : '',
+          }),
+        });
+      } catch (_) {}
+    }
   }
 
-  /* The line follows the open position, not the ticket preview. */
+  /* One line per open position in this market, lowest first. */
   function setLiq(rows) {
-    var best = null;
-    (rows || []).forEach(function (p) {
-      if (p.market !== market || !p.liq) return;
-      if (!best || Math.abs(Number(p.liq) - Number(p.mark)) < Math.abs(Number(best.liq) - Number(best.mark))) best = p;
-    });
-    openLiq = best ? Number(best.liq) : null;
+    openLiqs = (rows || [])
+      .filter(function (p) { return p.market === market && p.liq; })
+      .map(function (p) { return Number(p.liq); })
+      .sort(function (a, b) { return a - b; });
     paintLiq();
   }
 
@@ -316,7 +336,7 @@
       li.classList.toggle('on', li.dataset.m === id);
     });
     all = [];
-    openLiq = null;
+    openLiqs = [];
     if (chart) { line.setData([]); candles.setData([]); paintLiq(); }
     loadHistory();
     quote();
