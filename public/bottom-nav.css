@@ -365,12 +365,10 @@ html body #p-dash .stats + .card{margin-top:0!important}
 
 
 
-/* deposit sheet: fixed height on the sheet only */
+/* deposit sheet: constant height, the asset list scrolls inside it */
 @media (max-width:980px){
-html body [class*="sheet"]:has(.dep-x),
-html body [class*="modal"]:has(.dep-x),
-html body [class*="drawer"]:has(.dep-x){height:640px!important;max-height:88vh!important;overflow-y:auto!important;overflow-x:hidden!important}
-html body [class*="dep"]:has(.dep-x){min-height:0!important;height:auto!important}
-html body [class*="sheet"]:has(.dep-x) .dep-x,
-html body [class*="modal"]:has(.dep-x) .dep-x{position:sticky!important;top:0!important;z-index:6!important}
+html body .dep-sheet{height:600px!important;max-height:86vh!important;overflow-y:auto!important;overflow-x:hidden!important}
+html body .dep-sheet .dep-list{max-height:190px!important;overflow-y:auto!important;overscroll-behavior:contain!important}
+html body .dep-sheet .dep-head{position:sticky!important;top:0!important;z-index:6!important;background:#000!important}
+html body .dep-sheet .dep-x{position:static!important}
 }
