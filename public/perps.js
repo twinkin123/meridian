@@ -76,7 +76,7 @@
       line.setData(pts.map(function (p) { return { time: p.t, value: p.usd }; }));
       var tip = pts[pts.length - 1];
       if (tip) {
-        line.setMarkers([{ time: tip.t, position: 'inBar', shape: 'circle', color: '#ff7a6e', size: 2 }]);
+        line.setMarkers([{ time: tip.t, position: 'inBar', shape: 'circle', color: '#28e664', size: 2 }]);
       }
     }
     chart.priceScale('right').applyOptions({ autoScale: true, scaleMargins: { top: 0.06, bottom: 0.06 } });
@@ -105,7 +105,7 @@
       autoSize: false,
     });
     line = chart.addLineSeries({
-      color: '#ff7a6e',
+      color: '#28e664',
       lineWidth: 2,
       priceLineVisible: false,
       lastValueVisible: false,
