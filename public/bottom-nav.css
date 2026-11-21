@@ -570,3 +570,11 @@ html body .shell::after{content:"";position:fixed;left:0;right:0;bottom:0;height
 html body:has(#p-stake.panel.on){padding-bottom:calc(56px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;background:#0a0a0b!important;background-image:none!important}
 html body:has(#p-stake.panel.on) .main{padding-bottom:20px!important;background:#0a0a0b!important;background-image:none!important}
 }
+/* stake nav 2: centre the row, underline back on the label */
+@media (max-width:980px){
+html body .side{align-items:center!important}
+html body .side .navbox{height:auto!important;align-items:center!important}
+html body .side a{padding:13px 9px!important;height:auto!important;align-items:center!important}
+html body:has(#p-stake.panel.on){padding-bottom:0!important}
+html body:has(#p-stake.panel.on) .main{padding-bottom:76px!important;background:#0a0a0b!important;background-image:none!important}
+}
