@@ -761,3 +761,7 @@ html body .main .pp-pos .pp-tbl{max-height:120px!important;overflow-y:auto!impor
 html body .main .pp-chart-card{flex:1 1 auto!important;min-height:0!important}
 html body .main .pp-line{flex:1 1 auto!important;min-height:0!important}
 html body .main .pp-about{flex:none!important}
+
+html body .main .pp-pos .pp-empty[hidden]{display:none!important}
+html body .main .pp-pos .pp-tbl table{min-width:600px}
+html body .main .pp-pos .pp-tbl th,html body .main .pp-pos .pp-tbl td{padding-top:6px!important;padding-bottom:6px!important}
