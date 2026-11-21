@@ -335,3 +335,5 @@ html body .main .pp-place{flex:0 0 auto!important;height:48px!important;padding:
 html body .main #ppChart{right:18px!important;left:4px!important}
 
 html body .main #ppChart{right:66px!important}
+
+html body .main #ppChart{left:4px!important;right:66px!important;width:auto!important}
