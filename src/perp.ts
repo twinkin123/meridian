@@ -169,7 +169,7 @@ async function settle(
   /* A liquidation can gap past zero; the stake is the floor of the loss. */
   if (pnl < -stake) pnl = -stake;
   const fee = stake / 200n;
-  let back = stake + pnl - fee;
+  let back = stake + pnl;
   if (back < 0n) back = 0n;
 
   await c.query(
