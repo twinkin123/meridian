@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pulse - Meridian</title>
+<link rel="stylesheet" href="/nav-icons.css?v=1">
+<style>
+:root{--bg:#0b0d11;--card:#11151b;--line:#1e232b;--dim:#7d8694;--txt:#e6edf3;--up:#33d69f;--hot:#ff6b57}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.4 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+h1{font-size:20px;margin:0;letter-spacing:-.2px}
+.pill{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+.pill b{color:var(--up)}
+.back{margin-left:auto;color:var(--dim);text-decoration:none;font-size:13px}
+.back:hover{color:var(--txt)}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);align-items:start}
+.col{background:var(--bg);min-width:0}
+.ch{display:flex;align-items:center;gap:8px;padding:11px 12px;border-bottom:1px solid var(--line);position:sticky;top:62px;background:var(--bg);z-index:4}
+.ch b{font-size:13px;font-weight:600}
+.ch i{width:6px;height:6px;border-radius:50%;display:inline-block}
+.ch span{font-size:11px;color:var(--dim);margin-left:auto}
+.list{display:flex;flex-direction:column}
+.c{display:flex;gap:10px;padding:9px 12px;border-bottom:1px solid #14181e;text-decoration:none;color:inherit}
+.c:hover{background:#0f1319}
+.th{width:42px;height:42px;border-radius:8px;object-fit:cover;background:#1a1f27;flex:0 0 42px}
+.b{min-width:0;flex:1}
+.t1{display:flex;align-items:baseline;gap:6px;min-width:0}
+.nm{font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sy{font-size:11.5px;color:var(--dim);white-space:nowrap}
+.live{font-size:9.5px;color:#fff;background:var(--hot);border-radius:4px;padding:1px 4px;font-weight:700}
+.m{display:flex;gap:9px;font-size:11px;color:var(--dim);margin-top:3px;flex-wrap:wrap}
+.m b{color:var(--txt);font-weight:600}
+.m .mc{color:var(--up)}
+.s{display:flex;gap:7px;font-size:10.5px;color:#5d6675;margin-top:3px;align-items:center}
+.s a{color:#5d6675;text-decoration:none}
+.s a:hover{color:var(--txt)}
+.empty{padding:18px 12px;color:var(--dim);font-size:12px}
+@media(max-width:820px){.cols{grid-template-columns:1fr}.ch{top:0}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Pulse</h1>
+  <span class="pill" id="stat">live <b>&middot;</b> 8s</span>
+  <a class="back" href="/app.html">Dashboard</a>
+</header>
+<div class="cols">
+  <section class="col"><div class="ch"><i style="background:#33d69f"></i><b>New</b><span id="n-new">-</span></div><div class="list" id="new"><div class="empty">loading</div></div></section>
+  <section class="col"><div class="ch"><i style="background:#ffb020"></i><b>Final stretch</b><span id="n-str">-</span></div><div class="list" id="stretch"><div class="empty">loading</div></div></section>
+  <section class="col"><div class="ch"><i style="background:#ff6b57"></i><b>Migrating</b><span id="n-mig">-</span></div><div class="list" id="migrating"><div class="empty">loading</div></div></section>
+</div>
+<script>
+function money(n){
+  if(!n) return '$0';
+  if(n>=1e6) return '$'+(n/1e6).toFixed(1)+'M';
+  if(n>=1e3) return '$'+(n/1e3).toFixed(1)+'K';
+  return '$'+n.toFixed(0);
+}
+function age(t){
+  if(!t) return '';
+  var s=Math.max(0,(Date.now()-t)/1000);
+  if(s<60) return Math.floor(s)+'s';
+  if(s<3600) return Math.floor(s/60)+'m';
+  if(s<86400) return Math.floor(s/3600)+'h';
+  return Math.floor(s/86400)+'d';
+}
+function card(c){
+  var a=document.createElement('a');
+  a.className='c';
+  a.href='https://pump.fun/coin/'+c.mint;
+  a.target='_blank';
+  a.rel='noreferrer noopener';
+  var img=document.createElement('img');
+  img.className='th'; img.loading='lazy'; img.src=c.img||''; img.alt='';
+  img.onerror=function(){ img.style.visibility='hidden'; };
+  var b=document.createElement('div'); b.className='b';
+  var t1=document.createElement('div'); t1.className='t1';
+  var nm=document.createElement('div'); nm.className='nm'; nm.textContent=c.name;
+  var sy=document.createElement('div'); sy.className='sy'; sy.textContent=c.sym?'$'+c.sym:'';
+  t1.appendChild(nm); t1.appendChild(sy);
+  if(c.live){ var lv=document.createElement('span'); lv.className='live'; lv.textContent='LIVE'; t1.appendChild(lv); }
+  var m=document.createElement('div'); m.className='m';
+  var mc=document.createElement('span'); mc.className='mc'; mc.textContent=money(c.mc); m.appendChild(mc);
+  var liq=document.createElement('span'); liq.innerHTML='liq <b>'+money(c.liq)+'</b>'; m.appendChild(liq);
+  var ag=document.createElement('span'); ag.textContent=age(c.at); m.appendChild(ag);
+  var s=document.createElement('div'); s.className='s';
+  if(c.by){ var u=document.createElement('span'); u.textContent='@'+c.by; s.appendChild(u); }
+  if(c.x){ var x=document.createElement('a'); x.href=c.x; x.target='_blank'; x.rel='noreferrer noopener'; x.textContent='X'; s.appendChild(x); }
+  if(c.tg){ var g=document.createElement('a'); g.href=c.tg; g.target='_blank'; g.rel='noreferrer noopener'; g.textContent='TG'; s.appendChild(g); }
+  if(c.web){ var w=document.createElement('a'); w.href=c.web; w.target='_blank'; w.rel='noreferrer noopener'; w.textContent='WEB'; s.appendChild(w); }
+  b.appendChild(t1); b.appendChild(m); b.appendChild(s);
+  a.appendChild(img); a.appendChild(b);
+  return a;
+}
+function fill(id,countId,rows){
+  var el=document.getElementById(id);
+  var n=document.getElementById(countId);
+  el.textContent='';
+  if(!rows||!rows.length){ var e=document.createElement('div'); e.className='empty'; e.textContent='nothing right now'; el.appendChild(e); n.textContent='0'; return; }
+  n.textContent=rows.length;
+  rows.forEach(function(c){ el.appendChild(card(c)); });
+}
+var seq=0;
+function tick(){
+  var mine=++seq;
+  fetch('/api/pulse',{credentials:'same-origin'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(mine!==seq) return;
+      if(d.error){ document.getElementById('stat').textContent='feed down: '+(d.detail||'?'); return; }
+      fill('new','n-new',d.fresh);
+      fill('stretch','n-str',d.stretch);
+      fill('migrating','n-mig',d.migrating);
+      document.getElementById('stat').innerHTML='live <b>&middot;</b> '+new Date().toLocaleTimeString();
+    })
+    .catch(function(){});
+}
+tick();
+setInterval(tick,8000);
+</script>
+</body>
+</html>
