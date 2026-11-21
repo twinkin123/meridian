@@ -560,3 +560,13 @@ html body #p-stake .st-main{height:auto!important}
 html body #p-stake.panel.on{padding-bottom:16px!important}
 html body #p-stake .st-side{padding-bottom:16px!important}
 }
+
+/* stake: nav flush to the bottom edge, no see-through band */
+@media (max-width:980px){
+html body .side{height:calc(56px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;align-items:stretch!important}
+html body .side .navbox{height:100%!important;align-items:stretch!important}
+html body .side a{padding:0 9px!important;height:100%!important;align-items:center!important}
+html body .shell::after{content:"";position:fixed;left:0;right:0;bottom:0;height:calc(56px + env(safe-area-inset-bottom));background:#0a0a0b;z-index:59;pointer-events:none}
+html body:has(#p-stake.panel.on){padding-bottom:calc(56px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;background:#0a0a0b!important;background-image:none!important}
+html body:has(#p-stake.panel.on) .main{padding-bottom:20px!important;background:#0a0a0b!important;background-image:none!important}
+}
