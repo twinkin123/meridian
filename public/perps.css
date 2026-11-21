@@ -339,3 +339,6 @@ html body .main #ppChart{right:66px!important}
 html body .main #ppChart{left:4px!important;right:66px!important;width:auto!important}
 
 html body .main .pp-place{height:46px!important;min-height:46px!important;max-height:46px!important;padding:0!important;line-height:46px!important;box-sizing:border-box!important}
+
+html body .main .pp-line{margin:12px 0 0 -16px!important;padding-right:56px!important}
+html body .main #ppChart{left:0!important;right:0!important;width:100%!important}
