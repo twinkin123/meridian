@@ -37,8 +37,9 @@
   });
 
   function align() {
-    var card = document.querySelector('.main .card');
+    var card = document.querySelector('.main .panel.on .card') || document.querySelector('.main .card');
     if (!card) return;
+    if (!card.getBoundingClientRect().width) return;
     if (window.matchMedia('(max-width:900px)').matches) {
       box.style.removeProperty('left');
       box.style.removeProperty('right');
