@@ -26,7 +26,7 @@
   setInterval(clock, 1000);
 
   var card = document.getElementById('resCard') || (document.querySelectorAll('.grid > div')[1] || { querySelector: function(){ return null; } }).querySelector('.card') ||
-    Array.prototype.find.call(document.querySelectorAll('.card'), function(c){ return /next credit/i.test(c.textContent); });
+    Array.prototype.find.call(document.querySelectorAll('.card'), function(c){ return /Trade results/i.test(c.textContent); });
   if (!card) return;
   card.id = 'resCard';
 
@@ -67,7 +67,7 @@
       if (lastSig === 'none|' + offset) return;
       lastSig = 'none|' + offset;
       card.innerHTML = head('No session recorded', '-') +
-        '<div class="res-clock">next credit in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
+        '<div class="res-clock">Trade results in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
       wireNav();
       clock();
       return;
@@ -95,7 +95,7 @@
       (pend
         ? '<p class="hint res-pend">Results post at 00:15 UTC.</p>'
         : '<table class="res"><thead><tr><th>Symbol</th><th>Open</th><th>Close</th><th>Opened</th><th>Closed</th><th>Return</th></tr></thead><tbody>' + rows + '</tbody></table>') +
-      '<div class="res-clock">next credit in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
+      '<div class="res-clock">Trade results in <span id="cH">--</span>:<span id="cM">--</span>:<span id="cS">--</span></div>';
 
     if (window.matchMedia("(max-width:900px)").matches){
       var _a = document.getElementById("addr");
