@@ -679,3 +679,5 @@ html body #p-stake.panel.on{border-color:#000!important}
 html body #p-stake.panel.on{border:0!important;box-shadow:none!important}
 /* stake: no outer casing, matching the rule that sets it */
 html body .main #p-stake.panel.on{border:0!important;box-shadow:none!important}
+/* stake: no panel padding, cards sit on the gutter */
+html body .main #p-stake.panel.on{padding:0!important;border-radius:0!important}
