@@ -28,11 +28,12 @@ html body .shell{margin-top:0!important}
 html body > .tickers{margin-bottom:14px!important}
 @media (max-width:980px){html body .main{padding-top:6px!important}}
 
-/* value card: black the grey arc on the top-left corner only */
+/* value card: black the top-left corner, no halo */
 @media (max-width:980px){
 html body .main .panel.on > .grid > div > .card.rainbow{
   clip-path:polygon(0 0,100% 0,100% calc(100% - 24px),calc(100% - 24px) 100%,0 100%)!important;
   border-top-left-radius:10px!important;
+  filter:none!important;
 }
 html body .main .panel.on > .grid > div > .card.rainbow::before{
   clip-path:polygon(0 0,100% 0,100% calc(100% - 23px),calc(100% - 23px) 100%,0 100%)!important;
