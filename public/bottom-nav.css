@@ -696,3 +696,5 @@ html body #p-perps.panel.on .pp-fee{display:none!important}
 html body .hs-foot{display:none!important}
 /* settings: black card */
 html body #p-settings.panel.on,html body #p-settings .card{background:#000!important;background-color:#000!important;background-image:none!important}
+/* app: grey surfaces black everywhere */
+html body .main .card,html body .main .panel.on,html body .main .field,html body .main .field input,html body .main .field select,html body .main .field textarea,html body .main .msg,html body .main .list li,html body .main .stat,html body .main .row,html body .main .calc-amount,html body .main .calc-out,html body .main .calc-total,html body .main details{background:#000!important;background-color:#000!important;background-image:none!important}
