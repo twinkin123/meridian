@@ -35,8 +35,8 @@ html body .main .panel.on > .grid > div > .card.rainbow{margin:0!important;posit
 html body .main .panel.on::after{
   content:""!important;position:absolute!important;
   top:0!important;left:0!important;
-  width:20px!important;height:20px!important;
-  background:#000!important;border-radius:0!important;
+  width:18px!important;height:18px!important;
+  background:radial-gradient(circle at 0 0,#000 0,#000 12px,rgba(0,0,0,0) 18px)!important;
   z-index:3!important;pointer-events:none!important;
 }
 }
