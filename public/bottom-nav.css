@@ -384,3 +384,6 @@ html body .dep-sheet .dep-addr,html body .dep-sheet .dep-status,
 html body .wd-sheet .wd-addr,html body .wd-sheet .wd-status{border:0!important;background:transparent!important}
 html body .dep-sheet .dep-safe,html body .wd-sheet .wd-safe{display:none!important}
 html body .dep-overlay,html body .wd-overlay{background:rgba(10,10,14,.72)!important}
+/* dep head: no black band */
+html body .dep-sheet .dep-head{background:#2a2a33!important;background-image:none!important;border-bottom:0!important}
+html body .wd-sheet .wd-head{background:#2a2a33!important;background-image:none!important}
