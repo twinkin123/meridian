@@ -452,6 +452,17 @@
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ id: b.dataset.close }),
       }).then(loadState).catch(function () {});
+
+    function setTab(t) {
+      tab = t;
+      $('ppTabPos').classList.toggle('on', t === 'pos');
+      $('ppTabHist').classList.toggle('on', t === 'hist');
+      headers();
+      paintRows();
+      loadState();
+    }
+    $('ppTabPos').addEventListener('click', function () { setTab('pos'); });
+    $('ppTabHist').addEventListener('click', function () { setTab('hist'); });
     });
 
     $('ppAmt').textContent = stake.toFixed(2);
