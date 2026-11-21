@@ -55,6 +55,7 @@
     }
     chart.priceScale('right').applyOptions({ autoScale: true, scaleMargins: { top: 0.12, bottom: 0.12 } });
     chart.timeScale().fitContent();
+  paintLiq();
     var m = all.length;
     if (m > 1) chart.timeScale().setVisibleLogicalRange({ from: 0, to: m + Math.max(6, Math.round(m * 0.03)) });
     if (mode === 'candles') {
@@ -91,6 +92,8 @@
       priceLineVisible: false,
       lastValueVisible: false,
     });
+
+    liqSeries = chart.addLineSeries({ color: '#f0476a', lineWidth: 2, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false });
   }
 
   function loadHistory(retry) {
@@ -154,28 +157,21 @@
     $('ppPlace').textContent = busy ? 'Placing...' : 'Place Trade';
   }
 
-  var liqLines = [];
+  var liqSeries = null, liqVal = null;
   var openCount = 0;
+  function paintLiq() {
+    if (!liqSeries) return;
+    if (!liqVal || all.length < 2) { liqSeries.setData([]); return; }
+    var pad = Math.max(6, Math.round(all.length * 0.03)) * step();
+    liqSeries.setData([
+      { time: all[0].t, value: liqVal },
+      { time: all[all.length - 1].t + pad, value: liqVal },
+    ]);
+  }
+
   function drawLiq(liq) {
-    liqLines.forEach(function (p) { try { p.s.removePriceLine(p.l); } catch (_) {} });
-    liqLines = [];
-    if (!liq || typeof LightweightCharts === 'undefined') return;
-    [line, candles].forEach(function (s) {
-      if (!s) return;
-      try {
-        liqLines.push({
-          s: s,
-          l: s.createPriceLine({
-            price: liq,
-            color: '#f0476a',
-            lineWidth: 2,
-            lineStyle: LightweightCharts.LineStyle.Solid,
-            axisLabelVisible: true,
-            title: 'Liq',
-          }),
-        });
-      } catch (_) {}
-    });
+    liqVal = liq || null;
+    paintLiq();
   }
 
   function quote() {
