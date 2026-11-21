@@ -421,3 +421,10 @@ html body #p-dash .ref-stats > div + div{border-left:0!important}
 html body #p-dash .ref-stats > div{background:transparent!important;background-image:none!important;border:1px solid rgba(120,205,255,.95)!important;border-radius:12px!important;padding:10px 12px!important;color:#bfe6ff!important;font-weight:600!important;text-shadow:0 0 12px rgba(120,205,255,.65)!important;box-shadow:0 0 24px -4px rgba(120,205,255,.95),0 16px 34px -18px rgba(120,205,255,.95)!important}
 html body #p-dash .ref-stats > div .lbl{color:rgba(191,230,255,.7)!important;text-shadow:none!important}
 html body #p-dash .ref-stats > div b{color:#bfe6ff!important}
+
+/* dash: one flat spec for ref pills, link, copy, claim */
+html body #p-dash .ref-stats > div,html body #p-dash .addr code,html body #p-dash .addr .btn,html body #p-dash #rwOut{background:#0a0a0b!important;background-image:none!important;border:1px solid rgba(120,205,255,.95)!important;border-radius:8px!important;color:#bfe6ff!important;font-weight:700!important;text-shadow:none!important;box-shadow:none!important}
+html body #p-dash .ref-stats > div{padding:9px 12px!important;font-size:12.5px!important}
+html body #p-dash .addr code{padding:10px 12px!important;font-size:12px!important}
+html body #p-dash .addr .btn{padding:9px 15px!important;font-size:12.5px!important}
+html body #p-dash .ref-stats > div .lbl{color:rgba(191,230,255,.6)!important;text-shadow:none!important}
