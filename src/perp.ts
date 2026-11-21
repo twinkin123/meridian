@@ -200,7 +200,7 @@ async function settle(
   /* A liquidation can gap past zero; the stake is the floor of the loss. */
   if (pnl < -stake) pnl = -stake;
   /* Read the fee actually posted, so a position opened under an older rate still settles at the rate it paid. */
-  const feeRow = await c.query<{ s: string }>(
+  const feeRow = await c.query(
     `select coalesce(sum(p.amount),0)::text s
        from postings p
        join transactions t on t.id = p.tx_id
@@ -208,7 +208,7 @@ async function settle(
       where t.kind = 'PerpFee' and t.external_ref = $1 and a.code = '2000'`,
     [p.id],
   );
-  const openFee = BigInt(feeRow.rows[0]?.s ?? '0');
+  const openFee = BigInt(String(feeRow.rows[0]?.s ?? '0'));
   let back = stake + pnl;
   /* Close fee: 10% of stake, capped at the proceeds. A liquidation pays none. */
   if (status === 'closed') {
