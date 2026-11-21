@@ -1,5 +1,5 @@
 (function () {
-  var overlay = null, balEl = null, bal = '0';
+  var overlay = null, balEl = null, bal = '0', lockY = 0;
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -43,6 +43,8 @@
     overlay.remove();
     overlay = null; balEl = null;
     document.body.classList.remove('wd-open');
+    document.body.style.top = '';
+    window.scrollTo(0, lockY);
     document.removeEventListener('keydown', onKey);
     window.dispatchEvent(new Event('pageshow'));
   }
@@ -157,6 +159,8 @@
 
     overlay.appendChild(sheet);
     document.body.appendChild(overlay);
+    lockY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    document.body.style.top = (-lockY) + 'px';
     document.body.classList.add('wd-open');
     document.addEventListener('keydown', onKey);
 
