@@ -395,3 +395,11 @@ html body .dep-sheet .dep-status .pulse{background:#cbb9ff!important;opacity:.75
 html body .dep-sheet .dep-warn{margin-top:0!important}
 html body .dep-sheet .dep-copy{background:rgba(139,92,246,.14)!important;background-image:none!important;border:1px solid rgba(139,92,246,.5)!important;color:#cbb9ff!important;border-radius:99px!important;font-size:11px!important;font-weight:700!important;letter-spacing:.04em!important;text-transform:uppercase!important;padding:0 14px!important}
 html body .dep-sheet .dep-copy.done{background:rgba(74,222,128,.16)!important;border-color:rgba(74,222,128,.55)!important;color:#4ade80!important}
+
+/* dep asset: black pill and list */
+html body .dep-sheet .dep-row{background:#000!important;background-image:none!important}
+html body .dep-sheet .dep-list{background:#000!important;background-image:none!important}
+html body .dep-sheet .dep-opt{background:#000!important;background-image:none!important}
+html body .dep-sheet .dep-opt:hover{background:#16161c!important}
+html body .dep-sheet .dep-group{background:#000!important}
+html body .dep-sheet .dep-lg{background:rgba(255,255,255,.07)!important}
