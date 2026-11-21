@@ -32,3 +32,6 @@ html body .side a:first-child{padding-left:12px!important}
 html body .main{padding-top:0!important}
 html body .main > .tickers{margin:0 -20px 12px!important}
 }
+@media (max-width:980px){
+html body .main > .tickers{position:sticky!important;top:0!important;z-index:45!important;background:#000!important}
+}
