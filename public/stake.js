@@ -92,20 +92,80 @@
     if (i > 0) { day = keys[i - 1]; show(day); }
   });
 
-  cta.addEventListener('click', async function () {
-    var a = micro();
-    if (a < MIN || a > avail) return;
-    cta.disabled = true;
+  var ov = null;
+  function onEsc(e) { if (e.key === 'Escape') closeConfirm(); }
+
+  function closeConfirm() {
+    if (!ov) return;
+    ov.remove(); ov = null;
+    document.body.classList.remove('dep-open');
+    document.removeEventListener('keydown', onEsc);
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  }
+
+  function rowHtml(k, v) {
+    return '<div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line2);font-size:13px">'
+      + '<span style="color:var(--mut)">' + k + '</span>'
+      + '<b style="font-variant-numeric:tabular-nums">' + v + '</b></div>';
+  }
+
+  function openConfirm(a) {
+    if (ov) return;
+    var bp = BigInt(rateBp || 100);
+    var gross = (a * bp * 30n) / 10000n;
+    var net = (gross * 8500n) / 10000n;
+    var unl = new Date(Date.now() + 30 * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(6,6,9,.72);backdrop-filter:blur(6px)';
+    ov.innerHTML =
+      '<div role="dialog" aria-modal="true" aria-labelledby="cfTitle" style="width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:18px;color:var(--txt);box-shadow:0 24px 70px rgba(0,0,0,.6)">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
+      + '<h3 id="cfTitle" style="margin:0;font-size:16px;font-weight:600">Confirm stake</h3>'
+      + '<button type="button" data-x style="margin-left:auto;background:none;border:0;color:var(--mut);font-size:19px;line-height:1;cursor:pointer">&times;</button></div>'
+      + '<p style="margin:0 0 12px;color:var(--mut);font-size:12px">At the current rate of ' + (Number(rateBp || 100) / 100).toFixed(2) + '% per day.</p>'
+      + rowHtml('Amount', usd(a))
+      + rowHtml('Term', '30 days')
+      + rowHtml('Unlocks', unl)
+      + rowHtml('Projected credit', usd(gross))
+      + rowHtml('After 15% fee', usd(net))
+      + '<p style="margin:12px 0 14px;font-size:11.5px;color:var(--mut);line-height:1.5">Locked for the full term. Credit vests in four 6-hour slices and is withdrawable as it lands.</p>'
+      + '<div style="display:flex;gap:10px">'
+      + '<button type="button" data-x style="flex:1;background:none;border:1px solid var(--line2);border-radius:12px;padding:11px;color:var(--txt);font:inherit;cursor:pointer">Cancel</button>'
+      + '<button type="button" data-ok style="flex:1;background:var(--pur);border:0;border-radius:12px;padding:11px;color:#fff;font:inherit;font-weight:600;cursor:pointer">Confirm lock</button>'
+      + '</div></div>';
+
+    ov.addEventListener('click', function (e) {
+      if (e.target === ov || e.target.closest('[data-x]')) return closeConfirm();
+      if (e.target.closest('[data-ok]')) return submit(a);
+    });
+
+    document.body.appendChild(ov);
+    document.body.classList.add('dep-open');
+    document.addEventListener('keydown', onEsc);
+  }
+
+  async function submit(a) {
+    var btn = ov && ov.querySelector('[data-ok]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Locking\u2026'; }
     try {
       var r = await fetch('/wallet/stakes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ usd: a.toString() }) });
       var j = await r.json().catch(function () { return {}; });
       if (!r.ok) throw new Error(j.error || 'failed');
+      closeConfirm();
       amt.value = ''; msg = '';
       say('Locked for 30 days', false);
       await loadBalance();
     } catch (e) {
+      closeConfirm();
       say(e.message === 'insufficient' ? 'More than your available balance' : e.message, true);
     } finally { cta.disabled = false; }
+  }
+
+  cta.addEventListener('click', function () {
+    var a = micro();
+    if (a < MIN || a > avail) return;
+    openConfirm(a);
   });
 
   /* --- calculator: same maths as the dashboard --- */
