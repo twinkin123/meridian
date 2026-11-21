@@ -460,3 +460,6 @@ html body .wd-foot{background:rgba(224,183,106,.10)!important;background-image:n
 html body .wd-card .field input,html body .wd-card .field select{background:#1c1c22!important;background-image:none!important;border:1px solid rgba(255,255,255,.07)!important;border-radius:999px!important;color:#fff!important;box-shadow:none!important;padding:11px 18px!important}
 html body .wd-card .field input:focus,html body .wd-card .field select:focus{border-color:rgba(139,92,246,.6)!important;outline:none!important;box-shadow:none!important;border-radius:999px!important}
 html body .wd-foot{background:#1c1c22!important;background-image:none!important;border:1px solid rgba(224,183,106,.22)!important;border-radius:10px!important;padding:10px 14px!important;color:#e0b76a!important;box-shadow:none!important}
+
+/* withdraw: warn takes the button shape, addr pill colour */
+html body .wd-foot{background:#1c1c22!important;background-image:none!important;border:1px solid #2b2d33!important;border-radius:9px!important;padding:12px 14px!important;color:#e0b76a!important;font-weight:500!important;box-shadow:none!important}
