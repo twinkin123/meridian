@@ -336,3 +336,11 @@ html body #p-dash.panel.on{margin-top:14px!important}
 html body:has(#p-dash.panel.on) .main{padding-bottom:34px!important}
 html body #p-dash.panel.on{margin-bottom:0!important}
 }
+
+
+
+/* ticker lip: no black strip under the band */
+@media (max-width:980px){
+html body > .tickers{margin-bottom:0!important;border-bottom:0!important}
+html body #p-dash.panel.on{margin-top:14px!important}
+}
