@@ -1,93 +1,51 @@
-﻿@media (max-width:980px){
+﻿html body > .tickers{display:flex!important;align-items:stretch!important;width:100%!important;max-width:none!important;margin:0!important;padding:0 0 0 12px!important;background:#000!important;border:0!important;border-bottom:1px solid #2a2a30!important;overflow:hidden!important;position:static!important;box-shadow:none!important}
+html body > .tickers .tickers-track{display:flex!important;align-items:stretch!important;height:auto!important;gap:0!important;background-image:none!important;animation:tk-mob 80s linear infinite!important}
+html body > .tickers .tk{width:auto!important;height:auto!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;padding:9px 11px!important;border:0!important;position:relative!important;background:none!important;align-self:stretch!important;white-space:nowrap!important}
+html body > .tickers .tk .ic{width:14px!important;height:14px!important;flex:0 0 14px!important;font-size:8px!important}
+html body > .tickers .tk b{font-size:10.5px!important;line-height:1.1!important}
+html body > .tickers .tk .px{width:auto!important;display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;margin:0!important;line-height:1.1!important}
+html body > .tickers .tk .px .v{font-size:10.5px!important;font-weight:600!important;line-height:1.1!important}
+html body > .tickers .tk .px em{font-size:9.5px!important;line-height:1.1!important;margin:0!important}
+html body > .tickers .tk::after{content:""!important;position:absolute!important;right:0!important;top:0!important;bottom:0!important;width:1px!important;background:rgba(255,255,255,.09)!important}
+@media (max-width:980px){
 body{padding-bottom:calc(56px + env(safe-area-inset-bottom))!important}
 .robot-float{display:none!important}
-html body .side{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;height:auto!important;width:100%!important;display:flex!important;flex-direction:row!important;justify-content:flex-start!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none;padding:0!important;border-right:0!important;border-bottom:0!important;border-top:1px solid #2a2a30!important;background:#0a0a0b!important;z-index:60!important}
-html body .side::-webkit-scrollbar{display:none}
-html body .side .navbox{display:flex!important;flex-direction:row!important;justify-content:flex-start!important;align-items:stretch!important;gap:0!important;width:max-content!important;min-width:0!important;background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
+html body > .tickers{padding-left:8px!important}
+html body .side{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;height:auto!important;width:100%!important;display:flex!important;flex-direction:row!important;overflow-x:auto!important;overflow-y:hidden!important;padding:0!important;border-right:0!important;border-bottom:0!important;border-top:1px solid #2a2a30!important;background:#0a0a0b!important;z-index:60!important;scrollbar-width:none}
+html body .side .navbox{display:flex!important;flex-direction:row!important;gap:0!important;width:max-content!important;background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
 html body .side .sep,html body .side .brand,html body .side .robot-card,html body .side .nav-tag{display:none!important}
-html body .side a{flex:0 0 auto!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:5px!important;padding:13px 9px!important;border-radius:0!important;font-size:11px!important;line-height:1!important;letter-spacing:0!important;white-space:nowrap!important;color:#c4c4d0!important;background:transparent!important;box-shadow:none!important;text-align:left!important}
-html body .side a:first-child{padding-left:13px!important}
+html body .side a{flex:0 0 auto!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:5px!important;padding:13px 9px!important;border-radius:0!important;font-size:11px!important;line-height:1!important;white-space:nowrap!important;color:#c4c4d0!important;background:transparent!important;box-shadow:none!important}
 html body .side a .ico,html body .side a .ico svg{display:block!important;width:14px!important;height:14px!important;filter:none!important}
-html body .side a.on{background:transparent!important;color:#fff!important;border-bottom:2px solid #8b5cf6!important}
-html body .side a.on .ico svg{stroke:#a78bfa!important}
-.notif-pop{bottom:calc(54px + env(safe-area-inset-bottom));top:auto!important}
-html body .main > .tickers{overflow:hidden!important;border-top:1px solid #2a2a30!important;border-bottom:1px solid #2a2a30!important;margin:0 -20px 12px!important;padding:0 14px 0 8px!important;box-shadow:none!important;background:#000!important}
-html body .main > .tickers .tickers-track{background-image:none!important;gap:0!important}
-html body .main > .tickers .tk{width:auto!important;min-width:0!important;display:grid!important;grid-template-columns:14px auto auto!important;align-items:center!important;gap:5px!important;padding:7px 10px!important;position:relative!important;border:0!important}
-html body .main > .tickers .tk .ic{width:14px!important;height:14px!important;font-size:8px!important}
-html body .main > .tickers .tk b{font-size:10.5px!important;letter-spacing:.02em!important}
-html body .main > .tickers .tk .px{width:auto!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:0!important;line-height:1.15!important}
-html body .main > .tickers .tk .px .v{font-size:10.5px!important;font-weight:600!important}
-html body .main > .tickers .tk .px em{font-size:9px!important;line-height:1.15!important}
-html body .main > .tickers .tk::after{content:""!important;position:absolute!important;right:0!important;top:0!important;bottom:0!important;width:1px!important;background:rgba(255,255,255,.09)!important}
+html body .side a.on{color:#fff!important;border-bottom:2px solid #8b5cf6!important}
 }
 
-/* bottom bar: reserve room for the browser's own toolbar */
+/* ticker: body is a flex column, so the band was being shrunk to fit and clipped */
+html body > .tickers{flex:0 0 auto!important;min-height:36px!important;position:relative!important;z-index:2!important}
+html body .main{margin-top:0!important}
+html body .shell{margin-top:0!important}
+
+/* breathing room under the band */
+html body > .tickers{margin-bottom:14px!important}
+@media (max-width:980px){html body .main{padding-top:6px!important}}
+
+/* value card: content must clear the 24px notched corners */
 @media (max-width:980px){
-body{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
-html body .side{padding-bottom:calc(16px + env(safe-area-inset-bottom))!important}
-html body .side a{padding-bottom:calc(10px + env(safe-area-inset-bottom))!important}
+html body .main .card.rainbow{padding:30px 20px 26px!important}
+html body .main .card.rainbow .lbl{margin:0!important}
+html body .main .card.rainbow .row{margin-top:18px!important}
+html body .main .card.rainbow .hint{margin:10px 0 0!important}
+html body .main .card.has-clock .res-clock{top:26px!important;right:26px!important}
 }
 
-/* fit the viewport: ticker, stats and nav all share the width */
+/* referral + notes cards: even, generous inner padding top and bottom */
 @media (max-width:980px){
-html body .main > .tickers{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;overflow:hidden!important;margin:0 -20px 12px!important;padding:0 8px!important}
-html body .main > .tickers .tickers-track{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;width:100%!important;gap:0!important;animation:none!important;background-image:none!important}
-html body .main > .tickers .tk{width:auto!important;min-width:0!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:4px!important;padding:7px 5px!important;overflow:hidden!important}
-html body .main > .tickers .tk .ic{width:12px!important;height:12px!important;flex:0 0 12px!important}
-html body .main > .tickers .tk b{font-size:9.5px!important;line-height:1.1!important}
-html body .main > .tickers .tk .px{flex-direction:column!important;align-items:flex-start!important;gap:0!important;min-width:0!important;line-height:1.1!important}
-html body .main > .tickers .tk .px .v{font-size:9.5px!important}
-html body .main > .tickers .tk .px em{font-size:8.5px!important}
-html body .main .stats{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
-html body .main .stat{display:flex!important;flex-direction:column!important;align-items:flex-start!important;min-width:0!important;overflow:hidden!important;padding:10px 8px!important}
-html body .main .stat .lbl{font-size:8.5px!important;line-height:1.2!important;white-space:normal!important;overflow-wrap:anywhere!important;min-width:0!important}
-html body .main .stat b{font-size:14px!important;white-space:nowrap!important}
-html body .side{overflow-x:hidden!important}
-html body .side .navbox{width:100%!important}
-html body .side a{flex:1 1 0!important;min-width:0!important;flex-direction:column!important;justify-content:center!important;gap:3px!important;padding:8px 2px calc(8px + env(safe-area-inset-bottom))!important;font-size:8.5px!important;text-align:center!important;overflow:hidden!important}
-html body .side a .ico,html body .side a .ico svg{width:16px!important;height:16px!important}
+html body .main .ref-list-card,html body .main #notesCard{padding:30px 18px 32px!important}
+html body .main .ref-list-card .lbl,html body .main #notesCard .lbl{display:block!important;margin:0 0 10px!important}
+html body .main .ref-list-card .hint,html body .main #notesCard .hint{margin:0!important}
+html body .main .ref-list-card .list,html body .main #notesCard .list{margin:10px 0 0!important}
 }
 
-/* ticker band stays a block; only the track divides into columns */
+/* gap above the value card */
 @media (max-width:980px){
-html body .main > .tickers{display:block!important;overflow:hidden!important;margin:0 -20px 12px!important;padding:0 8px!important}
-html body .main > .tickers .tickers-track{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;width:100%!important;gap:0!important;animation:none!important;background-image:none!important}
-html body .main > .tickers .tk{width:auto!important;min-width:0!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:4px!important;padding:7px 5px!important;overflow:hidden!important}
-/* nav clears the browser toolbar and never overlaps itself */
-html body .side{padding-bottom:calc(78px + env(safe-area-inset-bottom))!important;overflow-x:hidden!important}
-html body .side a{flex:1 1 0!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:8px!important;padding:8px 1px 6px!important}
-body{padding-bottom:calc(150px + env(safe-area-inset-bottom))!important}
-}
-
-/* ticker: there is no track wrapper, cells are direct children - equal flex cells */
-@media (max-width:980px){
-html body .main > .tickers{display:flex!important;flex-wrap:nowrap!important;overflow:hidden!important;margin:0 -20px 12px!important;padding:0 8px!important}
-html body .main > .tickers .tk{flex:1 1 0!important;width:auto!important;min-width:0!important;max-width:none!important;overflow:hidden!important;padding:7px 4px!important;gap:3px!important}
-html body .main > .tickers .tk > div{min-width:0!important;overflow:hidden!important}
-html body .main > .tickers .tk .ic{width:11px!important;height:11px!important;flex:0 0 11px!important}
-html body .main > .tickers .tk b{font-size:9px!important;line-height:1.1!important}
-html body .main > .tickers .tk .px{min-width:0!important}
-html body .main > .tickers .tk .px .v{font-size:9px!important}
-html body .main > .tickers .tk .px em{font-size:8px!important}
-}
-
-/* ---- mobile: outer casing, top gap, clock clearance ---- */
-@media (max-width:980px){
-  html body .main .panel.on{position:relative!important;padding:44px 10px 10px!important}
-  html body .main .panel.on::before{content:""!important;position:absolute!important;left:0!important;right:0!important;top:10px!important;bottom:0!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:12px!important;pointer-events:none!important}
-  html body .main .panel.on .card,
-  html body .main .panel.on .stats,
-  html body .main .panel.on .stat,
-  html body .main .panel.on #resCard,
-  html body .main .panel.on [data-results]{margin-left:0!important;margin-right:0!important}
-  html body .main .panel.on .card.rainbow{margin-top:0!important}
-  html body .main .card.has-clock .res-clock{top:22px!important;right:20px!important;font-size:10px!important;padding:3px 7px!important}
-  html body .shell .main{padding-bottom:calc(150px + env(safe-area-inset-bottom))!important}
-}
-/* ticker symbols need the width back on narrow phones */
-@media (max-width:460px){
-  html body .main > .tickers .tk .px em{display:none!important}
-  html body .main > .tickers .tk b{font-size:8.5px!important;white-space:nowrap!important}
-  html body .main > .tickers .tk .px .v{font-size:8.5px!important}
+html body .main .card.rainbow{margin-top:34px!important}
 }
