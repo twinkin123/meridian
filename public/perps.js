@@ -56,6 +56,7 @@
     chart.priceScale('right').applyOptions({ autoScale: true, scaleMargins: { top: 0.12, bottom: 0.12 } });
     paintLiq();
     chart.timeScale().fitContent();
+    paintLiq();
     var m = all.length;
     if (mode === 'candles') {
       var n = candlesFrom(all).length;
@@ -156,16 +157,33 @@
     $('ppPlace').textContent = busy ? 'Placing...' : 'Place Trade';
   }
 
-  var liqSeries = null, openLiq = null;
+  var liqSeries = null, openLiq = null, liqBar = null;
   var openCount = 0;
+
   function paintLiq() {
-    if (!liqSeries) return;
-    if (!openLiq || all.length < 2) { liqSeries.setData([]); return; }
-    var pad = Math.max(6, Math.round(all.length * 0.03)) * step();
-    liqSeries.setData([
-      { time: all[0].t, value: openLiq },
-      { time: all[all.length - 1].t + pad, value: openLiq },
-    ]);
+    var host = $('ppChart');
+    if (host && !liqBar) {
+      if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+      liqBar = document.createElement('div');
+      liqBar.className = 'pp-liqbar';
+      host.appendChild(liqBar);
+    }
+    /* The series only exists so auto-scale keeps the liq price on screen. */
+    if (liqSeries) {
+      if (!openLiq || all.length < 2) liqSeries.setData([]);
+      else {
+        var pad = Math.max(6, Math.round(all.length * 0.03)) * step();
+        liqSeries.setData([
+          { time: all[0].t, value: openLiq },
+          { time: all[all.length - 1].t + pad, value: openLiq },
+        ]);
+      }
+    }
+    if (!liqBar) return;
+    var y = openLiq && line ? line.priceToCoordinate(openLiq) : null;
+    if (y === null || y === undefined || !isFinite(y)) { liqBar.style.display = 'none'; return; }
+    liqBar.style.display = 'block';
+    liqBar.style.top = Math.round(y) + 'px';
   }
 
   /* The line follows the open position, not the ticket preview. */
@@ -359,6 +377,7 @@
     loadState();
     tick();
     arm();
+    window.addEventListener('resize', paintLiq);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

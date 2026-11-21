@@ -747,3 +747,5 @@ html body #claimBtn, html body #rwOut{
 
 .pp-pos .pp-tbl{max-height:190px!important;overflow-y:auto!important}
 .pp-pos .pp-tbl thead th{position:sticky!important;top:0!important;background:var(--panel)!important;z-index:1!important}
+
+.pp-liqbar{position:absolute;left:0;right:0;height:2px;background:#f0476a;pointer-events:none;z-index:6}
