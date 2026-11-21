@@ -751,3 +751,7 @@ html body #claimBtn, html body #rwOut{
 .pp-liqbar{position:absolute;left:0;right:0;height:2px;background:#f0476a;pointer-events:none;z-index:6}
 
 html body .main .pp-line #ppChart{right:0!important}
+
+html body .main .pp-pos{flex:0 0 auto!important;height:372px!important;overflow:hidden!important}
+html body .main .pp-pos .pp-tbl{max-height:250px!important;overflow-y:auto!important}
+html body .main .pp-pos .pp-empty{display:block!important}
