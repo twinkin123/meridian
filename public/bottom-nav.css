@@ -36,6 +36,12 @@ html body #p-dash [data-results],html body #resCard,
 html body #claimBtn,html body #rwOut{margin:18px!important}
 html body #p-dash .stats{margin:18px!important}
 }
+/* homepage: tighter gap under the ticker */
+@media (max-width:980px){
+html body .main:has(#p-dash.panel.on) > .tickers{margin-bottom:8px!important}
+html body #p-dash .card.rainbow{margin-top:4px!important}
+}
+
 /* value card: dash borderless, stake boxed, perp single screen */
 @media (max-width:980px){
 html body .main .panel.on{border:0!important;margin-top:34px!important}
