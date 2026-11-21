@@ -95,6 +95,28 @@ export async function markOf(market: string): Promise<number> {
   return p.usd;
 }
 
+/** Fresh marks, Binance only, no cache read. Throws if the feed is down. */
+export async function marksNow(): Promise<Record<string, Mark>> {
+  if (!busy) {
+    busy = loadBinance()
+      .then((data) => {
+        cache = { at: Date.now(), data };
+        return data;
+      })
+      .finally(() => { busy = null; });
+  }
+  return await busy;
+}
+
+export async function markOfNow(market: string): Promise<number> {
+  const m = MARKETS[market];
+  if (!m) throw new Error('unknown market');
+  const all = await marksNow();
+  const p = all[m.id];
+  if (!p) throw new Error('no price');
+  return p.usd;
+}
+
 export function liqPrice(entry: number, side: 'long' | 'short', lev: number): number {
   const move = 1 / lev;
   return side === 'long' ? entry * (1 - move) : entry * (1 + move);
@@ -123,7 +145,7 @@ export async function open(
 
   const fee = stake / 200n;
 
-  const entry = await markOf(market);
+  const entry = await markOfNow(market);
   const notional = Number(stake) / 1e6 * leverage;
   const qty = notional / entry;
   const liq = liqPrice(entry, side, leverage);
@@ -232,7 +254,7 @@ export async function tick(): Promise<number> {
 
   let all: Record<string, Mark>;
   try {
-    all = await marks();
+    all = await marksNow();
   } catch {
     return 0;
   }

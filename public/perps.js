@@ -66,8 +66,7 @@
   function render() {
     if (!chart) return;
     fitChart();
-    var raw = openLiqs.length > 0;
-    var pts = raw ? all : smooth(all);
+    var pts = smooth(all);
     if (mode === 'candles') {
       line.setData([]);
       line.setMarkers([]);
