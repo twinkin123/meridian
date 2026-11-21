@@ -1,72 +1,78 @@
 import { Router } from 'express';
 
-const HOSTS = ['https://frontend-api-v3.pump.fun/coins', 'https://frontend-api-v2.pump.fun/coins'];
-const TTL = 8000;
+const PROFILES = 'https://api.dexscreener.com/token-profiles/latest/v1';
+const TOKENS = 'https://api.dexscreener.com/latest/dex/tokens/';
+const TTL = 20000;
+const TAKE = 12;
 
-type Coin = Record<string, any>;
+type Any = Record<string, any>;
 
 let cache: { at: number; data: unknown } | null = null;
 let busy: Promise<unknown> | null = null;
 
-const H: Record<string, string> = {
-  accept: 'application/json',
-  'accept-language': 'en-US,en;q=0.9',
-  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-  referer: 'https://pump.fun/',
-  origin: 'https://pump.fun',
-  'sec-fetch-dest': 'empty',
-  'sec-fetch-mode': 'cors',
-  'sec-fetch-site': 'same-site',
-};
+const H: Record<string, string> = { accept: 'application/json' };
 
-async function fetchAt(base: string, q: Record<string, string>): Promise<Coin[]> {
-  const u = new URL(base);
-  for (const [k, v] of Object.entries(q)) u.searchParams.set(k, v);
-  u.searchParams.set('includeNsfw', 'true');
-  const r = await fetch(u, { headers: H });
-  if (!r.ok) throw new Error(r.status + ' @ ' + new URL(base).host);
-  return (await r.json()) as Coin[];
+async function json(url: string): Promise<any> {
+  const r = await fetch(url, { headers: H });
+  if (!r.ok) throw new Error(r.status + ' @ ' + new URL(url).host);
+  return await r.json();
 }
 
-async function get(q: Record<string, string>): Promise<Coin[]> {
-  let last = '';
-  for (const h of HOSTS) {
-    try { return await fetchAt(h, q); } catch (e) { last = e instanceof Error ? e.message : String(e); }
-  }
-  throw new Error(last || 'no_host');
+function social(p: Any, type: string): string {
+  const links = (p.info?.socials ?? []) as Any[];
+  const hit = links.find((l) => l.type === type);
+  return typeof hit?.url === 'string' ? hit.url : '';
 }
 
-function shape(c: Coin) {
+function shape(p: Any) {
   return {
-    mint: String(c.mint ?? ''),
-    name: String(c.name ?? ''),
-    sym: String(c.symbol ?? ''),
-    img: String(c.image_uri ?? ''),
-    mc: Number(c.usd_market_cap ?? 0),
-    liq: Number(c.canonical_pool_liquidity_usd ?? 0),
-    at: Number(c.created_timestamp ?? 0),
-    live: Boolean(c.is_currently_live),
-    x: String(c.twitter ?? ''),
-    tg: String(c.telegram ?? ''),
-    web: String(c.website ?? ''),
-    by: String(c.username ?? ''),
+    mint: String(p.baseToken?.address ?? ''),
+    name: String(p.baseToken?.name ?? ''),
+    sym: String(p.baseToken?.symbol ?? ''),
+    img: String(p.info?.imageUrl ?? ''),
+    mc: Number(p.marketCap ?? p.fdv ?? 0),
+    liq: Number(p.liquidity?.usd ?? 0),
+    at: Number(p.pairCreatedAt ?? 0),
+    dex: String(p.dexId ?? ''),
+    x: social(p, 'twitter'),
+    tg: social(p, 'telegram'),
+    web: String(p.info?.websites?.[0]?.url ?? ''),
   };
 }
 
 async function build() {
-  const [fresh, done] = await Promise.all([
-    get({ offset: '0', limit: '200', sort: 'created_timestamp', order: 'DESC', complete: 'false' }),
-    get({ offset: '0', limit: '12', sort: 'created_timestamp', order: 'DESC', complete: 'true' }),
-  ]);
-  const stretch = [...fresh]
-    .sort((a, b) => Number(b.usd_market_cap ?? 0) - Number(a.usd_market_cap ?? 0))
-    .slice(0, 12);
-  return {
-    at: Date.now(),
-    fresh: fresh.slice(0, 24).map(shape),
-    stretch: stretch.map(shape),
-    migrating: done.map(shape),
-  };
+  const prof = (await json(PROFILES)) as Any[];
+  const mints = prof
+    .filter((p) => p.chainId === 'solana' && typeof p.tokenAddress === 'string')
+    .map((p) => p.tokenAddress as string)
+    .slice(0, 30);
+
+  if (!mints.length) throw new Error('no_profiles');
+
+  const body = (await json(TOKENS + mints.join(','))) as { pairs?: Any[] };
+  const want = new Set(mints);
+
+  /* One row per token: the deepest pool wins, so a token is not listed twice. */
+  const best = new Map<string, Any>();
+  for (const p of body.pairs ?? []) {
+    if (p.chainId !== 'solana') continue;
+    const addr = p.baseToken?.address;
+    if (!want.has(addr)) continue;
+    const prev = best.get(addr);
+    if (!prev || Number(p.liquidity?.usd ?? 0) > Number(prev.liquidity?.usd ?? 0)) best.set(addr, p);
+  }
+
+  const rows = [...best.values()];
+  const by = (a: Any, b: Any) => Number(b.pairCreatedAt ?? 0) - Number(a.pairCreatedAt ?? 0);
+
+  const fresh = [...rows].sort(by).slice(0, TAKE);
+  const migrating = rows.filter((p) => p.dexId && p.dexId !== 'pumpfun').sort(by).slice(0, TAKE);
+  const stretch = rows
+    .filter((p) => p.dexId === 'pumpfun')
+    .sort((a, b) => Number(b.marketCap ?? 0) - Number(a.marketCap ?? 0))
+    .slice(0, TAKE);
+
+  return { at: Date.now(), fresh: fresh.map(shape), stretch: stretch.map(shape), migrating: migrating.map(shape) };
 }
 
 export const pulse = Router();
