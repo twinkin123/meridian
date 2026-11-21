@@ -477,3 +477,6 @@ html body .wd-card > .hint:first-child{display:none!important}
 
 /* withdraw: keep only the minimum line */
 html body .wd-card::before{content:"$10 minimum."!important;display:block!important;font-size:11.5px!important;color:#b3b5bd!important;margin:0 0 12px!important;line-height:1.5!important}
+
+/* swap: no wrapper around the address fields */
+html body .sw-fields{border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;padding:0!important}
