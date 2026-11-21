@@ -492,3 +492,8 @@ html body .sw-cta{margin-top:10px!important}
 
 /* stake: drop the hero and the how-it-works block */
 html body #p-stake .st-hero,html body #p-stake .st-stats,html body #p-stake .st-how{display:none!important}
+
+/* stake: card gaps match the dashboard */
+html body #p-stake .card{margin-top:0!important;margin-bottom:24px!important}
+html body #p-stake .card:last-child{margin-bottom:0!important}
+html body #p-stake .st-grid{gap:24px!important}
