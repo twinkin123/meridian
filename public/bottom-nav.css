@@ -372,3 +372,12 @@ html body .dep-sheet .dep-list{max-height:190px!important;overflow-y:auto!import
 html body .dep-sheet .dep-head{position:sticky!important;top:0!important;z-index:6!important;background:#000!important}
 html body .dep-sheet .dep-x{position:static!important}
 }
+
+
+
+/* popouts grey: deposit and withdraw surfaces off black */
+html body .dep-sheet,html body .dep-sheet *,
+html body .wd-sheet,html body .wd-sheet *{background-color:#16161d!important}
+html body .dep-sheet .dep-qr,html body .dep-sheet .dep-addr code,html body .dep-sheet .dep-copy,
+html body .wd-sheet .wd-addr code,html body .wd-sheet .wd-copy{background-color:#1c1c25!important}
+html body .dep-overlay,html body .wd-overlay{background:rgba(10,10,14,.72)!important}
