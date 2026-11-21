@@ -160,11 +160,17 @@ export async function open(
 
 async function settle(
   c: any,
-  p: { id: string; user_id: string; stake: string; side: string; qty: string; entry: string },
+  p: { id: string; user_id: string; stake: string; side: string; qty: string; entry: string; liq_price: string },
   mark: number,
   status: 'closed' | 'liquidated',
 ): Promise<void> {
-  let pnl = pnlOf(p, mark);
+  /* A liquidation fills at the liq price, never past it: the overshoot is unbooked. */
+  let exit = mark;
+  if (status === 'liquidated' && p.liq_price) {
+    const liq = Number(p.liq_price);
+    exit = p.side === 'long' ? Math.max(mark, liq) : Math.min(mark, liq);
+  }
+  let pnl = pnlOf(p, exit);
   const stake = BigInt(p.stake);
   /* A liquidation can gap past zero; the stake is the floor of the loss. */
   if (pnl < -stake) pnl = -stake;
@@ -179,7 +185,7 @@ async function settle(
     `update perp_positions
         set status = $2, exit_price = $3, pnl = $4, closed_at = now()
       where id = $1`,
-    [p.id, status, mark, pnl.toString()],
+    [p.id, status, exit, pnl.toString()],
   );
 
   /* Release the whole house obligation (stake + fee) and book the result:
@@ -198,8 +204,8 @@ export type CloseResult = { ok: true; pnl: bigint } | { ok: false; error: string
 export async function close(userId: string, id: string): Promise<CloseResult> {
   const row = await one<{
     id: string; user_id: string; market: string; stake: string;
-    side: string; qty: string; entry: string; status: string;
-  }>(`select id, user_id, market, stake, side, qty, entry, status from perp_positions where id = $1 and user_id = $2`, [id, userId]);
+    side: string; qty: string; entry: string; liq_price: string; status: string;
+  }>(`select id, user_id, market, stake, side, qty, entry, liq_price, status from perp_positions where id = $1 and user_id = $2`, [id, userId]);
 
   if (!row) return { ok: false, error: 'not_found' };
   if (row.status !== 'open') return { ok: false, error: 'not_open' };
@@ -219,8 +225,8 @@ export async function close(userId: string, id: string): Promise<CloseResult> {
 export async function tick(): Promise<number> {
   const { rows } = await (await import('./db.js')).pool.query<{
     id: string; user_id: string; market: string; stake: string;
-    side: string; qty: string; entry: string;
-  }>(`select id, user_id, market, stake, side, qty, entry from perp_positions where status = 'open' limit 500`);
+    side: string; qty: string; entry: string; liq_price: string;
+  }>(`select id, user_id, market, stake, side, qty, entry, liq_price from perp_positions where status = 'open' limit 500`);
 
   if (!rows.length) return 0;
 
