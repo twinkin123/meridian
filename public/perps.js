@@ -53,7 +53,7 @@
         line.setMarkers([{ time: tip.t, position: 'inBar', shape: 'circle', color: '#28e664', size: 1 }]);
       }
     }
-    chart.priceScale('right').applyOptions({ autoScale: true });
+    chart.priceScale('right').applyOptions({ autoScale: true, scaleMargins: { top: 0.12, bottom: 0.12 } });
     chart.timeScale().fitContent();
     if (mode === 'candles') {
       var n = candlesFrom(all).length;
