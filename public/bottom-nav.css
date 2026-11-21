@@ -37,27 +37,31 @@ html body .main .panel.on > .grid > div > .card.rainbow{filter:drop-shadow(0 6px
 html body:has(#p-perps.panel.on) .main{display:flex!important;flex-direction:column!important;min-height:0!important;overflow:hidden!important;padding:12px 14px!important}
 html body:has(#p-perps.panel.on) .main > .grid,
 html body:has(#p-perps.panel.on) .main > .grid > div{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;width:100%!important;height:100%!important;padding:0!important;margin:0!important}
-html body #p-perps.panel.on{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;height:auto!important;margin:0!important;padding:10px!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;background:#0a0c0a!important;overflow:hidden!important}
+html body #p-perps.panel.on{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;height:auto!important;margin:0!important;padding:8px 10px!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;background:#0a0c0a!important;overflow:hidden!important}
 html body #p-perps.panel.on *{position:static!important;inset:auto!important;grid-area:auto!important;grid-row:auto!important;grid-column:auto!important;min-height:0!important;max-height:none!important}
-html body #p-perps.panel.on .card{border:0!important;outline:0!important;box-shadow:none!important;border-radius:0!important;background:transparent!important;margin:0!important;padding:0 6px!important;filter:none!important;height:auto!important}
+html body #p-perps.panel.on .card{border:0!important;outline:0!important;box-shadow:none!important;border-radius:0!important;background:transparent!important;margin:0!important;padding:0!important;filter:none!important;height:auto!important;flex:1 1 auto!important;display:flex!important;flex-direction:column!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important}
+html body #p-perps.panel.on .card::-webkit-scrollbar{display:none!important}
+html body #p-perps.panel.on .card > *{margin-top:0!important;margin-bottom:0!important}
 
-html body #p-perps.panel.on .card:first-of-type{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important}
-html body #p-perps.panel.on .card:first-of-type::-webkit-scrollbar{display:none!important}
-html body #p-perps.panel.on .card:first-of-type [class*="about"]{display:none!important}
-html body #p-perps.panel.on .card:first-of-type .hsearch{display:none!important}
-html body #p-perps.panel.on .card:first-of-type [class*="chart"]{flex:0 0 auto!important;width:100%!important;height:120px!important}
+html body #p-perps.panel.on .card > div:has(.res){display:none!important}
+html body #p-perps.panel.on .hint,html body #p-perps.panel.on .small{display:none!important}
+html body #p-perps.panel.on div:has(> input:not([type=range]):not([type=number])){display:none!important}
+html body #p-perps.panel.on input:not([type=range]):not([type=number]){display:none!important}
 
-html body #p-perps.panel.on .card:last-of-type{flex:0 0 auto!important;background:#0d0f0d!important;padding:10px 6px 12px!important;border-top:1px solid rgba(255,255,255,.08)!important;display:flex!important;flex-direction:column!important}
+html body #p-perps.panel.on [class*="about"]{display:none!important}
+html body #p-perps.panel.on [class*="chart"]{flex:0 0 auto!important;width:100%!important;height:96px!important}
+html body #p-perps.panel.on .big{font-size:21px!important;line-height:1.05!important}
 
-html body #p-perps.panel.on .pills,html body #p-perps.panel.on .preset,html body #p-perps.panel.on .chipset{display:flex!important;width:100%!important;height:42px!important;padding:4px!important;gap:4px!important;border-radius:999px!important;background:#1b1d1b!important;border:0!important;margin:2px 0!important}
-html body #p-perps.panel.on .pills > *,html body #p-perps.panel.on .preset > *,html body #p-perps.panel.on .chipset > *{flex:1 1 0!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border:0!important;border-radius:999px!important;background:transparent!important;color:#9aa39a!important;font-weight:600!important;box-shadow:none!important}
+html body #p-perps.panel.on .pills,html body #p-perps.panel.on .preset,html body #p-perps.panel.on .chipset{display:flex!important;width:100%!important;height:36px!important;padding:3px!important;gap:3px!important;border-radius:999px!important;background:#1b1d1b!important;border:0!important;margin:3px 0!important}
+html body #p-perps.panel.on .pills > *,html body #p-perps.panel.on .preset > *,html body #p-perps.panel.on .chipset > *{flex:1 1 0!important;width:auto!important;height:100%!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important;border:0!important;border-radius:999px!important;background:transparent!important;color:#9aa39a!important;font-size:12px!important;font-weight:600!important;margin:0!important;box-shadow:none!important}
 html body #p-perps.panel.on .pills > *:first-child,html body #p-perps.panel.on .preset > *:first-child,html body #p-perps.panel.on .chipset > *:first-child{background:#16c784!important;color:#04120a!important}
 
-html body #p-perps.panel.on .calc-amount{font-size:22px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;height:auto!important}
-html body #p-perps.panel.on input[type=range]{-webkit-appearance:none!important;appearance:none!important;width:100%!important;height:4px!important;border-radius:2px!important;background:#3a3d3a!important;margin:5px 0!important;box-shadow:none!important;border:0!important}
-html body #p-perps.panel.on input[type=range]::-webkit-slider-thumb{-webkit-appearance:none!important;width:16px!important;height:16px!important;border-radius:50%!important;background:#fff!important;border:0!important}
+html body #p-perps.panel.on .calc-amount{font-size:19px!important;line-height:1.1!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;height:auto!important;margin:0!important}
+html body #p-perps.panel.on input[type=range]{-webkit-appearance:none!important;appearance:none!important;width:100%!important;height:3px!important;border-radius:2px!important;background:#3a3d3a!important;margin:3px 0!important;box-shadow:none!important;border:0!important}
+html body #p-perps.panel.on input[type=range]::-webkit-slider-thumb{-webkit-appearance:none!important;width:13px!important;height:13px!important;border-radius:50%!important;background:#fff!important;border:0!important}
 html body #p-perps.panel.on input[type=range]:nth-of-type(2){background:linear-gradient(90deg,#16c784,#c8d13a,#e8a33d,#ef4b3f)!important}
 
-html body #p-perps.panel.on .btn{width:auto!important;height:32px!important;padding:0 12px!important;border-radius:8px!important;font-weight:500!important;margin:0!important;box-shadow:none!important}
-html body #p-perps.panel.on .btn.p{width:100%!important;height:44px!important;border-radius:10px!important;background:#16c784!important;border-color:#16c784!important;color:#04120a!important;font-weight:700!important;margin-top:6px!important}
+html body #p-perps.panel.on .btn{width:auto!important;height:28px!important;padding:0 10px!important;border-radius:7px!important;font-size:12px!important;font-weight:500!important;margin:0!important;box-shadow:none!important}
+html body #p-perps.panel.on .btn.p{width:100%!important;height:38px!important;border-radius:9px!important;background:#16c784!important;border-color:#16c784!important;color:#04120a!important;font-size:13px!important;font-weight:700!important;margin-top:4px!important}
+html body #p-perps.panel.on .pills .btn.p,html body #p-perps.panel.on .preset .btn.p,html body #p-perps.panel.on .chipset .btn.p{width:auto!important;height:100%!important;border-radius:999px!important;margin:0!important}
 }
