@@ -121,6 +121,8 @@ export async function open(
   if (stake > MAX_STAKE) return { ok: false, error: 'above_max' };
   if (!Number.isFinite(leverage) || leverage < 500 || leverage > 1000) return { ok: false, error: 'bad_leverage' };
 
+  const fee = stake / 200n;
+
   const entry = await markOf(market);
   const notional = Number(stake) / 1e6 * leverage;
   const qty = notional / entry;
@@ -134,7 +136,7 @@ export async function open(
       `select coalesce(balance,0)::text b from v_balance where user_id = $1 and code = '2000'`,
       [userId],
     );
-    if (BigInt(bal.rows[0]?.b ?? '0') < stake) return { ok: false as const, error: 'insufficient' };
+    if (BigInt(bal.rows[0]?.b ?? '0') < stake + fee) return { ok: false as const, error: 'insufficient' };
 
     const row = await c.query<{ id: string }>(
       `insert into perp_positions (user_id, market, side, stake, leverage, entry, qty, liq_price)
@@ -146,6 +148,10 @@ export async function open(
     await post(c, 'PerpOpen', id, [
       { code: '2000', owner: userId, amount: stake },
       { code: '2100', amount: -stake },
+    ]);
+    await post(c, 'PerpFee', id, [
+      { code: '2000', owner: userId, amount: fee },
+      { code: '2100', amount: -fee },
     ]);
 
     return { ok: true as const, id };
@@ -162,7 +168,9 @@ async function settle(
   const stake = BigInt(p.stake);
   /* A liquidation can gap past zero; the stake is the floor of the loss. */
   if (pnl < -stake) pnl = -stake;
-  const back = stake + pnl;
+  const fee = stake / 200n;
+  let back = stake + pnl - fee;
+  if (back < 0n) back = 0n;
 
   await c.query(
     `update perp_positions
