@@ -252,3 +252,10 @@ html body #p-perps.panel.on{border-color:#6e6e6e!important}
 @media (max-width:980px){
 html body #p-perps.panel.on{border:0!important}
 }
+
+
+
+/* black pass 6: no casing glow */
+@media (max-width:980px){
+html body #p-perps.panel.on{box-shadow:none!important}
+}
