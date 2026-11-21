@@ -219,3 +219,22 @@ html body #p-perps.panel.on .pp-share{border:0!important}
 html body #p-perps.panel.on .pp-slider{background:#111!important;box-shadow:none!important}
 html body #p-perps.panel.on .pp-slider::-webkit-slider-thumb{background:#fff!important}
 }
+
+
+
+/* black pass 3: kill skin gradient overlays and pseudo-element sheen */
+@media (max-width:980px){
+html body #p-perps.panel.on *{background-image:none!important}
+html body #p-perps.panel.on .card::after,
+html body #p-perps.panel.on .card::before,
+html body #p-perps.panel.on .panel::after,
+html body #p-perps.panel.on .panel::before,
+html body #p-perps.panel.on .pp *::after,
+html body #p-perps.panel.on .pp *::before{background:none!important;background-image:none!important;box-shadow:none!important;border:0!important}
+html body #p-perps.panel.on .card{background:#000!important;box-shadow:none!important}
+html body #p-perps.panel.on .pp-grad{background:linear-gradient(90deg,#16c784,#c8d13a,#e8a33d,#ef4b3f)!important;background-image:linear-gradient(90deg,#16c784,#c8d13a,#e8a33d,#ef4b3f)!important}
+html body #p-perps.panel.on .pp-slider::-webkit-slider-thumb{background:#fff!important;background-image:none!important}
+html body #p-perps.panel.on .pp-dir button.on{background:#16c784!important;background-image:none!important}
+html body #p-perps.panel.on .pp-tf2 button.on{background:#16c784!important;background-image:none!important}
+html body #p-perps.panel.on .pp-ticket > button{background:#16c784!important;background-image:none!important}
+}
