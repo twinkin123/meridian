@@ -25,12 +25,25 @@ perps.get('/history', async (req, res) => {
 });
 
 perps.get('/state', async (req, res) => {
+  const uid = req.userId!;
+  let avail = 0n;
+  let pos: any[] = [];
+  let hist: any[] = [];
+  let err: string | null = null;
+  const note = (where: string, e: unknown) => {
+    const m = e instanceof Error ? e.message : String(e);
+    err = (err ? err + ' | ' : '') + where + ': ' + m;
+  };
+  try { avail = await available(uid); } catch (e) { note('available', e); }
+  try { pos = await positions(uid); } catch (e) { note('positions', e); }
+  try { hist = await history(uid); } catch (e) { note('history', e); }
   res.json({
-    available: (await available(req.userId!)).toString(),
+    available: avail.toString(),
     min: MIN_STAKE.toString(),
     max: MAX_STAKE.toString(),
-    positions: await positions(req.userId!),
-    history: await history(req.userId!),
+    positions: pos,
+    history: hist,
+    error: err,
   });
 });
 

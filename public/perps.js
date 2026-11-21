@@ -168,7 +168,7 @@
     fetch('/perps/state')
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (s) {
-        if (!s) { $('ppAvail').textContent = '--'; return; }
+        if (!s) { $('ppAvail').textContent = '--'; return; } if (s.error) { $('ppEmpty').hidden = false; $('ppEmpty').textContent = s.error; }
         $('ppAvail').textContent = usd(s.available);
         renderRows(s.positions || []);
       })
