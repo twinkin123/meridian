@@ -19,6 +19,13 @@
     return f ? s.slice(0, -6) + '.' + f : s.slice(0, -6);
   }
   function onKey(e) { if (e.key === 'Escape') close(); }
+  function diag(tag) {
+    var d = document.getElementById('wdDiag');
+    if (!d) { d = el('div', 'wd-diag'); d.id = 'wdDiag'; document.body.appendChild(d); }
+    var m = document.querySelector('.main'), tp = document.querySelector('.top');
+    d.textContent = tag + ' | html ' + document.documentElement.scrollTop + ' | body ' + document.body.scrollTop + ' | main ' + (m ? m.scrollTop : 'n/a') + ' | topRect ' + (tp ? Math.round(tp.getBoundingClientRect().top) : 'n/a') + ' | vw ' + window.innerWidth + ' | vh ' + window.innerHeight;
+  }
+
 
   function wmsg(t, k) {
     var m = document.getElementById('wMsg');
@@ -45,6 +52,7 @@
     document.body.classList.remove('wd-open');
     setTimeout(function(){ document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }, 0);
     setTimeout(function(){ document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }, 80);
+    setTimeout(function(){ diag('close'); }, 160);
     document.removeEventListener('keydown', onKey);
     window.dispatchEvent(new Event('pageshow'));
   }
@@ -162,6 +170,7 @@
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
     document.body.classList.add('wd-open');
+    setTimeout(function(){ diag('open'); }, 120);
     document.addEventListener('keydown', onKey);
 
     wire();
