@@ -66,7 +66,7 @@
   function render() {
     if (!chart) return;
     fitChart();
-    var raw = openLiqs.length > 0 || stickyLiqs.some(function (s) { return s.until > Date.now(); });
+    var raw = openLiqs.length > 0;
     var pts = raw ? all : smooth(all);
     if (mode === 'candles') {
       line.setData([]);
@@ -185,17 +185,16 @@
     $('ppPlace').textContent = busy ? 'Placing...' : 'Place Trade';
   }
 
-  var liqSeries = null, openLiqs = [], stickyLiqs = [], liqLines = [], liqAnchors = [];
+  var liqSeries = null, openLiqs = [], liqLines = [], liqAnchors = [];
   var tab = 'pos', lastPos = [], lastHist = [];
   var openCount = 0, prevOpen = -1;
 
   /* One price line per open position in this market. Each gets its own series
      anchor so auto-scale keeps every one of them on screen; price lines alone
      do not participate in auto-scale. */
-  /* Live liq lines, plus ones that just fired and are kept dashed for a minute. */
+  /* One line per open position in this market, lowest first. */
   function liqSet() {
-    var now = Date.now(), out = [], i;
-    for (i = 0; i < stickyLiqs.length; i++) { if (stickyLiqs[i].until > now) out.push({ v: stickyLiqs[i].v, dash: true }); }
+    var out = [], i;
     for (i = 0; i < openLiqs.length; i++) out.push({ v: openLiqs[i], dash: false });
     out.sort(function (a, b) { return a.v - b.v; });
     return out;
@@ -243,7 +242,7 @@
             lineWidth: 2,
             lineStyle: set[i].dash ? LightweightCharts.LineStyle.Dashed : LightweightCharts.LineStyle.Solid,
             axisLabelVisible: true,
-            title: set[i].dash ? '' : 'Liq',
+            title: i === 0 ? 'Liq' : '',
           }),
         });
       } catch (_) {}
@@ -252,16 +251,10 @@
 
   /* One line per open position in this market, lowest first. */
   function setLiq(rows) {
-    var next = (rows || [])
+    openLiqs = (rows || [])
       .filter(function (p) { return p.market === market && p.liq; })
       .map(function (p) { return Number(p.liq); })
       .sort(function (a, b) { return a - b; });
-    var until = Date.now() + 60000;
-    openLiqs.forEach(function (v) {
-      if (next.indexOf(v) < 0) stickyLiqs.push({ v: v, until: until });
-    });
-    openLiqs = next;
-    if (stickyLiqs.length > 8) stickyLiqs = stickyLiqs.slice(-8);
     paintLiq();
   }
 
@@ -388,7 +381,6 @@
     });
     all = [];
     openLiqs = [];
-    stickyLiqs = [];
     if (chart) { line.setData([]); candles.setData([]); paintLiq(); }
     loadHistory();
     quote();
