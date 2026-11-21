@@ -58,6 +58,7 @@
     chart.timeScale().fitContent();
     paintLiq();
     var m = all.length;
+    if (m > 1) chart.timeScale().setVisibleLogicalRange({ from: 0, to: m + 5 });
     if (mode === 'candles') {
       var n = candlesFrom(all).length;
       if (n > 1) chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, n - 120), to: n + 2 });
@@ -160,8 +161,19 @@
   var liqSeries = null, openLiq = null, liqBar = null;
   var openCount = 0;
 
+  function placeBar() {
+    if (!liqBar) return;
+    if (!openLiq || !line) { liqBar.style.display = 'none'; return; }
+    var y = line.priceToCoordinate(openLiq);
+    if (y === null || y === undefined || !isFinite(y)) { liqBar.style.display = 'none'; return; }
+    liqBar.style.display = 'block';
+    liqBar.style.top = Math.round(y) + 'px';
+  }
+
   function paintLiq() {
-    var host = $('ppChart');
+    /* Mounted on .pp-line, not #ppChart: the chart is inset 104px from the
+       right, and absolute children of .pp-line span the whole card. */
+    var host = document.querySelector('.pp-line');
     if (host && !liqBar) {
       if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
       liqBar = document.createElement('div');
@@ -172,18 +184,15 @@
     if (liqSeries) {
       if (!openLiq || all.length < 2) liqSeries.setData([]);
       else {
-        var pad = Math.max(6, Math.round(all.length * 0.03)) * step();
+        var pad = 5 * step();
         liqSeries.setData([
           { time: all[0].t, value: openLiq },
           { time: all[all.length - 1].t + pad, value: openLiq },
         ]);
       }
     }
-    if (!liqBar) return;
-    var y = openLiq && line ? line.priceToCoordinate(openLiq) : null;
-    if (y === null || y === undefined || !isFinite(y)) { liqBar.style.display = 'none'; return; }
-    liqBar.style.display = 'block';
-    liqBar.style.top = Math.round(y) + 'px';
+    /* Two frames, so auto-scale has applied before the coordinate is read. */
+    requestAnimationFrame(function () { requestAnimationFrame(placeBar); });
   }
 
   /* The line follows the open position, not the ticket preview. */
@@ -377,7 +386,7 @@
     loadState();
     tick();
     arm();
-    window.addEventListener('resize', paintLiq);
+    window.addEventListener('resize', placeBar);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
