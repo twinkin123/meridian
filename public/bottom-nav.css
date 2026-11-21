@@ -169,3 +169,54 @@ html body #p-perps.panel.on .pp-fee b{margin:0 0 0 auto!important;font-size:11px
 
 html body #p-perps.panel.on .pp-ticket > button{width:100%!important;height:34px!important;border-radius:9px!important;border:0!important;background:#16c784!important;color:#04120a!important;font-size:12px!important;font-weight:700!important;margin:0!important;grid-column:1 / -1!important}
 }
+/* black pass: pitch black inside the perp casing, only buttons keep a fill */
+@media (max-width:980px){
+html body:has(#p-perps.panel.on){background:#000!important}
+html body:has(#p-perps.panel.on) .main{background:#000!important}
+html body:has(#p-perps.panel.on) .main > .grid,
+html body:has(#p-perps.panel.on) .main > .grid > div{background:#000!important}
+html body #p-perps.panel.on *{background-color:transparent!important}
+html body #p-perps.panel.on,
+html body #p-perps.panel.on .pp,
+html body #p-perps.panel.on .card,
+html body #p-perps.panel.on .pp-mk-card,
+html body #p-perps.panel.on .pp-mid,
+html body #p-perps.panel.on .pp-chart-card,
+html body #p-perps.panel.on .pp-line,
+html body #p-perps.panel.on #ppChart,
+html body #p-perps.panel.on .pp-pos,
+html body #p-perps.panel.on .pp-tabs,
+html body #p-perps.panel.on .pp-tbl,
+html body #p-perps.panel.on .pp-tbl table,
+html body #p-perps.panel.on .pp-tbl thead,
+html body #p-perps.panel.on .pp-tbl tbody,
+html body #p-perps.panel.on .pp-tbl tr,
+html body #p-perps.panel.on .pp-tbl th,
+html body #p-perps.panel.on .pp-tbl td,
+html body #p-perps.panel.on .pp-ck-top,
+html body #p-perps.panel.on .pp-badge,
+html body #p-perps.panel.on .pp-badge-ic,
+html body #p-perps.panel.on .pp-mk,
+html body #p-perps.panel.on .pp-mk li,
+html body #p-perps.panel.on .pp-px-row,
+html body #p-perps.panel.on .pp-ticket,
+html body #p-perps.panel.on .pp-block,
+html body #p-perps.panel.on .pp-avail,
+html body #p-perps.panel.on .pp-dir,
+html body #p-perps.panel.on .pp-dir button,
+html body #p-perps.panel.on .pp-tools,
+html body #p-perps.panel.on .pp-share,
+html body #p-perps.panel.on .pp-exp,
+html body #p-perps.panel.on .pp-fee{background:#000!important}
+html body #p-perps.panel.on .pp-grad{background:linear-gradient(90deg,#16c784,#c8d13a,#e8a33d,#ef4b3f)!important;background-color:transparent!important}
+html body #p-perps.panel.on .pp-slider{background:#000!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)!important}
+html body #p-perps.panel.on .pp-slider::-webkit-slider-thumb{background:#fff!important}
+html body #p-perps.panel.on .pp-mk li.on{background:#000!important;border-color:#4b3a86!important}
+html body #p-perps.panel.on .pp-tabs button.on{background:#000!important;border-color:#4b3a86!important;color:#fff!important}
+html body #p-perps.panel.on .pp-side.l{background:#000!important;color:#16c784!important;border:1px solid rgba(22,199,132,.5)!important}
+html body #p-perps.panel.on .pp-side.s{background:#000!important;color:#ef4b3f!important;border:1px solid rgba(239,75,63,.5)!important}
+html body #p-perps.panel.on .pp-tools button{background:#000!important;border-color:rgba(255,255,255,.22)!important}
+html body #p-perps.panel.on .pp-dir button.on{background:#16c784!important;color:#04120a!important}
+html body #p-perps.panel.on .pp-tf2 button.on{background:#16c784!important;border-color:#16c784!important;color:#04120a!important}
+html body #p-perps.panel.on .pp-ticket > button{background:#16c784!important;color:#04120a!important}
+}
