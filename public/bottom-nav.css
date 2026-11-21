@@ -455,3 +455,8 @@ html body .wd-card .field input:focus,html body .wd-card .field select:focus{out
 html body .wd-card .field input,html body .wd-card .field select{background:rgba(0,0,0,.55)!important;background-image:none!important;border:1px solid rgba(255,255,255,.14)!important;border-radius:10px!important;padding:11px 14px!important;color:#fff!important;box-shadow:none!important}
 html body .wd-card .field input:focus,html body .wd-card .field select:focus{border-color:rgba(139,92,246,.7)!important;outline:none!important;box-shadow:none!important}
 html body .wd-foot{background:rgba(224,183,106,.10)!important;background-image:none!important;border:1px solid rgba(224,183,106,.30)!important;border-radius:10px!important;padding:10px 13px!important;color:#e0b76a!important;box-shadow:none!important}
+
+/* withdraw: fields match the deposit addr pill */
+html body .wd-card .field input,html body .wd-card .field select{background:#1c1c22!important;background-image:none!important;border:1px solid rgba(255,255,255,.07)!important;border-radius:999px!important;color:#fff!important;box-shadow:none!important;padding:11px 18px!important}
+html body .wd-card .field input:focus,html body .wd-card .field select:focus{border-color:rgba(139,92,246,.6)!important;outline:none!important;box-shadow:none!important;border-radius:999px!important}
+html body .wd-foot{background:#1c1c22!important;background-image:none!important;border:1px solid rgba(224,183,106,.22)!important;border-radius:10px!important;padding:10px 14px!important;color:#e0b76a!important;box-shadow:none!important}
