@@ -1,4 +1,4 @@
-﻿:root{
+:root{
   --panel:#111214; --panel2:#17181b; --line:#1f2024; --line2:#2b2d33;
   --txt:#f2f3f5; --mut:#c8cad1; --mut2:#b3b5bd; --grn:#2fd48a; --red:#f2665c; --pur:#8b5cf6;
   --r:12px;
@@ -777,3 +777,6 @@ html body .main .pp-pos .pp-tbl .pp-side.s{color:#ff7a6e!important;background:rg
 html body .main .pp-pos .pp-tbl .pp-side{font-size:10px!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:.04em!important;padding:2px 7px!important;border-radius:5px!important}
 
 html body .main .pp-pos .pp-tbl .pp-liqcell{color:#ff7a6e!important;font-variant-numeric:tabular-nums!important;white-space:nowrap!important}
+
+/* clip without making body a scroll container, so .top can stick */
+html body{overflow-x:clip!important}

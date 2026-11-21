@@ -198,7 +198,7 @@
     if (overlay) return;
     build();
     loadBal();
-    setTimeout(function () { var a = document.getElementById('wAddr'); if (a) a.focus(); }, 60);
+    setTimeout(function () { var a = document.getElementById('wAddr'); if (a) a.focus({ preventScroll: true }); }, 60);
   }
 
   window.openWithdraw = open;
