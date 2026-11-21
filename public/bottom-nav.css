@@ -710,3 +710,7 @@ html body .main .card.rainbow > *{position:relative!important;z-index:1!importan
 /* revert: rounded card, spectrum in the border ring */
 html body .main .card.rainbow{clip-path:none!important;border:1px solid transparent!important;border-radius:12px!important;background:linear-gradient(#0a0a0b,#0a0a0b) padding-box,var(--rim) border-box!important;background-image:linear-gradient(#0a0a0b,#0a0a0b),var(--rim)!important;background-origin:padding-box,border-box!important;background-clip:padding-box,border-box!important}
 html body .main .card.rainbow::before{clip-path:none!important}
+/* value card: ring painted outside the box */
+html body .main .card.rainbow{position:relative!important;z-index:0!important;border:0!important;border-radius:12px!important;background:#000!important;background-image:none!important;clip-path:none!important}
+html body .main .card.rainbow::before{content:""!important;position:absolute!important;inset:-1px!important;background:conic-gradient(from 200deg,#22d3ee,#3b82f6 18%,#8b5cf6 38%,#f97316 58%,#ef4444 76%,#22d3ee)!important;background-image:conic-gradient(from 200deg,#22d3ee,#3b82f6 18%,#8b5cf6 38%,#f97316 58%,#ef4444 76%,#22d3ee)!important;border-radius:13px!important;clip-path:none!important;z-index:-1!important}
+html body .main .card.rainbow > *{position:relative!important;z-index:1!important}
