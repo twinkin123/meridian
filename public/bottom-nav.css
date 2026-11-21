@@ -38,3 +38,7 @@ html body .main > .tickers{position:sticky!important;top:0!important;z-index:45!
 @media (max-width:980px){
 html body .main .card.rainbow{margin-top:28px!important}
 }
+@media (max-width:980px){
+html body .main .card.rainbow{margin-top:52px!important}
+html body .main > .tickers{overflow-x:auto!important;overflow-y:hidden!important}
+}
