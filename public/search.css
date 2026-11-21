@@ -19,13 +19,3 @@
   .top .hsearch{right:35.9vw !important}
   html body .top .welcome{display:block !important;left:auto !important;right:27vw !important}
 }
-
-/* search: aligned to the card, but capped so it cannot reach the header controls */
-@media (min-width:901px){
-  html body .top .hsearch{max-width:520px!important}
-}
-
-/* search: fixed in the bar, independent of whichever card is on screen */
-@media (min-width:901px){
-  html body .top .hsearch{position:static!important;left:auto!important;right:auto!important;transform:none!important;flex:0 1 520px!important;max-width:520px!important;margin:0 auto!important}
-}
