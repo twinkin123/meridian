@@ -182,6 +182,15 @@
       try { liqOwner.removePriceLine(liqLine); } catch (_) {}
       liqLine = null;
     }
+    /* Anchor the value on a series so auto-scale keeps the liq in view;
+       a price line alone does not participate in auto-scale. */
+    if (liqSeries) {
+      if (!openLiq || all.length < 2) liqSeries.setData([]);
+      else liqSeries.setData([
+        { time: all[0].t, value: openLiq },
+        { time: all[all.length - 1].t, value: openLiq },
+      ]);
+    }
     var target = mode === 'candles' ? candles : line;
     if (!openLiq || !target) return;
     liqOwner = target;
