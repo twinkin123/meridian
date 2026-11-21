@@ -692,3 +692,5 @@ html body #p-perps.panel.on .pp-ticket{padding-bottom:16px!important}
 html body #p-perps.panel.on .pp-ticket > button{margin-bottom:0!important}
 html body #p-perps.panel.on .pp-fee{display:none!important}
 }
+/* history: no foot note */
+html body .hs-foot{display:none!important}
