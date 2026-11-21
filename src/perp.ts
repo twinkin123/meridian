@@ -186,8 +186,7 @@ async function settle(
   mark: number,
   status: 'closed' | 'liquidated',
 ): Promise<void> {
-  /* A liquidation fills at the liq price, never past it: the overshoot is unbooked. */
-  /* The mark decides whether to liquidate, never at what price, so this needs no side. */
+  /* A liquidation fills at the liq price, never past it: the mark only decides whether to liquidate, so this needs no side. */
   let exit = mark;
   if (status === 'liquidated') {
     const liq = Number(p.liq_price);
@@ -201,7 +200,7 @@ async function settle(
   let back = stake + pnl;
   if (back < 0n) back = 0n;
   /* Close fee: 0.5% of what they actually get back. */
-  back -= back / 200n;
+  if (status === 'closed') { back -= back / 200n; if (back < 0n) back = 0n; }
   if (back < 0n) back = 0n;
 
   await c.query(
