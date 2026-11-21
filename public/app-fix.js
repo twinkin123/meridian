@@ -158,4 +158,4 @@
   try { seen = localStorage.getItem('mrd_seen') === '1'; } catch (_) {}
   el.textContent = seen ? 'Welcome back' : 'Welcome';
   try { localStorage.setItem('mrd_seen', '1'); } catch (_) {}
-})();
+})();(function(){var y=0,was=false,L=['wd-open','sm-open','dep-open'];function h(){for(var i=0;i<L.length;i++)if(document.body.classList.contains(L[i]))return true;return false}function s(){requestAnimationFrame(function(){window.scrollTo(0,y);var t=document.querySelector('.top');if(t){t.style.transform='translateZ(0)';void t.offsetHeight;t.style.transform='';}requestAnimationFrame(function(){window.scrollTo(0,y)})})}new MutationObserver(function(){var n=h();if(n&&!was)y=window.pageYOffset||0;else if(!n&&was)s();was=n}).observe(document.body,{attributes:true,attributeFilter:['class']});})();

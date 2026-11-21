@@ -1,0 +1,12 @@
+﻿[
+    {
+        "key":  "freeze_actor",
+        "value":  "admin:token",
+        "updated_at":  "2026-11-19T23:32:10.629Z"
+    },
+    {
+        "key":  "freeze_level",
+        "value":  "0",
+        "updated_at":  "2026-11-19T23:32:10.626Z"
+    }
+]
