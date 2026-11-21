@@ -642,3 +642,5 @@ html body .dep-overlay .dep-sheet .dep-head,html body .dep-overlay .dep-sheet .d
 html body .wd-overlay .wd-sheet .wd-head,html body .wd-overlay .wd-sheet .wd-head h2{background:#000!important;background-color:#000!important;background-image:none!important;border:0!important;box-shadow:none!important}
 /* dep: amber casing around the warn sentence */
 html body .dep-overlay .dep-sheet .dep-warn{display:block!important;background:#000!important;background-color:#000!important;background-image:none!important;border:1px solid rgba(224,183,106,.8)!important;border-radius:9px!important;padding:10px 12px!important;color:#e0b76a!important;box-shadow:none!important}
+/* wd: amber casing around the warning box */
+html body .wd-overlay .wd-sheet .wd-foot{display:block!important;background:#000!important;background-color:#000!important;background-image:none!important;border:1px solid rgba(224,183,106,.8)!important;border-radius:9px!important;padding:10px 12px!important;color:#e0b76a!important;box-shadow:none!important}
