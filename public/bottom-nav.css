@@ -245,3 +245,10 @@ html body #p-perps.panel.on .pp-ticket > button{background:#16c784!important;bac
 @media (max-width:980px){
 html body #p-perps.panel.on{border-color:#6e6e6e!important}
 }
+
+
+
+/* black pass 5: no casing border */
+@media (max-width:980px){
+html body #p-perps.panel.on{border:0!important}
+}
