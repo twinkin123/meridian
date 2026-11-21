@@ -497,3 +497,9 @@ html body #p-stake .st-hero,html body #p-stake .st-stats,html body #p-stake .st-
 html body #p-stake .card{margin-top:0!important;margin-bottom:24px!important}
 html body #p-stake .card:last-child{margin-bottom:0!important}
 html body #p-stake .st-grid{gap:24px!important}
+
+/* stake: kill the doubled gap and the dead space at the foot */
+html body #p-stake .st-grid{gap:0!important}
+html body #p-stake .st-gap{display:none!important}
+html body #p-stake .st-wrap{padding-bottom:0!important}
+html body:has(#p-stake.panel.on) .main{padding-bottom:0!important}
