@@ -694,3 +694,5 @@ html body #p-perps.panel.on .pp-fee{display:none!important}
 }
 /* history: no foot note */
 html body .hs-foot{display:none!important}
+/* settings: black card */
+html body #p-settings.panel.on,html body #p-settings .card{background:#000!important;background-color:#000!important;background-image:none!important}
