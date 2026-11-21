@@ -174,7 +174,7 @@ const server = app.listen(port, () => {
       process.exit(1);
     });
 
-  every(5 * 1000, perpTick, 'perp-tick');
+  every(1000, perpTick, 'perp-tick');
   every(5 * 60 * 1000, async () => {
     if (await reconDue()) await runRecon('cron');
   }, 'recon');

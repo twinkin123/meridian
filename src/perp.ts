@@ -69,7 +69,7 @@ async function loadGecko(): Promise<Record<string, Mark>> {
 
 /** Four-second marks. Short enough that a 1000x position can be watched. */
 export async function marks(): Promise<Record<string, Mark>> {
-  if (cache && Date.now() - cache.at < 1000) return cache.data;
+  if (cache && Date.now() - cache.at < 300) return cache.data;
   if (!busy) {
     busy = loadBinance().catch(() => loadGecko())
       .then((data) => {
