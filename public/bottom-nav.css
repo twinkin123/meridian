@@ -304,3 +304,12 @@ html body #p-perps.panel.on .pp-dir button:last-child.on{background:#ef4b3f!impo
 html body #p-swap.panel.on{margin-top:0!important;margin-bottom:0!important}
 html body:has(#p-swap.panel.on) .main{padding:20px 16px 16px!important;justify-content:flex-start!important}
 }
+
+
+
+/* swap pad 2: equal on all four sides */
+@media (max-width:980px){
+html body:has(#p-swap.panel.on) > .tickers{margin-bottom:0!important}
+html body:has(#p-swap.panel.on) .main{padding:16px!important}
+html body #p-swap.panel.on{margin:0!important}
+}
