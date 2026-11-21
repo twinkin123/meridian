@@ -387,3 +387,11 @@ html body .dep-overlay,html body .wd-overlay{background:rgba(10,10,14,.72)!impor
 /* dep head: no black band */
 html body .dep-sheet .dep-head{background:#2a2a33!important;background-image:none!important;border-bottom:0!important}
 html body .wd-sheet .wd-head{background:#2a2a33!important;background-image:none!important}
+
+/* dep foot: even spacing, copy pill */
+html body .dep-sheet .dep-quote{margin:0 0 12px!important;padding:0!important;min-height:0!important;line-height:1.45!important}
+html body .dep-sheet .dep-status{margin:0 0 12px!important;line-height:1.45!important}
+html body .dep-sheet .dep-status .pulse{background:#cbb9ff!important;opacity:.75!important;flex:0 0 7px!important}
+html body .dep-sheet .dep-warn{margin-top:0!important}
+html body .dep-sheet .dep-copy{background:rgba(139,92,246,.14)!important;background-image:none!important;border:1px solid rgba(139,92,246,.5)!important;color:#cbb9ff!important;border-radius:99px!important;font-size:11px!important;font-weight:700!important;letter-spacing:.04em!important;text-transform:uppercase!important;padding:0 14px!important}
+html body .dep-sheet .dep-copy.done{background:rgba(74,222,128,.16)!important;border-color:rgba(74,222,128,.55)!important;color:#4ade80!important}
