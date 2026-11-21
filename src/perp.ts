@@ -260,7 +260,7 @@ export type View = {
 
 export async function positions(userId: string): Promise<View[]> {
   const { rows } = await (await import('./db.js')).pool.query<any>(
-    `select id, market, side, stake, leverage, entry, liq_price
+    `select id, market, side, stake, leverage, entry, qty, liq_price
        from perp_positions where user_id = $1 and status = 'open' order by opened_at desc`,
     [userId],
   );
