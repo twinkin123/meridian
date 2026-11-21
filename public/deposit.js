@@ -28,6 +28,7 @@
     overlay = null;
     document.body.classList.remove('dep-open');
     document.removeEventListener('keydown', onKey);
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   }
 
   function onKey(e) { if (e.key === 'Escape') close(); }

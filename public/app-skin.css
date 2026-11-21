@@ -741,3 +741,6 @@ html body #claimBtn, html body #rwOut{
 #notifPop{display:flex!important;flex-direction:column!important;height:min(70vh,520px)!important;max-height:min(70vh,520px)!important}
 #notifPop[hidden]{display:none!important}
 #notifPop .list{flex:1 1 auto!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;margin-bottom:0!important}
+
+.top .brand,.top .brand:focus,.top .brand:focus-visible,.topbar .brand:focus{outline:none!important;box-shadow:none!important}
+.top .brand-mark{flex:none!important;line-height:1!important;text-align:center!important}
