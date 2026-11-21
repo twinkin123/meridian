@@ -40,8 +40,8 @@ html body:has(#p-perps.panel.on) .main > .grid > div{display:flex!important;flex
 
 html body #p-perps.panel.on{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;height:auto!important;margin:0!important;padding:8px 10px!important;border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;background:#0a0c0a!important;overflow:hidden!important}
 html body #p-perps.panel.on *{position:static!important;inset:auto!important;grid-area:auto!important;grid-row:auto!important;grid-column:auto!important;min-height:0!important;max-height:none!important;height:auto!important;box-shadow:none!important;margin-top:0!important;margin-bottom:0!important}
-html body #p-perps.panel.on .pp{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;height:100%!important;min-height:0!important;gap:5px!important}
-html body #p-perps.panel.on .card{border:0!important;border-radius:0!important;background:transparent!important;margin:0!important;padding:0!important;filter:none!important}
+html body #p-perps.panel.on .pp{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;height:100%!important;width:100%!important;min-width:0!important;min-height:0!important;gap:5px!important}
+html body #p-perps.panel.on .card{border:0!important;border-radius:0!important;background:transparent!important;margin:0!important;padding:0!important;filter:none!important;min-width:0!important;width:100%!important}
 
 html body #p-perps.panel.on .pp-pos,
 html body #p-perps.panel.on .pp-about,
@@ -49,24 +49,22 @@ html body #p-perps.panel.on .pp-mk-filter,
 html body #p-perps.panel.on .pp-mk-foot,
 html body #p-perps.panel.on .pp-fill,
 html body #p-perps.panel.on .pp-tools,
-html body #p-perps.panel.on .pp-exp i,
-html body #p-perps.panel.on .pp-exp em,
-html body #p-perps.panel.on .pp-exp [class*="liq"],
+html body #p-perps.panel.on .pp-exp > *:not(.pp-exp-l):not(.pp-exp-r),
 html body #p-perps.panel.on #ppChart{display:none!important}
 
-html body #p-perps.panel.on .pp-mk-card{order:-1!important;flex:0 0 auto!important;padding-bottom:5px!important;border-bottom:1px solid rgba(255,255,255,.07)!important}
+html body #p-perps.panel.on .pp-mk-card{order:-1!important;flex:0 0 auto!important;padding-bottom:5px!important;border-bottom:1px solid rgba(255,255,255,.07)!important;width:100%!important;min-width:0!important}
 html body #p-perps.panel.on .pp-mk-head{margin:0 0 4px!important;font-size:8.5px!important;letter-spacing:.16em!important;text-transform:uppercase!important;opacity:.5!important;line-height:1!important}
 html body #p-perps.panel.on .pp-mk-count{font-size:8.5px!important;opacity:.4!important}
-html body #p-perps.panel.on .pp-mk{display:flex!important;flex-direction:row!important;gap:5px!important;margin:0!important;padding:0!important;list-style:none!important}
-html body #p-perps.panel.on .pp-mk li{flex:1 1 0!important;min-width:0!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1px!important;padding:5px 3px!important;border-radius:8px!important;border:1px solid rgba(255,255,255,.1)!important}
+html body #p-perps.panel.on .pp-mk{display:flex!important;flex-direction:row!important;gap:5px!important;margin:0!important;padding:0!important;list-style:none!important;width:100%!important;min-width:0!important;overflow:hidden!important}
+html body #p-perps.panel.on .pp-mk li{flex:1 1 0!important;min-width:0!important;width:auto!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1px!important;padding:5px 2px!important;border-radius:8px!important;border:1px solid rgba(255,255,255,.1)!important;overflow:hidden!important}
 html body #p-perps.panel.on .pp-mk li.on{background:#16121f!important;border-color:#4b3a86!important}
 html body #p-perps.panel.on .pp-mk-ic{display:none!important}
-html body #p-perps.panel.on .pp-mk b{font-size:10px!important;line-height:1.15!important;white-space:nowrap!important}
+html body #p-perps.panel.on .pp-mk b{font-size:9.5px!important;line-height:1.15!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:100%!important}
 html body #p-perps.panel.on .pp-mk .sub{display:none!important}
-html body #p-perps.panel.on .pp-mk-r{font-size:10px!important;text-align:center!important;line-height:1.15!important}
-html body #p-perps.panel.on .pp-mk-r em{display:block!important;font-size:8.5px!important;font-style:normal!important}
+html body #p-perps.panel.on .pp-mk-r{font-size:9.5px!important;text-align:center!important;line-height:1.15!important;white-space:nowrap!important}
+html body #p-perps.panel.on .pp-mk-r em{display:block!important;font-size:8px!important;font-style:normal!important}
 
-html body #p-perps.panel.on .pp-mid{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;gap:0!important}
+html body #p-perps.panel.on .pp-mid{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;min-width:0!important;gap:0!important}
 html body #p-perps.panel.on .pp-chart-card{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;gap:0!important}
 html body #p-perps.panel.on .pp-ck-top{display:flex!important;align-items:center!important;gap:6px!important;flex:0 0 auto!important;min-height:24px!important;margin:0 0 3px!important;overflow:visible!important}
 html body #p-perps.panel.on .pp-badge{width:18px!important;height:18px!important;flex:0 0 auto!important;overflow:visible!important;display:flex!important;align-items:center!important;margin:0!important}
@@ -87,22 +85,23 @@ html body #p-perps.panel.on .pp-line{position:relative!important;flex:1 1 auto!i
 html body #p-perps.panel.on .pp-line svg{position:absolute!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;display:block!important}
 html body #p-perps.panel.on .pp-dot{position:absolute!important;right:0!important;top:50%!important;transform:translateY(-50%)!important;width:8px!important;height:8px!important}
 
-html body #p-perps.panel.on .pp-ticket{order:1!important;flex:0 0 auto!important;display:flex!important;flex-direction:column!important;padding-top:5px!important;border-top:1px solid rgba(255,255,255,.08)!important;margin:0!important}
+html body #p-perps.panel.on .pp-ticket{order:1!important;flex:0 0 auto!important;display:flex!important;flex-direction:column!important;padding-top:5px!important;border-top:1px solid rgba(255,255,255,.08)!important;margin:0!important;width:100%!important;min-width:0!important}
 html body #p-perps.panel.on .pp-rule{height:1px!important;background:rgba(255,255,255,.06)!important;margin:4px 0!important;flex:0 0 auto!important}
 html body #p-perps.panel.on .pp-avail{display:flex!important;align-items:center!important;gap:4px!important;font-size:9.5px!important;opacity:.7!important;margin:0!important}
 html body #p-perps.panel.on .pp-avail b{font-size:10.5px!important;font-weight:600!important}
-html body #p-perps.panel.on .pp-coin{width:12px!important;height:12px!important;flex:0 0 auto!important;opacity:1!important}
+html body #p-perps.panel.on .pp-coin{width:12px!important;height:12px!important;flex:0 0 auto!important;opacity:1!important;display:block!important}
 html body #p-perps.panel.on .pp-coin.lg{width:15px!important;height:15px!important}
 
 html body #p-perps.panel.on .pp-dir{display:flex!important;gap:3px!important;padding:3px!important;height:28px!important;border-radius:999px!important;background:#1b1d1b!important;flex:0 0 auto!important;margin:0!important}
 html body #p-perps.panel.on .pp-dir button{flex:1 1 0!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border:0!important;border-radius:999px!important;background:transparent!important;color:#9aa39a!important;font-size:11px!important;font-weight:600!important;padding:0!important;margin:0!important}
 html body #p-perps.panel.on .pp-dir button.on{background:#16c784!important;color:#04120a!important}
 
-html body #p-perps.panel.on .pp-block{display:flex!important;flex-direction:column!important;gap:1px!important;margin:0!important}
-html body #p-perps.panel.on .pp-cap{display:block!important;font-size:8.5px!important;opacity:.5!important;line-height:1.3!important;margin:0!important}
-html body #p-perps.panel.on .pp-amt,html body #p-perps.panel.on .pp-mult{display:flex!important;align-items:center!important;gap:5px!important;margin:0!important}
-html body #p-perps.panel.on .pp-amt b,html body #p-perps.panel.on .pp-mult b{font-size:15px!important;line-height:1.2!important;font-weight:700!important;margin:0!important}
-html body #p-perps.panel.on .pp-bolt{font-size:10px!important}
+html body #p-perps.panel.on .pp-block{display:flex!important;flex-direction:column!important;gap:0!important;margin:0!important}
+html body #p-perps.panel.on .pp-cap{display:block!important;font-size:8.5px!important;opacity:.5!important;line-height:1.4!important;margin:0!important}
+html body #p-perps.panel.on .pp-amt,html body #p-perps.panel.on .pp-mult{display:flex!important;flex-direction:row!important;align-items:center!important;gap:5px!important;margin:0!important;line-height:1!important;min-height:20px!important}
+html body #p-perps.panel.on .pp-amt svg,html body #p-perps.panel.on .pp-mult svg{align-self:center!important;flex:0 0 auto!important;margin:0!important;display:block!important}
+html body #p-perps.panel.on .pp-amt b,html body #p-perps.panel.on .pp-mult b{font-size:15px!important;line-height:1!important;font-weight:700!important;margin:0!important}
+html body #p-perps.panel.on .pp-bolt{font-size:10px!important;line-height:1!important}
 html body #p-perps.panel.on .pp-slider{-webkit-appearance:none!important;appearance:none!important;width:100%!important;height:3px!important;border-radius:2px!important;background:#3a3d3a!important;margin:4px 0 0!important;border:0!important}
 html body #p-perps.panel.on .pp-slider::-webkit-slider-thumb{-webkit-appearance:none!important;width:12px!important;height:12px!important;border-radius:50%!important;background:#fff!important;border:0!important}
 html body #p-perps.panel.on .pp-grad{background:linear-gradient(90deg,#16c784,#c8d13a,#e8a33d,#ef4b3f)!important}
@@ -116,7 +115,7 @@ html body #p-perps.panel.on .pp-fee b{margin:0 0 0 auto!important;font-size:11px
 
 html body #p-perps.panel.on .pp-ticket > button{width:100%!important;height:32px!important;border-radius:9px!important;border:0!important;background:#16c784!important;color:#04120a!important;font-size:12px!important;font-weight:700!important;margin:6px 0 0!important;flex:0 0 auto!important}
 
-html body .side{-webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 46px),transparent 100%)!important;mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 46px),transparent 100%)!important}
-html body .side a{padding:12px 8px!important;font-size:12px!important}
+html body .side{-webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 52px),transparent 100%)!important;mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 52px),transparent 100%)!important}
+html body .side a{padding:12px 7px!important;font-size:11.5px!important}
 html body .tickers{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%)!important;mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%)!important}
 }
