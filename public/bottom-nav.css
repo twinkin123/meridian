@@ -503,3 +503,7 @@ html body #p-stake .st-grid{gap:0!important}
 html body #p-stake .st-gap{display:none!important}
 html body #p-stake .st-wrap{padding-bottom:0!important}
 html body:has(#p-stake.panel.on) .main{padding-bottom:0!important}
+
+/* stake: top and bottom match the dashboard */
+html body #p-stake.panel.on{margin-top:14px!important}
+html body:has(#p-stake.panel.on) .main{padding-bottom:34px!important}
