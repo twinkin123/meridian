@@ -489,3 +489,6 @@ html body .sw-wrap{padding-bottom:0!important}
 /* swap: equal gaps around the two address fields and the CTA */
 html body .sw-fields{display:flex!important;flex-direction:column!important;gap:10px!important}
 html body .sw-cta{margin-top:10px!important}
+
+/* stake: drop the hero and the how-it-works block */
+html body #p-stake .st-hero,html body #p-stake .st-stats,html body #p-stake .st-how{display:none!important}
