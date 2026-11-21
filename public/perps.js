@@ -59,7 +59,7 @@
     if (m > 1) chart.timeScale().setVisibleLogicalRange({ from: 0, to: m + Math.max(6, Math.round(m * 0.03)) });
     if (mode === 'candles') {
       var n = candlesFrom(all).length;
-      if (n > 120) chart.timeScale().setVisibleLogicalRange({ from: n - 120, to: n + 2 });
+      if (n > 1) chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, n - 120), to: n + 2 });
     }
   }
 
