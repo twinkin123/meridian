@@ -480,3 +480,8 @@ html body .wd-card::before{content:"$10 minimum."!important;display:block!import
 
 /* swap: no wrapper around the address fields */
 html body .sw-fields{border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;padding:0!important}
+
+/* swap: identical space above and below */
+html body:has(#p-swap.panel.on) .main{padding:16px 16px 4px!important;justify-content:center!important}
+html body .sw-card{padding:16px!important}
+html body .sw-wrap{padding-bottom:0!important}
