@@ -197,3 +197,25 @@ html body #p-perps.panel.on .pp-dir button.on{background:#16c784!important;color
 html body #p-perps.panel.on .pp-tf2 button.on{background:#16c784!important;border-color:#16c784!important;color:#04120a!important}
 html body #p-perps.panel.on .pp-ticket > button{background:#16c784!important;color:#04120a!important}
 }
+
+
+
+/* black pass 2: kill the last grey hairlines */
+@media (max-width:980px){
+html body #p-perps.panel.on .pp-mk li{border-color:rgba(255,255,255,.07)!important}
+html body #p-perps.panel.on .pp-mk li.on{border-color:#4b3a86!important}
+html body #p-perps.panel.on .pp-tabs button{border-color:rgba(255,255,255,.07)!important}
+html body #p-perps.panel.on .pp-tabs button.on{border-color:#4b3a86!important}
+html body #p-perps.panel.on .pp-tf2 button{border-color:rgba(255,255,255,.07)!important}
+html body #p-perps.panel.on .pp-tf2 button.on{border-color:#16c784!important}
+html body #p-perps.panel.on .pp-dir{border-color:rgba(255,255,255,.07)!important}
+html body #p-perps.panel.on .pp-tools button{border-color:rgba(255,255,255,.07)!important;background:#000!important}
+html body #p-perps.panel.on .pp-ticket{border-top-color:rgba(255,255,255,.06)!important}
+html body #p-perps.panel.on .pp-ticket .pp-block{border-top-color:rgba(255,255,255,.06)!important}
+html body #p-perps.panel.on .pp-mk-card{border-bottom-color:rgba(255,255,255,.06)!important}
+html body #p-perps.panel.on .pp-side{border-color:rgba(255,255,255,.07)!important}
+html body #p-perps.panel.on .sx{border-color:rgba(255,255,255,.07)!important}
+html body #p-perps.panel.on .pp-share{border:0!important}
+html body #p-perps.panel.on .pp-slider{background:#111!important;box-shadow:none!important}
+html body #p-perps.panel.on .pp-slider::-webkit-slider-thumb{background:#fff!important}
+}
