@@ -65,7 +65,7 @@ app.use((_req, res, next) => {
 });
 
 app.use('/market', market);
-app.use('/swap', requireUser, swap);
+app.use('/swap', swap);
 app.use('/perps', requireUser, perps);
 
 app.use('/results', results);

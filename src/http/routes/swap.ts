@@ -2,6 +2,7 @@ import { Router } from 'express';
 import QRCode from 'qrcode';
 import { none, one, pool } from '../../db.js';
 import { env } from '../../env.js';
+import { requireUser } from '../mw/session.js';
 
 const BASE = 'https://api.changenow.io/v2';
 
@@ -191,7 +192,7 @@ swap.post('/quote', async (req, res) => {
   }
 });
 
-swap.post('/orders', async (req, res) => {
+swap.post('/orders', requireUser, async (req, res) => {
   const b = req.body as {
     from?: string; fromNet?: string; to?: string; toNet?: string;
     amount?: string; address?: string; memo?: string; refund?: string;
@@ -271,7 +272,7 @@ const MAP: Record<string, string> = {
   failed: 'failed', refunded: 'refunded', verifying: 'verifying',
 };
 
-swap.get('/orders/:id', async (req, res) => {
+swap.get('/orders/:id', requireUser, async (req, res) => {
   const row = await one<{ changenow_id: string; status: string; to_amount: string; to_currency: string }>(
     `select changenow_id, status, to_amount, to_currency
        from changenow_orders where changenow_id = $1 and user_id = $2`,
@@ -298,7 +299,7 @@ swap.get('/orders/:id', async (req, res) => {
   res.json({ status, toAmount: row.to_amount, toCurrency: row.to_currency });
 });
 
-swap.get('/orders', async (req, res) => {
+swap.get('/orders', requireUser, async (req, res) => {
   const { rows } = await pool.query(
     `select changenow_id as id, from_currency, from_network, to_currency, to_network,
             from_amount, to_amount, status, created_at
