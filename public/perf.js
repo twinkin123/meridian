@@ -4,7 +4,7 @@
 
   /* 1. one scheduler caps every rAF loop already on the page */
   const native = window.requestAnimationFrame.bind(window);
-  const capMs = coarse ? 1000 / 26 : 1000 / 55;
+  const capMs = coarse ? 1000 / 26 : 1000 / 60;
   let q = [], seq = 1, drive = 0, lastT = 0;
   function flush(ts) {
     drive = 0;

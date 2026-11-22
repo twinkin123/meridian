@@ -3,19 +3,50 @@
   if (!cv) return;
   const ctx = cv.getContext('2d');
   const host = cv.parentElement;
-  let W = 0, H = 0, dpr = 1, raf = 0, running = false, t0 = 0;
+  let W = 0, H = 0, dpr = 1, raf = 0, running = false, t0 = 0, last = 0;
+  const FRAME = 1000 / 45, PI2 = Math.PI * 2;
 
-  const N = 1350, GOLD = Math.PI * (3 - Math.sqrt(5)), pts = [];
+  const N = 900, GOLD = Math.PI * (3 - Math.sqrt(5)), pts = [];
   for (let i = 0; i < N; i++) {
     const y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(Math.max(0, 1 - y * y)), th = i * GOLD;
-    pts.push({ x: Math.cos(th) * r, y, z: Math.sin(th) * r });
+    pts.push({ px: Math.cos(th) * r, pz: Math.sin(th) * r, y, nb: null });
+  }
+
+  for (let i = 0; i < N; i++) {
+    const a = pts[i], cand = [];
+    for (let j = 0; j < N; j++) {
+      if (j === i) continue;
+      const b = pts[j];
+      const d = a.px * b.px + a.y * b.y + a.pz * b.pz;
+      if (d < 0.955) continue;
+      cand.push([d + Math.random() * 0.05, j]);
+    }
+    cand.sort((u, v) => v[0] - u[0]);
+    a.nb = cand.slice(0, 8).map((x) => x[1]);
+  }
+
+  const POW = new Float32Array(65);
+  for (let i = 0; i <= 64; i++) POW[i] = Math.pow(i / 64, 1.9);
+  const DOT = new Array(32);
+  for (let i = 0; i < 32; i++) DOT[i] = `rgba(214,214,216,${(i / 31).toFixed(3)})`;
+  const flash = new Float32Array(N);
+
+  const glow = document.createElement('canvas');
+  glow.width = glow.height = 64;
+  {
+    const g = glow.getContext('2d');
+    const rg = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    rg.addColorStop(0, 'rgba(255,255,255,1)');
+    rg.addColorStop(0.42, 'rgba(255,255,255,.4)');
+    rg.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = rg; g.fillRect(0, 0, 64, 64);
   }
 
   const CAM = 9;
   const RINGS = [
-    { tilt: 0.13, roll: 0.04, rad: 1.44, speed:  0.000062, phase: 0.0, size: 0.026, a: 0.34, text: 'DAILY CREDIT · CREDITED EVERY 24 HOURS · ' },
-    { tilt: 0.19, roll: -0.06, rad: 1.66, speed: -0.000044, phase: 2.4, size: 0.024, a: 0.22, text: 'USDC ON SOLANA · APPEND-ONLY LEDGER · ' },
-    { tilt: 0.10, roll: 0.10, rad: 1.90, speed:  0.000032, phase: 4.7, size: 0.022, a: 0.16, text: 'WITHDRAW ANYTIME · NO LOCK-UP · ' },
+    { tilt: 0.13, roll: 0.04, rad: 1.44, speed:  0.00019, phase: 0.0, size: 0.026, a: 0.34, text: 'DAILY CREDIT · CREDITED EVERY 24 HOURS · ', cache: null },
+    { tilt: 0.19, roll: -0.06, rad: 1.66, speed: -0.00014, phase: 2.4, size: 0.024, a: 0.22, text: 'USDC ON SOLANA · APPEND-ONLY LEDGER · ', cache: null },
+    { tilt: 0.10, roll: 0.10, rad: 1.90, speed:  0.00011, phase: 4.7, size: 0.022, a: 0.16, text: 'WITHDRAW ANYTIME · NO LOCK-UP · ', cache: null },
   ];
   const SPAN = 5.6;
 
@@ -30,31 +61,79 @@
     const nodes = [cur];
     const hops = 12 + Math.floor(Math.random() * 14);
     for (let k = 0; k < hops; k++) {
-      const a = pts[cur];
-      let best = -1, bestScore = -2;
-      for (let i = 0; i < N; i++) {
-        if (used.has(i)) continue;
-        const b = pts[i];
-        const d = a.x * b.x + a.y * b.y + a.z * b.z;
-        if (d < 0.955) continue;
-        const s = d + Math.random() * 0.05;
-        if (s > bestScore) { bestScore = s; best = i; }
+      const nb = pts[cur].nb;
+      if (!nb || !nb.length) break;
+      let pick = -1;
+      const off = Math.floor(Math.random() * nb.length);
+      for (let a = 0; a < nb.length; a++) {
+        const c = nb[(a + off) % nb.length];
+        if (!used.has(c)) { pick = c; break; }
       }
-      if (best < 0) break;
-      used.add(best);
-      nodes.push(best);
-      cur = best;
+      if (pick < 0) break;
+      used.add(pick); nodes.push(pick); cur = pick;
     }
     return nodes;
   }
 
+  let discCv = null, coreCv = null;
+
+  function layer() {
+    const c = document.createElement('canvas');
+    c.width = cv.width; c.height = cv.height;
+    const g = c.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return [c, g];
+  }
+
+  function build() {
+    const R = Math.min(W, H) * 0.285, cx = W / 2, cy = H / 2;
+    const d1 = layer()[0], d = d1.getContext('2d');
+    d.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const halo = d.createRadialGradient(cx, cy, R * 0.9, cx, cy, R * 2.0);
+    halo.addColorStop(0, 'rgba(255,255,255,0.075)');
+    halo.addColorStop(0.42, 'rgba(255,255,255,0.03)');
+    halo.addColorStop(1, 'rgba(255,255,255,0)');
+    d.fillStyle = halo;
+    d.beginPath(); d.arc(cx, cy, R * 2.0, 0, PI2); d.fill();
+    const body = d.createRadialGradient(cx, cy, R * 0.05, cx, cy, R * 1.02);
+    body.addColorStop(0, '#1d1d1e');
+    body.addColorStop(0.50, '#151516');
+    body.addColorStop(0.85, '#0e0e0f');
+    body.addColorStop(1, '#0b0b0c');
+    d.fillStyle = body;
+    d.beginPath(); d.arc(cx, cy, R, 0, PI2); d.fill();
+    discCv = d1;
+
+    const c2 = layer()[0], c = c2.getContext('2d');
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.beginPath(); c.arc(cx, cy, R, 0, PI2); c.clip();
+    const core = c.createRadialGradient(cx, cy, 0, cx, cy, R);
+    core.addColorStop(0, 'rgba(235,235,238,0.16)');
+    core.addColorStop(0.26, 'rgba(200,200,205,0.11)');
+    core.addColorStop(0.56, 'rgba(165,165,170,0.08)');
+    core.addColorStop(0.80, 'rgba(130,130,136,0.055)');
+    core.addColorStop(1, 'rgba(100,100,106,0.03)');
+    c.fillStyle = core;
+    c.beginPath(); c.arc(cx, cy, R, 0, PI2); c.fill();
+    coreCv = c2;
+  }
+
   function size() {
     const b = host.getBoundingClientRect();
-    dpr = Math.min(devicePixelRatio || 1, 2);
+    dpr = Math.min(devicePixelRatio || 1, 1.5);
     W = b.width; H = b.height;
+    if (!W || !H) return;
     cv.width = Math.max(1, Math.round(W * dpr));
     cv.height = Math.max(1, Math.round(H * dpr));
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    build();
+    for (const r of RINGS) {
+      const step = (r.size * 1.3) / r.rad;
+      const n = Math.floor(SPAN / step);
+      let str = '';
+      while (str.length < n) str += r.text;
+      r.cache = { s: str.slice(0, n), step, n };
+    }
   }
 
   const pt = (ring, th, spin) => {
@@ -69,19 +148,12 @@
     return { X: x3 * persp, Y: y2 * persp, Z: z3, P: persp };
   };
 
-  function ringChars(ring) {
-    const step = (ring.size * 1.3) / ring.rad;
-    const n = Math.floor(SPAN / step);
-    let s = '';
-    while (s.length < n) s += ring.text;
-    return { s: s.slice(0, n), step, n };
-  }
-
   function drawRing(ring, t, R, cx, cy, back) {
+    if (!ring.cache) return;
     const spin = ring.phase + t * ring.speed;
     ctx.font = `700 ${ring.size * R}px "Space Mono",monospace`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    const { s, step, n } = ringChars(ring);
+    const { s, step, n } = ring.cache;
     const start = -((n - 1) / 2) * step;
 
     for (let i = 0; i < n; i++) {
@@ -112,8 +184,8 @@
     const spin = ring.phase + t * ring.speed;
     ctx.beginPath();
     let started = false;
-    for (let k = 0; k <= 160; k++) {
-      const q = pt(ring, (k / 160) * Math.PI * 2, spin);
+    for (let k = 0; k <= 120; k++) {
+      const q = pt(ring, (k / 120) * PI2, spin);
       if (back ? q.Z >= 0 : q.Z < 0) { started = false; continue; }
       const x = cx + q.X * R, y = cy + q.Y * R;
       if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
@@ -125,7 +197,10 @@
 
   function draw(t) {
     if (!W || !H) size();
+    if (!discCv || !coreCv) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
+
     const R = Math.min(W, H) * 0.285, cx = W / 2, cy = H / 2;
     const tilt = -0.12, ct = Math.cos(tilt), st = Math.sin(tilt);
     const spin = t * 0.00012;
@@ -135,45 +210,20 @@
     for (const r of RINGS) drawPath(r, t, R, cx, cy, true);
     for (const r of RINGS) drawRing(r, t, R, cx, cy, true);
 
-    const halo = ctx.createRadialGradient(cx, cy, R * 0.9, cx, cy, R * 2.0);
-    halo.addColorStop(0, `rgba(255,255,255,${0.075 * pulse})`);
-    halo.addColorStop(0.42, `rgba(255,255,255,${0.03 * pulse})`);
-    halo.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = halo;
-    ctx.beginPath(); ctx.arc(cx, cy, R * 2.0, 0, Math.PI * 2); ctx.fill();
-
-    const body = ctx.createRadialGradient(cx, cy, R * .05, cx, cy, R * 1.02);
-    body.addColorStop(0, '#1d1d1e');
-    body.addColorStop(.50, '#151516');
-    body.addColorStop(.85, '#0e0e0f');
-    body.addColorStop(1, '#0b0b0c');
-    ctx.fillStyle = body;
-    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
+    ctx.drawImage(discCv, 0, 0, W, H);
 
     ctx.save();
-    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.clip();
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, PI2); ctx.clip();
     ctx.globalCompositeOperation = 'lighter';
-
-    const coreR = R * (0.97 + 0.03 * pulse);
-    const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
-    core.addColorStop(0, `rgba(235,235,238,${0.16 * pulse})`);
-    core.addColorStop(0.26, `rgba(200,200,205,${0.11 * pulse})`);
-    core.addColorStop(0.56, `rgba(165,165,170,${0.08 * pulse})`);
-    core.addColorStop(0.80, `rgba(130,130,136,${0.055 * pulse})`);
-    core.addColorStop(1, `rgba(100,100,106,${0.03 * pulse})`);
-    ctx.fillStyle = core;
-    ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI * 2); ctx.fill();
-
+    ctx.globalAlpha = Math.min(1, pulse);
+    ctx.drawImage(coreCv, 0, 0, W, H);
     for (let k = 0; k < 3; k++) {
       const a = t * (0.00042 + k * 0.00013) + k * 2.1;
       const px = cx + Math.cos(a) * R * 0.46;
       const py = cy + Math.sin(a * 1.17) * R * 0.42;
-      const pr = R * (0.50 + 0.09 * Math.sin(t * 0.002 + k));
-      const g = ctx.createRadialGradient(px, py, 0, px, py, pr);
-      g.addColorStop(0, `rgba(255,255,255,${0.055 * pulse})`);
-      g.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(px, py, pr, 0, Math.PI * 2); ctx.fill();
+      const pr = R * (0.50 + 0.09 * Math.sin(t * 0.002 + k)) * 2;
+      ctx.globalAlpha = 0.055 * pulse;
+      ctx.drawImage(glow, px - pr / 2, py - pr / 2, pr, pr);
     }
     ctx.restore();
 
@@ -184,57 +234,52 @@
     }
     while (strikes.length > MAX) strikes.shift();
 
-    const flash = new Map();
+    flash.fill(0);
     const live = [];
     for (const s of strikes) {
       const age = t - s.born;
-      if (age < 0) continue;
-      if (age > LIFE) continue;
+      if (age < 0 || age > LIFE) continue;
       const head = age / NODE_MS;
       const proj = s.nodes.map((idx, i) => {
         const p = pts[idx];
-        const cp = Math.cos(Math.asin(p.y));
-        const x = cp * Math.sin(Math.atan2(p.x, p.z)), z0 = cp * Math.cos(Math.atan2(p.x, p.z));
-        const xr = x * ca + z0 * sa, zr = -x * sa + z0 * ca;
+        const xr = p.px * ca + p.pz * sa, zr = -p.px * sa + p.pz * ca;
         const y2 = p.y * ct - zr * st, z2 = p.y * st + zr * ct;
         const persp = 3.0 / (3.0 - z2);
-        const sx = cx + xr * R * persp, sy = cy + y2 * R * persp;
         const since = head - i;
         const f = since >= 0 ? Math.exp(-since / 2.4) * Math.max(0, 1 - age / LIFE) : 0;
-        if (f > 0.02) flash.set(idx, Math.max(flash.get(idx) || 0, f));
-        return { sx, sy, z: z2, f, i };
+        if (f > 0.02 && f > flash[idx]) flash[idx] = f;
+        return { sx: cx + xr * R * persp, sy: cy + y2 * R * persp, z: z2 };
       });
       live.push({ proj, head });
     }
 
     for (let i = 0; i < N; i++) {
       const p = pts[i];
-      const cp = Math.cos(Math.asin(p.y)), sp = p.y;
-      const x = cp * Math.sin(Math.atan2(p.x, p.z)), z0 = cp * Math.cos(Math.atan2(p.x, p.z));
-      const xr = x * ca + z0 * sa, zr = -x * sa + z0 * ca;
-      const y2 = sp * ct - zr * st, z2 = sp * st + zr * ct;
+      const xr = p.px * ca + p.pz * sa, zr = -p.px * sa + p.pz * ca;
+      const y2 = p.y * ct - zr * st, z2 = p.y * st + zr * ct;
       const persp = 3.0 / (3.0 - z2);
       const sx = cx + xr * R * persp, sy = cy + y2 * R * persp;
       const f = (z2 + 1) / 2;
-      const fl = flash.get(i) || 0;
+      const fl = flash[i];
       const lit = Math.max(.10, Math.min(1, .30 + .70 * (((cx - sx) / R) * .38 + ((cy - sy) / R) * .32 + .30)));
 
       if (fl > 0.03) {
         ctx.beginPath();
-        ctx.arc(sx, sy, (0.6 + 1.8 * f) * persp * (1 + fl * 2), 0, Math.PI * 2);
+        ctx.arc(sx, sy, (0.6 + 1.8 * f) * persp * (1 + fl * 2), 0, PI2);
         ctx.fillStyle = `rgba(255,255,255,${Math.min(1, fl * 1.5)})`;
         ctx.fill();
-        ctx.beginPath();
-        ctx.arc(sx, sy, (2.0 + 3.0 * f) * persp * (1 + fl), 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(230,230,232,${fl * 0.18})`;
-        ctx.fill();
+        const gs = (2.0 + 3.0 * f) * persp * (1 + fl) * 2;
+        ctx.globalAlpha = fl * 0.18;
+        ctx.drawImage(glow, sx - gs / 2, sy - gs / 2, gs, gs);
+        ctx.globalAlpha = 1;
       }
 
+      const a = (0.05 + 0.32 * POW[(f * 64) | 0]) * lit;
       ctx.beginPath();
-      ctx.arc(sx, sy, (0.26 + 0.6 * f) * persp, 0, Math.PI * 2);
+      ctx.arc(sx, sy, (0.26 + 0.6 * f) * persp, 0, PI2);
       ctx.fillStyle = fl > 0.03
         ? `rgba(255,255,255,${Math.min(1, 0.6 + fl)})`
-        : `rgba(214,214,216,${(0.05 + 0.32 * Math.pow(f, 1.9)) * lit})`;
+        : DOT[Math.min(31, (a / 0.38 * 31) | 0)];
       ctx.fill();
     }
 
@@ -263,15 +308,12 @@
         ctx.lineWidth = 1.3;
         ctx.stroke();
       }
-
       const h = Math.min(Math.floor(s.head), seg.length - 1);
       const hp = seg[h];
       if (hp && hp.z > 0.02) {
-        const g = ctx.createRadialGradient(hp.sx, hp.sy, 0, hp.sx, hp.sy, 30);
-        g.addColorStop(0, 'rgba(255,255,255,.40)');
-        g.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = g;
-        ctx.beginPath(); ctx.arc(hp.sx, hp.sy, 30, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 0.40;
+        ctx.drawImage(glow, hp.sx - 15, hp.sy - 15, 30, 30);
+        ctx.globalAlpha = 1;
       }
     }
 
@@ -284,16 +326,15 @@
     ctx.strokeStyle = edge;
     ctx.lineWidth = 4;
     ctx.globalAlpha = 0.10;
-    ctx.beginPath(); ctx.arc(cx, cy, R - 1, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, R - 1, 0, PI2); ctx.stroke();
 
     ctx.globalAlpha = 1;
-    ctx.strokeStyle = edge;
     ctx.lineWidth = 1.4;
-    ctx.beginPath(); ctx.arc(cx, cy, R - .5, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, R - .5, 0, PI2); ctx.stroke();
 
     ctx.strokeStyle = `rgba(255,255,255,${0.24 * pulse})`;
     ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(cx, cy, R - 1.5, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, R - 1.5, 0, PI2); ctx.stroke();
     ctx.restore();
     ctx.lineCap = 'butt';
 
@@ -301,17 +342,26 @@
     for (const r of RINGS) drawRing(r, t, R, cx, cy, false);
   }
 
-  const loop = (ts) => { if (!t0) t0 = ts; draw(ts - t0); raf = requestAnimationFrame(loop); };
+  const loop = (ts) => {
+    if (!t0) t0 = ts;
+    if (ts - last >= FRAME) { last = ts; draw(ts - t0); }
+    raf = requestAnimationFrame(loop);
+  };
   const start = () => { if (!running) { running = true; raf = requestAnimationFrame(loop); } };
   const stop = () => { running = false; cancelAnimationFrame(raf); };
 
-  size();
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  size();
   if (reduce) draw(0); else start();
 
-  new ResizeObserver(() => { size(); if (reduce) draw(0); }).observe(host);
+  let rt = 0;
+  new ResizeObserver(() => {
+    clearTimeout(rt);
+    rt = setTimeout(() => { size(); if (reduce) draw(0); }, 120);
+  }).observe(host);
+
   new IntersectionObserver((es) => es.forEach((e) => {
     if (reduce) return;
-    e.isIntersecting ? start() : stop();
+    if (e.isIntersecting) start(); else stop();
   }), { threshold: 0.15 }).observe(host);
 })();
