@@ -630,3 +630,9 @@ canvas#ncGlobe{position:absolute;inset:0;z-index:0;width:100%;height:100%;displa
 .calc .swap-tok{background:#15121f!important}
 .calc .swap-cta{background:#15121f!important}
 .calc .swap-flip{background:#15121f!important}
+/* swap: both panels share one fill */
+.calc .swap-card{background:#000!important;box-shadow:none!important}
+.calc .swap-card > .swap-box{background:#07070b!important;background-image:none!important}
+.calc .swap-tok{background:#15121f!important}
+.calc .swap-cta{background:#15121f!important}
+.calc .swap-flip{background:#15121f!important}
