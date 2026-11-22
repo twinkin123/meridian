@@ -29,3 +29,10 @@
 .wl .wl-foot{margin:14px 0 0;font-size:11px;color:#6e6e7c!important;text-align:center}
 body.wl-lock{overflow:hidden}
 @media (max-width:520px){.wl{padding:14px;align-items:flex-end}.wl .wl-card{max-width:none;border-radius:16px 16px 14px 14px!important;padding:22px 18px 16px}}
+/* iOS: the sheet autofocuses this field, so it must be >=16px */
+@media (pointer:coarse){
+  .wl .wl-row input,.wl .wl-ref input{font-size:16px!important}
+  .wl .wl-row input::placeholder,.wl .wl-ref input::placeholder{font-size:16px!important}
+  .wl .wl-row input,.wl .wl-ref input,.wl .wl-row button,.wl .wl-ref button{height:46px!important}
+  .wl .wl-wallets button{font-size:12px!important}
+}
