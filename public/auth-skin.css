@@ -78,3 +78,13 @@ form > small:last-child{
   margin:28px 0 0!important;
   text-align:center!important;
 }
+/* flat fields: label + input only, no casing box */
+form .field,
+form [class*="field"]{
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  border-radius:0!important;
+  padding:0!important;
+  box-shadow:none!important;
+}
