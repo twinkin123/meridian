@@ -7,3 +7,7 @@
   .hsearch input{font-size:16px!important}
   .hsearch{min-height:36px!important}
 }
+/* swap panel fields must be >=16px too */
+@media (pointer:coarse){
+  .sw-field,.sw-pick-top input{font-size:16px!important}
+}
