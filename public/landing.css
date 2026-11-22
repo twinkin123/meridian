@@ -735,9 +735,9 @@ canvas#ncGlobe{position:absolute;inset:0;z-index:0;width:100%;height:100%;displa
 }
 /* landing swap: original geometry, compact panel */
 @media(min-width:901px){
-  .calc .wrap{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
-  .calc .swap-grid{grid-template-columns:1fr 1.05fr;gap:30px;margin-top:0;align-items:start}
-  html body .calc .sw-card{max-width:400px;margin-left:auto}
+  .prod.calc .wrap{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+  .prod.calc .swap-grid{grid-template-columns:1fr 1.05fr;gap:30px;margin-top:0;align-items:start}
+  html body .prod.calc .sw-card{max-width:400px;margin-left:auto}
 }
 html body .calc .sw-card{padding:14px!important;border-radius:18px!important}
 html body .calc .sw-top{margin-bottom:10px}
