@@ -1,0 +1,49 @@
+:root{--bg:#05050a;--fg:#fff;--mut:#9a9ca5;--dim:#6a6c74;--line:rgba(255,255,255,.1);--pp:#8b5cf6}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:#c9b8ff;text-decoration:none;border-bottom:1px solid rgba(201,184,255,.25)}
+a:hover{color:#fff;border-bottom-color:#fff}
+.mono{font-family:"Space Mono",ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase}
+.head{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 26px;background:rgba(5,5,10,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;color:#fff;border:0}
+.brand i{width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,#8b5cf6,#22d3ee)}
+.head .r{display:flex;align-items:center;gap:10px}
+.btn{font:inherit;font-size:12.5px;font-weight:600;padding:8px 15px;border-radius:9px;border:1px solid rgba(255,255,255,.16);color:#fff;background:transparent}
+.btn.solid{background:#fff;color:#05050a;border-color:#fff}
+.banner{display:flex;align-items:center;gap:12px;padding:10px 26px;font-size:12.5px;color:#cfcfda;background:rgba(139,92,246,.1);border-bottom:1px solid rgba(139,92,246,.25)}
+.banner b{color:#fff}
+.banner button{margin-left:auto;background:none;border:0;color:var(--dim);font-size:15px;cursor:pointer;padding:0 4px}
+main{max-width:860px;margin:0 auto;padding:56px 26px 90px}
+.eyebrow{display:block;color:#8b8d94;margin-bottom:10px}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.06;letter-spacing:-.04em;margin:0 0 16px;max-width:20ch}
+h2{font-size:clamp(21px,2.6vw,27px);letter-spacing:-.03em;line-height:1.15;margin:0 0 12px}
+h3{font-size:16px;letter-spacing:-.01em;margin:26px 0 6px}
+p{color:#c4c4d0;margin:0 0 14px}
+.lede{font-size:17px;color:#d5d5de;max-width:56ch}
+section{padding:34px 0;border-top:1px solid var(--line)}
+section:first-of-type{border-top:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:18px 0 8px}
+.card{display:block;padding:14px 15px;border:1px solid var(--line);border-radius:11px;color:#fff;background:#0a0a10}
+.card:hover{border-color:rgba(139,92,246,.5);background:#0f0b18}
+.card b{display:block;font-size:13.5px;margin-bottom:3px}
+.card span{font-size:12px;color:var(--dim);line-height:1.5}
+.card i{display:block;width:6px;height:6px;border-radius:2px;background:var(--pp);margin-bottom:9px}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px}
+th,td{text-align:left;padding:10px 12px;border:1px solid var(--line)}
+th{font-family:"Space Mono",ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#8b8d94;font-weight:400;background:#0a0a10}
+td b{color:#fff}
+ol,ul{color:#c4c4d0;margin:0 0 14px;padding-left:20px}
+li{margin-bottom:7px}
+li b,p b{color:#fff}
+.block{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.block div{border:1px solid var(--line);border-radius:11px;padding:14px 15px;background:#0a0a10}
+.block h4{margin:0 0 10px;font-family:"Space Mono",ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#8b8d94;font-weight:400}
+.block dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:12.5px}
+.block dt{color:var(--dim)}
+.block dd{margin:0;color:#fff}
+.note{border-left:2px solid var(--pp);padding:2px 0 2px 14px;color:#c4c4d0;font-size:13.5px;margin:16px 0}
+.faq h3{margin-top:28px}
+.help{border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:34px;background:#0a0a10}
+footer{border-top:1px solid var(--line);padding:26px;display:flex;gap:14px;justify-content:space-between;font-size:12px;color:var(--dim);flex-wrap:wrap}
+@media (max-width:620px){.block{grid-template-columns:1fr}.head{padding:12px 16px}main{padding:36px 16px 70px}}

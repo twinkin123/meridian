@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Docs | Meridian</title>
+<meta name="description" content="How Meridian works: deposits, the 30-day lock, daily credit, withdrawals, referrals and the ledger behind them.">
+<link rel="stylesheet" href="/docs.css?v=1">
+</head>
+<body>
+<header class="head">
+  <a class="brand" href="/"><i></i>Meridian</a>
+  <div class="r">
+    <a class="btn" href="/">Home</a>
+    <a class="btn solid" href="/auth.html?mode=signup">Stake</a>
+  </div>
+</header>
+
+<div class="banner" id="banner">
+  <span><b>Mainnet.</b> Settlement runs on Solana in USDC and SOL. Read the <a href="#risk">risk section</a> before your first deposit.</span>
+  <button id="bx" aria-label="Dismiss">&times;</button>
+</div>
+
+<main>
+  <span class="eyebrow mono">Documentation</span>
+  <h1>Everything about how Meridian works.</h1>
+  <p class="lede">One place for the deposit path, the lock, the credit, withdrawals and the bookkeeping behind all of it. No KYC, no paperwork, nothing hidden in a PDF.</p>
+
+  <div class="grid">
+    <a class="card" href="#what-is-meridian"><i></i><b>What Meridian is</b><span>Custodial yield on staked principal.</span></a>
+    <a class="card" href="#ledger"><i></i><b>The ledger</b><span>Double-entry and append-only.</span></a>
+    <a class="card" href="#deposits"><i></i><b>Deposits</b><span>50+ currencies, one address.</span></a>
+    <a class="card" href="#lock"><i></i><b>The 30-day lock</b><span>Why principal is held.</span></a>
+    <a class="card" href="#credit"><i></i><b>Daily credit</b><span>1&ndash;4% posted every 24 hours.</span></a>
+    <a class="card" href="#withdrawals"><i></i><b>Withdrawals</b><span>Any amount of available balance.</span></a>
+    <a class="card" href="#referrals"><i></i><b>Referrals</b><span>4&ndash;12% on a first deposit.</span></a>
+    <a class="card" href="#perps"><i></i><b>Perps</b><span>Trade results beside the credit.</span></a>
+    <a class="card" href="#swap"><i></i><b>Swap</b><span>Move between currencies first.</span></a>
+    <a class="card" href="#security"><i></i><b>Security</b><span>Keys, sweeps, recon.</span></a>
+    <a class="card" href="#risk"><i></i><b>Risk</b><span>What can go wrong.</span></a>
+    <a class="card" href="#faq"><i></i><b>FAQ</b><span>Short answers.</span></a>
+  </div>
+
+  <section id="what-is-meridian">
+    <span class="eyebrow mono">Concept</span>
+    <h2>What Meridian is</h2>
+    <p>Meridian is a custodial yield account. You deposit a supported currency, it is converted and staked as principal, and the live trading book pays a fixed daily credit against that principal. You do not manage positions, claim rewards or roll anything over.</p>
+    <p>The account is custodial: Meridian holds the keys to the staked balance so the book can be reconciled continuously. Your deposit address is generated the moment you sign up, before you have finished reading this sentence.</p>
+    <p class="note">Minimum deposit is <b>$10</b>. Principal is locked for <b>30 days</b>. Credit runs from <b>1% to 4% daily</b> depending on the size and currency of the position.</p>
+  </section>
+
+  <section id="ledger">
+    <span class="eyebrow mono">Bookkeeping</span>
+    <h2>The ledger</h2>
+    <p>Every movement is written to a double-entry ledger. Each credit is a pair of postings, each withdrawal is a pair, each referral payment is a pair. Nothing is a single-sided write, so the books balance by construction rather than by trust.</p>
+    <p>The ledger is append-only. A correction is a new posting, never an edit, so any balance can be walked back to the deposit that created it.</p>
+    <table>
+      <tr><th>Layer</th><th>Purpose</th></tr>
+      <tr><td><b>Journal</b></td><td>Append-only record of every posting pair</td></tr>
+      <tr><td><b>Balances</b></td><td>Derived from the journal, never written directly</td></tr>
+      <tr><td><b>Recon</b></td><td>Three-leg check of ledger, treasury and chain</td></tr>
+    </table>
+  </section>
+
+  <section id="deposits">
+    <span class="eyebrow mono">Assets</span>
+    <h2>Deposits</h2>
+    <p>Over 50 currencies are accepted. Small balances are converted to the staking asset on arrival; the credited principal is what the rate applies to.</p>
+    <div class="block">
+      <div><h4>In Meridian</h4><dl><dt>Token</dt><dd>Any supported asset</dd><dt>Network</dt><dd>Solana</dd><dt>Address</dt><dd>Your account address</dd><dt>Minimum</dt><dd>$10 equivalent</dd></dl></div>
+      <div><h4>In your wallet</h4><dl><dt>Token</dt><dd>Same as chosen</dd><dt>Network</dt><dd>Solana only</dd><dt>Send to</dt><dd>The address above</dd><dt>Note</dt><dd>Other networks are lost</dd></dl></div>
+    </div>
+    <p>Incoming funds are swept into treasury by a rent-guarded sweeper and credited once confirmed. Nothing sits in a hot address.</p>
+  </section>
+
+  <section id="lock">
+    <span class="eyebrow mono">Staking</span>
+    <h2>The 30-day lock</h2>
+    <p>Principal locks for 30 days from the deposit. The lock is what lets the book hold a position long enough to pay a fixed rate instead of a floating one.</p>
+    <p>Credit accrues during the lock and is withdrawable immediately, because it is not principal. At day 30 the principal unlocks and can be withdrawn in full or left in place to keep earning.</p>
+  </section>
+
+  <section id="credit">
+    <span class="eyebrow mono">Returns</span>
+    <h2>Daily credit</h2>
+    <p>A fixed credit posts to your balance every 24 hours, based on locked principal. No claiming, no compounding tricks, no gas per payout.</p>
+    <p>The rate is fixed at deposit time and does not move with the market during the lock. Larger positions and certain currencies earn at the higher end of the 1&ndash;4% band.</p>
+    <table>
+      <tr><th>Principal</th><th>Daily band</th></tr>
+      <tr><td>$10 &ndash; $999</td><td><b>1%</b></td></tr>
+      <tr><td>$1,000 &ndash; $9,999</td><td><b>2%</b></td></tr>
+      <tr><td>$10,000 &ndash; $49,999</td><td><b>3%</b></td></tr>
+      <tr><td>$50,000 +</td><td><b>4%</b></td></tr>
+    </table>
+    <p class="note">Credit left on balance compounds, because the next day's posting is calculated on a larger principal. Withdraw it instead and it stops compounding.</p>
+  </section>
+
+  <section id="withdrawals">
+    <span class="eyebrow mono">Exits</span>
+    <h2>Withdrawals</h2>
+    <p>Request any amount of your available balance to your own wallet. Approved automatically. Large requests take a second approval, then pay out on-chain.</p>
+    <ol>
+      <li>Open the withdraw panel and enter an amount up to your available balance.</li>
+      <li>Confirm the destination address. It must be a Solana address you control.</li>
+      <li>Payout settles in USDC or SOL. Small requests land in seconds.</li>
+    </ol>
+    <p>Locked principal is not part of available balance until day 30. Credit and unlocked principal are.</p>
+  </section>
+
+  <section id="referrals">
+    <span class="eyebrow mono">Growth</span>
+    <h2>Referrals</h2>
+    <p>Share your link and earn 4 to 12% on referrals. The rate rises with the size of the deposit and is paid once, on a first deposit only.</p>
+    <table>
+      <tr><th>Their first deposit</th><th>Your rate</th></tr>
+      <tr><td>$10 &ndash; $499</td><td><b>4%</b></td></tr>
+      <tr><td>$500 &ndash; $4,999</td><td><b>6%</b></td></tr>
+      <tr><td>$5,000 &ndash; $24,999</td><td><b>9%</b></td></tr>
+      <tr><td>$25,000 +</td><td><b>12%</b></td></tr>
+    </table>
+    <p>One payment per person, credited to your balance as it clears. Direct referrals only, subject to eligibility and anti-abuse checks.</p>
+  </section>
+
+  <section id="perps">
+    <span class="eyebrow mono">Trading</span>
+    <h2>Perps</h2>
+    <p>Perpetual futures sit beside the credit account. A position is collateralised from available balance and its result posts to the same ledger, so a win and a loss both show up in the same place as a deposit or a credit.</p>
+    <p>Perps are optional. A staked position with no open trade still earns the daily credit.</p>
+  </section>
+
+  <section id="swap">
+    <span class="eyebrow mono">Assets</span>
+    <h2>Swap</h2>
+    <p>Swap moves you between supported currencies at a quoted rate before you deposit, or after a withdrawal lands. Quotes are live and the route is chosen for you.</p>
+    <p>If you hold something outside the supported list, swap into USDC first and deposit that.</p>
+  </section>
+
+  <section id="security">
+    <span class="eyebrow mono">Controls</span>
+    <h2>Security</h2>
+    <p>Deposit addresses are swept by a rent-guarded process, so inbound funds move to treasury automatically rather than accumulating in addresses that cost rent. Three-leg reconciliation compares the journal, treasury balances and chain state; a break stops payouts until it is explained.</p>
+    <ul>
+      <li>Append-only ledger with derived balances</li>
+      <li>Rent-guarded sweeper on every inbound address</li>
+      <li>Three-leg recon before payout batches</li>
+      <li>Second approval on large withdrawals</li>
+    </ul>
+  </section>
+
+  <section id="risk">
+    <span class="eyebrow mono">Risk</span>
+    <h2>Risk</h2>
+    <p>The daily credit is fixed per position, but it is not a bank guarantee. The book can have a losing stretch, and a fixed rate is paid from a book that is sometimes down.</p>
+    <ul>
+      <li><b>Market risk</b> on the underlying book while principal is locked</li>
+      <li><b>Lock risk</b>: principal is not withdrawable for 30 days</li>
+      <li><b>Custody risk</b>: Meridian holds the staked keys</li>
+      <li><b>Currency risk</b> between deposit and payout asset</li>
+    </ul>
+    <p>Deposit only what you can leave for a month.</p>
+  </section>
+
+  <section id="faq" class="faq">
+    <span class="eyebrow mono">FAQ</span>
+    <h2>Short answers</h2>
+    <h3>Do I need KYC?</h3>
+    <p>No. An email and a password is the whole signup.</p>
+    <h3>What is the minimum?</h3>
+    <p>$10 equivalent.</p>
+    <h3>When can I withdraw?</h3>
+    <p>Credit any time, principal after day 30.</p>
+    <h3>Is the rate fixed?</h3>
+    <p>The rate on your position is fixed at deposit and does not move during the lock. A new deposit can price differently.</p>
+    <h3>Which network?</h3>
+    <p>Solana, in USDC or SOL. Deposits sent on other networks are not recoverable.</p>
+    <h3>Do referrals pay more than once?</h3>
+    <p>No. One payment per person, on their first deposit.</p>
+  </section>
+
+  <div class="help">
+    <span class="eyebrow mono">Support</span>
+    <h2>Something not looking right?</h2>
+    <ol>
+      <li>Check the transaction on a Solana explorer before assuming it failed.</li>
+      <li>Confirm you sent on Solana and to the address on your own account.</li>
+      <li>Give confirmation a minute, then reload the dashboard.</li>
+      <li>If the balance still disagrees, open a ticket from the dashboard with the signature.</li>
+    </ol>
+    <p style="margin-bottom:0"><a href="/auth.html">Sign in</a> to open a ticket, or email support.</p>
+  </div>
+</main>
+
+<footer>
+  <span>Powered by Meridian&#8482;</span>
+  <span><a href="/">Home</a> &middot; <a href="#risk">Risk</a> &middot; <a href="#faq">FAQ</a></span>
+</footer>
+
+<script>
+document.getElementById('bx').onclick = function () {
+  document.getElementById('banner').style.display = 'none';
+};
+</script>
+</body>
+</html>
