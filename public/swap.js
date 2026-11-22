@@ -89,6 +89,10 @@
     fetch('/swap/currencies?direction=' + side + '&q=' + encodeURIComponent(q))
       .then(function (r) { return r.json(); })
       .then(function (j) {
+        if (j && j.message) {
+          $('swPickList').innerHTML = '<p class="sw-pick-empty">' + j.message + '</p>';
+          return;
+        }
         var other = side === 'from' ? to : from;
         var list = (j.currencies || []).filter(function (c) {
           return !(other && c.t === other.t && c.net === other.net);
