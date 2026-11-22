@@ -726,3 +726,10 @@ canvas#ncGlobe{position:absolute;inset:0;z-index:0;width:100%;height:100%;displa
 .calc .main{min-width:0}
 .calc .sw-pick{z-index:9600}
 .calc .sw-card{background:#000!important}
+/* landing swap: body-level picker + desktop layout */
+#swPick{z-index:9600}
+@media(min-width:901px){
+  .calc .wrap{display:block}
+  .calc .swap-grid{grid-template-columns:1fr 430px;gap:56px;margin-top:36px;align-items:start}
+  .calc .sw-card{max-width:430px;margin-left:auto}
+}

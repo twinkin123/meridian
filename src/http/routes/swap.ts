@@ -94,6 +94,7 @@ swap.get('/currencies', async (req, res) => {
   const dir = req.query.direction === 'to' ? 'to' : 'from';
   const q = String(req.query.q ?? '').trim().toLowerCase();
 
+  try {
   const list = (await all())
     .filter((c) => (dir === 'from' ? c.buy : c.sell))
     .filter((c) => !q || c.ticker.toLowerCase().includes(q) || c.name.toLowerCase().includes(q) || c.network.toLowerCase().includes(q))
@@ -106,6 +107,9 @@ swap.get('/currencies', async (req, res) => {
 
   res.set('Cache-Control', 'private, max-age=60');
   res.json({ currencies: list });
+  } catch {
+    res.json({ currencies: [] });
+  }
 });
 
 const icons = new Map<string, { at: number; type: string; body: Buffer }>();
