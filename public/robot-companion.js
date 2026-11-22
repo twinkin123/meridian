@@ -1,3 +1,4 @@
+/* robot companion: idle drift only, no pointer tracking */
 (function () {
   var stage = document.getElementById('robotStage');
   if (!stage) return;
@@ -5,15 +6,9 @@
   if (!frame) return;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  var fine = matchMedia('(pointer:fine)').matches;
   var tx = 0, ty = 0, tr = 0;
   var cx = 0, cy = 0, cr = 0;
-  var px = -9999, py = -9999, movedAt = 0, bump = 0, lean = 0, lastY = 0, t = 0;
-
-  function onMove(e) {
-    px = e.clientX; py = e.clientY; movedAt = performance.now();
-  }
-  if (fine) addEventListener('pointermove', onMove, { passive: true });
+  var bump = 0, lean = 0, lastY = scrollY;
 
   addEventListener('scroll', function () {
     var d = scrollY - lastY;
@@ -24,29 +19,15 @@
   function nudge() { bump = Math.min(1, bump + 0.7); }
   addEventListener('pointerdown', nudge, { passive: true });
   stage.addEventListener('click', nudge);
-  document.querySelectorAll('.btn').forEach(function (b) {
-    b.addEventListener('pointerenter', function () { bump = Math.max(bump, 0.45); });
-  });
 
   var raf = 0;
   function loop(now) {
-    t = now;
     var docked = stage.classList.contains('is-docked');
     var k = docked ? 0.42 : 1;
-    var idle = performance.now() - movedAt > 2200;
 
-    if (fine && !idle) {
-      var r = stage.getBoundingClientRect();
-      var dx = px - (r.left + r.width / 2);
-      var dy = py - (r.top + r.height / 2);
-      tx = Math.max(-20, Math.min(20, dx * 0.045)) * k;
-      ty = Math.max(-16, Math.min(16, dy * 0.045)) * k;
-      tr = Math.max(-5, Math.min(5, dx * 0.012)) * k;
-    } else {
-      tx = Math.sin(now / 2100) * 2.4 * k;
-      ty = Math.sin(now / 1600 + 1.1) * 2.6 * k;
-      tr = Math.sin(now / 2600) * 1.6 * k;
-    }
+    tx = Math.sin(now / 2100) * 2.4 * k;
+    ty = Math.sin(now / 1600 + 1.1) * 2.6 * k;
+    tr = Math.sin(now / 2600) * 1.6 * k;
 
     lean *= 0.94;
     bump *= 0.9;
@@ -62,7 +43,6 @@
 
     raf = requestAnimationFrame(loop);
   }
-  lastY = scrollY;
   raf = requestAnimationFrame(loop);
 
   var vis = new IntersectionObserver(function (es) {
