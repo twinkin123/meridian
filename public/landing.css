@@ -714,3 +714,11 @@ canvas#ncGlobe{position:absolute;inset:0;z-index:0;width:100%;height:100%;displa
   .calc .lede{order:3}
   .calc .pts{order:4;margin-top:0!important}
 }
+/* mobile: swap card above the copy */
+@media(max-width:860px){
+  .calc .swap-grid{display:contents}
+  .calc .swap-card{order:1;margin-bottom:0!important}
+  .calc h2{order:2}
+  .calc .lede{order:3}
+  .calc .pts{order:4;margin-top:0!important}
+}
