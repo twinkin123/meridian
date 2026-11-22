@@ -1,0 +1,45 @@
+/* perf layer - loading + frame budget. Keep this file last. */
+
+/* 1. header: solid instead of a live backdrop blur */
+.site-head{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(10,10,11,.94)!important;border-bottom-color:rgba(255,255,255,.07)!important}
+
+/* 2. below-fold sections skip layout and paint until near the viewport */
+.numbers,.calc,.prod,.section,.cta-band,.site-foot,.tick{content-visibility:auto;contain-intrinsic-size:auto 720px}
+.prod.rev{contain-intrinsic-size:auto 560px}
+
+/* 3. bound style/layout recalc from the pointermove var writes */
+.prod,.calc,.numbers,.section,.card,.num-list li,.ref-list li,.steps-list li,.tier,.pr-row,.swap-card,.pr-art,.swap-box,.out,.chart,.nc-cell,.ref-card{contain:layout style}
+
+/* 4. tilt cards go on the compositor instead of repainting */
+.pr-art,.swap-card{backface-visibility:hidden;transform:translateZ(0)}
+
+/* 5. drop the per-element text glow - it fires on almost every hovered node */
+@media(hover:hover) and (pointer:fine){
+  p:hover,span:hover,li:hover,b:hover,strong:hover,em:hover,h1:hover,h2:hover,h3:hover,h4:hover,
+  .eyebrow:hover,.eyebrow2:hover,.bp-label:hover,.bp-kv:hover,.bp-callout:hover,.pr-cap:hover,
+  .ref-kicker:hover,.ref-note:hover,.disclaimer:hover,.hero-note:hover,.swap-top:hover,.swap-usd:hover,
+  .tier b:hover,.tier em:hover,.tier i:hover,.card h3:hover,.card p:hover,.num-list h3:hover,.num-list p:hover{animation:none!important}
+  .prod h2:hover,.section-head h2:hover{animation:none!important;text-shadow:0 0 13px rgba(139,92,246,.55)}
+}
+
+/* 6. hover feedback via transform only */
+@media(hover:hover){
+  .btn,.chip,.swap-cta,.swap-tok,.swap-flip,.nav a,.site-foot a{transition:transform .16s ease,background .16s ease,border-color .16s ease}
+  .btn:hover,.chip:hover,.swap-cta:hover,.swap-tok:hover{transform:translateY(-1px)}
+}
+
+/* 7. fixed canvases stay off the paint path */
+#fx{contain:strict}
+#grain{mix-blend-mode:normal}
+#tr i{box-shadow:none;background:rgba(205,195,255,.92)}
+
+/* 8. mobile: no per-frame video filter, no grain layer */
+@media(max-width:860px){
+  .robot-frame{filter:none!important}
+  #grain{display:none!important}
+}
+
+/* 9. lighter shadows where the viewport is narrow */
+@media(max-width:700px){
+  .card,.numbers-card,.ref-card,.swap-card,.swap-box,.nc-cell,.pr-row,.tier{box-shadow:0 0 22px -14px rgba(139,92,246,.5)!important}
+}
