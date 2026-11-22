@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Docs | Meridian</title>
 <meta name="description" content="How Meridian works: deposits, the 30-day lock, daily credit, withdrawals, referrals and the ledger behind them.">
-<link rel="stylesheet" href="/docs.css?v=1">
+<link rel="stylesheet" href="/docs.css?v=2">
 </head>
 <body>
 <header class="head">
-  <a class="brand" href="/"><i></i>Meridian</a>
+  <div class="l"><a class="backbtn" id="backTop" href="/app.html" aria-label="Back to dashboard">&larr;</a><a class="brand" href="/"><i></i>Meridian</a></div>
   <div class="r">
     <a class="btn" href="/">Home</a>
-    <a class="btn solid" href="/auth.html?mode=signup">Stake</a>
+    <a class="btn solid" id="hdrCta" href="/auth.html?mode=signup">Stake</a>
   </div>
 </header>
 
@@ -259,7 +259,7 @@
 
 <footer>
   <span>Powered by Meridian&#8482;</span>
-  <span><a href="/">Home</a> &middot; <a href="#risk">Risk</a> &middot; <a href="#faq">FAQ</a></span>
+  <span><a href="/app.html">Dashboard</a> &middot; <a href="/">Home</a> &middot; <a href="#risk">Risk</a> &middot; <a href="#faq">FAQ</a></span>
 </footer>
 
 <script>
@@ -267,5 +267,15 @@ document.getElementById('bx').onclick = function () {
   document.getElementById('banner').style.display = 'none';
 };
 </script>
-</body>
+<script>
+(function () {
+  var cta = document.getElementById('hdrCta');
+  var top = document.getElementById('backTop');
+  fetch('/me', { cache: 'no-store', credentials: 'same-origin' }).then(function (r) {
+    if (!r.ok) { if (top) top.setAttribute('href', '/auth.html?mode=login'); return; }
+    document.body.classList.add('authed');
+    if (cta) { cta.textContent = 'Dashboard'; cta.setAttribute('href', '/app.html'); }
+  }).catch(function () {});
+})();
+</script></body>
 </html>

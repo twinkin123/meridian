@@ -59,3 +59,9 @@ footer{border-top:1px solid var(--line);padding:26px;display:flex;gap:14px;justi
 .back{margin:0 0 20px}
 .back a{font-family:"Space Mono",ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);border:0}
 .back a:hover{color:#fff}
+.head .l{display:flex;align-items:center;gap:12px;min-width:0}
+.backbtn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.16);color:#fff;font-size:14px;line-height:1;background:transparent;flex:0 0 auto}
+.backbtn:hover{background:#15151f;border-color:rgba(255,255,255,.32);color:#fff}
+.back a{color:#e2e2ea}
+body.authed .head .r .btn[href="/"]{display:none}
+@media (max-width:620px){.head .l{gap:9px}}
