@@ -11,63 +11,65 @@
 @keyframes byeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 .bye .bye-card{
-  position:relative;
-  display:flex!important; flex-direction:column!important;
-  width:100%!important; max-width:404px!important;
-  margin:0!important;
-  padding:34px 26px 24px!important;
-  border-radius:16px!important;
-  border:1px solid var(--line-2,#3a3a42)!important;
-  background:var(--panel,#000)!important;
+  position:relative; box-sizing:border-box;
+  display:flex; flex-direction:column;
+  width:100%; max-width:404px; margin:0;
+  padding:34px 26px 24px;
+  border-radius:16px;
+  border:1px solid var(--line-2,#3a3a42);
+  background:var(--panel,#000);
   text-align:center;
   box-shadow:0 30px 90px rgba(0,0,0,.8);
-  overflow:hidden!important;
+  overflow:hidden;
   animation:byeUp .26s cubic-bezier(.2,.7,.3,1) both;
 }
 .bye .bye-card::before{
   content:""; position:absolute; left:0; right:0; top:0; height:1px;
-  background:var(--spectrum,linear-gradient(90deg,#22d3ee,#3b82f6,#8b5cf6,#f97316,#ef4444));
+  background:linear-gradient(90deg,#22d3ee,#3b82f6,#8b5cf6,#f97316,#ef4444);
 }
 .bye .bye-ico{
-  width:54px; height:54px; margin:0 auto 16px!important; flex:none!important;
-  display:grid!important; place-items:center;
-  border-radius:50%!important; border:1px solid transparent!important;
+  width:54px; height:54px; margin:0 auto 16px; flex:none;
+  display:grid; place-items:center;
+  border-radius:50%; border:1px solid transparent;
   background:linear-gradient(#0a0a0b,#0a0a0b) padding-box,
-    var(--spectrum,linear-gradient(90deg,#22d3ee,#3b82f6,#8b5cf6,#f97316,#ef4444)) border-box;
-  color:#fff; box-shadow:0 0 24px rgba(139,92,246,.22);
+    linear-gradient(90deg,#22d3ee,#3b82f6,#8b5cf6,#f97316,#ef4444) border-box;
+  color:#fff;
 }
 .bye .bye-ico svg{width:24px;height:24px;display:block}
 .bye h2{
-  margin:0!important; font-size:21px; line-height:1.25;
-  color:#fff!important; letter-spacing:-.01em; font-weight:700;
+  margin:0; font-size:21px; line-height:1.25;
+  color:#fff; letter-spacing:-.01em; font-weight:700;
   font-family:system-ui,-apple-system,Segoe UI,sans-serif;
 }
-.bye .bye-sub{
-  margin:9px 0 0!important; font-size:13px; line-height:1.55;
-  color:#b9b9c6!important;
-}
+.bye .bye-sub{margin:9px 0 0; font-size:13px; line-height:1.55; color:#b9b9c6}
+
 .bye .bye-acts{
-  display:grid!important; grid-template-columns:1fr!important; gap:9px!important;
-  margin-top:22px!important; width:100%!important; position:static!important;
+  display:grid; grid-template-columns:1fr; gap:9px;
+  margin-top:22px; width:100%; min-width:0;
 }
-.bye .bye-btn{
-  position:static!important; float:none!important;
-  display:flex!important; align-items:center!important; justify-content:center!important;
-  width:100%!important; height:43px!important;
-  margin:0!important; padding:0 14px!important;
-  border-radius:10px!important; box-sizing:border-box!important;
-  font:inherit; font-size:13.5px!important; font-weight:600!important;
-  line-height:1!important; letter-spacing:0!important; text-decoration:none!important;
-  cursor:pointer!important;
+
+.bye .bye-b{
+  all:unset;
+  box-sizing:border-box;
+  display:flex; align-items:center; justify-content:center;
+  width:100%; height:43px;
+  margin:0; padding:0 14px;
+  border-radius:10px;
+  border:1px solid transparent;
+  font:inherit; font-size:13.5px; font-weight:600; line-height:1;
+  letter-spacing:0; text-decoration:none;
+  cursor:pointer; user-select:none;
   transition:background .16s ease, border-color .16s ease, color .16s ease;
 }
-.bye .bye-btn.primary{background:#ededf0!important;color:#0a0a0b!important;border:1px solid transparent!important}
-.bye .bye-btn.primary:hover{background:#fff!important}
-.bye .bye-btn.ghost{background:transparent!important;color:#cfcfdb!important;border:1px solid #3a3a42!important}
-.bye .bye-btn.ghost:hover{color:#fff!important;border-color:#8b8b98!important;background:rgba(255,255,255,.04)!important}
+.bye .bye-b.a{background:#ededf0; color:#0a0a0b}
+.bye .bye-b.a:hover{background:#fff}
+.bye .bye-b.b{background:transparent; color:#cfcfdb; border-color:#3a3a42}
+.bye .bye-b.b:hover{color:#fff; border-color:#8b8b98; background:rgba(255,255,255,.05)}
+.bye .bye-b:focus-visible{outline:1px solid #8b5cf6; outline-offset:2px}
+
 body.bye-lock{overflow:hidden}
 @media (max-width:520px){
   .bye{padding:16px}
-  .bye .bye-card{padding:28px 20px 20px!important;border-radius:14px!important}
+  .bye .bye-card{padding:28px 20px 20px; border-radius:14px}
   .bye h2{font-size:19px}
 }

@@ -20,8 +20,8 @@
       '<h2 id="byeTitle">You&#39;re logged out</h2>' +
       '<p class="bye-sub">Your session has ended. Balances, stakes and rewards are untouched.</p>' +
       '<div class="bye-acts">' +
-        '<button type="button" class="bye-btn primary" id="byeLogin">Log in again</button>' +
-        '<a class="bye-btn ghost" href="/">Back to home</a>' +
+        '<button type="button" class="bye-b a" id="byeLogin">Log in again</button>' +
+        '<button type="button" class="bye-b b" id="byeHome">Back to home</button>' +
       '</div>' +
     '</div>';
 
@@ -42,6 +42,10 @@
       return;
     }
     location.href = '/auth.html';
+  });
+
+  document.getElementById('byeHome').addEventListener('click', function () {
+    location.href = '/';
   });
 
   document.addEventListener('keydown', function (e) {
