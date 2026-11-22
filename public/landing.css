@@ -653,3 +653,8 @@ canvas#ncGlobe{position:absolute;inset:0;z-index:0;width:100%;height:100%;displa
 @media(max-width:980px){
   .numbers-grid .numbers-card.globe-card{order:-1;margin-top:0!important;margin-bottom:0!important}
 }
+/* mobile: no gap above the globe at all */
+@media(max-width:980px){
+  .numbers{padding-top:0}
+  .numbers-grid .numbers-card.globe-card{margin-top:-84px!important}
+}
