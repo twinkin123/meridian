@@ -56,3 +56,6 @@ footer{border-top:1px solid var(--line);padding:26px;display:flex;gap:14px;justi
 .legal ol{list-style:none;padding:0;margin:8px 0 0;counter-reset:s}
 .legal ol li{counter-increment:s;position:relative;padding-left:36px;margin-bottom:9px;font-size:13.8px;color:#c4c4d0}
 .legal ol li::before{content:counter(l) "." counter(s);position:absolute;left:0;color:#6a6c74;font-family:"Space Mono",ui-monospace,Menlo,monospace;font-size:11px}
+.back{margin:0 0 20px}
+.back a{font-family:"Space Mono",ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);border:0}
+.back a:hover{color:#fff}
