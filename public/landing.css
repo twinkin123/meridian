@@ -620,3 +620,6 @@ canvas#ncGlobe{position:absolute;inset:0;z-index:0;width:100%;height:100%;displa
   text-shadow:0 0 28px rgba(255,255,255,.16),0 10px 40px rgba(0,0,0,.9)}
 .gt-sub{font-size:13.5px;color:rgba(190,190,190,.58)}
 @media(max-width:560px){.gt-hero{font-size:clamp(54px,17vw,86px)}.gt-label{font-size:9px}}
+/* globe sits lower in the grid cell */
+.numbers-card.globe-card{margin-top:56px}
+@media(max-width:980px){.numbers-card.globe-card{margin-top:30px}}
