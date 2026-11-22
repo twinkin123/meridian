@@ -164,3 +164,12 @@ html body .main .sw-field{color:#fff!important}
 html body .main .sw-field::placeholder{color:rgba(255,255,255,.62)!important}
 html body .main .sw-cta,html body .main .sw-cta:disabled{color:#fff!important}
 html body .main .sw-wallet{color:rgba(255,255,255,.72)!important}
+
+/* picker must scroll inside the panel, not spill off-screen */
+.sw-pick-in{overflow:hidden}
+.sw-pick-list{flex:1 1 auto;min-height:0;-webkit-overflow-scrolling:touch}
+@media (max-width:520px){
+  .sw-pick{padding:10px}
+  .sw-pick-in{max-height:80vh}
+  .sw-pick-top input{height:44px}
+}
