@@ -65,5 +65,5 @@ footer{border-top:1px solid var(--line);padding:26px;display:flex;gap:14px;justi
 .back a{color:#e2e2ea}
 body.authed .head .r .btn[href="/"]{display:none}
 @media (max-width:620px){.head .l{gap:9px}}
-.brand img.brand-mark{width:26px;height:26px;border-radius:7px;object-fit:cover;display:block;background:none;flex:0 0 auto}
-@media (max-width:620px){.brand img.brand-mark{width:23px;height:23px}}
+.brand img.brand-mark{width:32px;height:32px;border-radius:0;object-fit:contain;display:block;background:none;box-shadow:none;flex:0 0 auto}
+@media (max-width:620px){.brand img.brand-mark{width:26px;height:26px}}
