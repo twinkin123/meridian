@@ -154,3 +154,9 @@ input{font:inherit;color:inherit;background:none;border:0;outline:none}
   .tnav,.search{display:none}
   .main{padding:18px 16px 60px}
 }
+
+/* brand: real mark, sized the same as the landing header */
+.brand{width:auto;height:auto;border:0;border-radius:0;background:none;display:flex;align-items:center}
+.brand::before{display:none}
+html body .brand img.brand-mark{height:50px;width:auto;max-width:120px;object-fit:contain;display:block;flex:0 0 auto;mix-blend-mode:lighten;border-radius:0;box-shadow:none}
+@media (max-width:620px){html body .brand img.brand-mark{height:58px}}
