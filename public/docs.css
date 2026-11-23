@@ -65,5 +65,5 @@ footer{border-top:1px solid var(--line);padding:26px;display:flex;gap:14px;justi
 .back a{color:#e2e2ea}
 body.authed .head .r .btn[href="/"]{display:none}
 @media (max-width:620px){.head .l{gap:9px}}
-html body .brand img.brand-mark{height:34px;width:auto;max-width:82px;object-fit:contain;display:block;flex:0 0 auto;mix-blend-mode:lighten!important;border-radius:0;box-shadow:none}
-@media (max-width:620px){html body .brand img.brand-mark{height:27px}}
+html body .brand img.brand-mark{height:46px;width:auto;max-width:110px;object-fit:contain;display:block;flex:0 0 auto;mix-blend-mode:lighten!important;border-radius:0;box-shadow:none}
+@media (max-width:620px){html body .brand img.brand-mark{height:36px}}
