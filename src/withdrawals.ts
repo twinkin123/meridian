@@ -60,6 +60,18 @@ export function qtyFor(asset: Asset, usd: bigint, priceMicro: bigint): bigint {
   return asset === 'USDC' ? usd : (usd * 1_000_000_000n) / priceMicro;
 }
 
+/**
+ * Whether this caller may take the row and send.
+ *
+ * 'sending' is not enough on its own: another worker may hold a live action on
+ * it. Only a sending row with no recorded action is stranded and retryable.
+ */
+export function canClaim(status: string, actionId: string | null): boolean {
+  if (!['approved', 'sending'].includes(status)) return false;
+  if (status === 'sending' && actionId) return false;
+  return true;
+}
+
 export type RequestResult =
   | { ok: true; id: string; status: string; cap: string }
   | { ok: false; error: string; cap?: string };
@@ -358,6 +370,14 @@ export async function payoutWithdrawal(
       return { ok: true, sig: onchain };
     }
     if (settled === 'timeout') return { ok: false, error: 'pending', sig: row.privy_action_id };
+
+    /* The action is dead. Clear it, guarded on this exact id, so the claim below
+       can take the row and retry. Without this the row keeps a dead action id
+       forever and every later claim stands down. */
+    await pool.query(
+      `update withdrawals set privy_action_id = null, sig = null where id = $1 and privy_action_id = $2`,
+      [id, row.privy_action_id],
+    );
   }
 
   /* Solvency is re-checked at send time: an approved row can outlive the
@@ -372,11 +392,13 @@ export async function payoutWithdrawal(
   const claimed = await tx(async (c) => {
     const w = await c.query<{
       user_id: string; usd_amount: string; fee: string; source: string; status: string;
-    }>(`select user_id, usd_amount, fee, source, status from withdrawals where id = $1 for update`, [id]);
+      privy_action_id: string | null;
+    }>(`select user_id, usd_amount, fee, source, status, privy_action_id from withdrawals where id = $1 for update`, [id]);
 
     const cur = w.rows[0];
-    if (!cur) return false;
-    if (!['approved', 'sending'].includes(cur.status)) return false;
+    /* 'sending' alone is not a claim: another worker may be mid-send on this row.
+       Only take it when no action is recorded against it. */
+    if (!cur || !canClaim(cur.status, cur.privy_action_id)) return false;
 
     await c.query(`update withdrawals set status = 'sending', error = null where id = $1`, [id]);
     return true;
