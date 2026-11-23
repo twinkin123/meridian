@@ -41,7 +41,7 @@
       if (f) f.focus();
       return;
     }
-    location.href = '/auth.html';
+    location.href = '/auth.html?mode=login';
   });
 
   document.getElementById('byeHome').addEventListener('click', function () {
