@@ -1,4 +1,4 @@
-﻿:root{
+:root{
   --ink:#0a0a12;
   --ink-2:#3d3d52;
   --ink-3:#6b6b85;
@@ -172,3 +172,5 @@ body{overflow-x:hidden}
 
 
 
+
+html body .brand img.brand-mark{height:30px;width:auto;max-width:70px;object-fit:contain;display:block;flex:0 0 auto;mix-blend-mode:lighten!important;border-radius:0;box-shadow:none}
