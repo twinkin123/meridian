@@ -196,6 +196,88 @@ CREATE TABLE public.accounts (
 
 
 --
+-- Name: changenow_orders; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.changenow_orders (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id text NOT NULL,
+    wallet_id text NOT NULL,
+    changenow_id text NOT NULL,
+    from_currency text NOT NULL,
+    from_network text NOT NULL,
+    to_currency text NOT NULL,
+    to_network text NOT NULL,
+    from_amount numeric(38,12) NOT NULL,
+    to_amount numeric(38,12) NOT NULL,
+    flow text DEFAULT 'standard'::text NOT NULL,
+    payout_address text NOT NULL,
+    payout_extra_id text,
+    refund_address text,
+    payin_address text NOT NULL,
+    status text DEFAULT 'awaiting_deposit'::text NOT NULL,
+    changenow_status text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    finished_at timestamp with time zone
+);
+
+
+--
+-- Name: crash_bets; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.crash_bets (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    round_id bigint NOT NULL,
+    user_id uuid NOT NULL,
+    stake bigint NOT NULL,
+    cashed_at numeric(20,4),
+    payout bigint,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT crash_bets_stake_check CHECK ((stake > 0))
+);
+
+
+--
+-- Name: crash_rounds; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.crash_rounds (
+    id bigint NOT NULL,
+    server_seed text NOT NULL,
+    seed_hash text NOT NULL,
+    client_seed text NOT NULL,
+    crash_point numeric(20,4) NOT NULL,
+    status text DEFAULT 'betting'::text NOT NULL,
+    bet_ends_at timestamp with time zone NOT NULL,
+    started_at timestamp with time zone,
+    ended_at timestamp with time zone,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT crash_rounds_status_check CHECK ((status = ANY (ARRAY['betting'::text, 'running'::text, 'done'::text])))
+);
+
+
+--
+-- Name: crash_rounds_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.crash_rounds_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: crash_rounds_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.crash_rounds_id_seq OWNED BY public.crash_rounds.id;
+
+
+--
 -- Name: credit_runs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -332,6 +414,32 @@ CREATE TABLE public.password_resets (
     expires_at timestamp with time zone NOT NULL,
     used_at timestamp with time zone,
     created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: perp_positions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.perp_positions (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    market text NOT NULL,
+    side text NOT NULL,
+    stake bigint NOT NULL,
+    leverage integer NOT NULL,
+    entry numeric(38,10) NOT NULL,
+    qty numeric(38,12) NOT NULL,
+    liq_price numeric(38,10) NOT NULL,
+    status text DEFAULT 'open'::text NOT NULL,
+    exit_price numeric(38,10),
+    pnl bigint,
+    opened_at timestamp with time zone DEFAULT now() NOT NULL,
+    closed_at timestamp with time zone,
+    CONSTRAINT perp_positions_leverage_check CHECK (((leverage >= 500) AND (leverage <= 1000))),
+    CONSTRAINT perp_positions_side_check CHECK ((side = ANY (ARRAY['long'::text, 'short'::text]))),
+    CONSTRAINT perp_positions_stake_check CHECK (((stake >= 1000000) AND (stake <= 10000000))),
+    CONSTRAINT perp_positions_status_check CHECK ((status = ANY (ARRAY['open'::text, 'closed'::text, 'liquidated'::text])))
 );
 
 
@@ -556,8 +664,8 @@ CREATE TABLE public.transactions (
 
 CREATE TABLE public.users (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    email text NOT NULL,
-    pw_hash text NOT NULL,
+    email text,
+    pw_hash text,
     deposit_index integer DEFAULT nextval('public.deposit_index_seq'::regclass) NOT NULL,
     deposit_addr text NOT NULL,
     tier smallint DEFAULT 0 NOT NULL,
@@ -576,6 +684,8 @@ CREATE TABLE public.users (
     frozen_at timestamp with time zone,
     frozen_reason text,
     privy_user_id text,
+    wallet_addr text,
+    auto_compound boolean DEFAULT true NOT NULL,
     CONSTRAINT users_tier_check CHECK (((tier >= 0) AND (tier <= 4)))
 );
 
@@ -605,6 +715,17 @@ CREATE TABLE public.vesting (
     amount bigint NOT NULL,
     due_at timestamp with time zone NOT NULL,
     released_at timestamp with time zone
+);
+
+
+--
+-- Name: wallet_nonces; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.wallet_nonces (
+    addr text NOT NULL,
+    nonce text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -646,6 +767,13 @@ CREATE TABLE public.withdrawals (
     CONSTRAINT withdrawals_asset_check CHECK ((asset = ANY (ARRAY['SOL'::text, 'USDC'::text]))),
     CONSTRAINT withdrawals_usd_amount_check CHECK ((usd_amount > 0))
 );
+
+
+--
+-- Name: crash_rounds id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.crash_rounds ALTER COLUMN id SET DEFAULT nextval('public.crash_rounds_id_seq'::regclass);
 
 
 --
@@ -698,6 +826,46 @@ ALTER TABLE ONLY public.accounts
 
 ALTER TABLE ONLY public.accounts
     ADD CONSTRAINT accounts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: changenow_orders changenow_orders_changenow_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.changenow_orders
+    ADD CONSTRAINT changenow_orders_changenow_id_key UNIQUE (changenow_id);
+
+
+--
+-- Name: changenow_orders changenow_orders_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.changenow_orders
+    ADD CONSTRAINT changenow_orders_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: crash_bets crash_bets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.crash_bets
+    ADD CONSTRAINT crash_bets_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: crash_bets crash_bets_round_id_user_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.crash_bets
+    ADD CONSTRAINT crash_bets_round_id_user_id_key UNIQUE (round_id, user_id);
+
+
+--
+-- Name: crash_rounds crash_rounds_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.crash_rounds
+    ADD CONSTRAINT crash_rounds_pkey PRIMARY KEY (id);
 
 
 --
@@ -762,6 +930,14 @@ ALTER TABLE ONLY public.password_resets
 
 ALTER TABLE ONLY public.password_resets
     ADD CONSTRAINT password_resets_token_hash_key UNIQUE (token_hash);
+
+
+--
+-- Name: perp_positions perp_positions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.perp_positions
+    ADD CONSTRAINT perp_positions_pkey PRIMARY KEY (id);
 
 
 --
@@ -901,6 +1077,14 @@ ALTER TABLE ONLY public.vesting
 
 
 --
+-- Name: wallet_nonces wallet_nonces_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.wallet_nonces
+    ADD CONSTRAINT wallet_nonces_pkey PRIMARY KEY (addr);
+
+
+--
 -- Name: withdrawal_addresses withdrawal_addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -922,6 +1106,20 @@ ALTER TABLE ONLY public.withdrawal_addresses
 
 ALTER TABLE ONLY public.withdrawals
     ADD CONSTRAINT withdrawals_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: changenow_orders_open_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX changenow_orders_open_idx ON public.changenow_orders USING btree (status) WHERE (status <> ALL (ARRAY['done'::text, 'failed'::text, 'refunded'::text]));
+
+
+--
+-- Name: changenow_orders_user_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX changenow_orders_user_idx ON public.changenow_orders USING btree (user_id, created_at DESC);
 
 
 --
@@ -985,6 +1183,20 @@ CREATE INDEX notifications_user_idx ON public.notifications USING btree (user_id
 --
 
 CREATE INDEX password_resets_user ON public.password_resets USING btree (user_id, created_at DESC);
+
+
+--
+-- Name: perp_positions_open; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX perp_positions_open ON public.perp_positions USING btree (status) WHERE (status = 'open'::text);
+
+
+--
+-- Name: perp_positions_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX perp_positions_user ON public.perp_positions USING btree (user_id, opened_at DESC);
 
 
 --
@@ -1107,10 +1319,24 @@ CREATE INDEX users_sweep_idx ON public.users USING btree (last_swept_at NULLS FI
 
 
 --
+-- Name: users_wallet_addr_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX users_wallet_addr_idx ON public.users USING btree (wallet_addr) WHERE (wallet_addr IS NOT NULL);
+
+
+--
 -- Name: vesting_due; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX vesting_due ON public.vesting USING btree (due_at) WHERE (released_at IS NULL);
+
+
+--
+-- Name: wallet_nonces_created_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX wallet_nonces_created_idx ON public.wallet_nonces USING btree (created_at);
 
 
 --
@@ -1164,6 +1390,22 @@ ALTER TABLE ONLY public.accounts
 
 
 --
+-- Name: crash_bets crash_bets_round_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.crash_bets
+    ADD CONSTRAINT crash_bets_round_id_fkey FOREIGN KEY (round_id) REFERENCES public.crash_rounds(id);
+
+
+--
+-- Name: crash_bets crash_bets_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.crash_bets
+    ADD CONSTRAINT crash_bets_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: deposit_addresses deposit_addresses_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1193,6 +1435,14 @@ ALTER TABLE ONLY public.notifications
 
 ALTER TABLE ONLY public.password_resets
     ADD CONSTRAINT password_resets_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: perp_positions perp_positions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.perp_positions
+    ADD CONSTRAINT perp_positions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
