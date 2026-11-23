@@ -1,7 +1,7 @@
 import { env } from './env.js';
 import { pool } from './db.js';
 import { quoteDeposit } from './privy.js';
-import { ASSETS, CHAINS, MIN_USD, familyOfChain, isDirect } from './deposit-matrix.js';
+import { ASSETS, CHAINS, MIN_USD, SOURCES, familyOfChain, isDirect } from './deposit-matrix.js';
 
 export { MIN_USD };
 
@@ -35,7 +35,7 @@ export async function refreshRoutes(): Promise<void> {
   busy = true;
   try {
     const pairs: [string, string][] = [];
-    for (const [asset] of ASSETS) for (const chain of Object.keys(CHAINS)) pairs.push([asset, chain]);
+    for (const s of SOURCES) pairs.push([s.asset, s.chain]);
 
     for (let i = 0; i < pairs.length; i += BATCH) {
       await Promise.all(
@@ -77,6 +77,15 @@ export async function refreshRoutes(): Promise<void> {
         }),
       );
       await sleep(GAP);
+    }
+
+    const keep = new Set(SOURCES.map((s) => `${s.asset}:${s.chain}`));
+    const { rows: existing } = await pool.query<{ asset: string; chain: string }>(
+      'select asset, chain from deposit_routes',
+    );
+    for (const r of existing) {
+      if (keep.has(`${r.asset}:${r.chain}`)) continue;
+      await pool.query('delete from deposit_routes where asset = $1 and chain = $2', [r.asset, r.chain]);
     }
   } finally {
     busy = false;

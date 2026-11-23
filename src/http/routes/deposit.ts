@@ -14,7 +14,8 @@ deposit.get('/assets', async (_req, res) => {
   const allowed = new Set(
     env.depositChains.split(',').map((x) => x.trim().toLowerCase()).filter(Boolean),
   );
-  const routes = (await viableRoutes()).filter((r) => r.family === 'sol' || allowed.has(r.chain));
+  const all = await viableRoutes();
+  const routes = allowed.size ? all.filter((r) => r.family === 'sol' || allowed.has(r.chain)) : all;
   res.json({ routes, min: MIN_USD });
 });
 
@@ -43,7 +44,7 @@ deposit.get('/quote', async (req, res) => {
     [asset, chainName],
   );
   if (!route) return res.status(404).json({ error: 'unknown_route' });
-  if (route.family !== 'sol' && !allowed.has(route.chain)) {
+  if (allowed.size && route.family !== 'sol' && !allowed.has(route.chain)) {
     return res.status(404).json({ error: 'gated_chain' });
   }
 
