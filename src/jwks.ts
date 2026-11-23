@@ -1,8 +1,8 @@
-﻿import { createPrivateKey, createPublicKey } from 'node:crypto';
+import { createPrivateKey, createPublicKey } from 'node:crypto';
 import { env } from './env.js';
 
 /** Stable key id; Privy stores it with the verifier, so it must never change. */
-const KID = 'meridian-app-1';
+const KID = 'quvio-app-1';
 
 /** PRIVY_AUTH_KEY as bare base64 PKCS8, tolerating PEM headers or escaped newlines. */
 function authKeyB64(): string {

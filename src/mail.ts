@@ -11,9 +11,9 @@ export async function sendResetMail(to: string, link: string): Promise<MailResul
     method: 'POST',
     headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
     body: JSON.stringify({
-      from: process.env.MAIL_FROM ?? 'Meridian <onboarding@resend.dev>',
+      from: process.env.MAIL_FROM ?? 'Quvio <onboarding@resend.dev>',
       to,
-      subject: 'Reset your Meridian password',
+      subject: 'Reset your Quvio password',
       text: `Reset your password here:\n\n${link}\n\nThe link works once and expires in 30 minutes.`,
     }),
   });

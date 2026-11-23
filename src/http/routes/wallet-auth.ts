@@ -29,7 +29,7 @@ function isAddr(a: string): boolean {
 }
 
 function message(addr: string, nonce: string): string {
-  return `Meridian wants you to sign in.\n\nAddress: ${addr}\nNonce: ${nonce}`;
+  return `Quvio wants you to sign in.\n\nAddress: ${addr}\nNonce: ${nonce}`;
 }
 
 function signatureOk(addr: string, nonce: string, sig: string): boolean {

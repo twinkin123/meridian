@@ -24,7 +24,7 @@
   wrap.innerHTML =
     '<div class="wl-card" role="dialog" aria-modal="true" aria-labelledby="wlTitle">' +
       '<button class="wl-x" type="button" aria-label="Close">&times;</button>' +
-      '<h3 id="wlTitle">Welcome to Meridian</h3>' +
+      '<h3 id="wlTitle">Welcome to Quvio</h3>' +
       '<p class="wl-sub">Log in or open an account. A wallet signature is all it takes.</p>' +
       '<div class="wl-wallets">' +
         '<button type="button" data-w="phantom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 6h16v9a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><circle cx="9.5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="14.5" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>Phantom</button>' +

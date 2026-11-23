@@ -26,7 +26,7 @@ function auth() {
 }
 
 /** Key id published in /.well-known/jwks.json. Must match or Privy cannot verify. */
-const KID = 'meridian-app-1';
+const KID = 'quvio-app-1';
 
 /** PRIVY_AUTH_KEY as bare base64 PKCS8, tolerating PEM headers or escaped newlines. */
 function authKeyB64(): string {
@@ -41,7 +41,7 @@ async function mintUserJwt(privyUserId: string): Promise<string> {
   const key = await importPKCS8(pem, 'ES256');
   return new SignJWT({})
     .setProtectedHeader({ alg: 'ES256', typ: 'JWT', kid: KID })
-    .setIssuer('meridian')
+    .setIssuer('quvio')
     .setSubject(privyUserId)
     .setIssuedAt()
     .setExpirationTime('5m')
