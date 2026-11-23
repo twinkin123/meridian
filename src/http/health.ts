@@ -4,6 +4,7 @@ import { freezeLevel } from '../recon.js';
 export type Health = {
   ok: boolean;
   db: boolean;
+  recon: boolean;
   freeze: number;
   liabilities: string | null;
   margin: string | null;
@@ -13,7 +14,7 @@ export async function health(): Promise<Health> {
   try {
     await one('select 1');
   } catch {
-    return { ok: false, db: false, freeze: -1, liabilities: null, margin: null };
+    return { ok: false, db: false, recon: false, freeze: -1, liabilities: null, margin: null };
   }
 
   try {
@@ -27,11 +28,14 @@ export async function health(): Promise<Health> {
     return {
       ok: !insolvent && freeze < 2,
       db: true,
+      recon: true,
       freeze,
       liabilities,
       margin,
     };
   } catch {
-    return { ok: true, db: true, freeze: -1, liabilities: null, margin: null };
+    /* A thrown recon read is not health: nothing was measured, so do not report ok.
+       db stays true to distinguish this from an unreachable database. */
+    return { ok: false, db: true, recon: false, freeze: -1, liabilities: null, margin: null };
   }
 }
