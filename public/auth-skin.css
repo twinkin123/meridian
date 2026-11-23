@@ -88,5 +88,5 @@ form [class*="field"]{
   padding:0!important;
   box-shadow:none!important;
 }
-.brand img.brand-mark{width:32px;height:32px;border-radius:0;object-fit:contain;display:block;background:none;box-shadow:none;flex:0 0 auto}
-@media (max-width:620px){.brand img.brand-mark{width:26px;height:26px}}
+.brand img.brand-mark{width:34px;height:34px;border-radius:0;display:block;flex:0 0 auto}
+@media (max-width:620px){.brand img.brand-mark{width:27px;height:27px}}
