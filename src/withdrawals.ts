@@ -136,7 +136,7 @@ export async function requestWithdrawal(
     }
 
     const ageMs = Date.now() - new Date(firstSeen).getTime();
-    const cap = computeCap(Boolean(seen.rows[0]), ageMs, balance);
+    const cap = computeCap(Boolean(firstSeen), ageMs, balance);
 
     if (usd > cap && source !== 'rewards') return { ok: false, error: 'over_cap', cap: cap.toString() };
 
@@ -245,14 +245,21 @@ async function refundWithdrawal(
   msg: string | null,
   kind: string,
   label: string,
+  opts: { allowLiveSend?: boolean } = {},
 ): Promise<boolean> {
   const out = await tx(async (c) => {
     const r = await c.query<{
       user_id: string; usd_amount: string; fee: string; source: string; status: string;
-    }>(`select user_id, usd_amount, fee, source, status from withdrawals where id = $1 for update`, [id]);
+      privy_action_id: string | null;
+    }>(`select user_id, usd_amount, fee, source, status, privy_action_id from withdrawals where id = $1 for update`, [id]);
 
     const w = r.rows[0];
     if (!w || !['requested', 'approved', 'sending'].includes(w.status)) return null;
+    /* A row mid-send is owned by the payout loop until its action resolves.
+       Refunding it here would credit the user while the coins are already moving.
+       The loop's own terminal failure passes allowLiveSend, because by then the
+       action has been resolved or abandoned. */
+    if (w.status === 'sending' && !opts.allowLiveSend) return null;
 
     const net = BigInt(w.usd_amount);
     const fee = BigInt(w.fee);
@@ -294,11 +301,14 @@ async function finalize(
   id: string, sig: string, actionId: string, userId: string, address: string, usd: bigint, qty: bigint,
 ) {
   await tx(async (conn) => {
-    await conn.query(
+    const done = await conn.query(
       `update withdrawals set status = 'sent', sig = $2, privy_action_id = $3, qty_raw = $4, sent_at = now()
         where id = $1 and status = 'sending'`,
       [id, sig, actionId, qty.toString()],
     );
+    /* A refund can win the race while the action is still resolving. If it did,
+       the ledger already carries the reversal, so do not post the send on top. */
+    if ((done.rowCount ?? 0) === 0) return;
     await conn.query(
       `update withdrawal_addresses set last_used = now() where user_id = $1 and address = $2`,
       [userId, address],
@@ -397,13 +407,13 @@ export async function payoutWithdrawal(
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'payout_failed';
       if (attempt === MAX_ATTEMPTS) {
-        await refundWithdrawal(id, 'failed', msg, 'withdrawal_failed', 'Withdrawal could not be sent');
+        await refundWithdrawal(id, 'failed', msg, 'withdrawal_failed', 'Withdrawal could not be sent', { allowLiveSend: true });
         return { ok: false, error: msg, sig: lastAction ?? undefined };
       }
     }
   }
 
-  await refundWithdrawal(id, 'failed', 'not_confirmed_after_attempts', 'withdrawal_failed', 'Withdrawal could not be sent');
+  await refundWithdrawal(id, 'failed', 'not_confirmed_after_attempts', 'withdrawal_failed', 'Withdrawal could not be sent', { allowLiveSend: true });
   return { ok: false, error: 'not_confirmed', sig: lastAction ?? undefined };
 }
 
