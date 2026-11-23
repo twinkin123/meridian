@@ -98,10 +98,10 @@ export async function markOf(market: string): Promise<number> {
   return p.usd;
 }
 
-/** Fresh marks, Binance only, no cache read. Throws if the feed is down. */
+/** Fresh marks, Binance then CoinGecko, no cache read. Throws if both feeds are down. */
 export async function marksNow(): Promise<Record<string, Mark>> {
   if (!busy) {
-    busy = loadBinance()
+    busy = loadBinance().catch(() => loadGecko())
       .then((data) => {
         cache = { at: Date.now(), data };
         return data;
@@ -219,7 +219,7 @@ async function settle(
   await c.query(
     `update perp_positions
         set status = $2, exit_price = $3, pnl = $4, closed_at = now()
-      where id = $1`,
+      where id = $1 and status = 'open'`,
     [p.id, status, exit, pnl.toString()],
   );
 
@@ -248,6 +248,11 @@ export async function close(userId: string, id: string): Promise<CloseResult> {
   const mark = await markOf(row.market);
 
   return tx(async (c) => {
+    const lock = await c.query<{ status: string }>(
+      'select status from perp_positions where id = $1 for update',
+      [id],
+    );
+    if (lock.rows[0]?.status !== 'open') return { ok: false as const, error: 'not_open' };
     await c.query('select ensure_user_accounts($1)', [row.user_id]);
     await settle(c, row, mark, 'closed');
     const pnl = pnlOf(row, mark);
