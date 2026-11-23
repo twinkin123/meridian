@@ -90,3 +90,6 @@ form [class*="field"]{
 }
 html body .brand img.brand-mark{height:50px;width:auto;max-width:120px;object-fit:contain;display:block;flex:0 0 auto;mix-blend-mode:lighten!important;border-radius:0;box-shadow:none}
 @media (max-width:620px){html body .brand img.brand-mark{height:58px}}
+
+/* mark is transparent now - no blend needed on the light pane */
+html body .brand img.brand-mark{background:none!important;mix-blend-mode:normal!important;box-shadow:none!important;border-radius:0!important}
