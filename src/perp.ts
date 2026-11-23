@@ -1,4 +1,4 @@
-import { one, tx } from './db.js';
+import { one, tx, type Tx } from './db.js';
 import { available } from './ledger/balances.js';
 import { post, type Leg } from './ledger/post.js';
 
@@ -184,7 +184,7 @@ export async function open(
 }
 
 async function settle(
-  c: any,
+  c: Tx,
   p: { id: string; user_id: string; stake: string; side: string; qty: string; entry: string; liq_price: string },
   mark: number,
   status: 'closed' | 'liquidated',
@@ -266,7 +266,7 @@ export async function tick(): Promise<number> {
   const { rows } = await (await import('./db.js')).pool.query<{
     id: string; user_id: string; market: string; stake: string;
     side: string; qty: string; entry: string; liq_price: string;
-  }>(`select id, user_id, market, stake, side, qty, entry, liq_price from perp_positions where status = 'open' limit 500`);
+  }>(`select id, user_id, market, stake, side, qty, entry, liq_price from perp_positions where status = 'open' order by leverage desc, opened_at limit 500`);
 
   if (!rows.length) return 0;
 
@@ -313,7 +313,7 @@ export async function positions(userId: string): Promise<View[]> {
        from perp_positions where user_id = $1 and status = 'open' order by opened_at desc`,
     [userId],
   );
-  const all = await marksNow().catch(() => ({}) as Record<string, Mark>);
+  const all = await marks().catch(() => ({}) as Record<string, Mark>);
 
   return rows.map((r) => {
     const price = all[MARKETS[r.market]?.id]?.usd ?? Number(r.entry);
