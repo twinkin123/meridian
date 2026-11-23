@@ -26,6 +26,7 @@ import { pruneAuth } from './auth.js';
 import { expireClaims } from './locks.js';
 import { pollDeposits } from './poll.js';
 import { watchDeposits } from './jobs/deposit-watch.js';
+import { watchEvmDeposits } from './jobs/evm-watch.js';
 import { refreshRoutes } from './deposit-routes.js';
 import { runSweep, assertSweepDestination } from './sweeps.js';
 import { one, close } from './db.js';
@@ -186,6 +187,7 @@ const server = app.listen(port, () => {
   every(2 * 60 * 1000, pollDeposits, 'deposits');
   every(10 * 60 * 1000, () => runSweep({ dryRun: false, limit: 200 }), 'sweep');
   every(10 * 60 * 1000, watchDeposits, 'deposit-watch');
+  every(15 * 60 * 1000, watchEvmDeposits, 'evm-watch');
   every(5 * 60 * 1000, resumeStuckWithdrawals, 'resume');
   every(60 * 1000, payApproved, 'payout');
   every(6 * 60 * 60 * 1000, pruneAuth, 'prune');
