@@ -1,4 +1,4 @@
-﻿import { pool, tx } from './db.js';
+import { pool, tx } from './db.js';
 import { sponsoredSources } from './deposit-routes.js';
 import { createCryptoDepositAccount, createDepositWallet, createPrivyUser, findWalletByExternalId } from './privy.js';
 
@@ -51,13 +51,21 @@ export async function ensureDepositAddresses(userId: string): Promise<DepositAdd
     );
     const out: DepositAddresses = {};
     for (const r of have.rows) out[r.family] = r.address;
-    if (!out.sol) out.sol = solana;
+
+    if (!out.sol) {
+      await c.query(
+        `insert into deposit_addresses (user_id, family, address) values ($1, 'sol', $2)
+         on conflict (user_id, family) do update set address = excluded.address`,
+        [userId, solana],
+      );
+      out.sol = solana;
+    }
 
     if (walletId && !out.evm) {
       try {
         const chains = await createCryptoDepositAccount(walletId, await sponsoredSources());
         for (const [family, address] of Object.entries(chains)) {
-          if (out[family] && family !== 'sol') continue;
+          if (family === 'sol' || out[family]) continue;
           await c.query(
             `insert into deposit_addresses (user_id, family, address) values ($1, $2, $3)
              on conflict (user_id, family) do update set address = excluded.address`,
@@ -66,7 +74,7 @@ export async function ensureDepositAddresses(userId: string): Promise<DepositAdd
           out[family] = address;
         }
       } catch (err) {
-        console.error('deposit: chains', err);
+        console.error('deposit: chains failed', walletId, err);
       }
     }
 

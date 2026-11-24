@@ -380,13 +380,16 @@ export async function createCryptoDepositAccount(
   if (filtered.length === 0) filtered.push({ asset: 'usdc', chain: 'ethereum' });
   // One address comes back per family; every EVM chain shares the same one.
 
-  const res = await api.depositAccounts.crypto.create(walletId, {
+  const body: Record<string, unknown> = {
     type: 'inline_route',
     deposit_address_strategy: 'prefer_destination',
     source: { mode: 'include', values: filtered },
     destination: { asset: 'usdc', chain: chain() },
-    authorization_context: await authFor(walletId),
-  });
+  };
+  if (process.env.PRIVY_DEPOSIT_AUTHCTX !== 'off') {
+    body.authorization_context = await authFor(walletId);
+  }
+  const res = await api.depositAccounts.crypto.create(walletId, body);
   const out: DepositChains = {};
   for (const a of res.deposit_accounts ?? []) {
     if (!a.deposit_address) continue;
