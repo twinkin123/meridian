@@ -50,20 +50,20 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
   });
   if (!claim) return { skipped: true, posted: 0, total: '0' };
 
-  const { rows } = await pool.query<Stake & { user_id: string; ac: boolean }>(
-    `select d.id, d.user_id, d.asset, d.usd_at_det, coalesce(u.auto_compound, true) ac
+  const { rows } = await pool.query<Stake & { user_id: string; ac: boolean; fee_bp: number | null }>(
+    `select d.id, d.user_id, d.asset, d.usd_at_det, coalesce(u.auto_compound, true) ac, u.fee_bp
        from deposits d
        join users u on u.id = d.user_id
       where d.status = 'locked' and d.released_at is null and d.usd_at_det > 0
       order by d.user_id, d.created_at`,
   );
 
-  const byUser = new Map<string, { ac: boolean; stakes: Stake[] }>();
+  const byUser = new Map<string, { ac: boolean; feeBp: number | null; stakes: Stake[] }>();
   for (const r of rows) {
     const hit = byUser.get(r.user_id);
     const stake = { id: r.id, asset: r.asset, usd_at_det: r.usd_at_det };
     if (hit) hit.stakes.push(stake);
-    else byUser.set(r.user_id, { ac: r.ac, stakes: [stake] });
+    else byUser.set(r.user_id, { ac: r.ac, feeBp: r.fee_bp, stakes: [stake] });
   }
 
   let posted = 0;
@@ -71,7 +71,9 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
   let grossTotal = 0n;
   let feeTotal = 0n;
 
-  for (const [userId, { ac, stakes }] of byUser) {
+  for (const [userId, { ac, feeBp, stakes }] of byUser) {
+    /* A per-user fee overrides the platform default for that user only. */
+    const userFeeBp = feeBp ?? FEE_BP;
     const staked = stakes.reduce((a, s) => a + BigInt(s.usd_at_det), 0n);
     if (staked < MIN_STAKE) continue;
 
@@ -83,7 +85,7 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
     for (const s of stakes) {
       const g = (BigInt(s.usd_at_det) * BigInt(rateBp)) / 10000n;
       if (g <= 0n) continue;
-      const f = (g * BigInt(FEE_BP)) / 10000n;
+      const f = (g * BigInt(userFeeBp)) / 10000n;
       const n = g - f;
       if (n <= 0n) continue;
       gross += g;

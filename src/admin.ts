@@ -231,6 +231,15 @@ adminRouter.post('/users/:id/wd-limit', async (req, res) => {
   if (r.rowCount === 0) return res.status(404).json({ error: 'not_found' });
   res.json({ ok: true, limit: usd?.toString() ?? null });
 });
+adminRouter.post('/users/:id/fee-bp', async (req, res) => {
+  const raw = req.body?.pct;
+  const empty = raw === null || raw === undefined || raw === '';
+  const bp = empty ? null : Math.round(Number(raw) * 100);
+  if (!empty && (Number.isNaN(Number(raw)) || bp! < 0 || bp! > 10000)) return res.status(400).json({ error: 'bad_pct' });
+  const r = await pool.query(`update users set fee_bp = $2 where id = $1 returning id`, [req.params.id, bp]);
+  if (r.rowCount === 0) return res.status(404).json({ error: 'not_found' });
+  res.json({ ok: true, pct: bp === null ? null : bp / 100 });
+});
 adminRouter.post('/promoters/:id/remove', async (req, res) => {
   await pool.query(`update users set is_promoter = false where id = $1`, [req.params.id]);
   res.json({ ok: true });
