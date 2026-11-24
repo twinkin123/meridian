@@ -9,4 +9,4 @@
 .ref2-points{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin:44px 0 0;padding:0}
 .ref2-points b{display:block;font-size:14px;color:#fff;margin-bottom:5px}
 .ref2-points span{font-size:13.5px;line-height:1.55;color:#8b8d94}
-@media(max-width:760px){.ref2-ladder,.ref2-points{grid-template-columns:1fr}.ref2-step{border-left:0;padding:20px 0 0;border-top:1px solid rgba(255,255,255,.14)}.ref2-step:first-child{border-top:0;padding-top:0}}
+@media(max-width:760px){.ref2-ladder,.ref2-points{grid-template-columns:1fr}.ref2-ladder{border-top:0}.ref2-step{border-left:0;padding:22px 0 0;border-top:1px solid rgba(255,255,255,.14)}.ref2-step:first-child{border-top:0;padding-top:22px}}
