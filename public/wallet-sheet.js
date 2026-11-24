@@ -34,6 +34,7 @@
       '<div class="wl-or">or</div>' +
       '<label class="wl-label" for="wlEmail">Continue with email</label>' +
       '<div class="wl-row"><input id="wlEmail" type="email" autocomplete="email" placeholder="you@example.com"><button type="button" id="wlGo">Continue</button></div>' +
+      '<button type="button" class="wl-new" id="wlNew">Create account</button>' +
       '<div class="wl-ref"><input id="wlRef" placeholder="Referral code (optional)" autocomplete="off"><button type="button" id="wlRefGo">Apply</button></div>' +
       '<p class="wl-note">Signing in with a wallet opens the account. Nothing else about it changes.</p>' +
       '<p class="wl-err" id="wlErr" hidden></p>' +
@@ -147,6 +148,18 @@
       try { localStorage.setItem('mrd_email', v); } catch (_) {}
     }
     location.href = '/auth.html' + (qs.length ? '?' + qs.join('&') : '');
+  });
+
+  wrap.querySelector('#wlNew').addEventListener('click', function () {
+    var v = (email.value || '').trim();
+    var r = refParam();
+    var qs = ['mode=create'];
+    if (r) qs.push('ref=' + encodeURIComponent(r));
+    if (v) {
+      qs.push('email=' + encodeURIComponent(v));
+      try { localStorage.setItem('mrd_email', v); } catch (_) {}
+    }
+    location.href = '/auth.html?' + qs.join('&');
   });
 
   email.addEventListener('keydown', function (e) {
