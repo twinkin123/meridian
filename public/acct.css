@@ -1,8 +1,8 @@
 .acct{position:relative;display:flex;align-items:center}
 .acct[hidden],.head-cta[hidden]{display:none}
-.acct-btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:#0c0c0f;color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.acct-btn{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 11px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:#0c0c0f;color:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
 .acct-btn:hover{border-color:rgba(190,180,255,.55);background:#141220}
-.acct-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.acct-btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .acct-pop{position:absolute;top:46px;right:0;width:258px;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:#08080b;box-shadow:0 24px 60px -28px rgba(0,0,0,.9);z-index:80}
 .acct-k{display:block;font-family:"Space Mono",monospace;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:#8b8d94;margin-bottom:5px}
 .acct-head{padding-bottom:11px;border-bottom:1px solid rgba(255,255,255,.08)}
