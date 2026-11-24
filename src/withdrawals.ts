@@ -194,7 +194,7 @@ export async function requestWithdrawal(
 
 export type ApproveResult = { ok: true } | { ok: false; error: string };
 export async function approveWithdrawal(id: string, approver: string): Promise<ApproveResult> {
-  const q = await pool.query<{ asset: Asset; usd_amount: string; status: string }>(`select asset, usd_amount, status from withdrawals where id = $1`, [id]);
+  const q = await pool.query<{ user_id: string; asset: Asset; usd_amount: string; status: string }>(`select user_id, asset, usd_amount, status from withdrawals where id = $1`, [id]);
   const row = q.rows[0];
   if (!row) return { ok: false, error: 'not_found' };
   if (row.status !== 'requested') return { ok: false, error: 'not_pending' };
@@ -204,7 +204,21 @@ export async function approveWithdrawal(id: string, approver: string): Promise<A
   if (!head) return { ok: false, error: 'treasury_unreachable' };
   const have = row.asset === 'USDC' ? head.usdc : head.sol;
   if (have < need) return { ok: false, error: `treasury_short:${have}:${need}` };
-  if (need * 100n >= have * TREASURY_SHARE_PCT) return { ok: false, error: `treasury_share:${have}:${need}` };
+  /* A payout may not exceed 15% of the user's locked stake, so a large position
+     leaves in slices. With nothing staked, fall back to their available plus
+     in-flight balance or an unstaked user could never withdraw at all. */
+  const st = await pool.query<{ b: string }>(
+    `select (coalesce((select balance from v_balance where user_id = $1 and code = '2070'), 0)
+       + case when coalesce((select balance from v_balance where user_id = $1 and code = '2070'), 0) = 0
+              then coalesce((select balance from v_balance where user_id = $1 and code = '2000'), 0)
+                 + coalesce((select balance from v_balance where user_id = $1 and code = '2010'), 0)
+              else 0 end)::text b`,
+    [row.user_id],
+  );
+  const base = BigInt(st.rows[0]?.b ?? '0');
+  if (base > 0n && net * 100n > base * TREASURY_SHARE_PCT) {
+    return { ok: false, error: `over_share:${base}:${net}` };
+  }
   const r = await pool.query<{ user_id: string }>(`update withdrawals set status = 'approved', approved_by = $2 where id = $1 and status = 'requested' returning user_id`, [id, approver]);
   const done = r.rows[0];
   if (!done) return { ok: false, error: 'not_pending' };
