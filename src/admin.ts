@@ -424,3 +424,25 @@ adminRouter.get('/stats', async (_req, res) => {
     credit_runs: await q('select count(*)::int n from credit_runs'),
   });
 });
+adminRouter.get('/users/:id/fee-history', async (req, res) => {
+  const days = Math.min(Number(req.query.days ?? 30), 180);
+  const { rows } = await pool.query(
+    `select t.created_at::date as day,
+            sum(case when a.code = '5020' then p.amount else 0 end) as gross,
+            sum(case when a.code = '4000' then p.amount else 0 end) as fee
+       from postings p
+       join accounts a on a.id = p.account_id
+       join transactions t on t.id = p.tx_id
+      where t.kind = 'SettlementCredit'
+        and split_part(t.external_ref, ':', 2) = $1
+        and t.created_at > now() - ($2 || ' days')::interval
+      group by 1
+      order by 1 desc`,
+    [req.params.id, days],
+  );
+  res.json(rows.map((r) => {
+    const gross = Number(r.gross);
+    const fee = Number(r.fee);
+    return { day: r.day, gross, fee, effective_bp: gross > 0 ? Math.round((fee / gross) * 100000) / 10 : null };
+  }));
+});
