@@ -76,17 +76,8 @@
   var pw = document.getElementById('password');
   var emailEl = document.getElementById('email');
 
-  // Prefill the address handed over from the landing-page sheet.
-  (function prefill() {
-    var fromQuery = (params.get('email') || '').trim();
-    var stored = '';
-    try { stored = localStorage.getItem('mrd_email') || ''; } catch (_) {}
-    if (stored) { try { localStorage.removeItem('mrd_email'); } catch (_) {} }
-    var v = fromQuery || stored;
-    if (!v) return;
-    emailEl.value = v;
-    setTimeout(function () { pw.focus(); }, 60);
-  })();
+  // The create page always starts empty.
+  setTimeout(function () { emailEl.focus(); }, 60);
 
   var errors = {
     bad_email: 'That email address does not look right.',
