@@ -1,3 +1,4 @@
+import { clientIp } from './http/mw/ip.js';
 import 'express-async-errors';
 import express from 'express';
 import { jwks } from './jwks.js';
@@ -41,7 +42,7 @@ process.on('unhandledRejection', (e) => console.error('unhandledRejection', e));
 const port = Number(process.env.PORT ?? 3000);
 const app = express();
 
-app.set('trust proxy', 1);
+app.set('trust proxy', 2);
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 app.use((_req, res, next) => {
@@ -88,8 +89,7 @@ app.use('/wallet/deposits', requireUser, deposit);
 // ---- support tickets ----
 const supportHits = new Map<string, { n: number; t: number }>();
 app.post('/support/ticket', async (req, res) => {
-  const fwd = req.headers['x-forwarded-for'];
-  const ip = (Array.isArray(fwd) ? fwd[0] : fwd || '').split(',')[0].trim() || req.ip || 'x';
+  const ip = clientIp(req);
   const now = Date.now();
   const prev = supportHits.get(ip);
   if (prev && now - prev.t > 600_000) supportHits.delete(ip);

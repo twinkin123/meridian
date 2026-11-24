@@ -1,3 +1,4 @@
+import { clientIp } from '../mw/ip.js';
 import { Router } from 'express';
 import QRCode from 'qrcode';
 import { none, one, pool } from '../../db.js';
@@ -227,7 +228,7 @@ swap.post('/orders', requireUser, async (req, res) => {
       fromAmount: number; toAmount: number; status: string;
     }>('/exchange', {
       method: 'POST',
-      ip: req.ip,
+      ip: clientIp(req),
       body: {
         fromCurrency: from.ticker, fromNetwork: from.network,
         toCurrency: to.ticker, toNetwork: to.network,
