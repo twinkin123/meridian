@@ -87,13 +87,17 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
       if (g <= 0n) continue;
       const f = (g * BigInt(userFeeBp)) / 10000n;
       const n = g - f;
-      if (n <= 0n) continue;
+      /* Gross and fee always accumulate. A fee that swallows the whole slice
+         is still platform revenue, so the stake cannot be dropped before it is
+         counted. Only the net is conditional. */
       gross += g;
       fee += f;
-      net += n;
-      adds.push({ id: s.id, asset: s.asset, amount: n });
+      if (n > 0n) {
+        net += n;
+        adds.push({ id: s.id, asset: s.asset, amount: n });
+      }
     }
-    if (net <= 0n) continue;
+    if (gross <= 0n) continue;
     const compound = ac && !frozen;
 
     await tx(async (c) => {
@@ -101,12 +105,12 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
 
       const legs: { code: string; owner?: string; amount: bigint }[] = [
         { code: '5020', amount: gross },
-        { code: compound ? '2070' : '2060', owner: userId, amount: -net },
       ];
+      if (net > 0n) legs.push({ code: compound ? '2070' : '2060', owner: userId, amount: -net });
       if (fee > 0n) legs.push({ code: '4000', amount: -fee });
       await post(c, 'SettlementCredit', `${key}:${userId}`, legs);
 
-      if (compound) {
+      if (compound && net > 0n) {
         /* Each stake keeps what it earned; the unlock date is left alone. */
         for (const a of adds) {
           if (a.asset === 'USDC') {
