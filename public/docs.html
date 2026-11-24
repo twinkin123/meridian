@@ -10,7 +10,7 @@
 <body>
 <header class="head">
   <div class="l"><a class="backbtn" id="backTop" href="/app.html" aria-label="Back to dashboard">&larr;</a><a class="brand" href="/"><img class="brand-mark" src="/img/quvio-mark.png" alt="Quvio" width="38" height="38" decoding="async"></a></div>
-  <div class="r">
+  <div class="r"><input id="dsq" class="dsq" placeholder="Search docs" aria-label="Search docs">
     <a class="btn" href="/">Home</a>
     <a class="btn solid" id="hdrCta" href="/auth.html?mode=signup">Stake</a>
   </div>
@@ -276,6 +276,108 @@ document.getElementById('bx').onclick = function () {
     document.body.classList.add('authed');
     if (cta) { cta.textContent = 'Dashboard'; cta.setAttribute('href', '/app.html'); }
   }).catch(function () {});
+})();
+</script><style>
+.dsq{width:190px;height:34px;padding:0 11px;border:1px solid var(--line-2,rgba(255,255,255,.14));border-radius:8px;background:rgba(255,255,255,.04);color:inherit;font:inherit;font-size:12.5px}
+.dsq:focus{outline:none;border-color:var(--pur, #8b5cf6)}
+#dbar{position:sticky;top:0;z-index:6;display:none;gap:10px;align-items:center;padding:10px 0;margin-bottom:6px;background:var(--bg,#0a0a0b);border-bottom:1px solid rgba(255,255,255,.1);font-size:12.5px}
+#dbar.on{display:flex}
+#dbar b{font-weight:600}
+#dbar a{margin-left:auto}
+main mark{background:rgba(139,92,246,.35);color:inherit;border-radius:2px}
+main section[hidden],main .grid a[hidden]{display:none}
+</style>
+<script>
+(function () {
+  var main = document.querySelector('main');
+  var input = document.getElementById('dsq');
+  if (!main || !input) return;
+  var snapshot = main.innerHTML;
+
+  var bar = document.createElement('div');
+  bar.id = 'dbar';
+  main.parentNode.insertBefore(bar, main);
+
+  function unmark() { main.innerHTML = snapshot; }
+
+  function markIn(root, term) {
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    var nodes = [];
+    while (walker.nextNode()) {
+      var n = walker.currentNode;
+      if (n.parentNode.nodeName === 'MARK') continue;
+      if (n.nodeValue.toLowerCase().indexOf(term) > -1) nodes.push(n);
+    }
+    nodes.forEach(function (n) {
+      var txt = n.nodeValue, low = txt.toLowerCase(), frag = document.createDocumentFragment(), at = 0, i;
+      while ((i = low.indexOf(term, at)) > -1) {
+        if (i > at) frag.appendChild(document.createTextNode(txt.slice(at, i)));
+        var m = document.createElement('mark');
+        m.textContent = txt.slice(i, i + term.length);
+        frag.appendChild(m);
+        at = i + term.length;
+      }
+      if (at < txt.length) frag.appendChild(document.createTextNode(txt.slice(at)));
+      n.parentNode.replaceChild(frag, n);
+    });
+  }
+
+  function run(term, jump) {
+    unmark();
+    term = (term || '').trim().toLowerCase();
+    if (!term) { bar.className = ''; bar.textContent = ''; return; }
+
+    var sections = Array.prototype.slice.call(main.querySelectorAll('section[id]'));
+    var cards = Array.prototype.slice.call(main.querySelectorAll('.grid a'));
+    var hits = [];
+
+    sections.forEach(function (s) {
+      var hit = (s.textContent || '').toLowerCase().indexOf(term) > -1;
+      s.hidden = !hit;
+      if (hit) { hits.push(s); markIn(s, term); }
+    });
+
+    cards.forEach(function (c) {
+      var hit = (c.textContent || '').toLowerCase().indexOf(term) > -1;
+      c.hidden = !hit;
+      if (hit) markIn(c, term);
+    });
+
+    bar.className = 'on';
+    bar.textContent = '';
+    var msg = document.createElement('span');
+    msg.innerHTML = hits.length
+      ? 'Showing <b>' + hits.length + '</b> of ' + sections.length + ' sections for "' + term.replace(/[<>&]/g, '') + '"'
+      : 'No section matches "' + term.replace(/[<>&]/g, '') + '"';
+    bar.appendChild(msg);
+    var all = document.createElement('a');
+    all.href = '/docs.html';
+    all.textContent = 'Show all';
+    bar.appendChild(all);
+
+    if (jump && hits.length) {
+      var hash = location.hash.slice(1);
+      var target = hash ? document.getElementById(hash) : null;
+      (target && hits.indexOf(target) > -1 ? target : hits[0])
+        .scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  var q = new URLSearchParams(location.search).get('q') || '';
+  if (q) {
+    input.value = q;
+    setTimeout(function () { run(q, true); }, 60);
+  }
+
+  var t;
+  input.addEventListener('input', function () {
+    clearTimeout(t);
+    t = setTimeout(function () { run(input.value, false); }, 140);
+  });
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); run(input.value, true); }
+    if (e.key === 'Escape') { input.value = ''; run('', false); }
+  });
 })();
 </script></body>
 </html>

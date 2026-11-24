@@ -1,76 +1,82 @@
-/* search.js - header command palette. Self-contained: injects styles and panel,
-   builds its registry from the page. Wires once per document. */
+/* search.js - header docs search. Indexes documentation sections, opens the docs
+   page filtered to the term. Wires once per document. */
 (function () {
   'use strict';
-  var box = document.querySelector('.search');
+  var box = document.querySelector('.hsearch, .search');
   if (!box || box.dataset.wired === '1') return;
   var input = box.querySelector('input');
   if (!input) return;
   box.dataset.wired = '1';
 
-  var css = [
-    '.search{position:relative}',
+  var DOCS = '/docs.html';
+  var FALLBACK = [
+    ['What Quvio is', 'what-is-quvio'], ['The ledger', 'ledger'], ['Deposits', 'deposits'],
+    ['The 30-day lock', 'lock'], ['Daily credit', 'credit'], ['Withdrawals', 'withdrawals'],
+    ['Referrals', 'referrals'], ['Perps', 'perps'], ['Swap', 'swap'],
+    ['Security', 'security'], ['Risk', 'risk'], ['Risk disclosures', 'legal'], ['FAQ', 'faq']
+  ];
+
+  var st = document.createElement('style');
+  st.textContent = [
+    '.search,.hsearch{position:relative}',
     '.sres{position:absolute;top:calc(100% + 8px);left:0;min-width:290px;max-width:min(430px,92vw);background:#0e1210;border:1px solid #1e2622;border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.55);padding:6px;z-index:90;display:none;max-height:min(58vh,420px);overflow:auto}',
     '.sres.on{display:block}',
     '.sres .it{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;color:#dfe7e2;font:13px/1.3 inherit;text-decoration:none}',
     '.sres .it .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
     '.sres .it .sb{color:#7d8c85;font-size:10px;letter-spacing:.05em;text-transform:uppercase;flex:none}',
     '.sres .it.sel{background:#16201b}',
-    '.sres .empty{padding:12px 10px;color:#7d8c85;font-size:12px}'
+    '.sres .empty{padding:12px 10px;color:#7d8c85;font-size:12px}',
+    '.sres .hd{padding:8px 10px 4px;color:#5f6167;font-size:10px;letter-spacing:.09em;text-transform:uppercase}'
   ].join('');
-  var st = document.createElement('style');
-  st.textContent = css;
   document.head.appendChild(st);
 
   var panel = document.createElement('div');
   panel.className = 'sres';
   panel.setAttribute('role', 'listbox');
   box.appendChild(panel);
+  box.addEventListener('click', function (e) { if (e.target !== input) input.focus(); });
 
-  function collect() {
-    var out = [];
-    function add(label, sub, action) {
-      label = (label || '').trim();
-      if (!label) return;
-      for (var i = 0; i < out.length; i++) if (out[i].label.toLowerCase() === label.toLowerCase()) return;
-      out.push({ label: label, sub: sub || '', action: action });
-    }
+  var index = null;
 
-    Array.prototype.forEach.call(document.querySelectorAll('.rail a, .side a'), function (a) {
-      var t = a.getAttribute('title') || (a.textContent || '').trim();
-      var href = a.getAttribute('href') || '#';
-      if (!t) return;
-      add(t, href.charAt(0) === '/' ? href : 'panel', function () { a.click(); });
-    });
-
-    Array.prototype.forEach.call(document.querySelectorAll('.tool'), function (b) {
-      add((b.textContent || '').trim(), 'tool', function () { b.click(); });
-    });
-
-    Array.prototype.forEach.call(document.querySelectorAll('.tnav a'), function (a) {
-      var href = a.getAttribute('href') || '';
-      if (href.charAt(0) !== '/') return;
-      add((a.textContent || '').trim(), href, function () { location.href = href; });
-    });
-
-    [['Dashboard', '/dash.html'], ['App', '/app.html'], ['Docs', '/docs.html'],
-     ['FAQ', '/faq.html'], ['Log in', '/auth.html?mode=login']].forEach(function (p) {
-      add(p[0], p[1], function () { location.href = p[1]; });
-    });
-
-    return out;
+  function loadIndex() {
+    if (index) return Promise.resolve(index);
+    return fetch(DOCS, { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.text() : ''; })
+      .then(function (html) {
+        var out = [];
+        if (html) {
+          var doc = new DOMParser().parseFromString(html, 'text/html');
+          Array.prototype.forEach.call(doc.querySelectorAll('main section[id]'), function (s) {
+            var h = s.querySelector('h2, h3');
+            if (!h) return;
+            out.push({
+              label: (h.textContent || '').trim(),
+              id: s.id,
+              text: (s.textContent || '').toLowerCase()
+            });
+          });
+        }
+        if (!out.length) {
+          out = FALLBACK.map(function (f) { return { label: f[0], id: f[1], text: '' }; });
+        }
+        index = out;
+        return index;
+      })
+      .catch(function () {
+        index = FALLBACK.map(function (f) { return { label: f[0], id: f[1], text: '' }; });
+        return index;
+      });
   }
 
-  var all = [];
   var hits = [];
   var sel = 0;
 
-  function score(item, q) {
-    var l = item.label.toLowerCase();
-    if (l.indexOf(q) === 0) return 3;
-    if (l.indexOf(' ' + q) > -1) return 2;
-    if (l.indexOf(q) > -1) return 1;
-    if (item.sub.toLowerCase().indexOf(q) > -1) return 1;
+  function score(it, q) {
+    var l = it.label.toLowerCase();
+    if (l.indexOf(q) === 0) return 4;
+    if (l.indexOf(' ' + q) > -1) return 3;
+    if (l.indexOf(q) > -1) return 2;
+    if (it.text.indexOf(q) > -1) return 1;
     return 0;
   }
 
@@ -78,8 +84,10 @@
     var q = input.value.trim().toLowerCase();
     panel.textContent = '';
 
-    if (!q) { hits = all.slice(0, 8); }
-    else {
+    var all = index || [];
+    if (!q) {
+      hits = all.slice(0, 8);
+    } else {
       hits = all
         .map(function (it) { return { it: it, s: score(it, q) }; })
         .filter(function (r) { return r.s > 0; })
@@ -88,10 +96,15 @@
         .map(function (r) { return r.it; });
     }
 
+    var hd = document.createElement('div');
+    hd.className = 'hd';
+    hd.textContent = q ? 'Documentation' : 'Search the documentation';
+    panel.appendChild(hd);
+
     if (!hits.length) {
       var e = document.createElement('div');
       e.className = 'empty';
-      e.textContent = 'Nothing matches "' + input.value.trim() + '"';
+      e.textContent = 'No docs match "' + input.value.trim() + '" — Enter to open docs anyway';
       panel.appendChild(e);
       sel = 0;
       panel.classList.add('on');
@@ -104,20 +117,14 @@
     hits.forEach(function (it, i) {
       var row = document.createElement('a');
       row.className = 'it' + (i === sel ? ' sel' : '');
-      row.href = it.sub.charAt(0) === '/' ? it.sub : '#';
+      row.href = DOCS + '#' + it.id;
       row.setAttribute('role', 'option');
       var lb = document.createElement('span');
       lb.className = 'lb';
       lb.textContent = it.label;
       row.appendChild(lb);
-      if (it.sub && it.sub.charAt(0) === '/') {
-        var sb = document.createElement('span');
-        sb.className = 'sb';
-        sb.textContent = 'page';
-        row.appendChild(sb);
-      }
-      row.addEventListener('mousedown', function (e) { e.preventDefault(); });
-      row.addEventListener('click', function (e) { e.preventDefault(); go(i); });
+      row.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+      row.addEventListener('click', function (ev) { ev.preventDefault(); go(i); });
       panel.appendChild(row);
     });
 
@@ -125,10 +132,12 @@
   }
 
   function go(i) {
+    var term = input.value.trim();
     var it = hits[i];
-    if (!it) return;
+    var url = DOCS + (term ? '?q=' + encodeURIComponent(term) : '');
+    if (it && it.id) url += '#' + it.id;
     close();
-    it.action();
+    location.href = url;
   }
 
   function close() {
@@ -137,14 +146,16 @@
     input.blur();
   }
 
-  input.addEventListener('focus', function () { all = collect(); render(); });
+  input.addEventListener('focus', function () { loadIndex().then(render); });
   input.addEventListener('input', function () { sel = 0; render(); });
-  input.addEventListener('blur', function () { setTimeout(function () { if (!panel.matches(':hover')) panel.classList.remove('on'); }, 120); });
+  input.addEventListener('blur', function () {
+    setTimeout(function () { if (!panel.matches(':hover')) panel.classList.remove('on'); }, 120);
+  });
 
   input.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowDown') { e.preventDefault(); sel++; render(); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); sel--; render(); }
-    else if (e.key === 'Enter') { e.preventDefault(); if (panel.classList.contains('on')) go(sel); }
+    else if (e.key === 'Enter') { e.preventDefault(); go(panel.classList.contains('on') ? sel : 0); }
     else if (e.key === 'Escape') { e.preventDefault(); input.value = ''; close(); }
   });
 
@@ -166,8 +177,6 @@
   window.openSearch = function (q) {
     input.focus();
     if (q != null) input.value = q;
-    all = collect();
-    sel = 0;
-    render();
+    loadIndex().then(function () { sel = 0; render(); });
   };
 })();
