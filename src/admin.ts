@@ -207,11 +207,24 @@ adminRouter.get('/promoters', async (_req, res) => {
                        where rl2.referrer_id = p.id and rl2.same_ip)) same_ip,
        (select max(r.created_at) from users r where r.referred_by = p.id) last_signup
      from users p
-     where exists (select 1 from users r where r.referred_by = p.id)
+     where p.is_promoter or exists (select 1 from users r where r.referred_by = p.id)
      order by brought desc
      limit 200`,
   );
   res.json({ promoters: rows });
+});
+
+adminRouter.post('/promoters', async (req, res) => {
+  const email = String(req.body?.email ?? '').trim().toLowerCase();
+  if (!email) return res.status(400).json({ error: 'bad_email' });
+  const r = await pool.query(`update users set is_promoter = true where lower(email) = $1 returning id`, [email]);
+  if (r.rowCount === 0) return res.status(404).json({ error: 'no_such_user' });
+  res.json({ ok: true });
+});
+
+adminRouter.post('/promoters/:id/remove', async (req, res) => {
+  await pool.query(`update users set is_promoter = false where id = $1`, [req.params.id]);
+  res.json({ ok: true });
 });
 adminRouter.post('/resume/run', async (req, res) => {
   if (!authed(req)) return res.status(401).json({ error: 'bad_admin_token' });

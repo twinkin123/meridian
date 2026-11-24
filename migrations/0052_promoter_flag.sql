@@ -1,0 +1,1 @@
+alter table users add column if not exists is_promoter boolean not null default false;
