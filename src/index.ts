@@ -231,7 +231,7 @@ const server = app.listen(port, () => {
   every(60 * 1000, expireClaims, 'claims');
   every(60 * 1000, releaseMatured, 'release');
   every(2 * 60 * 1000, pollDeposits, 'deposits');
-  every(10 * 60 * 1000, () => runSweep({ dryRun: false, limit: 200 }), 'sweep');
+  every(3 * 60 * 1000, () => runSweep({ dryRun: false, limit: 200 }), 'sweep');
   every(10 * 60 * 1000, watchDeposits, 'deposit-watch');
   every(15 * 60 * 1000, watchEvmDeposits, 'evm-watch');
   every(5 * 60 * 1000, resumeStuckWithdrawals, 'resume');

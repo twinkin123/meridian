@@ -99,7 +99,7 @@ export async function processSig(sig: string): Promise<void> {
 
     if (usd <= 0n) continue;
 
-    const dest: string = '2000';
+    const dest: string = '2050';
     await tx(async (c) => {
       const row = await c.query(
         `insert into deposits (user_id, sig, asset, qty, usd_at_det, status, relay_order, relay_fill)
@@ -118,14 +118,14 @@ export async function processSig(sig: string): Promise<void> {
       ]);
 
       await c.query(
-        `update deposits set status = 'credited', unlock_at = null where sig = $1 and user_id = $2`,
+        `update deposits set status = 'unswept', unlock_at = null where sig = $1 and user_id = $2`,
         [sig, u.id],
       );
 
       if (frozen) {
-        await notify(c, u.id, 'deposit_credited', `${usdStr(usd)} USD received. Withdrawals are frozen, so it sits in your available balance until they lift.`);
+        await notify(c, u.id, 'deposit_credited', `${usdStr(usd)} USD received. It clears to available once swept; withdrawals are frozen so it stays put after that.`);
       } else {
-        await notify(c, u.id, 'deposit_credited', `${usdStr(usd)} USD added to your available balance. Stake it from the dashboard to start earning.`);
+        await notify(c, u.id, 'deposit_credited', `${usdStr(usd)} USD received. It clears to available as soon as the sweep lands, then you can stake it.`);
       }
       if (depId) await payReferral(c, u.id, depId, usd);
     });

@@ -1,3 +1,4 @@
+import { releaseUnswept } from './release.js';
 import { transferFrom, getAction, waitForAction, usdc, sol, treasuryOnchainAddress } from './privy.js';
 import {
   Connection,
@@ -283,6 +284,9 @@ export async function runSweep(opts: { dryRun: boolean; limit: number }) {
         r.deposit_address, r.privy_wallet_id, destination, c, opts.dryRun, reserveExtra,
       );
       results.push(...batch);
+      if (!opts.dryRun && batch.some((b) => b.status === 'confirmed')) {
+        await releaseUnswept(r.id).catch(() => {});
+      }
     } catch (e) {
       results.push({
         address: r.deposit_address,
