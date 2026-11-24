@@ -1,0 +1,12 @@
+.ref2{padding:96px 0;border-top:1px solid rgba(255,255,255,.07)}
+.ref2 .wrap{max-width:var(--maxw)}
+.ref2 h2{font-size:clamp(28px,3.3vw,44px);line-height:1.06;letter-spacing:-.035em;font-weight:700;max-width:20ch;margin:0}
+.ref2-ladder{display:grid;grid-template-columns:repeat(3,1fr);margin:46px 0 0;border-top:1px solid rgba(255,255,255,.14)}
+.ref2-step{padding:26px 24px 0;border-left:1px solid rgba(255,255,255,.14)}
+.ref2-step:first-child{border-left:0;padding-left:0}
+.ref2-n{display:block;font-size:clamp(36px,5.2vw,60px);font-weight:700;letter-spacing:-.05em;line-height:1;background:linear-gradient(180deg,#fff 20%,#8f8fa8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ref2-band{display:block;margin-top:12px;font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#8b8d94}
+.ref2-points{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin:44px 0 0;padding:0}
+.ref2-points b{display:block;font-size:14px;color:#fff;margin-bottom:5px}
+.ref2-points span{font-size:13.5px;line-height:1.55;color:#8b8d94}
+@media(max-width:760px){.ref2-ladder,.ref2-points{grid-template-columns:1fr}.ref2-step{border-left:0;padding:20px 0 0;border-top:1px solid rgba(255,255,255,.14)}.ref2-step:first-child{border-top:0;padding-top:0}}
