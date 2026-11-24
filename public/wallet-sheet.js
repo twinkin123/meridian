@@ -140,8 +140,13 @@
   wrap.querySelector('#wlGo').addEventListener('click', function () {
     var v = (email.value || '').trim();
     var r = refParam();
-    location.href = '/auth.html' + (r ? '?ref=' + r : '');
-    if (v) { try { localStorage.setItem('mrd_email', v); } catch (_) {} }
+    var qs = [];
+    if (r) qs.push('ref=' + encodeURIComponent(r));
+    if (v) {
+      qs.push('email=' + encodeURIComponent(v));
+      try { localStorage.setItem('mrd_email', v); } catch (_) {}
+    }
+    location.href = '/auth.html' + (qs.length ? '?' + qs.join('&') : '');
   });
 
   email.addEventListener('keydown', function (e) {
