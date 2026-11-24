@@ -185,15 +185,8 @@
   });
 
   wrap.querySelector('#wlNew').addEventListener('click', function () {
-    var v = (email.value || '').trim();
     var r = refParam();
-    var qs = ['mode=create'];
-    if (r) qs.push('ref=' + encodeURIComponent(r));
-    if (v) {
-      qs.push('email=' + encodeURIComponent(v));
-      try { localStorage.setItem('mrd_email', v); } catch (_) {}
-    }
-    location.href = '/auth.html?' + qs.join('&');
+    location.href = '/auth.html' + (r ? '?mode=create&ref=' + encodeURIComponent(r) : '?mode=create');
   });
 
   wrap.querySelector('#wlForgot').addEventListener('click', async function (e) {
