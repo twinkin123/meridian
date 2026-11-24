@@ -184,23 +184,16 @@
     }
   });
 
-  wrap.querySelector('#wlNew').addEventListener('click', async function () {
+  wrap.querySelector('#wlNew').addEventListener('click', function () {
     var v = (email.value || '').trim();
-    var p = pw.value || '';
     var r = refParam();
-    say('');
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { say('That email address does not look right.'); email.focus(); return; }
-    if (p.length < 8) { say('Password needs at least 8 characters.'); pw.focus(); return; }
-    var btn = this;
-    btn.disabled = true;
-    try {
-      var a = await wlPost('/auth/signup', { email: v, password: p, ref: r });
-      if (!a.ok) { say(wlMsg(a.error)); btn.disabled = false; return; }
-      location.href = '/app.html';
-    } catch (_) {
-      say('Network error. Try again.');
-      btn.disabled = false;
+    var qs = ['mode=create'];
+    if (r) qs.push('ref=' + encodeURIComponent(r));
+    if (v) {
+      qs.push('email=' + encodeURIComponent(v));
+      try { localStorage.setItem('mrd_email', v); } catch (_) {}
     }
+    location.href = '/auth.html?' + qs.join('&');
   });
 
   wrap.querySelector('#wlForgot').addEventListener('click', async function (e) {
