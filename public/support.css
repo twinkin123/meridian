@@ -5,10 +5,10 @@
 .tr-ico{display:grid;place-items:center;width:26px;height:26px;color:#c9b8ff}
 .tr-x{margin-left:auto;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.16);background:#0d0d11;color:#fff;font-size:17px;line-height:1;text-decoration:none}
 .tr-x:hover{border-color:rgba(190,180,255,.6)}
-.sup{display:flex;flex-direction:column;gap:12px;overflow:auto;padding-right:4px}
+.sup{display:flex;flex-direction:column;gap:12px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none}
 .sup-sec{border:1px solid rgba(139,92,246,.18);border-radius:14px;padding:15px;background:#0a0a0e;box-shadow:inset 0 0 34px -22px rgba(139,92,246,.9)}
 .sup label{display:block;font-family:"Space Mono",monospace;font-size:9.5px;letter-spacing:.19em;text-transform:uppercase;color:#9b8fc4;margin-bottom:8px}
-.sup select,.sup input,.sup textarea{width:100%;height:44px;padding:0 13px;border-radius:11px;border:1px solid rgba(139,92,246,.22);background:#0b0b10;color:#f2f2f6;font:inherit;font-size:13.5px}
+.sup select,.sup input,.sup textarea{width:100%;height:44px;padding:0 13px;border-radius:11px;border:1px solid rgba(139,92,246,.22);background:#000;color:#f2f2f6;font:inherit;font-size:13.5px}
 .sup textarea{height:96px;padding:11px 13px;resize:vertical}
 .sup select:focus,.sup input:focus,.sup textarea:focus{outline:none;border-color:rgba(190,180,255,.65);box-shadow:0 0 0 3px rgba(139,92,246,.16)}
 .sup-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -24,3 +24,10 @@
 .sup-send:hover{border-color:rgba(190,180,255,.7)}
 .sup-note{font-size:12px;color:#8b8d94;margin:0}
 @media (max-width:520px){.sup-row{grid-template-columns:1fr}.tr-sheet{padding:18px;border-radius:16px}}
+.sup::-webkit-scrollbar{display:none;width:0;height:0}
+.sup-sec,.sup-tx,.sup-tx input{min-width:0}
+.sup-none{flex:none}
+
+.sup-done{padding:28px 6px;text-align:center}
+.sup-done h4{margin:0 0 8px;font-size:15px}
+.sup-done p{margin:0;font-size:12.5px;color:#8b8d94;line-height:1.55}

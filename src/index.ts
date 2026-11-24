@@ -85,6 +85,47 @@ app.use('/auth', auth);
 app.use('/auth', walletAuth);
 app.use('/webhooks', webhooks);
 app.use('/wallet/deposits', requireUser, deposit);
+// ---- support tickets ----
+const supportHits = new Map<string, { n: number; t: number }>();
+app.post('/support/ticket', async (req, res) => {
+  const fwd = req.headers['x-forwarded-for'];
+  const ip = (Array.isArray(fwd) ? fwd[0] : fwd || '').split(',')[0].trim() || req.ip || 'x';
+  const now = Date.now();
+  const prev = supportHits.get(ip);
+  if (prev && now - prev.t > 600_000) supportHits.delete(ip);
+  const cur = supportHits.get(ip);
+  if (cur && cur.n >= 4) { res.status(429).json({ error: 'rate_limited' }); return; }
+  supportHits.set(ip, { n: (cur?.n ?? 0) + 1, t: cur?.t ?? now });
+  const b = (req.body ?? {}) as Record<string, unknown>;
+  const pick = (k: string, max: number) => String(b[k] ?? '').trim().slice(0, max);
+  const topic = pick('topic', 60);
+  const body = pick('body', 4000);
+  if (!topic || topic === 'Select a topic') { res.status(400).json({ error: 'topic_required' }); return; }
+  if (body.length < 5) { res.status(400).json({ error: 'body_required' }); return; }
+  const u = (req as any).user as { id?: string; email?: string } | undefined;
+  const lines = [
+    `Topic: ${topic}`,
+    `Network: ${pick('network', 40) || '-'}`,
+    `Token: ${pick('token', 40) || '-'}`,
+    `Amount: ${pick('amount', 40) || '-'}`,
+    `Tx hash: ${pick('txHash', 140) || '-'}`,
+    `Address: ${pick('address', 140) || '-'}`,
+    `User: ${u?.email ?? 'not signed in'}${u?.id ? ` (${u.id})` : ''}`,
+    '',
+    body,
+  ];
+  const { sendMail } = await import('./mail.js');
+  const out = await sendMail({
+    to: 'support@quvio.io',
+    subject: `[Support] ${topic}`,
+    text: lines.join('\n'),
+    tag: 'support',
+    ...(u?.email ? { replyTo: u.email } : {}),
+  });
+  if (!out.sent) { res.status(502).json({ error: 'send_failed' }); return; }
+  res.json({ ok: true });
+});
+// ---- /support tickets ----
 app.use('/wallet', wallet);
 app.use('/admin/sql', sqlRouter);
 app.use('/admin', adminRouter);

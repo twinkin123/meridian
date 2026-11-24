@@ -56,7 +56,43 @@
     });
     ov.querySelector('#supForm').addEventListener('submit', function (e) {
       e.preventDefault();
-      ov.querySelector('#supNote').textContent = 'Not wired to a mailbox yet - use support@quvio.io until it is.';
+      var note = ov.querySelector('#supNote');
+      var send = ov.querySelector('.sup-send');
+      if (send.disabled) return;
+      var topic = ov.querySelector('#supTopic').value;
+      var body = ov.querySelector('#supBody').value.trim();
+      if (topic === 'Select a topic') { note.textContent = 'Pick a topic first.'; return; }
+      if (body.length < 5) { note.textContent = 'Tell us what happened.'; return; }
+      send.disabled = true;
+      note.textContent = 'Sending...';
+      fetch('/support/ticket', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          topic: topic,
+          network: ov.querySelector('#supNet').value,
+          token: ov.querySelector('#supTok').value,
+          amount: ov.querySelector('#supAmt').value,
+          txHash: ov.querySelector('#supNoTx').checked ? '' : ov.querySelector('#supTx').value,
+          address: ov.querySelector('#supAddr').value,
+          body: body
+        })
+      }).then(function (r) { return r.json().catch(function () { return {}; }); })
+        .then(function (d) {
+          if (d && d.ok) {
+            ov.querySelector('#supForm').innerHTML = '<div class="sup-done"><h4>Ticket sent</h4>' +
+              '<p>We reply to your account email. Most tickets are answered within a few hours.</p></div>';
+            return;
+          }
+          send.disabled = false;
+          note.textContent = d && d.error === 'rate_limited'
+            ? 'Too many tickets. Try again in a few minutes.'
+            : 'Could not send. Email support@quvio.io instead.';
+        })
+        .catch(function () {
+          send.disabled = false;
+          note.textContent = 'Could not send. Email support@quvio.io instead.';
+        });
     });
     setTimeout(function () { ov.querySelector('#supTopic').focus(); }, 40);
   }
