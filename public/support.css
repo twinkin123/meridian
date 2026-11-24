@@ -1,0 +1,19 @@
+.tr-ov{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(6px)}
+.sup{display:flex;flex-direction:column;gap:12px;overflow:auto;padding-right:2px}
+.sup label{display:block;font-family:"Space Mono",monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#8b8d94;margin-bottom:5px}
+.sup select,.sup input,.sup textarea{width:100%;padding:9px 11px;border-radius:8px;border:1px solid #2a2a30;background:#111114;color:#f2f2f6;font:inherit;font-size:13px}
+.sup textarea{min-height:88px;resize:vertical}
+.sup select:focus,.sup input:focus,.sup textarea:focus{outline:none;border-color:#8b5cf6}
+.sup-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sup-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.sup-chip{padding:5px 9px;border-radius:99px;border:1px solid #2a2a30;background:none;color:#a8a8b6;font:inherit;font-size:11.5px;cursor:pointer}
+.sup-chip:hover{color:#fff;border-color:#5a5a68}
+.sup-tx{display:flex;align-items:center;gap:8px}
+.sup-tx input{flex:1}
+.sup-none{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#a8a8b6;white-space:nowrap}
+.sup-shot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px dashed #2a2a30;border-radius:8px;font-size:12px;color:#8b8d94}
+.sup-shot button{padding:5px 10px;border-radius:7px;border:1px solid #2a2a30;background:none;color:#d5d5e0;font:inherit;font-size:11.5px;cursor:pointer}
+.sup-send{padding:11px;border-radius:9px;border:0;background:#ededf0;color:#0a0a0b;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+.sup-send:hover{background:#fff}
+.sup-note{font-size:12px;color:#8b8d94}
+@media (max-width:520px){.sup-row{grid-template-columns:1fr}}
