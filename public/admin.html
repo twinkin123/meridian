@@ -472,6 +472,7 @@
     if (!b) return;
     var hist = await (await fetch('/admin/users/' + b.getAttribute('data-id') + '/fee-history?days=7', { headers: h() })).json();
     var g = 0, f = 0;
+    if (!Array.isArray(hist)) hist = [];
     hist.forEach(function (r) { g += r.gross; f += r.fee; });
     var dflt = g > 0 ? String(Math.round((f / g) * 100000) / 1000) : '';
     var cur = prompt('Platform cut on this user credit, in percent. Blank restores the 15% default.', dflt);
