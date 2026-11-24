@@ -20,4 +20,4 @@
 .acct-link:hover{background:#15121f;color:#fff}
 .acct-out{color:#f2665c}
 .acct-out:hover{background:rgba(242,102,92,.12);color:#ff9a93}
-@media(max-width:760px){.acct-pop{position:fixed;top:auto;left:12px;right:12px;width:auto;margin-top:8px}}
+@media(max-width:760px){.acct-pop{position:fixed;top:68px;left:12px;right:12px;width:auto;margin-top:0;max-height:calc(100vh - 90px);overflow:auto}}
