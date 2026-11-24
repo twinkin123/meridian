@@ -35,8 +35,6 @@
             '<input id="supAddr" placeholder="Your deposit address"></div></div>' +
           '<div class="sup-sec"><label for="supBody">What happened</label>' +
             '<textarea id="supBody" placeholder="Include times, amounts and anything you already tried."></textarea></div>' +
-          '<div class="sup-sec sup-shot"><span>Screenshots</span>' +
-            '<button type="button" id="supShot">Add screenshot</button></div>' +
           '<button class="sup-send" type="submit">Send</button>' +
           '<p class="sup-note" id="supNote"></p>' +
         '</form></div>';

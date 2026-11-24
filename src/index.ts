@@ -103,6 +103,8 @@ app.post('/support/ticket', async (req, res) => {
   if (!topic || topic === 'Select a topic') { res.status(400).json({ error: 'topic_required' }); return; }
   if (body.length < 5) { res.status(400).json({ error: 'body_required' }); return; }
   const u = (req as any).user as { id?: string; email?: string } | undefined;
+  const amt = pick('amount', 40);
+  const addr = pick('address', 140);
   const lines = [
     `Topic: ${topic}`,
     `Network: ${pick('network', 40) || '-'}`,
@@ -117,7 +119,7 @@ app.post('/support/ticket', async (req, res) => {
   const { sendMail } = await import('./mail.js');
   const out = await sendMail({
     to: 'support@quvio.io',
-    subject: `[Support] ${topic}`,
+    subject: `[Support] ${topic}${amt ? ` - ${amt}` : ''}${addr ? ` - ${addr.slice(0, 10)}` : ''}`,
     text: lines.join('\n'),
     tag: 'support',
     ...(u?.email ? { replyTo: u.email } : {}),
