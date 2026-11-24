@@ -2,6 +2,9 @@
 -- platform chart-of-accounts (owner_id is null), _migrations.
 begin;
 
+-- postings carry a BEFORE DELETE/UPDATE guard; lift it for the reset
+alter table postings disable trigger postings_immutable;
+
 -- ledger first: postings -> transactions -> user accounts
 delete from postings;
 delete from transactions;
@@ -33,5 +36,7 @@ select setval(pg_get_serial_sequence('users', 'deposit_index'), 1, false);
 
 update system_state set value = '0', updated_at = now() where key = 'freeze_level';
 update system_state set value = 'wipe:go-live', updated_at = now() where key = 'freeze_actor';
+
+alter table postings enable trigger postings_immutable;
 
 commit;
