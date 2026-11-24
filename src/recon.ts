@@ -136,20 +136,13 @@ export async function runRecon(actor = 'manual') {
     ],
   );
 
-  /* Recon escalates the freeze itself. It only ever clears a freeze that recon
-     set, so a human freeze is never lifted out from under an operator. */
-  const frozen = await freezeLevel();
-  const frozenBy = await freezeActor();
-  const auto = !frozenBy || frozenBy.startsWith('recon:');
+  /* Levels are operator-set only. Recon records the level it would suggest and
+     leaves system_state alone. */
   const limit = driftThreshold(liabilities);
 
   let next = 0;
-  if (verdict === 'insolvent') next = 3;
+  if (verdict === 'insolvent') next = 2;
   else if (verdict === 'drift' || margin < MARGIN_WARN_USD) next = 1;
-
-  if (next !== frozen && (auto || next > frozen)) {
-    await setFreeze(next, `recon:${verdict}`);
-  }
 
   return {
     verdict,
