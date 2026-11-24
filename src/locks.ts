@@ -215,3 +215,14 @@ export async function releaseMatured(limit = 500): Promise<number> {
   }
   return released;
 }
+
+/** Moves every user's reserve to available. Called when a freeze lifts. */
+export async function releaseAllReserves(): Promise<{ users: number }> {
+  const r = await pool.query<{ user_id: string }>(
+    `select user_id from v_balance where code = '2050' and balance > 0`,
+  );
+  for (const row of r.rows) {
+    await combineHeld(row.user_id).catch((e) => console.error('releaseAllReserves', row.user_id, e));
+  }
+  return { users: r.rowCount ?? 0 };
+}

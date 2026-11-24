@@ -4,6 +4,7 @@ import { approveClaim, rejectClaim } from './locks.js';
 import { approveWithdrawal, rejectWithdrawal, cancelByAdmin, payoutWithdrawal } from './withdrawals.js';
 import { runRecon, latestRuns, freezeLevel, setFreeze, freezeActor } from './recon.js';
 import { pool } from './db.js';
+import { releaseAllReserves } from './locks.js';
 import { breakGlassOk, sessionFromToken, isAdmin, setPassword, revokeAllSessions } from './auth.js';
 import { getSolLamports, getSplAmount } from './solana/rpc.js';
 import { solPriceMicro } from './price.js';
@@ -186,7 +187,10 @@ adminRouter.post('/freeze', async (req, res) => {
   const level = Number(req.query.level);
   if (![0, 1, 2].includes(level)) return res.status(400).json({ error: 'bad_level' });
   await setFreeze(level, (req as any).isAdmin ? 'admin:session' : 'admin:token');
-  res.json({ level });
+  /* Coming off a freeze releases whatever parked in reserve, so nobody is left
+     waiting on a manual sweep. */
+  const released = level === 0 ? await releaseAllReserves().catch(() => ({ users: 0 })) : { users: 0 };
+  res.json({ level, released: released.users });
 });
 adminRouter.post('/resume/run', async (req, res) => {
   if (!authed(req)) return res.status(401).json({ error: 'bad_admin_token' });
