@@ -8,6 +8,7 @@
 .foot-social a:hover{color:#fff}
 .foot-social svg{width:20px;height:20px;fill:currentColor}
 .foot-col-right{justify-self:end;min-width:190px}
+.foot-col{text-align:left}
 .foot-col h4{margin:0 0 16px;font-size:14.5px;font-weight:700;color:#fff;letter-spacing:-.01em}
 .foot-col a{display:flex;align-items:center;gap:6px;padding:6px 0;font-size:14px;color:#a2a2b0;text-decoration:none}
 .foot-col a:hover{color:#fff}
