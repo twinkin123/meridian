@@ -12,14 +12,17 @@ export const wallet = Router();
 
 wallet.get('/balance', requireUser, async (req, res) => {
   const uid = req.userId!;
-  const r = await one<{ b: string; h: string; p: string; nx: string | null; l: string; rw: string; life: string; ac: boolean }>(
+  const r = await one<{ em: string; b: string; h: string; p: string; nx: string | null; l: string; rw: string; life: string; ac: boolean }>(
     `select
+       (select email from users where id=$1) em,
        coalesce((select balance from v_balance where user_id=$1 and code='2000'),0) b,
        (select auto_compound from users where id=$1) ac,
        coalesce((select balance from v_balance where user_id=$1 and code='2050'),0) h, coalesce((select balance from v_balance where user_id=$1 and code='2070'),0) l, coalesce((select balance from v_balance where user_id=$1 and code='2080'),0) rw, coalesce((select sum(amount) from vesting where user_id=$1 and released_at is null),0) p, (select min(due_at) from vesting where user_id=$1 and released_at is null) nx, ((select coalesce(sum(amount),0) from vesting where user_id=$1) + (select coalesce(sum(commission_usd),0) from referral_ledger where referrer_id=$1))::text life`,
     [uid],
   );
   res.json({
+    userId: uid,
+    email: r.em,
     balance: r.b,
     referralCode: (await one<{ c: string | null }>(`select referral_code c from users where id=$1`, [uid]))?.c ?? null,
     invited: Number((await one<{ n: string }>(`select count(*)::text n from users where referred_by=$1`, [uid]))?.n ?? 0),
