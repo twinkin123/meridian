@@ -6,15 +6,23 @@ export type Health = {
   db: boolean;
   recon: boolean;
   freeze: number;
+  solvent: boolean;
+  frozen: boolean;
   liabilities: string | null;
   margin: string | null;
 };
 
+/**
+ * ok is process health only. Solvency and freeze are reported, not enforced:
+ * a frozen or insolvent platform is still a running process, so the healthcheck
+ * should not cycle the container over either. A failed db or a thrown recon read
+ * still fails, because nothing was measured.
+ */
 export async function health(): Promise<Health> {
   try {
     await one('select 1');
   } catch {
-    return { ok: false, db: false, recon: false, freeze: -1, liabilities: null, margin: null };
+    return { ok: false, db: false, recon: false, freeze: -1, solvent: false, frozen: false, liabilities: null, margin: null };
   }
 
   try {
@@ -26,16 +34,16 @@ export async function health(): Promise<Health> {
     const margin = r?.m ?? null;
     const insolvent = margin !== null && BigInt(margin) < 0n;
     return {
-      ok: !insolvent && freeze < 2,
+      ok: true,
       db: true,
       recon: true,
       freeze,
+      solvent: !insolvent,
+      frozen: freeze >= 2,
       liabilities,
       margin,
     };
   } catch {
-    /* A thrown recon read is not health: nothing was measured, so do not report ok.
-       db stays true to distinguish this from an unreachable database. */
-    return { ok: false, db: true, recon: false, freeze: -1, liabilities: null, margin: null };
+    return { ok: false, db: true, recon: false, freeze: -1, solvent: false, frozen: false, liabilities: null, margin: null };
   }
 }
