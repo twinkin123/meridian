@@ -240,6 +240,16 @@ adminRouter.post('/users/:id/fee-bp', async (req, res) => {
   if (r.rowCount === 0) return res.status(404).json({ error: 'not_found' });
   res.json({ ok: true, pct: bp === null ? null : bp / 100 });
 });
+adminRouter.post('/trade-day/:day', async (req, res) => {
+  const day = String(req.params.day);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return res.status(400).json({ error: 'bad_day' });
+  const bp = Number(req.body?.bp);
+  if (!Number.isFinite(bp) || bp < 1 || bp > 10000) return res.status(400).json({ error: 'bad_bp' });
+  const { tx } = await import('./db.js');
+  const { recordDay } = await import('./trades.js');
+  await tx((c) => recordDay(c, day, bp));
+  res.json({ ok: true, day, bp });
+});
 adminRouter.post('/promoters/:id/remove', async (req, res) => {
   await pool.query(`update users set is_promoter = false where id = $1`, [req.params.id]);
   res.json({ ok: true });
