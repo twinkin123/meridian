@@ -70,3 +70,20 @@ export async function sendResetMail(to: string, link: string): Promise<MailResul
   if (!out.sent) console.log(`[mail] reset link for ${to}: ${link}`);
   return out;
 }
+export async function sendWelcomeMail(to: string): Promise<MailResult> {
+  return sendMail({
+    to,
+    tag: 'welcome',
+    subject: 'Your Quvio account is open',
+    replyTo: 'support@quvio.io',
+    text: [
+      'Your account is open and your deposit address is on the dashboard.',
+      '',
+      'Send at least $10 in USDC or SOL to that address and it credits once confirmed. Every deposit locks for 30 days and earns a daily credit from 1% to 4%.',
+      '',
+      `Dashboard: ${env.publicBaseUrl || 'https://www.quvio.io'}/app.html`,
+      '',
+      'Deposits sent on another network are not recoverable, so check you are on Solana before you send.',
+    ].join('\n'),
+  });
+}

@@ -17,7 +17,7 @@ import {
   pruneAuth,
 } from '../../auth.js';
 import { requireUser, clientMeta } from '../mw/session.js';
-import { sendResetMail } from '../../mail.js';
+import { sendResetMail, sendWelcomeMail } from '../../mail.js';
 
 export const auth = Router();
 
@@ -78,6 +78,8 @@ auth.post('/signup', async (req, res) => {
      select c, 'liability', 'user', $1 from unnest(array['2000','2010','2020','2050','2060','2070','2080']) c`,
     [row.id],
   );
+
+  void sendWelcomeMail(email);
 
   const token = await issueSession(row.id, clientMeta(req));
   res.cookie('sid', token, COOKIE);
