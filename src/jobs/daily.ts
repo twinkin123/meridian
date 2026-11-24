@@ -31,7 +31,14 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
   /* Credit always posts, freeze or not: it is the product, and a skipped day
      leaves a gap in the rate history that never gets filled. */
   const key = day.toISOString().slice(0, 10);
-  const rateBp = MIN_BP + Math.floor(Math.random() * (MAX_BP - MIN_BP + 1));
+  let rateBp = MIN_BP + Math.floor(Math.random() * (MAX_BP - MIN_BP + 1));
+  /* Never hand out yesterday's rate twice running - it reads as a stuck job. */
+  const prev = await pool.query<{ r: number | null }>(
+    `select rate_bp r from credit_runs where day < $1::date order by day desc limit 1`, [key],
+  );
+  for (let i = 0; i < 3 && prev.rows[0]?.r != null && rateBp === prev.rows[0]!.r; i++) {
+    rateBp = MIN_BP + Math.floor(Math.random() * (MAX_BP - MIN_BP + 1));
+  }
 
   /* Level 1 means "start no new 30-day locks", so compounding holds off and the
      credit vests instead. The money still arrives, it just does not extend a lock. */
