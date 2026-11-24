@@ -1,71 +1,88 @@
 # Handoff
 
-Written 2026-11-18. Read this before touching anything.
+Rewritten 2026-11-24 after the go-live reset. Read this before touching anything.
 
 ## State
 
-Platform is live and stable. Ledger balanced (0 unbalanced transactions). Books match
-chain to about a cent.
+Fresh launch. All pre-launch users and balances were wiped on 2026-11-24; the only
+ledger activity since is test traffic from two throwaway accounts.
 
-- Chain: ~$280.44 (250 USDC + ~0.40 SOL at treasury)
-- Owed to users: $53.73
-- Real headroom: ~$226.71
+- Chain: ~0.65 SOL + ~20.53 USDC at treasury
+- Owed to users: ~$127.81
 - Freeze level: 0
-- Deposits: frozen at detection value by design; see "Valuation model"
+
+Liabilities exceed on-chain assets because every test deposit was funded *from* the
+treasury, so the same money keeps arriving back. Only real external deposits close
+the gap. Do not read the margin as surplus.
 
 Do not run ad-hoc SQL against the ledger without reading "Ledger conventions" first.
 
 ## Treasury
 
-`29rKW5j1YAhRxWEjPT2KHQngAqySUpfC89ZscSBQFpaK` - note the uppercase W. A lowercase-w
-variant is a different, empty address and has caused a false alarm before.
+`ATXNNy1st7V8Lv3gDnSdcEbKgb3VopuxAH9zw7so8Mhe`
 
-Two keys with different jobs:
+- `PRIVY_TREASURY_WALLET_ID` = `pn32naflx3br0mxip5qn5rcy`, owned by the authorization
+  key quorum `quvio-server`.
+- `MASTER_MNEMONIC` at `m/44'/501'/999999'/0'` =
+  `7rqHqUTXr8VPrUHEdmtTDikeqaxd1LH4EiSdtqeW2KuP` is the fee payer for sweeps and
+  float top-ups. Keep it funded or every sweep fails.
+- `SWEEP_DESTINATION` must equal the treasury address. `assertSweepDestination()`
+  checks it at boot and kills the process on mismatch.
 
-- `PRIVY_TREASURY_WALLET_ID` = `xcgp4s5cmajvxgy4qdycbvo0` signs payouts via transferFrom.
-- `MASTER_MNEMONIC` at `m/44'/501'/999999'/0'` = `Adjv4EWpMqAoUuCkwsNq7mdYTeUqKthkMWMUoiL8vFaK`
-  holds ~0.063 SOL and is only a fee payer for ATA creation and float top-ups.
+## Privy
 
-The treasury wallet has NO owner, so Privy will not export its key. Assigning an
-owner changes its authorization config - test a transfer afterwards.
+App `cmwu1kx7y00bd0gjyj25876qe`, production, JWT auth provider registered against
+`https://www.quvio.io/.well-known/jwks.json` with issuer `quvio`. Server-side calls on
+user-owned wallets mint a 5-minute ES256 user JWT from `PRIVY_AUTH_KEY`.
 
-`SWEEP_DESTINATION` must always equal the address of `PRIVY_TREASURY_WALLET_ID`.
-Nothing enforces this. An assertion at boot would.
+If JWT auth is disabled in the dashboard, every user-owned wallet call fails 401 with
+"External auth providers are not enabled for your account" and EVM address issuance
+silently stops.
+
+`createCryptoDepositAccount` issues one EVM address per user, shared across all seven
+EVM chains in `DEPOSIT_CHAINS`. EVM forwards need Privy gas sponsorship credits.
+
+## Deposit model
+
+Deposits credit straight to available (2000), marked `credited` with a null
+`unlock_at`. Nothing auto-stakes. The user stakes from available; `stake()` moves
+2000 -> 2070 and sets a 30-day lock on the stake row.
+
+2050 (reserve) is used only while withdrawals are frozen: the deposit still credits,
+but to 2050, and `scripts/reserve-to-available.ts` moves it across when the freeze
+lifts.
 
 ## Valuation model
 
 Deposit values are fixed at detection. Market moves are the platform's P&L, not the
-user's. `drift` is therefore unrealised P&L, not a books error; the alarm threshold
-scales at 10% of liabilities (floor $2) via `DRIFT_FREEZE_BP`.
+user's. `drift` is unrealised P&L, not a books error; the alarm threshold scales at
+10% of liabilities (floor $2) via `DRIFT_FREEZE_BP`.
 
 `src/jobs/revalue.ts` only corrects bad detections: rows under 6h old deviating more
-than 20% from market. It will not chase price.
+than 20% from market. It posts the delta to 2070 for locked rows, 2000 otherwise.
 
 ## Open work, in order
 
-1. Shard the Helius webhook. 24 of 25 addresses used, 54 users, so 30 users are
-   poller-only at 15-minute latency.
-2. `GET /wallet/deposits` history endpoint.
-3. Tests and CI, before more code lands.
-4. Housekeeping, last.
+1. Fund Privy sponsorship credits. EVM forwards fail without them.
+2. Tests and CI, before more code lands.
+3. A real external deposit from a non-treasury wallet to close the collateral gap.
 
-## Housekeeping (do at the very end, not before)
+## Outstanding housekeeping
 
-- Rotate `ADMIN_TOKEN`, `WEBHOOK_SECRET`, `SESSION_SECRET`, `PRIVY_APP_SECRET`,
-  `PRIVY_AUTH_KEY`, `MASTER_MNEMONIC`, and the DB password. All are in the
-  2026-11-17/18 session transcript in plaintext.
-- Remove `src/admin-sql.ts`, its two lines in `src/index.ts`, and `SQL_TOKEN`.
-- Put the repo back to private.
-- Remove `scripts/export-treasury.ts` and `scripts/export-privy.ts` once the
-  treasury rotation is done.
-- Railway trial has ~$4.17 left. Top up before a working session, not during one.
+- Delete the Helius webhook on the previous account.
+- Delete the dead Privy secrets ending `...DUtb` and `...UoMxAh`.
+- Sweep ~0.015 SOL off old treasury `29rKW5j1YAhRxWEjPT2KHQngAqySUpfC89ZscSBQFpaK`
+  via the old Privy app.
+- Delete the stray Railway variable `re_WRbP6Pjw_T7XgdQbNFwsdMQndzeqECz29`; the real
+  value lives in `RESEND_API_KEY`.
+- Top up Railway before a long session, not during one.
 
 ## Ledger conventions
 
 - `v_balance.balance = -sum(postings)` per account.
 - Platform accounts: 1000/1010/1020 asset, 3000 equity, 4000 revenue, 5010 expense.
 - User accounts 2000/2010/2020/2050/2060/2070/2080 are all liability.
-- 2000 available, 2050 held, 2070 locked, 2010 in-flight withdrawal.
+- 2000 available, 2010 in-flight withdrawal, 2050 reserve (freeze only), 2070 locked.
 - `total_client_assets()` sums 1000/1010; `total_liabilities()` sums all liability.
 - `solvency_margin() = assets - liabilities`. Negative margin freezes at level 2.
 - Postings are immutable; transactions must net to zero (deferred trigger).
@@ -84,3 +101,5 @@ only ratchets up during recon - it never lowers itself, clear it manually.
   `ConvertTo-Json`.
 - psql pages long output and silently swallows the next command. Always pass
   `-P pager=off`.
+- Here-strings produce CRLF and break `.Replace` against LF files. Use `-replace` with
+  a regex, or normalise the here-string first.
