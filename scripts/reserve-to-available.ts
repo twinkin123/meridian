@@ -6,7 +6,7 @@ const { rows } = await pool.query(`select user_id, balance::text b from v_balanc
 for (const r of rows) {
   const amt = BigInt(r.b);
   await tx(async (c) => {
-    await post(c, 'ReserveToAvailable', `reserve:${r.user_id}`, [
+    await post(c, 'ReserveToAvailable', `reserve:${r.user_id}:${Date.now()}`, [
       { code: '2050', owner: r.user_id, amount: amt },
       { code: '2000', owner: r.user_id, amount: -amt },
     ]);
