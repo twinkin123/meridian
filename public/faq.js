@@ -23,7 +23,7 @@
     ['What is the minimum?', '$10 to stake and $10 to withdraw. Closing a balance in full is exempt from both.'],
     ['When is credit posted?', 'Every 24 hours at 00:15 UTC, on principal only.'],
     ['What does it cost?', 'A 15% performance fee, charged only on gains above the high-water mark.'],
-    ['What if a withdrawal is rejected?', 'It goes back to reserve, and locks again for 30 days once reserve reaches $10.'],
+    ['What if a withdrawal is rejected?', 'It goes back to your available balance, ready to stake or withdraw again.'],
     ['Why is my withdrawal capped?', 'The cap scales with your balance and with how long the address has been on your list. A new address starts lower.'],
     ['Where is my stake address?', 'On the dashboard, or in the Stake panel. USDC or SOL on Solana only.']
   ];

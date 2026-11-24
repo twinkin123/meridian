@@ -99,7 +99,7 @@ export async function processSig(sig: string): Promise<void> {
 
     if (usd <= 0n) continue;
 
-    const dest: string = '2050';
+    const dest: string = '2000';
     await tx(async (c) => {
       const row = await c.query(
         `insert into deposits (user_id, sig, asset, qty, usd_at_det, status, relay_order, relay_fill)
@@ -118,21 +118,16 @@ export async function processSig(sig: string): Promise<void> {
       ]);
 
       await c.query(
-        `update deposits set status = $1, unlock_at = now() + interval '30 days' where sig = $2 and user_id = $3`,
-        [dest === '2070' ? 'locked' : 'held',
-        sig, u.id],
+        `update deposits set status = 'credited', unlock_at = null where sig = $1 and user_id = $2`,
+        [sig, u.id],
       );
 
       if (frozen) {
-        await notify(c, u.id, 'deposit_held', `${usdStr(usd)} USD received. Withdrawals are frozen, so it waits in reserve.`);
-      } else if (dest === '2050') {
-        await notify(c, u.id, 'deposit_held', `${usdStr(usd)} USD received and held in reserve. It locks for 30 days once reserve reaches $10.`);
+        await notify(c, u.id, 'deposit_credited', `${usdStr(usd)} USD received. Withdrawals are frozen, so it sits in your available balance until they lift.`);
       } else {
-        await notify(c, u.id, 'deposit_locked', `${usdStr(usd)} USD received and locked for 30 days.`);
+        await notify(c, u.id, 'deposit_credited', `${usdStr(usd)} USD added to your available balance. Stake it from the dashboard to start earning.`);
       }
       if (depId) await payReferral(c, u.id, depId, usd);
     });
-
-    if (dest === '2050') await combineHeld(u.id);
   }
 }

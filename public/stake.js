@@ -268,7 +268,7 @@
     var now = Date.now();
     var unl = d.unlock_at ? new Date(d.unlock_at).getTime() : 0;
     var cls = 'st', label, btn = '';
-    if (d.status === 'held') { label = 'Reserve - needs $10'; }
+    if (d.status === 'held') { label = 'In reserve'; }
     else if (d.claim_requested_at) { cls += ' pend'; label = 'Awaiting review'; btn = '<button class="sx" type="button" data-cancel="' + d.id + '">Cancel</button>'; }
     else if (d.claim_rejected_at && unl <= now) { cls += ' rej'; label = 'Declined' + (d.claim_reject_reason ? ': ' + esc(d.claim_reject_reason) : ''); btn = '<button class="sx" type="button" data-claim="' + d.id + '">Request again</button>'; }
     else if (unl <= now) { cls += ' ready'; label = 'Ready to unlock'; btn = '<button class="sx" type="button" data-claim="' + d.id + '">Request unlock</button>'; }

@@ -74,7 +74,7 @@
     return '<li class="' + cls + '"><div class="hs-main">'
       + '<b>' + money(d.usd_at_det) + '</b><span class="hs-asset">' + esc(d.asset) + '</span>'
       + '<span class="hs-meta">detected ' + when(d.created_at || d.detected_at) + '</span>'
-      + (held ? '<span class="hs-meta">in reserve \u00b7 stakes for 30 days once reserve reaches $10</span>' : '<span class="hs-meta">unlocks ' + when(d.unlock_at) + ' \u00b7 ' + rel(d.unlock_at) + '</span>')
+      + (held ? '<span class="hs-meta">in reserve \u00b7 staking locks for 30 days</span>' : '<span class="hs-meta">unlocks ' + when(d.unlock_at) + ' \u00b7 ' + rel(d.unlock_at) + '</span>')
       + (d.claim_requested_at ? '<span class="hs-meta">release requested ' + when(d.claim_requested_at) + '</span>' : '')
       + (d.released_at ? '<span class="hs-meta">released ' + when(d.released_at) + '</span>' : '')
       + '</div><div class="hs-side">' + side + '</div></li>';

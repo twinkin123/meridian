@@ -50,7 +50,7 @@ export async function revalueSolDeposits(limit = BATCH): Promise<RevalueResult> 
     const gap = (delta < 0n ? -delta : delta) * 10000n;
     if (gap < MIN_DEV_BP * old) continue;
 
-    const code = r.status === 'locked' ? '2070' : '2050';
+    const code = r.status === 'locked' ? '2070' : '2000';
 
     const ok = await tx(async (c) => {
       const upd = await c.query(
