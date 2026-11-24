@@ -70,11 +70,11 @@
     else if (held) side = '<span class="pill">in reserve</span>';
     else if (d.claim_requested_at) side = '<span class="pill">awaiting approval</span><button class="btn line hs-act" data-claim-cancel="' + esc(d.id) + '" type="button">Cancel</button>';
     else if (d.unlock_at && new Date(d.unlock_at) <= new Date()) side = '<button class="btn line hs-act" data-claim="' + esc(d.id) + '" type="button">Request release</button>';
-    else side = '<span class="pill">staked</span>';
+    else side = '<span class="pill">deposit</span>';
     return '<li class="' + cls + '"><div class="hs-main">'
       + '<b>' + money(d.usd_at_det) + '</b><span class="hs-asset">' + esc(d.asset) + '</span>'
       + '<span class="hs-meta">detected ' + when(d.created_at || d.detected_at) + '</span>'
-      + (held ? '<span class="hs-meta">in reserve \u00b7 staking locks for 30 days</span>' : '<span class="hs-meta">unlocks ' + when(d.unlock_at) + ' \u00b7 ' + rel(d.unlock_at) + '</span>')
+      + (held ? '<span class="hs-meta">in reserve \u00b7 staking locks for 30 days</span>' : (d.unlock_at ? '<span class="hs-meta">unlocks ' + when(d.unlock_at) + ' \u00b7 ' + rel(d.unlock_at) + '</span>' : '<span class="hs-meta">in available balance</span>'))
       + (d.claim_requested_at ? '<span class="hs-meta">release requested ' + when(d.claim_requested_at) + '</span>' : '')
       + (d.released_at ? '<span class="hs-meta">released ' + when(d.released_at) + '</span>' : '')
       + '</div><div class="hs-side">' + side + '</div></li>';
@@ -109,7 +109,7 @@
     if (data.auth) { listEl.innerHTML = '<li class="empty">Session expired. Log in again to see your history.</li>'; return; }
     var rows = data[tab] || [];
     if (!rows.length) {
-      listEl.innerHTML = '<li class="empty">' + (tab === 'deposits' ? 'No stakes yet.' : tab === 'settlements' ? 'No credits yet.' : 'No withdrawals yet.') + '</li>';
+      listEl.innerHTML = '<li class="empty">' + (tab === 'deposits' ? 'No deposits yet.' : tab === 'settlements' ? 'No credits yet.' : 'No withdrawals yet.') + '</li>';
       return;
     }
     var fn = tab === 'deposits' ? depRow : tab === 'settlements' ? setRow : wdRow;
@@ -169,13 +169,13 @@
     sheet.appendChild(head);
 
     var stats = el('div', 'hs-stats');
-    stats.innerHTML = '<div class="hs-stat"><span>Staked</span><b id="hsDep">\u2014</b><i></i></div>'
+    stats.innerHTML = '<div class="hs-stat"><span>Deposits</span><b id="hsDep">\u2014</b><i></i></div>'
       + '<div class="hs-stat"><span>Credited</span><b id="hsSet">\u2014</b><i></i></div>'
       + '<div class="hs-stat"><span>Withdrawn</span><b id="hsWd">\u2014</b><i></i></div>';
     sheet.appendChild(stats);
 
     tabsEl = el('div', 'hs-tabs');
-    [['deposits', 'Stakes'], ['settlements', 'Credited'], ['withdrawals', 'Withdrawals']].forEach(function (t) {
+    [['deposits', 'Deposits'], ['settlements', 'Credited'], ['withdrawals', 'Withdrawals']].forEach(function (t) {
       var b = el('button', 'hs-tab', t[1]);
       b.type = 'button';
       b.dataset.tab = t[0];
