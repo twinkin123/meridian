@@ -93,6 +93,28 @@
     </div>
 
     <div class="card">
+      <span class="mono">Promoters</span>
+      <p class="lede" style="margin-top:8px">Everyone who has referred at least one account, with what those accounts brought in and what was paid out. Same IP counts invitees that share a promoter's address.</p>
+      <div id="pTotals"></div>
+      <div class="tblwrap">
+        <table class="tbl">
+          <thead><tr>
+            <th>Promoter</th>
+            <th>Code</th>
+            <th>Invited</th>
+            <th>Same IP</th>
+            <th>Brought in</th>
+            <th>Commission</th>
+            <th>Last signup</th>
+          </tr></thead>
+          <tbody id="promoters"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="row"><button class="btn" id="pGo" type="button">Refresh</button></div>
+      <div class="msg" id="pMsg"></div>
+    </div>
+
+    <div class="card">
       <span class="mono">Users</span>
       <p class="lede" style="margin-top:8px">Every account with balances and activity. Actions apply immediately.</p>
       <div class="uhead">
@@ -183,7 +205,7 @@
     token = t;
     sessionStorage.setItem('admin_token', t);
     var ok = await loadFreeze();
-    if (ok) { gate.classList.add('hide'); panel.classList.remove('hide'); loadQueue(); loadClaims(); loadSweeps(); loadRuns(); loadUsers(); loadFlow(); loadTreasury(); }
+    if (ok) { gate.classList.add('hide'); panel.classList.remove('hide'); loadPromoters(); loadQueue(); loadClaims(); loadSweeps(); loadRuns(); loadUsers(); loadFlow(); loadTreasury(); }
     else msg('gateMsg', 'Token rejected.', 'err');
   }
 
@@ -370,6 +392,36 @@
     if (s < 3600) return Math.round(s / 60) + 'm ago';
     if (s < 86400) return Math.round(s / 3600) + 'h ago';
     return Math.round(s / 86400) + 'd ago';
+  }
+
+  document.getElementById('pGo').addEventListener('click', loadPromoters);
+
+  async function loadPromoters(){
+    var box = document.getElementById('promoters');
+    var tot = document.getElementById('pTotals');
+    try {
+      var r = await fetch('/admin/promoters', { headers: h() });
+      var j = await r.json().catch(function(){ return {}; });
+      if (!r.ok) { box.innerHTML = '<tr><td colspan="7" class="empty">' + esc(j.error || 'Could not load.') + '</td></tr>'; return; }
+      var rows = j.promoters || [];
+      if (!rows.length) { box.innerHTML = '<tr><td colspan="7" class="empty">No promoters yet.</td></tr>'; tot.textContent = ''; return; }
+      var brought = rows.reduce(function(a, x){ return a + Number(x.brought || 0); }, 0);
+      var paid = rows.reduce(function(a, x){ return a + Number(x.commission || 0); }, 0);
+      tot.textContent = rows.length + ' promoters - ' + money(brought) + ' brought in - ' + money(paid) + ' paid out';
+      box.innerHTML = rows.map(function(x){
+        return '<tr>' +
+          '<td>' + esc(x.email || 'unknown') + '</td>' +
+          '<td class="mono">' + esc(x.referral_code || '-') + '</td>' +
+          '<td class="num">' + x.invited + '</td>' +
+          '<td class="num">' + x.same_ip + '</td>' +
+          '<td class="num">' + money(x.brought) + '</td>' +
+          '<td class="num">' + money(x.commission) + '</td>' +
+          '<td>' + (x.last_signup ? new Date(x.last_signup).toLocaleDateString() : '-') + '</td>' +
+        '</tr>';
+      }).join('');
+    } catch (_) {
+      box.innerHTML = '<tr><td colspan="7" class="empty">Could not load.</td></tr>';
+    }
   }
 
   async function loadUsers(){
