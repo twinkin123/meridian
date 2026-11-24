@@ -43,7 +43,7 @@ const port = Number(process.env.PORT ?? 3000);
 const app = express();
 
 app.set('trust proxy', 2);
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '64kb' }));
 app.use(cookieParser());
 app.use((_req, res, next) => {
   res.setHeader(
@@ -258,3 +258,7 @@ for (const sig of ['SIGTERM', 'SIGINT'] as const) {
     process.exit(0);
   });
 }
+
+server.requestTimeout = 30_000;
+server.headersTimeout = 10_000;
+server.keepAliveTimeout = 5_000;
