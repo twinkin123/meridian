@@ -85,7 +85,7 @@ app.get('/.well-known/jwks.json', (_req, res) => {
 
 const authLimit = rateLimit({
   windowMs: 60_000,
-  limit: 10,
+  limit: 5,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   keyGenerator: (req) => clientIp(req),
