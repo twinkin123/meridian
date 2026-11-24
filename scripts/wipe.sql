@@ -40,3 +40,4 @@ update system_state set value = 'wipe:go-live', updated_at = now() where key = '
 alter table postings enable trigger postings_immutable;
 
 commit;
+-- deploy check
