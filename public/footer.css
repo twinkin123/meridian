@@ -23,3 +23,5 @@
 .foot-legal-text p:last-child{margin:0}
 
 
+
+@media(max-width:900px){.site-foot{margin-left:0}}
