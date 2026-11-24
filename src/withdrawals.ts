@@ -156,18 +156,14 @@ export async function requestWithdrawal(
     const net = usd - fee;
     if (net <= 0n) return { ok: false, error: 'below_min' };
 
-    /* An auto-approved row never passes through approveWithdrawal, so the
-       treasury solvency and share checks have to run here too. A treasury that
-       cannot cover the payout queues it for review instead of letting it sail
-       into a Privy 400 at send time. */
-    let covered = true;
-    if (!needsApproval) {
-      const need = asset === 'USDC' ? net : qtyFor('SOL', net, await solPriceMicro()) + FEE_HEADROOM;
-      const head = await treasuryHeadroom().catch(() => null);
-      if (!head) return { ok: false, error: 'treasury_unreachable' };
-      const have = asset === 'USDC' ? head.usdc : head.sol;
-      covered = have >= need && need * 100n < have * TREASURY_SHARE_PCT;
-    }
+    /* Coverage is checked whether or not the address is new. A new address still
+       needs the treasury to hold the money, and a queued row is never re-checked,
+       so it would otherwise sit forever. */
+    const need = asset === 'USDC' ? net : qtyFor('SOL', net, await solPriceMicro()) + FEE_HEADROOM;
+    const head = await treasuryHeadroom().catch(() => null);
+    if (!head) return { ok: false, error: 'treasury_unreachable' };
+    const have = asset === 'USDC' ? head.usdc : head.sol;
+    const covered = have >= need;
     const autoOk = !needsApproval && covered;
     const status = autoOk ? 'approved' : 'requested';
 

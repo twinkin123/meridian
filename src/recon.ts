@@ -10,7 +10,7 @@ export const DRIFT_FREEZE_BP = BigInt(process.env.DRIFT_FREEZE_BP ?? '1000');
 /** ...but never tighter than this, in micro-USD. */
 export const DRIFT_FLOOR_USD = 25_000_000n;
 /** Below this margin the platform is inside its warning band, in micro-USD. */
-export const MARGIN_WARN_USD = 50_000_000n;
+export const MARGIN_WARN_USD = BigInt(process.env.MARGIN_WARN_USD ?? '10000000');
 /** Minimum gap between automatic recon runs. */
 export const RECON_INTERVAL_MS = Number(process.env.RECON_INTERVAL_MS ?? 55 * 60 * 1000);
 
@@ -145,7 +145,7 @@ export async function runRecon(actor = 'manual') {
 
   let next = 0;
   if (verdict === 'insolvent') next = 3;
-  else if (verdict === 'drift' || margin < MARGIN_WARN_USD) next = 2;
+  else if (verdict === 'drift' || margin < MARGIN_WARN_USD) next = 1;
 
   if (next !== frozen && (auto || next > frozen)) {
     await setFreeze(next, `recon:${verdict}`);
