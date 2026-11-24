@@ -24,7 +24,6 @@
 
 
 
-@media(max-width:900px){.site-foot{margin-left:0}}
 
 html body:has(.shell) .site-foot{display:none}
 html body:has(#p-dash.panel.on) .site-foot{display:block}
