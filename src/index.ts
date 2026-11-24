@@ -1,3 +1,4 @@
+import rateLimit from 'express-rate-limit';
 import { clientIp } from './http/mw/ip.js';
 import 'express-async-errors';
 import express from 'express';
@@ -82,6 +83,14 @@ app.get('/.well-known/jwks.json', (_req, res) => {
   res.type('application/jwk-set+json').send(jwks());
 });
 
+const authLimit = rateLimit({
+  windowMs: 60_000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: (req) => clientIp(req),
+});
+app.use('/auth', authLimit);
 app.use('/auth', auth);
 app.use('/auth', walletAuth);
 app.use('/webhooks', webhooks);
