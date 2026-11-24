@@ -222,6 +222,15 @@ adminRouter.post('/promoters', async (req, res) => {
   res.json({ ok: true });
 });
 
+adminRouter.post('/users/:id/wd-limit', async (req, res) => {
+  const raw = req.body?.usd;
+  const empty = raw === null || raw === undefined || raw === '';
+  const usd = empty ? null : BigInt(Math.round(Number(raw) * 1e6));
+  if (!empty && (Number.isNaN(Number(raw)) || usd! < 0n)) return res.status(400).json({ error: 'bad_amount' });
+  const r = await pool.query(`update users set wd_limit_usd = $2 where id = $1 returning id`, [req.params.id, usd?.toString() ?? null]);
+  if (r.rowCount === 0) return res.status(404).json({ error: 'not_found' });
+  res.json({ ok: true, limit: usd?.toString() ?? null });
+});
 adminRouter.post('/promoters/:id/remove', async (req, res) => {
   await pool.query(`update users set is_promoter = false where id = $1`, [req.params.id]);
   res.json({ ok: true });

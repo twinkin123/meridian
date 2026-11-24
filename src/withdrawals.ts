@@ -113,6 +113,8 @@ export async function requestWithdrawal(
     /* Referral commission is unconditional: no cap, no minimum, no gate, and it
        never blocks or counts against the available balance. */
     let needsApproval = false;
+    let used24h = 0n;
+    let userLimit: bigint | null = null;
     if (source !== 'rewards') {
       const open = await c.query<{ n: string }>(
         `select count(*)::text n from withdrawals
@@ -129,7 +131,13 @@ export async function requestWithdrawal(
             and status not in ('cancelled', 'failed')`,
         [userId],
       );
-      needsApproval = BigInt(recent.rows[0]?.g ?? 0) + usd >= AUTO_APPROVE_MAX;
+      used24h = BigInt(recent.rows[0]?.g ?? 0);
+      const lim = await c.query<{ l: string | null }>(
+        'select wd_limit_usd::text l from users where id = $1',
+        [userId],
+      );
+      userLimit = lim.rows[0]?.l ? BigInt(lim.rows[0].l!) : null;
+      needsApproval = used24h + usd >= AUTO_APPROVE_MAX;
     }
     const seen = await c.query<{ first_seen: string }>(
       `insert into withdrawal_addresses (user_id, address) values ($1, $2)
@@ -150,7 +158,18 @@ export async function requestWithdrawal(
     const ageMs = Date.now() - new Date(firstSeen).getTime();
     const cap = computeCap(Boolean(firstSeen), ageMs, balance);
 
-    if (usd > cap && source !== 'rewards') return { ok: false, error: 'over_cap', cap: cap.toString() };
+    /* A per-user limit replaces the address-age allowance for that user and is
+       enforced against the trailing 24h, so it cannot be stepped over with
+       repeated requests. Users with no limit behave exactly as before. */
+    if (source !== 'rewards') {
+      if (userLimit !== null) {
+        if (used24h + usd > userLimit) {
+          return { ok: false, error: 'over_daily_limit', cap: (userLimit > used24h ? userLimit - used24h : 0n).toString() };
+        }
+      } else if (usd > cap) {
+        return { ok: false, error: 'over_cap', cap: cap.toString() };
+      }
+    }
 
     const fee = (usd * 500n) / 10000n;
     const net = usd - fee;

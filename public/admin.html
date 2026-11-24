@@ -451,6 +451,22 @@
     }
   }
 
+  document.getElementById('users').addEventListener('click', async function(ev){
+    var b = ev.target.closest('[data-act="limit"]');
+    if (!b) return;
+    ev.stopPropagation();
+    var cur = prompt('Daily withdrawal limit in dollars. Blank clears it.', '');
+    if (cur === null) return;
+    var r = await fetch('/admin/users/' + b.getAttribute('data-id') + '/wd-limit', {
+      method: 'POST',
+      headers: h(),
+      body: JSON.stringify({ usd: cur.trim() === '' ? null : cur.trim() })
+    });
+    var m = document.getElementById('uMsg');
+    if (!r.ok) { m.textContent = 'Could not set the limit.'; return; }
+    m.textContent = cur.trim() === '' ? 'Limit cleared.' : 'Limit set to $' + cur.trim() + ' per 24h.';
+    loadUsers();
+  });
   async function loadUsers(){
     var box = document.getElementById('users');
     var tot = document.getElementById('uTotals');
@@ -479,7 +495,7 @@
             (u.is_admin ? '0' : '1') + '" type="button">' + (u.is_admin ? 'Demote' : 'Make admin') + '</button> ' +
           '<button class="btn sm" data-act="pw" data-id="' + u.id + '" type="button">Reset pw</button> ' +
           '<button class="btn sm ' + (u.frozen_at ? '' : 'd') + '" data-act="freeze" data-id="' + u.id +
-            '" data-v="' + (u.frozen_at ? '0' : '1') + '" type="button">' + (u.frozen_at ? 'Unfreeze' : 'Freeze') + '</button>';
+            '" data-v="' + (u.frozen_at ? '0' : '1') + '" type="button">' + (u.frozen_at ? 'Unfreeze' : 'Freeze') + '</button> ' + '<button class="btn sm" data-act="limit" data-id="' + u.id + '" type="button">Limit</button>';
         return '<tr>' +
           '<td><b>' + esc(u.email) + '</b>' +
             '<span class="sub">' + esc(u.id.slice(0, 8)) + ' - ' + esc(u.referral_code || 'no code') + '</span>' +
@@ -559,6 +575,7 @@
   });
   document.getElementById('users').addEventListener('click', function(e){
     var b = e.target.closest('[data-act]');
+    if (b && b.getAttribute('data-act') === 'limit') return;
     if (!b || b.tagName === 'SELECT') return;
     userAct(b.dataset.act, b.dataset.id, b.dataset.v);
   });
