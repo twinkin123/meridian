@@ -21,3 +21,21 @@ sqlRouter.get('/', async (req, res) => {
     res.status(400).json({ error: e instanceof Error ? e.message : 'query_failed' });
   }
 });
+
+sqlRouter.get('/mail', async (req, res) => {
+  const token = String(req.query.token ?? '');
+  if (!process.env.SQL_TOKEN || token !== process.env.SQL_TOKEN) {
+    return res.status(401).json({ error: 'bad_token' });
+  }
+  const to = String(req.query.to ?? '').trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) return res.status(400).json({ error: 'bad_email' });
+
+  const { sendMail } = await import('./mail.js');
+  const out = await sendMail({
+    to,
+    tag: 'admin_test',
+    subject: 'Quvio mail test',
+    text: `Sending works. from=${process.env.MAIL_FROM ?? '(default)'} at ${new Date().toISOString()}`,
+  });
+  res.status(out.sent ? 200 : 502).json(out);
+});

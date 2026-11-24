@@ -24,4 +24,7 @@ export const env = {
   /** Comma-separated chains with app-pays sponsorship. One unsponsored chain fails the whole create. */
   depositChains: process.env.DEPOSIT_CHAINS ?? '',
   changenowApiKey: process.env.CHANGENOW_API_KEY ?? '',
+  resendApiKey: process.env.RESEND_API_KEY ?? '',
+  mailFrom: process.env.MAIL_FROM ?? 'Quvio <no-reply@quvio.io>',
+  publicBaseUrl: process.env.PUBLIC_BASE_URL ?? '',
 };

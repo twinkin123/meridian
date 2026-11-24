@@ -162,6 +162,9 @@ if (process.env.NODE_ENV === 'production') {
   if (process.env.WEBHOOK_SECRET === undefined || ['dev-webhook', 'devwebhook123456789012345678'].includes(process.env.WEBHOOK_SECRET)) bad.push('WEBHOOK_SECRET is default');
   if (process.env.SESSION_SECRET === undefined || process.env.SESSION_SECRET === 'dev-secret') bad.push('SESSION_SECRET is default');
   if (!process.env.USDC_MINT?.startsWith('EPjFWdd5')) bad.push('USDC_MINT not mainnet USDC');
+  if (!process.env.RESEND_API_KEY) bad.push('RESEND_API_KEY missing');
+  if (!process.env.MAIL_FROM) bad.push('MAIL_FROM missing');
+  if (!process.env.PUBLIC_BASE_URL) bad.push('PUBLIC_BASE_URL missing');
   if (process.env.RPC_URL?.includes('devnet')) bad.push('RPC_URL is devnet');
   if (process.env.SOLANA_CLUSTER !== 'mainnet-beta') bad.push(`SOLANA_CLUSTER=${process.env.SOLANA_CLUSTER}`);
   if (bad.length) throw new Error(`refusing to boot: ${bad.join(', ')}`);

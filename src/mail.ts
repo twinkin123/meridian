@@ -1,25 +1,72 @@
-export type MailResult = { sent: boolean };
+import { env } from './env.js';
 
-// Without a provider key the link is logged, so the flow is testable today.
-export async function sendResetMail(to: string, link: string): Promise<MailResult> {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) {
-    console.log(`[mail] no provider set, reset link for ${to}: ${link}`);
-    return { sent: false };
-  }
-  const res = await fetch('https://api.resend.com/emails', {
+export type MailResult = { sent: boolean; error?: string };
+
+type Mail = { to: string; subject: string; text: string; tag?: string; replyTo?: string };
+
+const ENDPOINT = 'https://api.resend.com/emails';
+const TIMEOUT_MS = 8_000;
+
+/** One attempt. Returns the status so the caller can decide about a retry. */
+async function attempt(mail: Mail, key: string): Promise<{ ok: boolean; status: number; body: string }> {
+  const res = await fetch(ENDPOINT, {
     method: 'POST',
     headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
     body: JSON.stringify({
-      from: process.env.MAIL_FROM ?? 'Quvio <onboarding@resend.dev>',
-      to,
-      subject: 'Reset your Quvio password',
-      text: `Reset your password here:\n\n${link}\n\nThe link works once and expires in 30 minutes.`,
+      from: env.mailFrom,
+      to: mail.to,
+      subject: mail.subject,
+      text: mail.text,
+      ...(mail.replyTo ? { reply_to: mail.replyTo } : {}),
+      ...(mail.tag ? { tags: [{ name: 'kind', value: mail.tag }] } : {}),
     }),
+    signal: AbortSignal.timeout(TIMEOUT_MS),
   });
-  if (!res.ok) {
-    console.error(`[mail] resend ${res.status}: ${await res.text()}`);
-    return { sent: false };
+  return { ok: res.ok, status: res.status, body: res.ok ? '' : await res.text().catch(() => '') };
+}
+
+export async function sendMail(mail: Mail): Promise<MailResult> {
+  const key = env.resendApiKey;
+  if (!key) {
+    console.log(`[mail] no RESEND_API_KEY, skipping ${mail.tag ?? 'mail'} to ${mail.to}`);
+    return { sent: false, error: 'no_key' };
   }
-  return { sent: true };
+
+  try {
+    let out = await attempt(mail, key);
+    // the free tier is 100/day; a burst trips the limiter, so back off once
+    if (out.status === 429) {
+      await new Promise((r) => setTimeout(r, 1_200));
+      out = await attempt(mail, key);
+    }
+    if (!out.ok) {
+      console.error(`[mail] resend ${out.status} for ${mail.tag ?? 'mail'} to ${mail.to}: ${out.body}`);
+      return { sent: false, error: `resend_${out.status}` };
+    }
+    return { sent: true };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'send_failed';
+    console.error(`[mail] ${mail.tag ?? 'mail'} to ${mail.to} threw: ${msg}`);
+    return { sent: false, error: msg };
+  }
+}
+
+export async function sendResetMail(to: string, link: string): Promise<MailResult> {
+  const out = await sendMail({
+    to,
+    tag: 'password_reset',
+    subject: 'Reset your Quvio password',
+    replyTo: 'support@quvio.io',
+    text: [
+      'Reset your password here:',
+      '',
+      link,
+      '',
+      'The link works once and expires in 30 minutes.',
+      '',
+      `If you did not ask for this, ignore it. Sign in: ${env.publicBaseUrl || 'https://www.quvio.io'}/auth.html`,
+    ].join('\n'),
+  });
+  if (!out.sent) console.log(`[mail] reset link for ${to}: ${link}`);
+  return out;
 }
