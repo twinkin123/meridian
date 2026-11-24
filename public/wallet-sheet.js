@@ -186,7 +186,7 @@
 
   wrap.querySelector('#wlNew').addEventListener('click', function () {
     var r = refParam();
-    location.href = '/auth.html?v=5' + (r ? '&mode=create&ref=' + encodeURIComponent(r) : '?mode=create');
+    location.href = '/auth.html?v=5' + (r ? '&mode=create&ref=' + encodeURIComponent(r) : '&mode=create');
   });
 
   wrap.querySelector('#wlForgot').addEventListener('click', async function (e) {
