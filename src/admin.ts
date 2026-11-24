@@ -207,7 +207,7 @@ adminRouter.get('/promoters', async (_req, res) => {
                        where rl2.referrer_id = p.id and rl2.same_ip)) same_ip,
        (select max(r.created_at) from users r where r.referred_by = p.id) last_signup
      from users p
-     where p.is_promoter or exists (select 1 from users r where r.referred_by = p.id)
+     where p.is_promoter
      order by brought desc
      limit 200`,
   );
