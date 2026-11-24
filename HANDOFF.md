@@ -5,15 +5,15 @@ Rewritten 2026-11-24 after the go-live reset. Read this before touching anything
 ## State
 
 Fresh launch. All pre-launch users and balances were wiped on 2026-11-24; the only
-ledger activity since is test traffic from two throwaway accounts.
+ledger activity since is test traffic from a few throwaway accounts.
 
-- Chain: ~0.65 SOL + ~20.53 USDC at treasury
-- Owed to users: ~$127.81
+- Chain: ~2.8 SOL + ~20.53 USDC at treasury
+- Owed to users: ~$199.53
 - Freeze level: 0
 
-Liabilities exceed on-chain assets because every test deposit was funded *from* the
-treasury, so the same money keeps arriving back. Only real external deposits close
-the gap. Do not read the margin as surplus.
+Most test deposits were funded *from* the treasury, so the same money keeps arriving
+back and the collateral gap closes only slowly. Only real external deposits fix it.
+Do not read the margin as surplus.
 
 Do not run ad-hoc SQL against the ledger without reading "Ledger conventions" first.
 
@@ -48,24 +48,48 @@ Deposits credit straight to available (2000), marked `credited` with a null
 `unlock_at`. Nothing auto-stakes. The user stakes from available; `stake()` moves
 2000 -> 2070 and sets a 30-day lock on the stake row.
 
-2050 (reserve) is used only while withdrawals are frozen: the deposit still credits,
-but to 2050, and `scripts/reserve-to-available.ts` moves it across when the freeze
-lifts.
+2050 (reserve) is used only while the freeze is at level 1 or above. Clearing the
+freeze to 0 runs `releaseAllReserves()`, which moves every reserve balance back to
+available and notifies each user.
 
 ## Valuation model
 
 Deposit values are fixed at detection. Market moves are the platform's P&L, not the
-user's. `drift` is unrealised P&L, not a books error; the alarm threshold scales at
-10% of liabilities (floor $2) via `DRIFT_FREEZE_BP`.
+user's. `drift` is unrealised P&L, not a books error. `verdictFor` reports `insolvent`
+when `solvency_margin()` goes negative, `drift` past `driftThreshold()`, `surplus`
+past it the other way.
+
+Margin is a ledger figure: it compares asset postings on 1000/1010 against all
+liabilities. Daily credits post against 5010 expense, not assets, so margin falls
+every day a credit runs regardless of what the treasury holds. Treat it as
+bookkeeping, not as coverage of the chain balance.
 
 `src/jobs/revalue.ts` only corrects bad detections: rows under 6h old deviating more
 than 20% from market. It posts the delta to 2070 for locked rows, 2000 otherwise.
+
+## Freeze levels
+
+Levels are set by an operator only. Recon computes a suggestion, returns it as
+`frozen`, and never writes `system_state`.
+
+- 0 normal
+- 1 no new 30-day locks; deposits park in reserve
+- 2 also stops withdrawals leaving
+
+Daily credit and referral rewards always run. At level 1 compounding holds off so the
+credit vests instead of extending a lock — the money still arrives.
+
+## Withdrawal rules
+
+A payout may not exceed 15% of the treasury balance (`TREASURY_SHARE_PCT`), and the
+treasury must actually hold it. First-time addresses always queue for manual approval.
 
 ## Open work, in order
 
 1. Fund Privy sponsorship credits. EVM forwards fail without them.
 2. Tests and CI, before more code lands.
-3. A real external deposit from a non-treasury wallet to close the collateral gap.
+3. A real external deposit from a non-treasury wallet.
+4. Decide whether insolvency should key off chain coverage rather than ledger margin.
 
 ## Outstanding housekeeping
 
@@ -84,14 +108,9 @@ than 20% from market. It posts the delta to 2070 for locked rows, 2000 otherwise
 - User accounts 2000/2010/2020/2050/2060/2070/2080 are all liability.
 - 2000 available, 2010 in-flight withdrawal, 2050 reserve (freeze only), 2070 locked.
 - `total_client_assets()` sums 1000/1010; `total_liabilities()` sums all liability.
-- `solvency_margin() = assets - liabilities`. Negative margin freezes at level 2.
+- `solvency_margin() = assets - liabilities`.
 - Postings are immutable; transactions must net to zero (deferred trigger).
 - Manual corrections need a balanced transaction with a unique `external_ref`.
-
-## Freeze levels
-
-0 normal, 1 drift alarm, 2 insolvent. Level 2 halts the daily credit job. The level
-only ratchets up during recon - it never lowers itself, clear it manually.
 
 ## Housekeeping traps hit already
 
@@ -103,3 +122,5 @@ only ratchets up during recon - it never lowers itself, clear it manually.
   `-P pager=off`.
 - Here-strings produce CRLF and break `.Replace` against LF files. Use `-replace` with
   a regex, or normalise the here-string first.
+- Double-quoted PowerShell strings interpolate `$10` and `${have}`. Use single-quoted
+  here-strings for anything containing `$`.
