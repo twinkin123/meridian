@@ -36,6 +36,7 @@
       '<div class="wl-row"><input id="wlEmail" type="email" autocomplete="email" placeholder="you@example.com"><button type="button" id="wlGo">Continue</button></div>' +
       '<div class="wl-row" style="margin-top:9px"><input id="wlPw" type="password" autocomplete="new-password" placeholder="Password (8+ characters)"></div>' +
       '<button type="button" class="wl-new" id="wlNew">Create account</button>' +
+      '<p class="wl-forgot"><a href="#" id="wlForgot">Forgot password?</a></p>' +
       '<div class="wl-ref"><input id="wlRef" placeholder="Referral code (optional)" autocomplete="off"><button type="button" id="wlRefGo">Apply</button></div>' +
       '<p class="wl-note">Signing in with a wallet opens the account. Nothing else about it changes.</p>' +
       '<p class="wl-err" id="wlErr" hidden></p>' +
@@ -148,7 +149,7 @@
       body: JSON.stringify(body),
     });
     var j = await r.json().catch(function () { return {}; });
-    return { ok: r.ok, error: j.error };
+    return { ok: r.ok, error: j.error, data: j };
   }
 
   function wlMsg(code) {
@@ -198,6 +199,23 @@
     } catch (_) {
       say('Network error. Try again.');
       btn.disabled = false;
+    }
+  });
+
+  wrap.querySelector('#wlForgot').addEventListener('click', async function (e) {
+    e.preventDefault();
+    var v = (email.value || '').trim();
+    say('');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { say('Type your email first, then press the link.'); email.focus(); return; }
+    var res = await wlPost('/auth/forgot', { email: v });
+    if (!res.ok) { say('Too many attempts. Wait a minute.'); return; }
+    var link = res.data.link || '';
+    if (link) {
+      var full = link.indexOf('http') === 0 ? link : location.origin + link;
+      errEl.hidden = false;
+      errEl.innerHTML = 'Reset link ready. <a href="' + full + '">Set a new password</a>';
+    } else {
+      say('If that email exists, a reset link is on its way. It expires in 30 minutes.');
     }
   });
 
