@@ -1,3 +1,4 @@
+import { clientIp } from '../mw/ip.js';
 import { createDepositWallet, createPrivyUser } from '../../privy.js';
 import { Router } from 'express';
 import { one, none } from '../../db.js';
@@ -37,7 +38,7 @@ auth.post('/signup', async (req, res) => {
   if (pw.length < 8) return res.status(400).json({ error: 'weak_password' });
 
   try {
-    await throttle(`ip:${req.ip}`, 10);
+    await throttle(`ip:${clientIp(req)}`, 10);
   } catch {
     return res.status(429).json({ error: 'too_many_attempts' });
   }
@@ -92,7 +93,7 @@ auth.post('/login', async (req, res) => {
 
   try {
     await throttle(`email:${email}`, 5);
-    await throttle(`ip:${req.ip}`, 20);
+    await throttle(`ip:${clientIp(req)}`, 20);
   } catch {
     return res.status(429).json({ error: 'too_many_attempts' });
   }
@@ -170,7 +171,7 @@ auth.post('/forgot', async (req, res) => {
   const email = String(req.body?.email ?? '').trim().toLowerCase();
 
   try {
-    await throttle(`reset:${req.ip}`, 10);
+    await throttle(`reset:${clientIp(req)}`, 10);
   } catch {
     return res.status(429).json({ error: 'too_many_attempts' });
   }
@@ -196,7 +197,7 @@ auth.post('/reset', async (req, res) => {
   if (pw.length < 8) return res.status(400).json({ error: 'weak_password' });
 
   try {
-    await throttle(`reset-use:${req.ip}`, 20);
+    await throttle(`reset-use:${clientIp(req)}`, 20);
   } catch {
     return res.status(429).json({ error: 'too_many_attempts' });
   }

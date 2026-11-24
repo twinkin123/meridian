@@ -4,8 +4,29 @@ import { one, none, pool } from './db.js';
 
 const OPTS = { memoryCost: 19456, timeCost: 2, parallelism: 1 };
 
-export const hashPw = (pw: string) => argon2.hash(pw, OPTS);
-export const checkPw = (pw: string, h: string) => argon2.verify(h, pw);
+/* Argon2 is ~19MB of memory per hash. Without a cap, a login burst pins the box. */
+const MAX_AUTH = 6;
+let active = 0;
+const waiting: Array<() => void> = [];
+
+function acquire(): Promise<void> {
+  if (active < MAX_AUTH) { active++; return Promise.resolve(); }
+  return new Promise((res) => waiting.push(() => { active++; res(); }));
+}
+
+function release(): void {
+  active--;
+  const next = waiting.shift();
+  if (next) next();
+}
+
+async function slot<T>(fn: () => Promise<T>): Promise<T> {
+  await acquire();
+  try { return await fn(); } finally { release(); }
+}
+
+export const hashPw = (pw: string) => slot(() => argon2.hash(pw, OPTS));
+export const checkPw = (pw: string, h: string) => slot(() => argon2.verify(h, pw));
 
 const sha = (t: string) => createHash('sha256').update(t).digest();
 

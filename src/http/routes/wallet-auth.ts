@@ -1,3 +1,4 @@
+import { clientIp } from '../mw/ip.js';
 import { Router } from 'express';
 import { randomBytes, createPublicKey, verify } from 'node:crypto';
 import bs58 from 'bs58';
@@ -67,7 +68,7 @@ walletAuth.post('/wallet/nonce', async (req, res) => {
   if (!isAddr(addr)) return res.status(400).json({ error: 'bad_address' });
 
   try {
-    await throttle(`wnonce:${req.ip}`, 40);
+    await throttle(`wnonce:${clientIp(req)}`, 40);
   } catch {
     return res.status(429).json({ error: 'too_many_attempts' });
   }
@@ -87,7 +88,7 @@ walletAuth.post('/wallet', async (req, res) => {
   if (!isAddr(addr) || !sig) return res.status(400).json({ error: 'bad_request' });
 
   try {
-    await throttle(`wallet:${req.ip}`, 20);
+    await throttle(`wallet:${clientIp(req)}`, 20);
   } catch {
     return res.status(429).json({ error: 'too_many_attempts' });
   }

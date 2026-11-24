@@ -8,7 +8,9 @@ const looseTls = (u: string): boolean =>
 
 export const pool = new pg.Pool({
   connectionString: env.databaseUrl,
-  max: env.isTest ? 4 : 20,
+  max: env.isTest ? 4 : 10,
+  connectionTimeoutMillis: 5_000,
+  idleTimeoutMillis: 30_000,
   ...(looseTls(env.databaseUrl) ? { ssl: { rejectUnauthorized: false } } : {}),
 });
 

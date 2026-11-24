@@ -1,3 +1,4 @@
+import { clientIp } from './ip.js';
 import type { Request, Response, NextFunction } from 'express';
 import { sessionFromToken, touchSession, isAdmin, breakGlassOk } from '../../auth.js';
 
@@ -11,7 +12,7 @@ declare global {
 }
 
 export function clientMeta(req: Request) {
-  return { ua: req.header('user-agent') ?? null, ip: req.ip ?? null };
+  return { ua: req.header('user-agent') ?? null, ip: clientIp(req) ?? null };
 }
 
 function track(id: string) {
