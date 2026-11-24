@@ -18,3 +18,6 @@
 .wp-meta{font-size:11.5px;color:#6e6e7c;line-height:1.3;white-space:nowrap}
 @media(max-width:1000px){.foot-grid{grid-template-columns:1fr 1fr;gap:32px}}
 @media(max-width:600px){.foot-grid{grid-template-columns:1fr}}
+.foot-legal-text{margin-top:24px;padding-top:18px;border-top:1px solid rgba(255,255,255,.07);font-size:10.5px;line-height:1.7;color:#6e6e7c}
+.foot-legal-text p{margin:0 0 9px}
+.foot-legal-text p:last-child{margin:0}
