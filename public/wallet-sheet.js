@@ -34,6 +34,7 @@
       '<div class="wl-or">or</div>' +
       '<label class="wl-label" for="wlEmail">Continue with email</label>' +
       '<div class="wl-row"><input id="wlEmail" type="email" autocomplete="email" placeholder="you@example.com"><button type="button" id="wlGo">Continue</button></div>' +
+      '<div class="wl-row" style="margin-top:9px"><input id="wlPw" type="password" autocomplete="new-password" placeholder="Password (8+ characters)"></div>' +
       '<button type="button" class="wl-new" id="wlNew">Create account</button>' +
       '<div class="wl-ref"><input id="wlRef" placeholder="Referral code (optional)" autocomplete="off"><button type="button" id="wlRefGo">Apply</button></div>' +
       '<p class="wl-note">Signing in with a wallet opens the account. Nothing else about it changes.</p>' +
@@ -45,6 +46,7 @@
   var errEl = wrap.querySelector('#wlErr');
   var email = wrap.querySelector('#wlEmail');
   var ref = wrap.querySelector('#wlRef');
+  var pw = wrap.querySelector('#wlPw');
 
   try { ref.value = localStorage.getItem('mrd_ref') || ''; } catch (_) {}
   var q = new URLSearchParams(location.search).get('ref');
@@ -138,31 +140,72 @@
     });
   });
 
-  wrap.querySelector('#wlGo').addEventListener('click', function () {
+  async function wlPost(url, body) {
+    var r = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(body),
+    });
+    var j = await r.json().catch(function () { return {}; });
+    return { ok: r.ok, error: j.error };
+  }
+
+  function wlMsg(code) {
+    return code === 'weak_password' ? 'Password needs at least 8 characters.'
+      : code === 'bad_email' ? 'That email address does not look right.'
+      : code === 'too_many_attempts' ? 'Too many attempts. Wait a minute.'
+      : code === 'invalid_credentials' || code === 'bad_credentials' ? 'Email or password is wrong.'
+      : code === 'email_taken' ? 'That email is already registered. Press Continue to log in.'
+      : 'Something went wrong. Try again.';
+  }
+
+  wrap.querySelector('#wlGo').addEventListener('click', async function () {
     var v = (email.value || '').trim();
+    var p = pw.value || '';
     var r = refParam();
-    var qs = [];
-    if (r) qs.push('ref=' + encodeURIComponent(r));
-    if (v) {
-      qs.push('email=' + encodeURIComponent(v));
-      try { localStorage.setItem('mrd_email', v); } catch (_) {}
+    say('');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { say('That email address does not look right.'); email.focus(); return; }
+    if (p.length < 8) { say('Password needs at least 8 characters.'); pw.focus(); return; }
+    var btn = this;
+    btn.disabled = true;
+    try {
+      var a = await wlPost('/auth/signup', { email: v, password: p, ref: r });
+      if (!a.ok && a.error === 'email_taken') {
+        a = await wlPost('/auth/login', { email: v, password: p, ref: r });
+      }
+      if (!a.ok) { say(wlMsg(a.error)); btn.disabled = false; pw.focus(); pw.select(); return; }
+      location.href = '/app.html';
+    } catch (_) {
+      say('Network error. Try again.');
+      btn.disabled = false;
     }
-    location.href = '/auth.html' + (qs.length ? '?' + qs.join('&') : '');
   });
 
-  wrap.querySelector('#wlNew').addEventListener('click', function () {
+  wrap.querySelector('#wlNew').addEventListener('click', async function () {
     var v = (email.value || '').trim();
+    var p = pw.value || '';
     var r = refParam();
-    var qs = ['mode=create'];
-    if (r) qs.push('ref=' + encodeURIComponent(r));
-    if (v) {
-      qs.push('email=' + encodeURIComponent(v));
-      try { localStorage.setItem('mrd_email', v); } catch (_) {}
+    say('');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { say('That email address does not look right.'); email.focus(); return; }
+    if (p.length < 8) { say('Password needs at least 8 characters.'); pw.focus(); return; }
+    var btn = this;
+    btn.disabled = true;
+    try {
+      var a = await wlPost('/auth/signup', { email: v, password: p, ref: r });
+      if (!a.ok) { say(wlMsg(a.error)); btn.disabled = false; return; }
+      location.href = '/app.html';
+    } catch (_) {
+      say('Network error. Try again.');
+      btn.disabled = false;
     }
-    location.href = '/auth.html?' + qs.join('&');
   });
 
   email.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') wrap.querySelector('#wlGo').click();
+  });
+
+  pw.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') wrap.querySelector('#wlGo').click();
   });
 
