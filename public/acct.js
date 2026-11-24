@@ -3,7 +3,7 @@
   var box = document.getElementById('acct');
   var btn = document.getElementById('acctBtn');
   var pop = document.getElementById('acctPop');
-  if (!cta || !box || !btn || !pop) return;
+  if (!box || !btn || !pop) return;
 
   function money(v) {
     return '$' + (Number(v || 0) / 1e6).toLocaleString('en-US', {
@@ -36,7 +36,7 @@
           '<button class="acct-copy" type="button" data-copy="' + esc(j.referralCode) + '">Copy</button></span></div>'
         : '') +
       '<div class="acct-links">' +
-        '<a class="acct-link" href="/app.html">Launch app</a>' +
+        (location.pathname.indexOf('app.html') === -1 ? '<a class="acct-link" href="/app.html">Launch app</a>' : '') +
         '<a class="acct-link" href="/app.html#notifications">Settings</a>' +
         '<a class="acct-link" href="mailto:support@quvio.io">Support</a>' +
         '<button class="acct-link acct-out" type="button" id="acctOut">Sign out</button>' +
@@ -75,7 +75,7 @@
     .then(function (j) {
       if (!j) return;
       paint(j);
-      cta.hidden = true;
+      if (cta) cta.hidden = true;
       box.hidden = false;
       document.querySelectorAll('a[data-wl]').forEach(function (a) {
         a.removeAttribute('data-wl');
