@@ -24,6 +24,9 @@
 .wl .wl-ref{display:flex;gap:7px;margin-top:9px}
 .wl .wl-ref button{background:transparent;color:#d5d5e0;font-weight:500}
 .wl .wl-ref button:hover{border-color:#5a5a68;color:#fff}
+.wl .wl-signin{display:block;width:100%;height:42px;margin-top:9px;border-radius:9px;border:1px solid #ededf0;background:#ededf0;color:#0a0a0b;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.wl .wl-signin:hover{background:#fff}
+.wl .wl-signin:disabled{opacity:.6;cursor:default}
 .wl .wl-new{display:block;width:100%;height:42px;margin-top:9px;border-radius:9px;border:1px solid #2e2e36;background:transparent;color:#d5d5e0;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .wl .wl-new:hover{border-color:#5a5a68;color:#fff}
 .wl .wl-forgot{margin:9px 0 0;font-size:11.5px;text-align:center}
@@ -39,6 +42,6 @@ body.wl-lock{overflow:hidden}
 @media (pointer:coarse){
   .wl .wl-row input,.wl .wl-ref input{font-size:16px!important}
   .wl .wl-row input::placeholder,.wl .wl-ref input::placeholder{font-size:16px!important}
-  .wl .wl-row input,.wl .wl-ref input,.wl .wl-row button,.wl .wl-ref button,.wl .wl-new{height:46px!important}
+  .wl .wl-row input,.wl .wl-ref input,.wl .wl-row button,.wl .wl-ref button,.wl .wl-new,.wl .wl-signin{height:46px!important}
   .wl .wl-wallets button{font-size:12px!important}
 }

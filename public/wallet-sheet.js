@@ -32,9 +32,10 @@
         '<button type="button" data-w="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="6" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>More</button>' +
       '</div>' +
       '<div class="wl-or">or</div>' +
-      '<label class="wl-label" for="wlEmail">Continue with email</label>' +
-      '<div class="wl-row"><input id="wlEmail" type="email" autocomplete="email" placeholder="you@example.com"><button type="button" id="wlGo">Continue</button></div>' +
-      '<div class="wl-row" style="margin-top:9px"><input id="wlPw" type="password" autocomplete="new-password" placeholder="Password (8+ characters)"></div>' +
+      '<label class="wl-label" for="wlEmail">Email and password</label>' +
+      '<div class="wl-row"><input id="wlEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>' +
+      '<div class="wl-row" style="margin-top:9px"><input id="wlPw" type="password" autocomplete="current-password" placeholder="Password"></div>' +
+      '<button type="button" class="wl-signin" id="wlGo">Sign in</button>' +
       '<button type="button" class="wl-new" id="wlNew">Create account</button>' +
       '<p class="wl-forgot"><a href="#" id="wlForgot">Forgot password?</a></p>' +
       '<div class="wl-ref"><input id="wlRef" placeholder="Referral code (optional)" autocomplete="off"><button type="button" id="wlRefGo">Apply</button></div>' +
