@@ -53,6 +53,8 @@
   try { ref.value = localStorage.getItem('mrd_ref') || ''; } catch (_) {}
   var q = new URLSearchParams(location.search).get('ref');
   if (q) { ref.value = q.toUpperCase(); }
+  if (ref.value) ref.readOnly = true;
+  if (ref.value) ref.readOnly = true;
 
   function say(msg) {
     errEl.textContent = msg;

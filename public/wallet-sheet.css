@@ -22,6 +22,7 @@
 .wl .wl-row button,.wl .wl-ref button{height:42px;padding:0 15px;border-radius:9px;border:1px solid #2e2e36;background:#ededf0;color:#0a0a0b;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .wl .wl-row button:hover{background:#fff}
 .wl .wl-ref{display:flex;gap:7px;margin-top:9px}
+.wl .wl-ref input[readonly]{color:#8b8d94;background:#0b0b0e;cursor:default}
 .wl .wl-ref button{background:transparent;color:#d5d5e0;font-weight:500}
 .wl .wl-ref button:hover{border-color:#5a5a68;color:#fff}
 .wl .wl-signin{display:block;width:100%;height:42px;margin-top:9px;border-radius:9px;border:1px solid #ededf0;background:#ededf0;color:#0a0a0b;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
