@@ -22,6 +22,7 @@
 .foot-legal-text p{margin:0 0 9px}
 .foot-legal-text p:last-child{margin:0}
 
-html body #p-perps.panel.on{height:calc(100vh - 60px)}
+html body #p-perps.panel.on{height:calc(100vh - 60px)!important}
 
-html body:has(#p-perps.panel.on) .site-foot{flex:none}
+html body:has(#p-perps.panel.on) .site-foot{flex:none!important}
+html body:has(#p-perps.panel.on) .main{overflow-y:auto!important}
