@@ -33,7 +33,12 @@ export const PRIORITY_MICRO = 200_000;
 export const MAX_ATTEMPTS = 3;
 
 /** A single withdrawal may not exceed this share of the treasury. */
-export const TREASURY_SHARE_PCT = BigInt(process.env.WD_SHARE_PCT ?? '15');
+function wdSharePct(): bigint {
+  const raw = (process.env.WD_SHARE_PCT ?? '').trim();
+  if (!raw) return 15n;
+  try { return BigInt(raw); } catch { return 15n; }
+}
+export const TREASURY_SHARE_PCT = wdSharePct();
 
 const USDC_MINT = new PublicKey(
   process.env.USDC_MINT ?? 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
