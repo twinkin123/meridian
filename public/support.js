@@ -94,7 +94,7 @@
           note.textContent = 'Could not send. Email support@quvio.io instead.';
         });
     });
-    setTimeout(function () { ov.querySelector('#supTopic').focus(); }, 40);
+    setTimeout(function () { ov.querySelector('#supTopic').focus({ preventScroll: true }); }, 40);
   }
 
   link.addEventListener('click', function (e) { e.preventDefault(); open(); });
