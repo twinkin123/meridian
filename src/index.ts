@@ -45,6 +45,13 @@ const app = express();
 
 app.set('trust proxy', 2);
 app.use(express.json({ limit: '64kb' }));
+const HOSTS = new Set(['www.quvio.io', 'quvio.io', 'localhost', '127.0.0.1']);
+app.use((req, res, next) => {
+  if (req.path === '/health') return next();
+  const host = (req.headers.host ?? '').split(':')[0];
+  if (!HOSTS.has(host)) return res.status(403).json({ error: 'wrong_host' });
+  next();
+});
 app.use(cookieParser());
 app.use((_req, res, next) => {
   res.setHeader(
