@@ -1,5 +1,5 @@
 /** Registers deposit addresses on the Helius webhook. Serialised so concurrent signups cannot clobber the list. */
-const API = 'https://api.helius.xyz/v0/webhook';
+const API = 'https://api.helius.xyz/v0/webhooks';
 
 type Hook = {
   webhookURL?: string;
