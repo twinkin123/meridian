@@ -1,0 +1,94 @@
+﻿
+Name                                           Type   TTL   Section    IPAddress           
+----                                           ----   ---   -------    ---------           
+quvio.io                                       A      600   Answer     153.52.255.78       
+
+Name                   : quvio.io
+QueryType              : SOA
+TTL                    : 600
+Section                : Authority
+NameAdministrator      : dns.jomax.net
+SerialNumber           : 2026112407
+TimeToZoneRefresh      : 28800
+TimeToZoneFailureRetry : 7200
+TimeToExpiration       : 604800
+DefaultTTL             : 600
+
+
+Name                   : quvio.io
+QueryType              : SOA
+TTL                    : 600
+Section                : Authority
+NameAdministrator      : dns.jomax.net
+SerialNumber           : 2026112407
+TimeToZoneRefresh      : 28800
+TimeToZoneFailureRetry : 7200
+TimeToExpiration       : 604800
+DefaultTTL             : 600
+
+
+Name         : quvio.io
+QueryType    : MX
+TTL          : 3600
+Section      : Answer
+NameExchange : mx2-usg2.ppe-hosted.com
+Preference   : 0
+
+
+Name         : quvio.io
+QueryType    : MX
+TTL          : 3600
+Section      : Answer
+NameExchange : mx1-usg2.ppe-hosted.com
+Preference   : 0
+
+
+Name         : quvio.io
+QueryType    : MX
+TTL          : 3600
+Section      : Answer
+NameExchange : mx3-usg2.ppe-hosted.com
+Preference   : 0
+
+
+Name      : quvio.io
+QueryType : TXT
+TTL       : 3600
+Section   : Answer
+Strings   : {v=spf1 include:_spf-usg2.ppe-hosted.com include:secureserver.net ~all}
+
+
+Name      : quvio.io
+QueryType : TXT
+TTL       : 3600
+Section   : Answer
+Strings   : {NETORGFT21337284.onmicrosoft.com}
+
+
+Name      : quvio.io
+QueryType : NS
+TTL       : 3600
+Section   : Answer
+NameHost  : ns40.domaincontrol.com
+
+
+Name      : quvio.io
+QueryType : NS
+TTL       : 3600
+Section   : Answer
+NameHost  : ns39.domaincontrol.com
+
+ns39.domaincontrol.com                         A      89241 Additional 97.74.109.20        
+ns40.domaincontrol.com                         A      4587  Additional 173.201.77.20       
+ns39.domaincontrol.com                         AAAA   16441 Additional 2603:5:21d1::14     
+                                                      0                                    
+
+Name      : www.quvio.io
+QueryType : CNAME
+TTL       : 127
+Section   : Answer
+NameHost  : e6rqhup7.up.railway.app
+
+e6rqhup7.up.railway.app                        A      60    Answer     153.52.255.55       
+
+
