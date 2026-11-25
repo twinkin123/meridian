@@ -1,3 +1,4 @@
+import { addAddress } from './helius.js';
 import { pool, tx } from './db.js';
 import { sponsoredSources } from './deposit-routes.js';
 import { createCryptoDepositAccount, createDepositWallet, createPrivyUser, findWalletByExternalId } from './privy.js';
@@ -59,6 +60,7 @@ export async function ensureDepositAddresses(userId: string): Promise<DepositAdd
         [userId, solana],
       );
       out.sol = solana;
+      void addAddress(solana).catch((e) => console.error('helius: add address failed', e));
     }
 
     if (walletId && !out.evm) {
