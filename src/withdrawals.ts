@@ -327,7 +327,7 @@ export async function rejectWithdrawal(id: string, reason: string | null): Promi
  * rather than failed, since nothing went wrong.
  */
 export async function cancelByAdmin(id: string): Promise<boolean> {
-  return refundWithdrawal(id, 'cancelled', null, 'withdrawal_cancelled', 'Your request has been rejected');
+  return refundWithdrawal(id, 'cancelled', null, 'withdrawal_cancelled', 'Your withdrawal was cancelled');
 }
 async function finalize(
   id: string, sig: string, actionId: string, userId: string, address: string, usd: bigint, qty: bigint,

@@ -79,7 +79,6 @@ export async function sendWelcomeMail(to: string): Promise<MailResult> {
     text: [
       'Your account is open and your deposit address is on the dashboard.',
       '',
-      '',
       `Dashboard: ${env.publicBaseUrl || 'https://www.quvio.io'}/app.html`,
       '',
     ].join('\n'),

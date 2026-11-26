@@ -8,6 +8,7 @@ const MAILED: Record<string, string> = {
   withdrawal_sent: 'Quvio: withdrawal sent',
   withdrawal_failed: 'Quvio: withdrawal failed',
   withdrawal_rejected: 'Quvio: withdrawal needs attention',
+  withdrawal_cancelled: 'Quvio: withdrawal cancelled',
 };
 
 /** Best-effort, fire-and-forget. A failed mail never fails the action. */

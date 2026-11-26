@@ -140,7 +140,7 @@ app.post('/support/ticket', async (req, res) => {
     tag: 'support',
     ...(u?.email ? { replyTo: u.email } : {}),
   });
-  if (!out.sent) { res.status(502).json({ error: 'send_failed' }); return; }
+  if (!out.sent) { res.json({ ok: false, error: 'send_failed' }); return; }
   res.json({ ok: true });
 });
 // ---- /support tickets ----
