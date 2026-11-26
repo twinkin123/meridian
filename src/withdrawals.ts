@@ -317,9 +317,23 @@ async function refundWithdrawal(
   return Boolean(out);
 }
 
+/** An admin refund may take a row the loop still owns, but only when no action is
+    live against it, or the row is old enough that any action is presumed dead. */
+async function mayTakeSending(id: string): Promise<boolean> {
+  const r = await pool.query<{ privy_action_id: string | null; created_at: string }>(
+    `select privy_action_id, created_at from withdrawals where id = $1`,
+    [id],
+  );
+  const row = r.rows[0];
+  if (!row || !row.privy_action_id) return true;
+  return Date.now() - new Date(row.created_at).getTime() > 30 * 60 * 1000;
+}
+
 /** Admin rejects a pending withdrawal. The money goes back to the available balance. */
 export async function rejectWithdrawal(id: string, reason: string | null): Promise<boolean> {
-  return refundWithdrawal(id, 'failed', reason, 'withdrawal_rejected', 'Withdrawal rejected');
+  return refundWithdrawal(id, 'failed', reason, 'withdrawal_rejected', 'Withdrawal rejected', {
+    allowLiveSend: await mayTakeSending(id),
+  });
 }
 
 /**
@@ -327,7 +341,9 @@ export async function rejectWithdrawal(id: string, reason: string | null): Promi
  * rather than failed, since nothing went wrong.
  */
 export async function cancelByAdmin(id: string): Promise<boolean> {
-  return refundWithdrawal(id, 'cancelled', null, 'withdrawal_cancelled', 'Your withdrawal was cancelled');
+  return refundWithdrawal(id, 'cancelled', null, 'withdrawal_cancelled', 'Your withdrawal was cancelled', {
+    allowLiveSend: await mayTakeSending(id),
+  });
 }
 async function finalize(
   id: string, sig: string, actionId: string, userId: string, address: string, usd: bigint, qty: bigint,
@@ -378,6 +394,7 @@ export async function payoutWithdrawal(
   }
 
   const usd = BigInt(row.usd_amount);
+  const callStart = Date.now() - 5_000;
   const price = await solPriceMicro();
   const qty = qtyFor(row.asset, usd, price);
 
@@ -448,7 +465,43 @@ export async function payoutWithdrawal(
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'payout_failed';
+
+      /* The attempt may have been accepted before the error surfaced. Resolve it
+         before sending again, or the retry creates a second transfer. */
+      let landed: string;
+      if (lastAction) {
+        landed = await waitForTreasuryAction(lastAction, 20_000).catch(() => 'timeout');
+      } else {
+        const found = await findTransferSig(row.address, qty, row.asset, callStart).catch(() => null);
+        landed = found ? 'succeeded' : 'failed';
+      }
+
+      if (landed === 'succeeded') {
+        const onchain =
+          (await findTransferSig(row.address, qty, row.asset, callStart).catch(() => null)) ?? lastAction;
+        if (onchain) {
+          await finalize(id, onchain, lastAction ?? onchain, row.user_id, row.address, usd, qty);
+          return { ok: true, sig: onchain };
+        }
+      }
+      if (landed === 'timeout') return { ok: false, error: 'pending', sig: lastAction ?? undefined };
+
+      /* Definitively dead: clear the id so the next attempt claims cleanly. */
+      if (lastAction) {
+        await pool
+          .query(
+            `update withdrawals set privy_action_id = null, sig = null where id = $1 and privy_action_id = $2`,
+            [id, lastAction],
+          )
+          .catch(() => {});
+      }
+
       if (attempt === MAX_ATTEMPTS) {
+        const onchain = await findTransferSig(row.address, qty, row.asset, callStart).catch(() => null);
+        if (onchain) {
+          await finalize(id, onchain, lastAction ?? onchain, row.user_id, row.address, usd, qty);
+          return { ok: true, sig: onchain };
+        }
         await refundWithdrawal(id, 'failed', msg, 'withdrawal_failed', 'Withdrawal could not be sent', { allowLiveSend: true });
         return { ok: false, error: msg, sig: lastAction ?? undefined };
       }
