@@ -262,6 +262,9 @@ async function sweepAddress(
 }
 
 export async function runSweep(opts: { dryRun: boolean; limit: number }) {
+  /* Fail closed: a wrong destination must stop sweeps, not merely log once.
+     treasuryOnchainAddress is cached, so this costs nothing after the first call. */
+  await assertSweepDestination();
   const c = conn();
   const destination = sweepDestination();
   const treasuryAtaReady = await ensureTreasuryAta(c, destination);

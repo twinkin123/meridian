@@ -93,7 +93,7 @@ adminRouter.post('/sweep', async (req, res) => {
     return res.status(401).json({ error: 'bad_admin_token' });
   }
 
-  const dryRun = req.query.dryRun === '1';
+  const dryRun = req.query.dryRun !== '0';
   const raw = Number(req.query.limit ?? BATCH);
   const limit = Number.isFinite(raw) && raw > 0 ? raw : BATCH;
 
