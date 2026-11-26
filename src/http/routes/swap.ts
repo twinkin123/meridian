@@ -213,14 +213,25 @@ swap.post('/orders', requireUser, async (req, res) => {
     }
 
     const address = b.address.trim();
+    /* Local shape check only. Upstream /validate/address is advisory: it has
+       been answering isValid:false for valid keys, so it must not block. The
+       /exchange call below validates again and reports its own error. */
+    const net = to.network.toLowerCase();
+    const b58 = /^[1-9A-HJ-NP-Za-km-z]{43,44}$/;
+    const hexAddr = /^0x[0-9a-fA-F]{40}$/;
+    const solFamily = /^(sol|solana|trx|tron|ton|near|ada|doge|xrp|ltc|bch|dot|atom|xlm|algo|hbar|xmr)$/.test(net);
+    const okShape = solFamily
+      ? b58.test(address)
+      : hexAddr.test(address) || b58.test(address) || /^[a-zA-Z0-9]{25,64}$/.test(address);
+    if (!okShape) {
+      res.status(400).json({ error: 'bad_address', message: 'That address does not look valid for the selected network.' });
+      return;
+    }
     try {
       const v = await call<{ isValid: boolean }>('/validate/address', {
         q: { currency: to.ticker, network: to.network, address },
       });
-      if (!v.isValid) {
-        res.status(400).json({ error: 'bad_address', message: 'That address is not valid for the selected network.' });
-        return;
-      }
+      if (!v.isValid) console.warn('swap: upstream says invalid', to.ticker, to.network, address);
     } catch { /* create validates again */ }
 
     const o = await call<{
