@@ -251,7 +251,8 @@
         ['Chain', money(j.chainUsd)],
         ['Ledger assets', money(j.assets)],
         ['Liabilities', money(j.liabilities)],
-        ['Margin', money(j.margin)]
+        ['Margin', money(j.margin)],
+        ['Cover', money(j.cover)]
       ];
       document.getElementById('reconOut').innerHTML = rows.map(function(x){
         return '<li><div>' + x[0] + '</div><div>' + x[1] + '</div></li>';
@@ -354,7 +355,7 @@
 
   function paintWarn(latest, freeze, reason){
     var card = document.getElementById('warnCard');
-    var bad = latest && (latest.verdict === 'drift' || latest.verdict === 'insolvent');
+    var bad = latest && (latest.verdict === 'drift' || latest.verdict === 'underbooked' || latest.verdict === 'insolvent');
     var held = Number(freeze) > 0;
     if (!bad && !held) { card.classList.add('hide'); return; }
     card.classList.remove('hide');
@@ -631,7 +632,8 @@
         '<tr><td>SOL value</td><td class="num">' + money(j.solUsd) + '</td></tr>' +
         '<tr><td>Ledger assets</td><td class="num">' + money(j.assets) + '</td></tr>' +
         '<tr><td>Liabilities</td><td class="num">' + money(j.liabilities) + '</td></tr>' +
-        '<tr><td>Margin</td><td class="num">' + money(j.margin) + '</td></tr>';
+        '<tr><td>Margin</td><td class="num">' + money(j.margin) + '</td></tr>' +
+        '<tr><td>Cover</td><td class="num">' + money(j.cover) + '</td></tr>';
     } catch (_) { el.innerHTML = '<tr><td colspan="2" class="empty">Could not load.</td></tr>'; }
   }
   document.getElementById('gateGo').onclick = unlock;

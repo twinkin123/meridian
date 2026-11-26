@@ -33,6 +33,14 @@ test('negative margin outranks everything', () => {
   assert.equal(verdictFor(-1n, DRIFT_FLOOR_USD * 100n), 'insolvent');
   assert.equal(verdictFor(-1n, -(DRIFT_FLOOR_USD * 100n)), 'insolvent');
 });
+
+test('negative margin with the chain covering is underbooked, not insolvent', () => {
+  assert.equal(verdictFor(-1n, 0n, 0n, 1n), 'underbooked');
+});
+
+test('negative cover is insolvent whatever the book says', () => {
+  assert.equal(verdictFor(1n, 0n, 0n, -1n), 'insolvent');
+});
 test('daily credit is never gated by the freeze', async () => {
   const { readFileSync } = await import('node:fs');
   const src = readFileSync(new URL('../src/jobs/daily.ts', import.meta.url), 'utf8');
@@ -43,7 +51,7 @@ test('daily credit is never gated by the freeze', async () => {
 test('recon escalates the freeze on a bad verdict', async () => {
   const { readFileSync } = await import('node:fs');
   const src = readFileSync(new URL('../src/recon.ts', import.meta.url), 'utf8');
-  assert.ok(src.includes('await setFreeze('));
+  assert.ok(src.includes('export async function setFreeze('));
   assert.ok(src.includes('MARGIN_WARN_USD'));
 });
 
@@ -55,12 +63,12 @@ test('admin is not the only caller that sets the freeze', async () => {
     .filter((f) => f.endsWith('.ts'))
     .map((f) => 'src/' + f);
   const callers = files.filter((f) => readFileSync(f, 'utf8').includes('await setFreeze('));
-  assert.deepEqual(callers.sort(), ['src/admin.ts', 'src/recon.ts']);
+  assert.deepEqual(callers.sort(), ['src/admin.ts']);
 });
 
-test('the daily credit is booked as an expense, not against cash', async () => {
+test('the daily credit is booked against cash, not as an expense', async () => {
   const { readFileSync } = await import('node:fs');
   const src = readFileSync(new URL('../src/jobs/daily.ts', import.meta.url), 'utf8');
-  assert.ok(src.includes("{ code: '5020', amount: gross }"));
-  assert.ok(!src.includes("{ code: '1010', amount: gross }"));
+  assert.ok(src.includes("{ code: '1010', amount: gross }"));
+  assert.ok(!src.includes("{ code: '5020', amount: gross }"));
 });

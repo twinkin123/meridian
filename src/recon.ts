@@ -40,15 +40,16 @@ export async function freezeActor(): Promise<string | null> {
   return r?.value ?? null;
 }
 
-export type Verdict = 'ok' | 'surplus' | 'drift' | 'insolvent';
+export type Verdict = 'ok' | 'surplus' | 'drift' | 'underbooked' | 'insolvent';
 
 export function driftThreshold(liabilities: bigint): bigint {
   const scaled = (liabilities * DRIFT_FREEZE_BP) / 10000n;
   return scaled < DRIFT_FLOOR_USD ? DRIFT_FLOOR_USD : scaled;
 }
 
-export function verdictFor(margin: bigint, drift: bigint, liabilities = 0n): Verdict {
-  if (margin < 0n) return 'insolvent';
+export function verdictFor(margin: bigint, drift: bigint, liabilities = 0n, cover = margin): Verdict {
+  if (cover < 0n) return 'insolvent';
+  if (margin < 0n) return 'underbooked';
   const limit = driftThreshold(liabilities);
   if (drift < -limit) return 'drift';
   if (drift > limit) return 'surplus';
@@ -123,7 +124,8 @@ export async function runRecon(actor = 'manual') {
   const stuck = Number(stuckRow.n);
 
   const drift = chainUsd - assets;
-  const verdict = verdictFor(margin, drift, liabilities);
+  const cover = chainUsd - liabilities;
+  const verdict = verdictFor(margin, drift, liabilities, cover);
 
   await pool.query(
     `insert into recon_runs
@@ -142,12 +144,13 @@ export async function runRecon(actor = 'manual') {
 
   let next = 0;
   if (verdict === 'insolvent') next = 2;
-  else if (verdict === 'drift' || margin < MARGIN_WARN_USD) next = 1;
+  else if (verdict === 'drift' || cover < MARGIN_WARN_USD) next = 1;
 
   return {
     verdict,
     drift: drift.toString(),
     margin: margin.toString(),
+    cover: cover.toString(),
     limit: limit.toString(),
     frozen: String(next),
     stuck,

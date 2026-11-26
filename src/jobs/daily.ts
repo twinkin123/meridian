@@ -111,7 +111,7 @@ export async function runDailyCredit(day = new Date()): Promise<CreditResult> {
       await c.query('select ensure_user_accounts($1)', [userId]);
 
       const legs: { code: string; owner?: string; amount: bigint }[] = [
-        { code: '5020', amount: gross },
+        { code: '1010', amount: gross },
       ];
       if (net > 0n) legs.push({ code: compound ? '2070' : '2060', owner: userId, amount: -net });
       if (fee > 0n) legs.push({ code: '4000', amount: -fee });

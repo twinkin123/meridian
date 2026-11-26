@@ -438,7 +438,7 @@ adminRouter.get('/users/:id/fee-history', async (req, res) => {
   const days = Math.min(Number(req.query.days ?? 30), 180);
   const { rows } = await pool.query(
     `select t.created_at::date as day,
-            sum(case when a.code = '5020' then p.amount else 0 end) as gross,
+            sum(case when a.code = '1010' then p.amount else 0 end) as gross,
             sum(case when a.code = '4000' then p.amount else 0 end) as fee
        from postings p
        join accounts a on a.id = p.account_id
