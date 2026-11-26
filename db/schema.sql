@@ -127,6 +127,9 @@ begin
     from accounts a
     where a.code = v_leg->>'code'
       and a.owner_id is not distinct from (v_leg->>'owner')::uuid;
+    if not found then
+      raise exception 'post: no account for leg % owner %', v_leg->>'code', coalesce(v_leg->>'owner', 'platform');
+    end if;
   end loop;
   return v_tx;
 end $$;
