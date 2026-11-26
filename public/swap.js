@@ -130,25 +130,41 @@
     arm();
   }
 
-  function tick() {
+  function tick(n) {
     clearTimeout(poll);
     if (!order) return;
+    var tries = n || 0;
     poll = setTimeout(function () {
       fetch('/swap/orders/' + order.id)
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (j) {
-          if (!j) { tick(); return; }
-          $('swDepStatus').textContent = LABEL[j.status] || 'In progress';
-          if (['done', 'failed', 'refunded'].indexOf(j.status) >= 0) {
-            $('swDepAgain').hidden = false;
-            return;
-          }
-          tick();
+          if (!j) { if (tries < 30) tick(tries + 1); return; }
+          var st = j.status;
+          if (['done', 'failed', 'refunded'].indexOf(st) >= 0) { finish(st, j); return; }
+          $('swDepStatus').textContent = LABEL[st] || 'In progress';
+          tick(tries + 1);
         })
-        .catch(function () { tick(); });
+        .catch(function () { if (tries < 30) tick(tries + 1); });
     }, 10000);
   }
 
+  function finish(st, j) {
+    clearTimeout(poll);
+    $('swDepQr').hidden = true;
+    $('swDepAddr').hidden = true;
+    var cp = $('swCopy'); if (cp) cp.hidden = true;
+    if (st === 'done') {
+      $('swDepStatus').textContent = 'Complete';
+      $('swDepNet').textContent = 'Sent \u2248 ' + fmt(order.toAmount) + ' ' + order.toSym.toUpperCase() + ' to your wallet.';
+    } else {
+      $('swDepStatus').textContent = st === 'refunded' ? 'Refunded' : 'Failed';
+      var why = j.error || j.message || '';
+      $('swDepNet').textContent = (j.refundAddress || j.refund_address
+        ? 'Returned to ' + (j.refundAddress || j.refund_address) + '.'
+        : 'No refund address was set, so the funds are held at ChangeNOW.') + (why ? ' ' + why : '');
+    }
+    $('swDepAgain').hidden = false;
+  }
   function showOrder(o) {
     order = o;
     $('swCard').hidden = true;
@@ -267,14 +283,17 @@
     });
 
     $('swDepAgain').addEventListener('click', function () {
-      clearTimeout(poll);
-      order = null;
-      $('swDep').hidden = true;
-      $('swCard').hidden = false;
-      $('swAmt').value = '';
-      $('swAddr').value = '';
-      $('swMemo').value = '';
-      reset();
+  clearTimeout(poll);
+  order = null;
+  $('swDep').hidden = true;
+  $('swCard').hidden = false;
+  $('swDepQr').hidden = false;
+  $('swDepAddr').hidden = false;
+  var cp = $('swCopy'); if (cp) cp.hidden = false;
+  $('swAmt').value = '';
+  $('swAddr').value = '';
+  $('swMemo').value = '';
+  reset();
     });
 
     reset();
