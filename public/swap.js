@@ -114,17 +114,22 @@
 
   function openPicker(dir) {
     side = dir;
-    $('swPick').hidden = false;
+    $('swPick')._from = document.activeElement; $('swPick').hidden = false;
     $('swPickQ').value = '';
-    $('swPickQ').focus();
+    $('swPickQ').focus({ preventScroll: true });
     load('');
   }
 
-  function choose(c) {
+  function closePick() {
+    var p = $('swPick');
+    if (p.hidden) return;
+    p.hidden = true;
+    if (p._from && p._from.focus) p._from.focus({ preventScroll: true });
+  }  function choose(c) {
     if (side === 'from') { from = c; paint($('swFromSym'), $('swFromIc'), $('swFromNet'), c); }
     else { to = c; paint($('swToSym'), $('swToIc'), $('swToNet'), c); }
     $('swMemo').style.display = to && to.x ? 'block' : 'none';
-    $('swPick').hidden = true;
+    closePick();
     reset();
     quoteNow();
     arm();
@@ -181,13 +186,13 @@
   function boot() {
     $('swFromTok').addEventListener('click', function () { openPicker('from'); });
     $('swToTok').addEventListener('click', function () { openPicker('to'); });
-    $('swPickX').addEventListener('click', function () { $('swPick').hidden = true; });
+    $('swPickX').addEventListener('click', function () { closePick(); });
     $('swPick').addEventListener('click', function (e) {
-      if (e.target === $('swPick')) $('swPick').hidden = true;
+      if (e.target === $('swPick')) closePick();
     });
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') $('swPick').hidden = true;
+      if (e.key === 'Escape') closePick();
     });
 
     var qt = 0;
@@ -262,7 +267,11 @@
   if (!a) return;
   var done = function () {
     btn.textContent = 'Copied';
-    setTimeout(function () { btn.textContent = "Copy address"; }, 1600);
+    setTimeout(function () { btn.textContent = 'Copy address'; }, 1600);
+  };
+  var fail = function () {
+    btn.textContent = 'Copy failed';
+    setTimeout(function () { btn.textContent = 'Copy address'; }, 1600);
   };
   var fallback = function () {
     var ta = document.createElement('textarea');
@@ -272,11 +281,11 @@
     ta.style.opacity = '0';
     document.body.appendChild(ta);
     ta.select();
-    try { document.execCommand('copy'); done(); } catch (e) {}
+    try { if (document.execCommand('copy')) done(); else fail(); } catch (e) { fail(); }
     ta.remove();
   };
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(a).then(done).catch(fallback);
+    navigator.clipboard.writeText(a).then(done, fallback);
     return;
   }
   fallback();

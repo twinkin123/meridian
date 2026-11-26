@@ -788,3 +788,14 @@ html body{overflow:clip!important}
 @media (min-width:901px){
   html body{height:100vh!important;max-height:100vh!important}
 }
+
+/* the nav goes position:fixed below 981px, so main must span the whole shell there */
+@media (min-width:981px){
+  html body .shell > .main{grid-column:2 / -1!important}
+}
+@media (max-width:980px){
+  html body .shell{display:flex!important;flex-direction:column!important}
+  html body .shell > .main{grid-column:auto!important;width:100%!important;max-width:none!important;padding-bottom:110px!important}
+  html body .layout{display:block!important}
+  html body .layout::before{display:none!important}
+}
