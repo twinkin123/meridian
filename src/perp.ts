@@ -20,7 +20,10 @@ type Mark = { usd: number; chg: number };
 
 let cache: { at: number; data: Record<string, Mark> } | null = null;
 let busy: Promise<Record<string, Mark>> | null = null;
-
+/* Free tier is ~30 calls/min, so one failure benches the feed for a minute
+   instead of burning the budget while Binance is already down. */
+const GECKO_COOLDOWN_MS = 60_000;
+let geckoCooldownUntil = 0;
 const HIST: Record<string, { t: number; usd: number }[]> = {};
 const MAXH = 180;
 
@@ -57,19 +60,25 @@ async function loadBinance(): Promise<Record<string, Mark>> {
 }
 
 async function loadGecko(): Promise<Record<string, Mark>> {
-  const ids = Object.values(MARKETS).map((m) => m.id).join(',');
-  const r = await fetch(
-    `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`,
-    { headers: { accept: 'application/json' } },
-  );
-  if (!r.ok) throw new Error(`coingecko ${r.status}`);
-  const j = (await r.json()) as Record<string, { usd?: number; usd_24h_change?: number }>;
-  const out: Record<string, Mark> = {};
-  for (const [k, v] of Object.entries(j)) {
-    if (typeof v.usd !== 'number') continue;
-    out[k] = { usd: v.usd, chg: v.usd_24h_change ?? 0 };
+  if (Date.now() < geckoCooldownUntil) throw new Error('gecko_cooldown');
+  try {
+    const ids = Object.values(MARKETS).map((m) => m.id).join(',');
+    const r = await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`,
+      { headers: { accept: 'application/json' } },
+    );
+    if (!r.ok) throw new Error(`coingecko ${r.status}`);
+    const j = (await r.json()) as Record<string, { usd?: number; usd_24h_change?: number }>;
+    const out: Record<string, Mark> = {};
+    for (const [k, v] of Object.entries(j)) {
+      if (typeof v.usd !== 'number') continue;
+      out[k] = { usd: v.usd, chg: v.usd_24h_change ?? 0 };
+    }
+    return out;
+  } catch (e) {
+    geckoCooldownUntil = Date.now() + GECKO_COOLDOWN_MS;
+    throw e;
   }
-  return out;
 }
 
 /** Four-second marks. Short enough that a 1000x position can be watched. */
@@ -94,7 +103,7 @@ export async function marks(): Promise<Record<string, Mark>> {
 export async function markOf(market: string): Promise<number> {
   const m = MARKETS[market];
   if (!m) throw new Error('unknown market');
-  const all = await marksNow();
+  const all = await marks();
   const p = all[m.id];
   if (!p) throw new Error('no price');
   return p.usd;
