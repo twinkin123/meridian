@@ -49,7 +49,7 @@ function sigsFrom(body: any): string[] {
 
 webhooks.post('/helius', async (req, res) => {
   if (!safeEq((req.header('authorization') ?? '').trim(), env.webhookSecret.trim())) {
-    console.log('webhook bad_auth', (req.header('authorization') ?? '').length);
+    console.log('webhook bad_auth', (req.header('authorization') ?? '').length, (req.header('authorization') ?? '').slice(0, 12), req.header('user-agent'));
     return res.status(401).json({ error: 'bad_auth' });
   }
 
