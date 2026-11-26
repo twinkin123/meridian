@@ -306,6 +306,7 @@ export async function findTransferSig(
   qty: bigint,
   asset: 'USDC' | 'SOL',
   sinceMs: number,
+  skip?: Set<string>,
 ): Promise<string | null> {
   const rpc = process.env.RPC_URL;
   if (!rpc) return null;
@@ -322,6 +323,7 @@ export async function findTransferSig(
   for (const s of sigs) {
     if (parsed >= MAX_PARSE) break;
     if (s.err) continue;
+    if (skip?.has(s.signature)) continue;
     // A just-sent transfer can come back with a null blockTime; treat it as fresh.
     if (s.blockTime && s.blockTime * 1000 < sinceMs - 180_000) continue;
     parsed++;

@@ -397,12 +397,18 @@ export async function payoutWithdrawal(
   const callStart = Date.now() - 5_000;
   const price = await solPriceMicro();
   const qty = qtyFor(row.asset, usd, price);
-
+  const usedSigs = await pool
+    .query<{ sig: string }>(
+      `select sig from withdrawals where user_id = $1 and id <> $2 and sig is not null`,
+      [row.user_id, id],
+    )
+    .then((r) => new Set(r.rows.map((x) => x.sig)))
+    .catch(() => new Set<string>());
   // An action is already in flight: resolve it before sending anything new.
   if (row.privy_action_id) {
     const settled = await waitForTreasuryAction(row.privy_action_id, 20_000);
     if (settled === 'succeeded') {
-      const onchain = (await findTransferSig(row.address, qty, row.asset, new Date(row.created_at).getTime())) ?? row.privy_action_id;
+      const onchain = (await findTransferSig(row.address, qty, row.asset, new Date(row.created_at).getTime(), usedSigs)) ?? row.privy_action_id;
       await finalize(id, onchain, row.privy_action_id, row.user_id, row.address, usd, qty);
       return { ok: true, sig: onchain };
     }
@@ -455,7 +461,7 @@ export async function payoutWithdrawal(
 
       const settled = await waitForTreasuryAction(action);
       if (settled === 'succeeded') {
-        const onchain = (await findTransferSig(row.address, qty, row.asset, new Date(row.created_at).getTime())) ?? action;
+        const onchain = (await findTransferSig(row.address, qty, row.asset, new Date(row.created_at).getTime(), usedSigs)) ?? action;
         await finalize(id, onchain, action, row.user_id, row.address, usd, qty);
         return { ok: true, sig: onchain };
       }
@@ -472,13 +478,13 @@ export async function payoutWithdrawal(
       if (lastAction) {
         landed = await waitForTreasuryAction(lastAction, 20_000).catch(() => 'timeout');
       } else {
-        const found = await findTransferSig(row.address, qty, row.asset, callStart).catch(() => null);
+        const found = await findTransferSig(row.address, qty, row.asset, callStart, usedSigs).catch(() => null);
         landed = found ? 'succeeded' : 'failed';
       }
 
       if (landed === 'succeeded') {
         const onchain =
-          (await findTransferSig(row.address, qty, row.asset, callStart).catch(() => null)) ?? lastAction;
+          (await findTransferSig(row.address, qty, row.asset, callStart, usedSigs).catch(() => null)) ?? lastAction;
         if (onchain) {
           await finalize(id, onchain, lastAction ?? onchain, row.user_id, row.address, usd, qty);
           return { ok: true, sig: onchain };
@@ -497,7 +503,7 @@ export async function payoutWithdrawal(
       }
 
       if (attempt === MAX_ATTEMPTS) {
-        const onchain = await findTransferSig(row.address, qty, row.asset, callStart).catch(() => null);
+        const onchain = await findTransferSig(row.address, qty, row.asset, callStart, usedSigs).catch(() => null);
         if (onchain) {
           await finalize(id, onchain, lastAction ?? onchain, row.user_id, row.address, usd, qty);
           return { ok: true, sig: onchain };
