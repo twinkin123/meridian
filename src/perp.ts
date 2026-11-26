@@ -11,7 +11,7 @@ export const MARKETS: Record<string, { id: string; name: string }> = {
 export const MIN_STAKE = 1_000_000n;
 export const MAX_STAKE = 50_000_000n;
 /** Ceiling on total open notional, micro-USD. Keeps payout exposure inside the treasury. */
-export const MAX_OPEN_NOTIONAL = 1_000_000_000_000n;
+export const MAX_OPEN_NOTIONAL = 100_000_000_000n;
 
 /** Fee per side, as a divisor of stake: 10%, i.e. 2bp of notional at 500x and 1bp at 1000x. */
 export const FEE_DIV = 10n;
