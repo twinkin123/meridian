@@ -50,16 +50,23 @@
       btn.textContent = 'Copied';
       setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
     };
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(a).then(done).catch(function () {});
-    } else {
+    var fail = function () {
+      btn.textContent = 'Select';
+      setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+    };
+    var legacy = function () {
       var t = document.createElement('textarea');
       t.value = a;
       document.body.appendChild(t);
       t.select();
-      try { document.execCommand('copy'); done(); } catch (_) {}
+      try { if (document.execCommand('copy')) done(); else fail(); } catch (_) { fail(); }
       t.remove();
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(a).then(done, legacy);
+      return;
     }
+    legacy();
   }
 
   function use(a) {

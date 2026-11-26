@@ -50,21 +50,24 @@
       btn.classList.add('done');
       setTimeout(function () { btn.textContent = 'Copy address'; btn.classList.remove('done'); }, 1600);
     };
-    if (navigator.clipboard) {
-      if (window.isSecureContext) {
-        navigator.clipboard.writeText(a).then(done).catch(fallback);
-        return;
-      }
-    }
-    fallback();
-    function fallback() {
+    var fail = function () {
+      btn.textContent = 'Copy failed';
+      btn.classList.remove('done');
+      setTimeout(function () { btn.textContent = 'Copy address'; }, 1600);
+    };
+    var legacy = function () {
       var t = document.createElement('textarea');
       t.value = a;
       document.body.appendChild(t);
       t.select();
-      try { document.execCommand('copy'); done(); } catch (e) {}
+      try { if (document.execCommand('copy')) done(); else fail(); } catch (e) { fail(); }
       t.remove();
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(a).then(done, legacy);
+      return;
     }
+    legacy();
   }
 
   function familyCopy(f) {
