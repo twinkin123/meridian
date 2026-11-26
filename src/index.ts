@@ -74,6 +74,19 @@ app.use((_req, res, next) => {
   next();
 });
 
+/* Cloudflare stamps every proxied request. Anything without the stamp came
+   straight at the origin. /health stays open for the platform healthcheck. */
+const ORIGIN_SECRET = process.env.ORIGIN_SECRET;
+if (ORIGIN_SECRET) {
+  app.use((req, res, next) => {
+    if (req.path === '/health') return next();
+    if (req.header('x-origin-secret') !== ORIGIN_SECRET) {
+      return res.status(403).json({ error: 'wrong_host' });
+    }
+    next();
+  });
+}
+
 app.use('/market', market);
 app.use('/swap', swap);
 app.use('/perps', requireUser, perps);
@@ -99,18 +112,6 @@ const authLimit = rateLimit({
 });
 /* Only the credential endpoints. Session reads and logout must not share this
    budget; the per-email and per-IP throttles in the handlers do the precise work. */
-/* Cloudflare stamps every proxied request. Anything without the stamp came
-   straight at the origin. /health stays open for the platform healthcheck. */
-const ORIGIN_SECRET = process.env.ORIGIN_SECRET;
-if (ORIGIN_SECRET) {
-  app.use((req, res, next) => {
-    if (req.path === '/health') return next();
-    if (req.header('x-origin-secret') !== ORIGIN_SECRET) {
-      return res.status(403).json({ error: 'wrong_host' });
-    }
-    next();
-  });
-}
 app.use(['/auth/signup', '/auth/login', '/auth/forgot', '/auth/reset'], authLimit);
 app.use('/auth', auth);
 app.use('/auth', walletAuth);
