@@ -111,6 +111,16 @@ app.post('/support/ticket', async (req, res) => {
   const now = Date.now();
   const prev = supportHits.get(ip);
   if (prev && now - prev.t > 600_000) supportHits.delete(ip);
+  /* Bounded: prune expired entries, then drop oldest, so the map cannot grow
+     without limit on a long-lived process. */
+  if (supportHits.size > 5_000) {
+    for (const [k, v] of supportHits) if (now - v.t > 600_000) supportHits.delete(k);
+    while (supportHits.size > 5_000) {
+      const oldest = supportHits.keys().next().value;
+      if (oldest === undefined) break;
+      supportHits.delete(oldest);
+    }
+  }
   const cur = supportHits.get(ip);
   if (cur && cur.n >= 4) { res.status(429).json({ error: 'rate_limited' }); return; }
   supportHits.set(ip, { n: (cur?.n ?? 0) + 1, t: cur?.t ?? now });
