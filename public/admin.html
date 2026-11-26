@@ -246,7 +246,7 @@
       var r = await fetch('/admin/recon/run', { method: 'POST', headers: h() });
       var j = await r.json().catch(function(){ return {}; });
       if (!r.ok) { msg('rMsg', j.error || 'Recon failed.', 'err'); return; }
-      msg('rMsg', 'Verdict: ' + j.verdict + (Number(j.frozen) > 0 ? ' - still frozen at level ' + j.frozen : ' - nothing frozen'), j.verdict === 'ok' || j.verdict === 'surplus' ? 'ok' : 'err');
+      msg('rMsg', 'Verdict: ' + j.verdict + (Number(j.frozen) > 0 ? ' - suggests freeze level ' + j.frozen : ' - no freeze suggested'), j.verdict === 'ok' || j.verdict === 'surplus' ? 'ok' : 'err');
       var rows = [
         ['Chain', money(j.chainUsd)],
         ['Ledger assets', money(j.assets)],
