@@ -57,7 +57,9 @@ perps.get('/quote', async (req, res) => {
 
 perps.post('/open', async (req, res) => {
   const b = req.body as { market?: string; side?: string; stake?: string; leverage?: number };
-  const stake = BigInt(Math.round(Number(b.stake ?? 0)));
+  const raw = Number(b.stake ?? 0);
+  if (!Number.isFinite(raw)) { res.status(400).json({ error: 'bad_stake' }); return; }
+  const stake = BigInt(Math.round(raw));
   const side = b.side === 'short' ? 'short' : 'long';
   const lev = Math.round(Number(b.leverage ?? 500));
 
@@ -65,10 +67,11 @@ perps.post('/open', async (req, res) => {
   if (!r.ok) {
     const msg: Record<string, string> = {
       below_min: 'Minimum stake is $1.',
-      above_max: 'Maximum stake is $10.',
+      above_max: 'Maximum stake is $50.',
       insufficient: 'Not enough available balance for stake plus fee.',
       bad_leverage: 'Leverage must be 500x-1000x.',
       unknown_market: 'Unknown market.',
+      at_capacity: 'Too much open interest right now. Try a smaller stake or close a position.',
     };
     res.status(400).json({ error: r.error, message: msg[r.error] ?? 'Could not open.' });
     return;

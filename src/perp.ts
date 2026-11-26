@@ -9,7 +9,9 @@ export const MARKETS: Record<string, { id: string; name: string }> = {
 };
 
 export const MIN_STAKE = 1_000_000n;
-export const MAX_STAKE = 10_000_000n;
+export const MAX_STAKE = 50_000_000n;
+/** Ceiling on total open notional, micro-USD. Keeps payout exposure inside the treasury. */
+export const MAX_OPEN_NOTIONAL = 1_000_000_000_000n;
 
 /** Fee per side, as a divisor of stake: 10%, i.e. 2bp of notional at 500x and 1bp at 1000x. */
 export const FEE_DIV = 10n;
@@ -162,6 +164,13 @@ export async function open(
       [userId],
     );
     if (BigInt(bal.rows[0]?.b ?? '0') < stake + fee) return { ok: false as const, error: 'insufficient' };
+
+    const openNotional = await c.query<{ n: string }>(
+      `select coalesce(sum(stake::numeric * leverage), 0)::bigint::text n from perp_positions where status = 'open'`,
+    );
+    if (BigInt(openNotional.rows[0]?.n ?? '0') + stake * BigInt(leverage) > MAX_OPEN_NOTIONAL) {
+      return { ok: false as const, error: 'at_capacity' };
+    }
 
     const row = await c.query<{ id: string }>(
       `insert into perp_positions (user_id, market, side, stake, leverage, entry, qty, liq_price)
