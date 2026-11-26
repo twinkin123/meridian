@@ -1,4 +1,4 @@
-import { one, tx, type Tx } from './db.js';
+import { one, pool, tx, type Tx } from './db.js';
 import { available } from './ledger/balances.js';
 import { post, type Leg } from './ledger/post.js';
 
@@ -263,42 +263,59 @@ export async function close(userId: string, id: string): Promise<CloseResult> {
 
 /** Liquidates every open position whose equity has reached zero. */
 export async function tick(): Promise<number> {
-  const { rows } = await (await import('./db.js')).pool.query<{
-    id: string; user_id: string; market: string; stake: string;
-    side: string; qty: string; entry: string; liq_price: string;
-  }>(`select id, user_id, market, stake, side, qty, entry, liq_price from perp_positions where status = 'open' order by leverage desc, opened_at limit 500`);
-
-  if (!rows.length) return 0;
-
-  let all: Record<string, Mark>;
-  try {
-    all = await marksNow();
-  } catch {
-    return 0;
-  }
-
+  /* Page until exhausted: a single capped select would starve every position
+     beyond the cap, and those are the newest, likeliest-to-liquidate ones. */
+  const PAGE = 500;
+  const seen = new Set<string>();
+  let all: Record<string, Mark> | null = null;
   let n = 0;
-  for (const p of rows) {
-    const m = MARKETS[p.market];
-    const price = m ? all[m.id]?.usd : undefined;
-    if (!price) continue;
 
-    const pnl = pnlOf(p, price);
-    if (pnl > -BigInt(p.stake)) continue;
+  for (;;) {
+    const { rows } = await pool.query<{
+      id: string; user_id: string; market: string; stake: string;
+      side: string; qty: string; entry: string; liq_price: string;
+    }>(`select id, user_id, market, stake, side, qty, entry, liq_price from perp_positions where status = 'open' order by leverage desc, opened_at limit $1`, [PAGE]);
 
-    const did = await tx(async (c) => {
-      const lock = await c.query<{ status: string }>(
-        'select status from perp_positions where id = $1 for update',
-        [p.id],
-      );
-      if (lock.rows[0]?.status !== 'open') return false;
-      await c.query('select ensure_user_accounts($1)', [p.user_id]);
-      await settle(c, p, price, 'liquidated');
-      return true;
-    });
+    if (!rows.length) break;
 
-    if (did) n++;
+    if (!all) {
+      try {
+        all = await marksNow();
+      } catch {
+        return 0;
+      }
+    }
+
+    let fresh = 0;
+    for (const p of rows) {
+      if (seen.has(p.id)) continue;
+      seen.add(p.id);
+      fresh += 1;
+
+      const m = MARKETS[p.market];
+      const price = m ? all[m.id]?.usd : undefined;
+      if (!price) continue;
+
+      const pnl = pnlOf(p, price);
+      if (pnl > -BigInt(p.stake)) continue;
+
+      const did = await tx(async (c) => {
+        const lock = await c.query<{ status: string }>(
+          'select status from perp_positions where id = $1 for update',
+          [p.id],
+        );
+        if (lock.rows[0]?.status !== 'open') return false;
+        await c.query('select ensure_user_accounts($1)', [p.user_id]);
+        await settle(c, p, price, 'liquidated');
+        return true;
+      });
+
+      if (did) n++;
+    }
+
+    if (rows.length < PAGE || fresh === 0) break;
   }
+
   return n;
 }
 
@@ -319,6 +336,8 @@ export async function positions(userId: string): Promise<View[]> {
     const price = all[MARKETS[r.market]?.id]?.usd ?? Number(r.entry);
     const pnl = pnlOf(r, price);
     const stake = BigInt(r.stake);
+    /* The ledger never takes more than the stake, so the read path must not show more either. */
+    const floored = pnl < -stake ? -stake : pnl;
     return {
       id: r.id,
       market: r.market,
@@ -328,8 +347,8 @@ export async function positions(userId: string): Promise<View[]> {
       entry: String(r.entry),
       mark: price.toFixed(price < 1 ? 6 : 2),
       liq: String(r.liq_price),
-      pnl: pnl.toString(),
-      equity: (stake + pnl).toString(),
+      pnl: floored.toString(),
+      equity: (stake + floored).toString(),
     };
   });
 }
