@@ -4,12 +4,14 @@ import { pool, one } from './db.js';
 import { usdMicro } from './solana/match.js';
 import { sweepDestination } from './sweeps.js';
 import { solPriceMicro } from './price.js';
+import { CHAINS as EVM_CHAINS, call as evmCall, hex as evmHex, pad as evmPad } from './jobs/evm-watch.js';
 
 /** Drift alarm as a share of liabilities, in basis points. */
 export const DRIFT_FREEZE_BP = BigInt(process.env.DRIFT_FREEZE_BP ?? '1000');
 /** ...but never tighter than this, in micro-USD. */
 export const DRIFT_FLOOR_USD = 25_000_000n;
 /** Below this margin the platform is inside its warning band, in micro-USD. */
+
 export const MARGIN_WARN_USD = BigInt(process.env.MARGIN_WARN_USD ?? '10000000');
 /** Minimum gap between automatic recon runs. */
 export const RECON_INTERVAL_MS = Number(process.env.RECON_INTERVAL_MS ?? 55 * 60 * 1000);
@@ -56,6 +58,31 @@ export function verdictFor(margin: bigint, drift: bigint, liabilities = 0n, cove
   return 'ok';
 }
 
+const EVM_SELECTOR = '0x70a08231';
+
+/** USDC sitting on EVM deposit addresses, in micro-dollars. Native gas dust is ignored. */
+export async function evmUsdcMicro(): Promise<bigint> {
+  const { rows } = await pool.query<{ address: string }>(
+    'select address from deposit_addresses where family = ' + "'evm'" + ' limit 2000',
+  );
+  if (rows.length === 0) return 0n;
+  let total = 0n;
+  for (const c of Object.values(EVM_CHAINS)) {
+    if (!c.usdc) continue;
+    const shift = 10n ** BigInt(Math.max((c.decimals ?? 6) - 6, 0));
+    const parts = await Promise.all(
+      rows.map(async (r) => {
+        const raw = evmHex(
+          await evmCall(c.rpc, 'eth_call', [{ to: c.usdc, data: EVM_SELECTOR + evmPad(r.address) }, 'latest']),
+        );
+        return raw && raw > 0n ? raw / shift : 0n;
+      }),
+    );
+    for (const p of parts) total += p;
+  }
+  return total;
+}
+
 export function isValidAddress(a: string): boolean {
   try {
     new PublicKey(a);
@@ -86,6 +113,7 @@ export async function chainTotals() {
     });
 
   let sol = 0n;
+  const evm = await evmUsdcMicro();
   let usdc = 0n;
 
   for (const a of addrs) {
@@ -99,13 +127,13 @@ export async function chainTotals() {
     }
   }
 
-  return { sol, usdc };
+  return { sol, usdc, evm };
 }
 
 export async function runRecon(actor = 'manual') {
   const price = await solPriceMicro();
   const chain = await chainTotals();
-  const chainUsd = usdMicro('SOL', chain.sol, price) + chain.usdc;
+  const chainUsd = usdMicro('SOL', chain.sol, price) + chain.usdc + chain.evm;
 
   const led = await one<{ a: string; l: string; m: string }>(
     `select total_client_assets() a, total_liabilities() l, solvency_margin() m`,

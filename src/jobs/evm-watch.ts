@@ -12,24 +12,24 @@ const CONCURRENCY = 6;
 const RELOG_MS = 6 * 60 * 60 * 1000;
 const SELECTOR = '0x70a08231';
 
-type Chain = { rpc: string; native: string; usdc?: string };
+type Chain = { rpc: string; native: string; usdc?: string; decimals?: number };
 
-const CHAINS: Record<string, Chain> = {
-  ethereum: { rpc: process.env.EVM_RPC_ETHEREUM ?? 'https://eth.llamarpc.com', native: 'ETH', usdc: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
-  base: { rpc: process.env.EVM_RPC_BASE ?? 'https://mainnet.base.org', native: 'ETH', usdc: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' },
-  arbitrum: { rpc: process.env.EVM_RPC_ARBITRUM ?? 'https://arb1.arbitrum.io/rpc', native: 'ETH', usdc: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831' },
-  optimism: { rpc: process.env.EVM_RPC_OPTIMISM ?? 'https://mainnet.optimism.io', native: 'ETH', usdc: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85' },
-  polygon: { rpc: process.env.EVM_RPC_POLYGON ?? 'https://polygon-rpc.com', native: 'POL', usdc: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' },
-  bsc: { rpc: process.env.EVM_RPC_BSC ?? 'https://bsc-dataseed.binance.org', native: 'BNB', usdc: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d' },
+export const CHAINS: Record<string, Chain> = {
+  ethereum: { rpc: process.env.EVM_RPC_ETHEREUM ?? 'https://eth.llamarpc.com', native: 'ETH', usdc: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', decimals: 6 },
+  base: { rpc: process.env.EVM_RPC_BASE ?? 'https://mainnet.base.org', native: 'ETH', usdc: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', decimals: 6 },
+  arbitrum: { rpc: process.env.EVM_RPC_ARBITRUM ?? 'https://arb1.arbitrum.io/rpc', native: 'ETH', usdc: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831', decimals: 6 },
+  optimism: { rpc: process.env.EVM_RPC_OPTIMISM ?? 'https://mainnet.optimism.io', native: 'ETH', usdc: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85', decimals: 6 },
+  polygon: { rpc: process.env.EVM_RPC_POLYGON ?? 'https://polygon-rpc.com', native: 'POL', usdc: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359', decimals: 6 },
+  bsc: { rpc: process.env.EVM_RPC_BSC ?? 'https://bsc-dataseed.binance.org', native: 'BNB', usdc: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', decimals: 18 },
 };
 if (process.env.EVM_RPC_ROBINHOOD) CHAINS.robinhood = { rpc: process.env.EVM_RPC_ROBINHOOD, native: 'ETH' };
 
 /** address -> last time it was logged, so one stuck address does not spam every pass. */
 const LOGGED = new Map<string, number>();
 
-const pad = (a: string) => a.toLowerCase().replace(/^0x/, '').padStart(64, '0');
+export const pad = (a: string) => a.toLowerCase().replace(/^0x/, '').padStart(64, '0');
 
-async function call(rpc: string, method: string, params: unknown[]): Promise<string | null> {
+export async function call(rpc: string, method: string, params: unknown[]): Promise<string | null> {
   try {
     const r = await fetch(rpc, {
       method: 'POST',
@@ -45,7 +45,7 @@ async function call(rpc: string, method: string, params: unknown[]): Promise<str
   }
 }
 
-function hex(v: string | null): bigint | null {
+export function hex(v: string | null): bigint | null {
   if (!v || v === '0x') return null;
   try {
     return BigInt(v);
