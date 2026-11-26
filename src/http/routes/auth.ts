@@ -1,6 +1,7 @@
 import { clientIp } from '../mw/ip.js';
 import { createDepositWallet, createPrivyUser } from '../../privy.js';
 import { Router } from 'express';
+import { ensureDepositAddress } from '../../deposits.js';
 import { one, none } from '../../db.js';
 import { address } from '../../solana/derive.js';
 import {
@@ -68,12 +69,10 @@ auth.post('/signup', async (req, res) => {
     );
     addr = w.address;
   } catch {
-    const fallback = address(row.deposit_index);
-    await none(
-      `update users set deposit_addr = $1, privy_address = $1 where id = $2`,
-      [fallback, row.id],
-    );
-    addr = fallback;
+        /* No wallet means no sweeper, so do not invent a derived address. The ensure
+       path creates a real wallet, or leaves 'pending' for the deposit page to retry. */
+    const d = await ensureDepositAddress(row.id).catch(() => null);
+    addr = d ?? 'pending';
   }  await none(
     `insert into accounts (code, kind, owner_type, owner_id)
      select c, 'liability', 'user', $1 from unnest(array['2000','2010','2020','2050','2060','2070','2080']) c`,

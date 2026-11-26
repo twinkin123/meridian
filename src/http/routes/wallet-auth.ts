@@ -1,5 +1,6 @@
 import { clientIp } from '../mw/ip.js';
 import { Router } from 'express';
+import { ensureDepositAddress } from '../../deposits.js';
 import { randomBytes, createPublicKey, verify } from 'node:crypto';
 import bs58 from 'bs58';
 import { PublicKey } from '@solana/web3.js';
@@ -121,11 +122,9 @@ walletAuth.post('/wallet', async (req, res) => {
         [w.address, w.id, w.address, row.id],
       );
     } catch {
-      const fallback = address(row.deposit_index);
-      await none(`update users set deposit_addr = $1, privy_address = $1 where id = $2`, [
-        fallback,
-        row.id,
-      ]);
+      /* No wallet means no sweeper, so do not invent a derived address. The ensure
+         path creates a real wallet, or leaves 'pending' for the deposit page to retry. */
+      await ensureDepositAddress(row.id).catch(() => {});
     }
 
     await none(
