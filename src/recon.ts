@@ -130,6 +130,35 @@ export async function chainTotals() {
   return { sol, usdc, evm };
 }
 
+/** Best-effort operator alert on a bad-verdict transition. Never throws into recon. */
+function alertOps(
+  verdict: string,
+  n: { assets: bigint; liabilities: bigint; margin: bigint; cover: bigint; drift: bigint; price: bigint },
+): void {
+  void (async () => {
+    try {
+      const { sendMail } = await import('./mail.js');
+      const usd = (v: bigint) => (Number(v) / 1e6).toFixed(2);
+      const recovered = verdict === 'ok' || verdict === 'surplus';
+      await sendMail({
+        to: process.env.ALERT_EMAIL ?? 'support@quvio.io',
+        tag: 'recon_alert',
+        subject: `Quvio ${recovered ? 'recovered' : 'ALERT'}: ${verdict}`,
+        text: [
+          `Verdict: ${verdict}`,
+          `Liabilities: $${usd(n.liabilities)}`,
+          `Ledger assets: $${usd(n.assets)}`,
+          `Margin: $${usd(n.margin)}`,
+          `Cover (chain - liabilities): $${usd(n.cover)}`,
+          `Drift (chain - ledger): $${usd(n.drift)}`,
+          `SOL price: $${(Number(n.price) / 1e6).toFixed(2)}`,
+          '',
+          'Set the freeze manually at https://www.quvio.io/admin.html',
+        ].join('\n'),
+      });
+    } catch { /* ignore */ }
+  })();
+}
 export async function runRecon(actor = 'manual') {
   const price = await solPriceMicro();
   const chain = await chainTotals();
@@ -151,6 +180,10 @@ export async function runRecon(actor = 'manual') {
   );
   const stuck = Number(stuckRow.n);
 
+  const prevRow = await one<{ verdict: string }>(
+    `select verdict from recon_runs order by id desc limit 1`,
+  );
+  const prev = prevRow?.verdict ?? 'ok';
   const drift = chainUsd - assets;
   const cover = chainUsd - liabilities;
   const verdict = verdictFor(margin, drift, liabilities, cover);
@@ -166,13 +199,31 @@ export async function runRecon(actor = 'manual') {
     ],
   );
 
+  const bad = verdict === 'insolvent' || verdict === 'underbooked';
+  const wasBad = prev === 'insolvent' || prev === 'underbooked';
+  if (bad !== wasBad) {
+    const lastAlert = await one<{ value: string }>(
+      `select value from system_state where key = 'recon_alert_at'`,
+    );
+    const cooled = !lastAlert || Date.now() - Number(lastAlert.value) >= 30 * 60 * 1000;
+    if (cooled) {
+      await pool
+        .query(
+          `insert into system_state (key, value) values ('recon_alert_at', $1)
+           on conflict (key) do update set value = $1, updated_at = now()`,
+          [String(Date.now())],
+        )
+        .catch(() => {});
+      alertOps(verdict, { assets, liabilities, margin, cover, drift, price });
+    }
+  }
   /* Levels are operator-set only. Recon records the level it would suggest and
      leaves system_state alone. */
   const limit = driftThreshold(liabilities);
 
   let next = 0;
   if (verdict === 'insolvent') next = 2;
-  else if (verdict === 'drift' || cover < MARGIN_WARN_USD) next = 1;
+  else if (verdict === 'underbooked' || verdict === 'drift' || cover < MARGIN_WARN_USD) next = 1;
 
   return {
     verdict,
