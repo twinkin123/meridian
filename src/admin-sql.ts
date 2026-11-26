@@ -4,21 +4,32 @@ import { pool } from './db.js';
 export const sqlRouter = Router();
 
 const ALLOWED = /^\s*(select|with)\s/i;
+const WRITES = /\b(insert|update|delete|drop|alter|create|truncate|grant|revoke|copy|call|do|refresh|comment)\b/i;
 
 sqlRouter.get('/', async (req, res) => {
-  const token = String(req.query.token ?? '');
+  const token = String(req.get('x-sql-token') ?? req.query.token ?? '');
   const expected = process.env.SQL_TOKEN;
   if (!expected || token !== expected) return res.status(401).json({ error: 'bad_token' });
 
-  const q = String(req.query.q ?? '');
-  if (!ALLOWED.test(q)) return res.status(400).json({ error: 'read_only' });
+  const raw = String(req.query.q ?? '').trim();
+  if (!ALLOWED.test(raw)) return res.status(400).json({ error: 'read_only' });
+  if (WRITES.test(raw)) return res.status(400).json({ error: 'not_read_only' });
+  const q = raw.replace(/;+\s*$/, '');
+  if (q.includes(';')) return res.status(400).json({ error: 'one_statement' });
   if (q.length > 4000) return res.status(400).json({ error: 'too_long' });
 
+  const c = await pool.connect();
   try {
-    const r = await pool.query(q);
+    await c.query('begin read only');
+    await c.query("set local statement_timeout = '8000'");
+    const r = await c.query(q);
+    await c.query('commit');
     res.json({ count: r.rowCount, rows: r.rows });
   } catch (e) {
+    await c.query('rollback').catch(() => {});
     res.status(400).json({ error: e instanceof Error ? e.message : 'query_failed' });
+  } finally {
+    c.release();
   }
 });
 
