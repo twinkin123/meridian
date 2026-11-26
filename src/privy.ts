@@ -279,8 +279,8 @@ export async function findWalletByExternalId(
 }
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** Bounds how many transactions one lookup parses; the transfer is always recent. */
-const MAX_PARSE = 10;
+/** Bounds how many transactions one lookup parses. Out-of-window signatures are filtered before this, so the budget only covers real candidates, including inbound sweeps that get rejected. */
+const MAX_PARSE = 40;
 
 /** RPC reads here are best-effort, and a 429 must not read as "no such transfer". */
 export async function withRetry<T>(fn: () => Promise<T>, attempts = 4): Promise<T> {
@@ -316,7 +316,7 @@ export async function findTransferSig(
 
   const c = new Connection(rpc, 'confirmed');
   const sigs = await withRetry(() =>
-    c.getSignaturesForAddress(new PublicKey(from), { limit: 25 }),
+    c.getSignaturesForAddress(new PublicKey(from), { limit: 200 }),
   ).catch(() => []);
 
   let parsed = 0;
