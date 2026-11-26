@@ -241,7 +241,29 @@
     });
 
     $('swCopy').addEventListener('click', function () {
-      if (order) navigator.clipboard.writeText(order.payinAddress);
+  var btn = this;
+  var a = order && order.payinAddress;
+  if (!a) return;
+  var done = function () {
+    btn.textContent = 'Copied';
+    setTimeout(function () { btn.textContent = "Copy address"; }, 1600);
+  };
+  var fallback = function () {
+    var ta = document.createElement('textarea');
+    ta.value = a;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    ta.remove();
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(a).then(done).catch(fallback);
+    return;
+  }
+  fallback();
     });
 
     $('swDepAgain').addEventListener('click', function () {
