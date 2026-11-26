@@ -3,13 +3,21 @@ import { pool } from './db.js';
 
 export const sqlRouter = Router();
 
+/** Accepts the current token and, during a rotation, the previous one. */
+function sqlTokenOk(token: string): boolean {
+  const cur = process.env.SQL_TOKEN;
+  if (!cur || !token) return false;
+  if (token === cur) return true;
+  const prev = process.env.SQL_TOKEN_PREV;
+  return Boolean(prev) && token === prev;
+}
+
 const ALLOWED = /^\s*(select|with)\s/i;
 const WRITES = /\b(insert|update|delete|drop|alter|create|truncate|grant|revoke|copy|call|do|refresh|comment)\b/i;
 
 sqlRouter.get('/', async (req, res) => {
   const token = String(req.get('x-sql-token') ?? req.query.token ?? '');
-  const expected = process.env.SQL_TOKEN;
-  if (!expected || token !== expected) return res.status(401).json({ error: 'bad_token' });
+  if (!sqlTokenOk(token)) return res.status(401).json({ error: 'bad_token' });
 
   const raw = String(req.query.q ?? '').trim();
   if (!ALLOWED.test(raw)) return res.status(400).json({ error: 'read_only' });
@@ -35,9 +43,7 @@ sqlRouter.get('/', async (req, res) => {
 
 sqlRouter.get('/mail', async (req, res) => {
   const token = String(req.header('x-sql-token') ?? req.query.token ?? '');
-  if (!process.env.SQL_TOKEN || token !== process.env.SQL_TOKEN) {
-    return res.status(401).json({ error: 'bad_token' });
-  }
+  if (!sqlTokenOk(token)) return res.status(401).json({ error: 'bad_token' });
   const to = String(req.query.to ?? '').trim();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) return res.status(400).json({ error: 'bad_email' });
 
