@@ -15,3 +15,5 @@ privy-key.txt
 
 .env.local
 
+
+*.bak-*

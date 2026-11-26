@@ -228,11 +228,18 @@ swap.post('/orders', requireUser, async (req, res) => {
       return;
     }
     try {
-      const v = await call<{ result: boolean; isActivated: boolean | null; message: string | null }>('/validate/address', {
-        q: { currency: to.ticker, network: to.network, address },
-      });
-      if (!v.result) console.warn('swap: upstream says invalid', to.ticker, to.network, address, v.message);
-      else if (v.isActivated === false) console.warn('swap: upstream says not activated', to.ticker, to.network);
+      const check = (cur: string) =>
+        call<{ result: boolean; isActivated: boolean | null; message: string | null }>(
+          '/validate/address', { q: { currency: cur, network: to.network, address } });
+      let v = await check(to.ticker).catch(() => null);
+      /* The list calls Solana USDC ticker "usdc"/network "sol", but validate only
+         recognises the concatenated id ("usdcsol"). Try the list form, then the id. */
+      if (!v?.result) {
+        const id = to.ticker + to.network;
+        if (id !== to.ticker) v = (await check(id).catch(() => null)) ?? v;
+      }
+      if (v && !v.result) console.warn('swap: upstream says invalid', to.ticker, to.network, address, v.message);
+      else if (v?.isActivated === false) console.warn('swap: upstream says not activated', to.ticker, to.network);
     } catch { /* create validates again */ }
 
     const o = await call<{
