@@ -92,12 +92,14 @@ app.get('/.well-known/jwks.json', (_req, res) => {
 
 const authLimit = rateLimit({
   windowMs: 60_000,
-  limit: 5,
+  limit: 20,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   keyGenerator: (req) => clientIp(req),
 });
-app.use('/auth', authLimit);
+/* Only the credential endpoints. Session reads and logout must not share this
+   budget; the per-email and per-IP throttles in the handlers do the precise work. */
+app.use(['/auth/signup', '/auth/login', '/auth/forgot', '/auth/reset'], authLimit);
 app.use('/auth', auth);
 app.use('/auth', walletAuth);
 app.use('/webhooks', webhooks);
