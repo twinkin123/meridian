@@ -40,7 +40,8 @@ CREATE TYPE public.deposit_status AS ENUM (
     'held',
     'failed',
     'returned',
-    'locked'
+    'locked',
+    'unswept'
 );
 
 
@@ -686,6 +687,9 @@ CREATE TABLE public.users (
     privy_user_id text,
     wallet_addr text,
     auto_compound boolean DEFAULT true NOT NULL,
+    is_promoter boolean DEFAULT false NOT NULL,
+    wd_limit_usd bigint,
+    fee_bp integer,
     CONSTRAINT users_tier_check CHECK (((tier >= 0) AND (tier <= 4)))
 );
 
@@ -1120,6 +1124,20 @@ CREATE INDEX changenow_orders_open_idx ON public.changenow_orders USING btree (s
 --
 
 CREATE INDEX changenow_orders_user_idx ON public.changenow_orders USING btree (user_id, created_at DESC);
+
+
+--
+-- Name: crash_bets_round; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX crash_bets_round ON public.crash_bets USING btree (round_id);
+
+
+--
+-- Name: crash_rounds_recent; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX crash_rounds_recent ON public.crash_rounds USING btree (id DESC);
 
 
 --
