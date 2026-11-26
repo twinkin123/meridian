@@ -1,11 +1,12 @@
 import 'dotenv/config';
 
 const BASE = 'https://api.helius.xyz/v0/webhooks';
-const URL = 'https://meridian-production-fbf25a20.up.railway.app/webhooks/helius';
-const SQL = 'https://meridian-production-fbf25a20.up.railway.app/admin/sql';
+const HOST = process.env.PUBLIC_BASE_URL ?? 'https://quvio.io';
+const URL = HOST + '/webhooks/helius';
+const SQL = HOST + '/admin/sql';
 
-const SQL_TOKEN = process.env.SQL_TOKEN ?? 'a29c4f945ae42ea2d3dbce08a56e909c4893777a30133b8b69c35575702214ec';
-const HELIUS = process.env.HELIUS_API_KEY ?? 'b3bc1d32-c631-48e7-ad2a-22329846ddc6';
+const SQL_TOKEN = process.env.SQL_TOKEN ?? 'e601bb0bfcf987b2404ffeb91e4de606e1a47144a5f00954';
+const HELIUS = process.env.HELIUS_API_KEY ?? 'fd586904-e841-4961-a59e-6f38fff9961a';
 const SECRET = process.env.WEBHOOK_SECRET ?? '4d7660f00384333878b391b02ff0902178ccb76422d2c35478d245e2c6afbf8b';
 
 type Hook = { webhookID: string; webhookURL?: string; accountAddresses?: string[] };
