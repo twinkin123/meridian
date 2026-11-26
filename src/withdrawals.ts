@@ -188,7 +188,8 @@ export async function requestWithdrawal(
     if (!head) return { ok: false, error: 'treasury_unreachable' };
     const have = asset === 'USDC' ? head.usdc : head.sol;
     const covered = have >= need;
-    const autoOk = !needsApproval && covered;
+    const withinShare = need * 100n < have * TREASURY_SHARE_PCT;
+    const autoOk = !needsApproval && covered && withinShare;
     const status = autoOk ? 'approved' : 'requested';
 
     const row = await c.query<{ id: string }>(
@@ -228,7 +229,6 @@ export async function approveWithdrawal(id: string, approver: string): Promise<A
   if (!head) return { ok: false, error: 'treasury_unreachable' };
   const have = row.asset === 'USDC' ? head.usdc : head.sol;
   if (have < need) return { ok: false, error: `treasury_short:${have}:${need}` };
-  if (need * 100n >= have * TREASURY_SHARE_PCT) return { ok: false, error: `treasury_share:${have}:${need}` };
   const r = await pool.query<{ user_id: string }>(`update withdrawals set status = 'approved', approved_by = $2 where id = $1 and status = 'requested' returning user_id`, [id, approver]);
   const done = r.rows[0];
   if (!done) return { ok: false, error: 'not_pending' };
