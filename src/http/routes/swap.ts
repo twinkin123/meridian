@@ -228,10 +228,11 @@ swap.post('/orders', requireUser, async (req, res) => {
       return;
     }
     try {
-      const v = await call<{ isValid: boolean }>('/validate/address', {
+      const v = await call<{ result: boolean; isActivated: boolean | null; message: string | null }>('/validate/address', {
         q: { currency: to.ticker, network: to.network, address },
       });
-      if (!v.isValid) console.warn('swap: upstream says invalid', to.ticker, to.network, address);
+      if (!v.result) console.warn('swap: upstream says invalid', to.ticker, to.network, address, v.message);
+      else if (v.isActivated === false) console.warn('swap: upstream says not activated', to.ticker, to.network);
     } catch { /* create validates again */ }
 
     const o = await call<{
