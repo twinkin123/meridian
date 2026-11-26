@@ -21,6 +21,9 @@ import { freezeLevel } from './recon.js';
 import { sendUsdc, sendSol, waitForTreasuryAction, findTransferSig } from './privy.js';
 
 export const MIN_WITHDRAW = 10_000_000n;
+
+/** Past this long, a sending row is settled against the chain rather than waited on. */
+export const PAYOUT_DEADLINE_MS = 45 * 60 * 1000;
 export const NEW_ADDR_CAP = 500_000_000n;
 
 
@@ -380,6 +383,7 @@ export async function payoutWithdrawal(
     id: string; user_id: string; asset: Asset; address: string;
     usd_amount: string; status: string; sig: string | null; privy_action_id: string | null;
     source: string;
+    first_attempt_at: string | null;
     created_at: string;
   }>(`select * from withdrawals where id = $1`, [id]);
 
@@ -404,6 +408,17 @@ export async function payoutWithdrawal(
     )
     .then((r) => new Set(r.rows.map((x) => x.sig)))
     .catch(() => new Set<string>());
+  /* Hard deadline: an action that never settles must not hold the row forever.
+     Past this point the chain is the only authority, so probe once and settle. */
+  if (row.first_attempt_at && Date.now() - new Date(row.first_attempt_at).getTime() > PAYOUT_DEADLINE_MS) {
+    const onchain = await findTransferSig(row.address, qty, row.asset, new Date(row.created_at).getTime(), usedSigs).catch(() => null);
+    if (onchain) {
+      await finalize(id, onchain, row.privy_action_id ?? onchain, row.user_id, row.address, usd, qty);
+      return { ok: true, sig: onchain };
+    }
+    await refundWithdrawal(id, 'failed', 'deadline_exceeded', 'withdrawal_failed', 'Withdrawal could not be sent', { allowLiveSend: true });
+    return { ok: false, error: 'deadline_exceeded' };
+  }
   // An action is already in flight: resolve it before sending anything new.
   if (row.privy_action_id) {
     const settled = await waitForTreasuryAction(row.privy_action_id, 20_000);
@@ -443,7 +458,7 @@ export async function payoutWithdrawal(
        Only take it when no action is recorded against it. */
     if (!cur || !canClaim(cur.status, cur.privy_action_id)) return false;
 
-    await c.query(`update withdrawals set status = 'sending', error = null where id = $1`, [id]);
+    await c.query(`update withdrawals set status = 'sending', error = null, first_attempt_at = coalesce(first_attempt_at, now()) where id = $1`, [id]);
     return true;
   });
   if (!claimed) return { ok: false, error: 'race' };
