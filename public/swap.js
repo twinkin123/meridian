@@ -150,15 +150,15 @@
 
   function finish(st, j) {
     clearTimeout(poll);
-    $('swDepQr').hidden = true;
-    $('swDepAddr').hidden = true;
+    $('swDepQr').style.display = 'none';
+    $('swDepAddr').style.display = 'none';
     var cp = $('swCopy'); if (cp) cp.hidden = true;
     if (st === 'done') {
       $('swDepStatus').textContent = 'Complete';
       $('swDepNet').textContent = 'Sent \u2248 ' + fmt(order.toAmount) + ' ' + order.toSym.toUpperCase() + ' to your wallet.';
     } else {
       $('swDepStatus').textContent = st === 'refunded' ? 'Refunded' : 'Failed';
-      var why = j.error || j.message || '';
+      var why = j.reason || j.error || j.message || '';
       $('swDepNet').textContent = (j.refundAddress || j.refund_address
         ? 'Returned to ' + (j.refundAddress || j.refund_address) + '.'
         : 'No refund address was set, so the funds are held at ChangeNOW.') + (why ? ' ' + why : '');
@@ -287,8 +287,8 @@
   order = null;
   $('swDep').hidden = true;
   $('swCard').hidden = false;
-  $('swDepQr').hidden = false;
-  $('swDepAddr').hidden = false;
+  $('swDepQr').style.display = '';
+  $('swDepAddr').style.display = '';
   var cp = $('swCopy'); if (cp) cp.hidden = false;
   $('swAmt').value = '';
   $('swAddr').value = '';

@@ -293,8 +293,11 @@ const MAP: Record<string, string> = {
 };
 
 swap.get('/orders/:id', requireUser, async (req, res) => {
-  const row = await one<{ changenow_id: string; status: string; to_amount: string; to_currency: string }>(
-    `select changenow_id, status, to_amount, to_currency
+  const row = await one<{
+    changenow_id: string; status: string; to_amount: string; to_currency: string;
+    refund_address: string | null; changenow_status: string | null;
+  }>(
+    `select changenow_id, status, to_amount, to_currency, refund_address, changenow_status
        from changenow_orders where changenow_id = $1 and user_id = $2`,
     [req.params.id, req.userId],
   );
@@ -316,7 +319,7 @@ swap.get('/orders/:id', requireUser, async (req, res) => {
     } catch { /* keep stored */ }
   }
 
-  res.json({ status, toAmount: row.to_amount, toCurrency: row.to_currency });
+  res.json({ status, toAmount: row.to_amount, toCurrency: row.to_currency, refundAddress: row.refund_address, reason: row.changenow_status });
 });
 
 swap.get('/orders', requireUser, async (req, res) => {
