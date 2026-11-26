@@ -13,11 +13,6 @@ type Cur = {
   isStable: boolean; buy: boolean; sell: boolean;
 };
 
-/* ChangeNOW resolves the network from the currency id; a bare ticker
-picks the default network and then contradicts toNetwork, so qualify the id. */
-const cid = (c: { ticker: string; network: string }): string =>
-  c.network.toLowerCase() === c.ticker.toLowerCase() ? c.ticker : c.ticker + c.network.toLowerCase();
-
 type Est = {
   fromAmount: number; toAmount: number; withdrawalFee: number;
   transactionSpeedForecast: string | null; warningMessage: string | null;
@@ -163,7 +158,7 @@ swap.post('/quote', async (req, res) => {
     const to = await pick(b.to, b.toNet);
 
     const r = await call<{ minAmount: number; maxAmount: number | null }>('/exchange/range', {
-      q: { fromCurrency: cid(from), fromNetwork: from.network, toCurrency: cid(to), toNetwork: to.network, flow: 'standard' },
+      q: { fromCurrency: from.ticker, fromNetwork: from.network.toLowerCase(), toCurrency: to.ticker, toNetwork: to.network.toLowerCase(), flow: 'standard' },
     });
 
     if (amount < r.minAmount) {
@@ -177,8 +172,8 @@ swap.post('/quote', async (req, res) => {
 
     const e = await call<Est>('/exchange/estimated-amount', {
       q: {
-        fromCurrency: cid(from), fromNetwork: from.network,
-        toCurrency: cid(to), toNetwork: to.network,
+        fromCurrency: from.ticker, fromNetwork: from.network.toLowerCase(),
+        toCurrency: to.ticker, toNetwork: to.network.toLowerCase(),
         fromAmount: String(amount), flow: 'standard', type: 'direct',
       },
     });
@@ -254,8 +249,8 @@ swap.post('/orders', requireUser, async (req, res) => {
       method: 'POST',
       ip: clientIp(req),
       body: {
-        fromCurrency: cid(from), fromNetwork: from.network,
-        toCurrency: cid(to), toNetwork: to.network,
+        fromCurrency: from.ticker, fromNetwork: from.network.toLowerCase(),
+        toCurrency: to.ticker, toNetwork: to.network.toLowerCase(),
         fromAmount: String(b.amount), address,
         extraId: b.memo?.trim() || undefined,
         refundAddress: b.refund?.trim() || undefined,

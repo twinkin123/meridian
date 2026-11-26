@@ -24,7 +24,7 @@
   function paint(symEl, icEl, netEl, c) {
     symEl.textContent = c ? c.t.toUpperCase() : 'Select';
     icEl.innerHTML = c && c.i ? '<img src="' + c.i + '" alt="">' : '';
-    netEl.textContent = c ? c.net.toUpperCase() : '';
+    netEl.textContent = c ? c.t.toUpperCase() + ' on ' + c.net.toUpperCase() : '';
   }
 
   function reset() {
