@@ -84,3 +84,22 @@ export async function sendWelcomeMail(to: string): Promise<MailResult> {
     ].join('\n'),
   });
 }
+export async function sendVerifyMail(to: string, link: string): Promise<MailResult> {
+  const out = await sendMail({
+    to,
+    tag: 'email_verify',
+    subject: 'Confirm your Quvio email',
+    replyTo: 'support@quvio.io',
+    text: [
+      'Confirm this address to finish setting up your Quvio account:',
+      '',
+      link,
+      '',
+      'The link works once and expires in 30 minutes.',
+      '',
+      `If you did not sign up, ignore it.`,
+    ].join('\n'),
+  });
+  if (!out.sent) console.log(`[mail] verify link for ${to}: ${link}`);
+  return out;
+}

@@ -198,3 +198,29 @@ export async function throttle(ident: string, max = 5, windowSec = 60): Promise<
   if (Number(r.n) >= max) throw new Error('too_many_attempts');
   await none(`insert into login_attempts (ident) values ($1)`, [ident]);
 }
+export async function createVerify(userId: string): Promise<string> {
+  const token = randomBytes(32).toString('base64url');
+  await none(
+    `insert into email_verifications (user_id, token_hash, expires_at)
+     values ($1, $2, now() + interval '30 minutes')`,
+    [userId, sha(token)],
+  );
+  return token;
+}
+
+/** Single use. Returns null if the token is spent, expired, or the address is already confirmed. */
+export async function consumeVerify(token: string): Promise<{ id: string; email: string } | null> {
+  const r = await one<{ user_id: string }>(
+    `update email_verifications set used_at = now()
+      where token_hash = $1 and used_at is null and expires_at > now()
+      returning user_id`,
+    [sha(token)],
+  );
+  if (!r) return null;
+  const u = await one<{ email: string }>(
+    `update users set email_verified_at = now()
+      where id = $1 and email_verified_at is null returning email`,
+    [r.user_id],
+  );
+  return u ? { id: r.user_id, email: u.email } : null;
+}

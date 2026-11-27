@@ -15,11 +15,14 @@ import {
   listSessions,
   createReset,
   consumeReset,
+  createVerify,
+  consumeVerify,
   setPassword,
   pruneAuth,
 } from '../../auth.js';
 import { requireUser, clientMeta } from '../mw/session.js';
-import { sendResetMail, sendWelcomeMail } from '../../mail.js';
+import { sendResetMail, sendWelcomeMail, sendVerifyMail } from '../../mail.js';
+import { env } from '../../env.js';
 
 export const auth = Router();
 
@@ -79,11 +82,40 @@ auth.post('/signup', async (req, res) => {
     [row.id],
   );
 
-  void sendWelcomeMail(email);
+  const vt = await createVerify(row.id);
+  void sendVerifyMail(email, `${env.publicBaseUrl || 'https://www.quvio.io'}/auth/verify?token=${vt}`);
 
   const token = await issueSession(row.id, clientMeta(req));
   res.cookie('sid', token, COOKIE);
   res.status(201).json({ id: row.id, email, depositAddress: addr });
+});
+
+auth.get('/verify', async (req, res) => {
+  const t = String(req.query.token ?? '');
+  const ok = t ? await consumeVerify(t) : null;
+  if (ok) void sendWelcomeMail(ok.email);
+  const head = ok ? 'Email confirmed' : 'Link expired';
+  const body = ok
+    ? 'Your address is confirmed. Sign in and carry on.'
+    : 'This link was used already or has timed out. Sign in and request a new one.';
+  res.type('html').send(
+    `<!doctype html><meta charset="utf-8"><title>Quvio</title>` +
+    `<body style="font:16px system-ui;background:#0d0d0f;color:#e8e8ea;display:grid;place-items:center;height:100vh;margin:0">` +
+    `<div style="text-align:center;max-width:22rem"><h1 style="font-size:1.25rem">${head}</h1>` +
+    `<p style="color:#9a9aa2">${body}</p><a href="/auth.html" style="color:#7cc4ff">Continue</a></div>`,
+  );
+});
+
+auth.post('/verify/resend', requireUser, async (req, res) => {
+  const u = await one<{ id: string; email: string; email_verified_at: string | null }>(
+    `select id, email, email_verified_at from users where id = $1`, [req.userId]);
+  if (!u) return res.status(401).json({ error: 'no_session' });
+  if (u.email_verified_at) return res.json({ ok: true, already: true });
+  try { await throttle(`verify:${u.id}`, 3); } catch { return res.status(429).json({ error: 'too_many_attempts' }); }
+  await none(`update email_verifications set used_at = now() where user_id = $1 and used_at is null`, [u.id]);
+  const vt = await createVerify(u.id);
+  const out = await sendVerifyMail(u.email, `${env.publicBaseUrl || 'https://www.quvio.io'}/auth/verify?token=${vt}`);
+  res.json({ ok: out.sent });
 });
 
 auth.post('/login', async (req, res) => {
