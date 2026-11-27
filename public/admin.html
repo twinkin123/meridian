@@ -183,7 +183,7 @@
 
 <script>
 (function(){
-  var token = sessionStorage.getItem('admin_token') || '';
+  var token = localStorage.getItem('admin_token') || '';
   var panel = document.getElementById('panel');
   var gate = document.getElementById('gate');
 
@@ -208,7 +208,7 @@
     var t = document.getElementById('tok').value.trim();
     if (!t) return msg('gateMsg', 'Enter the token.', 'err');
     token = t;
-    sessionStorage.setItem('admin_token', t);
+    localStorage.setItem('admin_token', t);
     var ok = await loadFreeze();
     if (ok) { gate.classList.add('hide'); panel.classList.remove('hide'); loadPromoters(); loadQueue(); loadClaims(); loadSweeps(); loadRuns(); loadUsers(); loadFlow(); loadTreasury(); }
     else msg('gateMsg', 'Token rejected.', 'err');
@@ -652,7 +652,7 @@
   document.getElementById('gateGo').onclick = unlock;
   document.getElementById('tok').addEventListener('keydown', function(e){ if (e.key === 'Enter') unlock(); });
   document.getElementById('lock').onclick = function(){
-    sessionStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_token');
     token = '';
     panel.classList.add('hide');
     gate.classList.remove('hide');
