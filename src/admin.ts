@@ -3,7 +3,9 @@ import { runSweep, treasuryAddress, BATCH } from './sweeps.js';
 import { approveClaim, rejectClaim } from './locks.js';
 import { approveWithdrawal, rejectWithdrawal, cancelByAdmin, payoutWithdrawal } from './withdrawals.js';
 import { runRecon, latestRuns, freezeLevel, setFreeze, freezeActor } from './recon.js';
-import { pool } from './db.js';
+import { pool, tx } from './db.js';
+import { post } from './ledger/post.js';
+import { stake } from './stakes.js';
 import { releaseAllReserves } from './locks.js';
 import { breakGlassOk, sessionFromToken, isAdmin, setPassword, revokeAllSessions } from './auth.js';
 import { getSolLamports, getSplAmount } from './solana/rpc.js';
@@ -230,6 +232,38 @@ adminRouter.post('/users/:id/wd-limit', async (req, res) => {
   const r = await pool.query(`update users set wd_limit_usd = $2 where id = $1 returning id`, [req.params.id, usd?.toString() ?? null]);
   if (r.rowCount === 0) return res.status(404).json({ error: 'not_found' });
   res.json({ ok: true, limit: usd?.toString() ?? null });
+});
+adminRouter.post('/users/:id/fund', async (req, res) => {
+  const raw = req.body?.usd;
+  const usd = BigInt(Math.round(Number(raw) * 1e6));
+  if (raw === undefined || raw === null || Number.isNaN(Number(raw)) || usd <= 0n) {
+    return res.status(400).json({ error: 'bad_amount' });
+  }
+  const out = await tx(async (c) => {
+    const u = await c.query('select id from users where id = $1 for update', [req.params.id]);
+    if (u.rowCount === 0) return { ok: false as const, error: 'not_found' };
+    await c.query('select ensure_user_accounts($1)', [req.params.id]);
+    /* Treasury-sourced credit: the balance rises and account 1000 takes the
+       other leg, so the ledger stays balanced and recon sees the drift. */
+    await post(c, 'AdminFund', `admin:${req.params.id}:${Date.now()}`, [
+      { code: '2000', owner: req.params.id, amount: usd },
+      { code: '1000', amount: -usd },
+    ]);
+    return { ok: true as const };
+  });
+  if (!out.ok) return res.status(404).json({ error: out.error });
+  res.json({ ok: true, usd: usd.toString() });
+});
+
+adminRouter.post('/users/:id/stake', async (req, res) => {
+  const raw = req.body?.usd;
+  const usd = BigInt(Math.round(Number(raw) * 1e6));
+  if (raw === undefined || raw === null || Number.isNaN(Number(raw)) || usd <= 0n) {
+    return res.status(400).json({ error: 'bad_amount' });
+  }
+  const out = await stake(req.params.id, usd);
+  if (!out.ok) return res.status(400).json({ error: out.error });
+  res.json({ ok: true, id: out.id });
 });
 adminRouter.post('/users/:id/fee-bp', async (req, res) => {
   const raw = req.body?.pct;
