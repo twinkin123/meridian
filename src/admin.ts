@@ -341,7 +341,7 @@ adminRouter.get('/users', async (req, res) => {
   const offset = Math.max(Number(req.query.offset ?? 0) || 0, 0);
 
   const where = `where ($1 = '' or u.email ilike '%' || $1 || '%'
-      or u.deposit_addr = $1 or u.referral_code = upper($1) or u.id::text = $1)`;
+      or u.deposit_addr = $1 or u.referral_code = upper($1) or u.id::text like $1 || '%')`;
 
   const base = `
     from users u
