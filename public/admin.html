@@ -371,9 +371,13 @@
     card.classList.remove('hide');
     var text = document.getElementById('warnText');
     if (bad) {
-      text.textContent = 'Latest recon came back ' + latest.verdict + ': drift ' + money(latest.drift) +
-        ' against a limit of ' + money(limitFor(latest.liabilities)) +
-        '. Recon does not freeze on its own.' + (held ? ' Currently frozen at level ' + freeze + '.' : '');
+      text.textContent = (latest.verdict === 'insolvent'
+        ? 'Latest recon came back insolvent: cover ' +
+          (latest.cover == null ? '-' : money(latest.cover)) +
+          ' against ' + money(latest.liabilities) + ' owed. The treasury cannot cover the book.'
+        : 'Latest recon came back ' + latest.verdict + ': drift ' + money(latest.drift) +
+          ' against a limit of ' + money(limitFor(latest.liabilities)) + '.') +
+        ' Recon does not freeze on its own.' + (held ? ' Currently frozen at level ' + freeze + '.' : '');
     } else {
       text.textContent = 'Frozen at level ' + freeze + (reason ? ' by ' + reason : '') +
         '. Latest verdict is ' + (latest ? latest.verdict : 'unknown') + '.';
@@ -389,7 +393,7 @@
       paintWarn(rows[0], j.freeze, j.reason);
       document.getElementById('reconOut').innerHTML = rows.length ? rows.map(function(x){
         var cls = (x.verdict === 'ok' || x.verdict === 'surplus') ? 'ok' : 'bad';
-        return '<li><div>' + new Date(x.created_at).toLocaleString() + '<span class="sub">drift ' + money(x.drift) + '</span></div><span class="pill ' + cls + '">' + x.verdict + '</span></li>';
+        return '<li><div>' + new Date(x.created_at).toLocaleString() + '<span class="sub">' + (x.verdict === 'insolvent' ? 'cover ' + (x.cover == null ? '-' : money(x.cover)) : 'drift ' + money(x.drift)) + '</span></div><span class="pill ' + cls + '">' + x.verdict + '</span></li>';
       }).join('') : '<li class="empty">No runs yet.</li>';
     } catch (_) {}
   }
