@@ -71,8 +71,14 @@
 
     <div class="grid2">
       <div class="card">
-        <span class="mono">Today</span>
-        <p class="lede" style="margin-top:8px">Since 00:00 UTC.</p>
+        <span class="mono">Flow</span>
+        <p class="lede" style="margin-top:8px" id="flowSince">Since 00:00 UTC.</p>
+        <div class="row" style="margin:8px 0">
+          <button class="btn sm" data-flow="today" type="button">Today</button>
+          <button class="btn sm" data-flow="7d" type="button">7d</button>
+          <button class="btn sm" data-flow="30d" type="button">30d</button>
+          <button class="btn sm" data-flow="all" type="button">All</button>
+        </div>
         <div class="tblwrap" style="max-height:none">
           <table class="tbl compact">
             <thead><tr><th>Flow</th><th>Count</th><th>USD</th></tr></thead>
@@ -400,6 +406,12 @@
   }
 
   document.getElementById('pGo').addEventListener('click', loadPromoters);
+  document.querySelector('[data-flow="today"]').parentNode.addEventListener('click', function(ev){
+    var b = ev.target.closest('[data-flow]');
+    if (!b) return;
+    flowRange = b.getAttribute('data-flow');
+    loadFlow();
+  });
 
   document.getElementById('pAdd').addEventListener('click', async function(){
     var e = document.getElementById('pEmail');
@@ -634,17 +646,24 @@
     if (s) userAct('tier', s.dataset.id, s.value);
   });
 
+  var flowRange = 'today';
   async function loadFlow(){
     var el = document.getElementById('flowRows');
     try {
-      var r = await fetch('/admin/flow', { headers: h() });
+      var r = await fetch('/admin/flow?range=' + flowRange, { headers: h(), cache: 'no-store' });
       var j = await r.json().catch(function(){ return {}; });
       if (!r.ok) { el.innerHTML = '<tr><td colspan="3" class="empty">' + (j.error || 'Failed.') + '</td></tr>'; return; }
       var net = Number(j.deposits.usd) - Number(j.withdrawals.usd);
+      var life = j.lifetime || { deposits: {}, withdrawals: {} };
+      var ln = Number(life.deposits.usd || 0) - Number(life.withdrawals.usd || 0);
+      document.getElementById('flowSince').textContent = flowRange === 'today' ? 'Since 00:00 UTC.' : flowRange === 'all' ? 'All time.' : 'Last ' + flowRange + '.';
       el.innerHTML =
         '<tr><td>Deposits</td><td class="num">' + j.deposits.count + '</td><td class="num">' + money(j.deposits.usd) + '</td></tr>' +
         '<tr><td>Withdrawals</td><td class="num">' + j.withdrawals.count + '</td><td class="num">' + money(j.withdrawals.usd) + '</td></tr>' +
-        '<tr><td>Net</td><td></td><td class="num">' + money(net) + '</td></tr>';
+        '<tr><td>Net</td><td></td><td class="num">' + money(net) + '</td></tr>' +
+        '<tr><td><b>Lifetime deposits</b></td><td class="num">' + (life.deposits.count || 0) + '</td><td class="num">' + money(life.deposits.usd || 0) + '</td></tr>' +
+        '<tr><td><b>Lifetime withdrawals</b></td><td class="num">' + (life.withdrawals.count || 0) + '</td><td class="num">' + money(life.withdrawals.usd || 0) + '</td></tr>' +
+        '<tr><td><b>Lifetime net</b></td><td></td><td class="num">' + money(ln) + '</td></tr>';
     } catch (_) { el.innerHTML = '<tr><td colspan="3" class="empty">Could not load.</td></tr>'; }
   }
 

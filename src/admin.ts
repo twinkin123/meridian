@@ -41,20 +41,33 @@ adminRouter.get('/treasury/destination', (_req, res) => {
   res.json({ destination: treasuryAddress() });
 });
 
-adminRouter.get('/flow', async (_req, res) => {
-  const { rows } = await pool.query<{ dep_n: string; dep_usd: string; wd_n: string; wd_usd: string }>(
-    `with d0 as (select date_trunc('day', now() at time zone 'utc') at time zone 'utc' as t)
+adminRouter.get('/flow', async (req, res) => {
+  const range = String(req.query.range ?? 'today');
+  const span = { today: '0', '7d': '7 days', '30d': '30 days', all: '200 years' }[range] ?? '0';
+  const { rows } = await pool.query<any>(
+    `with d0 as (select case when $1::interval = interval '0'
+        then date_trunc('day', now() at time zone 'utc') at time zone 'utc'
+        else now() - $1::interval end as t)
      select
        (select count(*) from deposits, d0 where created_at >= d0.t)::text dep_n,
        (select coalesce(sum(usd_at_det), 0) from deposits, d0 where created_at >= d0.t)::text dep_usd,
        (select count(*) from withdrawals, d0 where created_at >= d0.t)::text wd_n,
-       (select coalesce(sum(usd_amount), 0) from withdrawals, d0 where created_at >= d0.t)::text wd_usd`,
+       (select coalesce(sum(usd_amount), 0) from withdrawals, d0 where created_at >= d0.t)::text wd_usd,
+       (select count(*) from deposits)::text life_dep_n,
+       (select coalesce(sum(usd_at_det), 0) from deposits)::text life_dep_usd,
+       (select count(*) from withdrawals)::text life_wd_n,
+       (select coalesce(sum(usd_amount), 0) from withdrawals)::text life_wd_usd`,
+    [span],
   );
   const r = rows[0];
   res.json({
-    since: '00:00 UTC',
+    range,
     deposits: { count: Number(r.dep_n), usd: r.dep_usd },
     withdrawals: { count: Number(r.wd_n), usd: r.wd_usd },
+    lifetime: {
+      deposits: { count: Number(r.life_dep_n), usd: r.life_dep_usd },
+      withdrawals: { count: Number(r.life_wd_n), usd: r.life_wd_usd },
+    },
   });
 });
 
