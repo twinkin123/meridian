@@ -79,6 +79,11 @@
           <button class="btn sm" data-flow="30d" type="button">30d</button>
           <button class="btn sm" data-flow="all" type="button">All</button>
         </div>
+        <div class="row" style="margin:0 0 8px">
+          <input type="date" id="flowFrom" style="width:auto">
+          <input type="date" id="flowTo" style="width:auto">
+          <button class="btn sm" id="flowGo" type="button">Apply</button>
+        </div>
         <div class="tblwrap" style="max-height:none">
           <table class="tbl compact">
             <thead><tr><th>Flow</th><th>Count</th><th>USD</th></tr></thead>
@@ -406,10 +411,13 @@
   }
 
   document.getElementById('pGo').addEventListener('click', loadPromoters);
+  document.getElementById('flowGo').addEventListener('click', function(){ loadFlow(); });
   document.querySelector('[data-flow="today"]').parentNode.addEventListener('click', function(ev){
     var b = ev.target.closest('[data-flow]');
     if (!b) return;
     flowRange = b.getAttribute('data-flow');
+    document.getElementById('flowFrom').value = '';
+    document.getElementById('flowTo').value = '';
     loadFlow();
   });
 
@@ -650,13 +658,17 @@
   async function loadFlow(){
     var el = document.getElementById('flowRows');
     try {
-      var r = await fetch('/admin/flow?range=' + flowRange, { headers: h(), cache: 'no-store' });
+      var df = document.getElementById('flowFrom').value;
+var dt = document.getElementById('flowTo').value;
+var qs = 'range=' + flowRange;
+if (df) qs += '&from=' + df + (dt ? '&to=' + dt : '');
+var r = await fetch('/admin/flow?' + qs, { headers: h(), cache: 'no-store' });
       var j = await r.json().catch(function(){ return {}; });
       if (!r.ok) { el.innerHTML = '<tr><td colspan="3" class="empty">' + (j.error || 'Failed.') + '</td></tr>'; return; }
       var net = Number(j.deposits.usd) - Number(j.withdrawals.usd);
       var life = j.lifetime || { deposits: {}, withdrawals: {} };
       var ln = Number(life.deposits.usd || 0) - Number(life.withdrawals.usd || 0);
-      document.getElementById('flowSince').textContent = flowRange === 'today' ? 'Since 00:00 UTC.' : flowRange === 'all' ? 'All time.' : 'Last ' + flowRange + '.';
+      document.getElementById('flowSince').textContent = df ? (df + (dt ? ' to ' + dt : ' onwards')) : flowRange === 'today' ? 'Since 00:00 UTC.' : flowRange === 'all' ? 'All time.' : 'Last ' + flowRange + '.';
       el.innerHTML =
         '<tr><td>Deposits</td><td class="num">' + j.deposits.count + '</td><td class="num">' + money(j.deposits.usd) + '</td></tr>' +
         '<tr><td>Withdrawals</td><td class="num">' + j.withdrawals.count + '</td><td class="num">' + money(j.withdrawals.usd) + '</td></tr>' +

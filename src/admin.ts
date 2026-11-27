@@ -43,25 +43,40 @@ adminRouter.get('/treasury/destination', (_req, res) => {
 
 adminRouter.get('/flow', async (req, res) => {
   const range = String(req.query.range ?? 'today');
-  const span = { today: '0', '7d': '7 days', '30d': '30 days', all: '200 years' }[range] ?? '0';
+  const fromQ = String(req.query.from ?? '');
+  const toQ = String(req.query.to ?? '');
+  const DAY = 86_400_000;
+  let start: Date;
+  let end: Date;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(fromQ)) {
+    start = new Date(fromQ + 'T00:00:00Z');
+    end = /^\d{4}-\d{2}-\d{2}$/.test(toQ) ? new Date(new Date(toQ + 'T00:00:00Z').getTime() + DAY) : new Date(start.getTime() + DAY);
+  } else if (range === 'all') {
+    start = new Date('2000-01-01T00:00:00Z');
+    end = new Date(Date.now() + DAY);
+  } else {
+    const days = range === '7d' ? 7 : range === '30d' ? 30 : 0;
+    const midnight = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00Z');
+    start = days ? new Date(Date.now() - days * DAY) : midnight;
+    end = new Date(Date.now() + DAY);
+  }
   const { rows } = await pool.query<any>(
-    `with d0 as (select case when $1::interval = interval '0'
-        then date_trunc('day', now() at time zone 'utc') at time zone 'utc'
-        else now() - $1::interval end as t)
-     select
-       (select count(*) from deposits, d0 where created_at >= d0.t)::text dep_n,
-       (select coalesce(sum(usd_at_det), 0) from deposits, d0 where created_at >= d0.t)::text dep_usd,
-       (select count(*) from withdrawals, d0 where created_at >= d0.t)::text wd_n,
-       (select coalesce(sum(usd_amount), 0) from withdrawals, d0 where created_at >= d0.t)::text wd_usd,
+    `select
+       (select count(*) from deposits where created_at >= $1 and created_at < $2)::text dep_n,
+       (select coalesce(sum(usd_at_det), 0) from deposits where created_at >= $1 and created_at < $2)::text dep_usd,
+       (select count(*) from withdrawals where created_at >= $1 and created_at < $2)::text wd_n,
+       (select coalesce(sum(usd_amount), 0) from withdrawals where created_at >= $1 and created_at < $2)::text wd_usd,
        (select count(*) from deposits)::text life_dep_n,
        (select coalesce(sum(usd_at_det), 0) from deposits)::text life_dep_usd,
        (select count(*) from withdrawals)::text life_wd_n,
        (select coalesce(sum(usd_amount), 0) from withdrawals)::text life_wd_usd`,
-    [span],
+    [start.toISOString(), end.toISOString()],
   );
   const r = rows[0];
   res.json({
     range,
+    from: start.toISOString(),
+    to: end.toISOString(),
     deposits: { count: Number(r.dep_n), usd: r.dep_usd },
     withdrawals: { count: Number(r.wd_n), usd: r.wd_usd },
     lifetime: {
