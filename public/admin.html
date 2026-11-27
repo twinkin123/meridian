@@ -204,7 +204,7 @@
   }
 
   async function unlock(){
-    var t = document.getElementById('tok').value.trim();
+    var t = (document.getElementById('tok').value || '').trim() || token;
     if (!t) return msg('gateMsg', 'Enter the token.', 'err');
     token = t;
     localStorage.setItem('admin_token', t);
