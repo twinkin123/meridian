@@ -77,3 +77,10 @@ html body .brand img.brand-mark{height:50px;width:auto;max-width:120px;object-fi
   .head .r .btn{padding:7px 12px!important;flex:0 0 auto}
   main{padding-bottom:96px!important}
 }
+
+/* mark back up to a readable size, row one tightened */
+@media (max-width:620px){
+  html body .brand img.brand-mark{height:34px!important;max-width:34px!important}
+  .head .l{align-items:center!important;gap:10px!important}
+  .head{row-gap:8px!important}
+}
