@@ -239,6 +239,6 @@ export async function runRecon(actor = 'manual') {
 }
 
 export async function latestRuns(limit = 20) {
-  const { rows } = await pool.query(`select * from recon_runs order by id desc limit $1`, [limit]);
+  const { rows } = await pool.query(`select *, (chain_usd::bigint - liabilities::bigint)::text as cover from recon_runs order by id desc limit $1`, [limit]);
   return rows;
 }

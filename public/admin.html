@@ -120,7 +120,7 @@
             <th>Joined</th>
             <th>Last seen</th>
             <th>Available</th>
-            <th>Reserve</th><th>Locked</th><th>Vesting</th><th>Rewards</th><th>Lifetime</th><th>Staked in</th><th>Staked</th><th>Withdrawn</th><th>Actions</th>
+            <th>Reserve</th><th>Locked</th><th>Funded</th><th>Vesting</th><th>Rewards</th><th>Lifetime</th><th>Staked in</th><th>Staked</th><th>Withdrawn</th><th>Actions</th>
           </tr></thead>
           <tbody id="promoters"><tr><td colspan="15" class="empty">Loading...</td></tr></tbody>
         </table>
@@ -262,7 +262,7 @@
         ['Ledger assets', money(j.assets)],
         ['Liabilities', money(j.liabilities)],
         ['Margin', money(j.margin)],
-        ['Cover', money(j.cover)]
+        ['Cover', j.cover == null ? '-' : money(j.cover)]
       ];
       document.getElementById('reconOut').innerHTML = rows.map(function(x){
         return '<li><div>' + x[0] + '</div><div>' + x[1] + '</div></li>';
@@ -575,11 +575,12 @@
           '<td class="num">' + money(u.available) + '</td>' +
           '<td class="num">' + money(u.reserve) + '</td>' +
           '<td class="num">' + money(u.locked) + '</td>' +
+          '<td class="num">' + money(u.funded) + '</td>' +
           '<td class="num">' + money(u.vesting) + '</td>' +
           '<td class="num">' + money(u.rewards) + '</td>' +
           '<td class="num">' + money(u.life_usd) + '</td>' +
           '<td class="num">' + money(u.ref_usd) + '<span class="sub">' + u.ref_n + ' referred</span></td>' +
-          '<td class="num">' + money(u.dep_usd) + '<span class="sub">' + u.dep_n + ' staked</span></td>' +
+          '<td class="num">' + money(u.locked) + '<span class="sub">' + u.dep_n + ' staked</span></td>' +
           '<td class="num">' + money(u.wd_usd) + '<span class="sub">' + u.wd_n + ' wd</span></td>' +
           '<td class="acts">' + acts + '</td>' +
         '</tr>';
@@ -690,7 +691,9 @@ var r = await fetch('/admin/flow?' + qs, { headers: h(), cache: 'no-store' });
         '<tr><td>USDC on chain</td><td class="num">' + money(j.usdc) + '</td></tr>' +
         '<tr><td>SOL on chain</td><td class="num">' + (Number(j.lamports) / 1e9).toFixed(4) + '</td></tr>' +
         '<tr><td>SOL value</td><td class="num">' + money(j.solUsd) + '</td></tr>' +
+        '<tr><td>Paper</td><td class="num">' + money(j.paper || 0) + '</td></tr>' +
         '<tr><td>Ledger assets</td><td class="num">' + money(j.assets) + '</td></tr>' +
+        '<tr><td>Cover</td><td class="num"' + (Number(j.cover) < 0 ? ' style="color:#e5484d"' : '') + '>' + (j.cover == null ? '-' : money(j.cover)) + '</td></tr>' +
         '<tr><td>Liabilities</td><td class="num">' + money(j.liabilities) + '</td></tr>' +
         '<tr><td>Margin</td><td class="num">' + money(j.margin) + '</td></tr>' +
         '<tr><td>Cover</td><td class="num">' + money(j.cover) + '</td></tr>';

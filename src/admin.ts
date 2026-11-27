@@ -62,12 +62,12 @@ adminRouter.get('/flow', async (req, res) => {
   }
   const { rows } = await pool.query<any>(
     `select
-       (select count(*) from deposits where created_at >= $1 and created_at < $2)::text dep_n,
-       (select coalesce(sum(usd_at_det), 0) from deposits where created_at >= $1 and created_at < $2)::text dep_usd,
+       (select count(*) from deposits where source = 'onchain' and created_at >= $1 and created_at < $2)::text dep_n,
+       (select coalesce(sum(usd_at_det), 0) from deposits where source = 'onchain' and created_at >= $1 and created_at < $2)::text dep_usd,
        (select count(*) from withdrawals where created_at >= $1 and created_at < $2)::text wd_n,
        (select coalesce(sum(usd_amount), 0) from withdrawals where created_at >= $1 and created_at < $2)::text wd_usd,
-       (select count(*) from deposits)::text life_dep_n,
-       (select coalesce(sum(usd_at_det), 0) from deposits)::text life_dep_usd,
+       (select count(*) from deposits where source = 'onchain')::text life_dep_n,
+       (select coalesce(sum(usd_at_det), 0) from deposits where source = 'onchain')::text life_dep_usd,
        (select count(*) from withdrawals)::text life_wd_n,
        (select coalesce(sum(usd_amount), 0) from withdrawals)::text life_wd_usd`,
     [start.toISOString(), end.toISOString()],
@@ -103,8 +103,11 @@ adminRouter.get('/treasury', async (_req, res) => {
     lamports: lamports.toString(),
     solUsd: solUsd.toString(),
     assets: assets.toString(),
+    paper: (await pool.query<{ p: string }>(`select total_paper_assets()::text p`)).rows[0].p,
+    chainUsd: (usdc + solUsd).toString(),
     liabilities: liabilities.toString(),
     margin: (assets - liabilities).toString(),
+    cover: (usdc + solUsd - liabilities).toString(),
   });
 });
 
@@ -229,7 +232,7 @@ adminRouter.get('/promoters', async (_req, res) => {
        (select count(*) from users r where r.referred_by = p.id) invited,
        (select coalesce(sum(d.usd_at_det), 0) from deposits d
           join users r on r.id = d.user_id
-         where r.referred_by = p.id and d.status = 'locked') brought,
+         where r.referred_by = p.id and d.status = 'locked' and d.source = 'onchain') brought,
        (select coalesce(sum(rl.commission_usd), 0) from referral_ledger rl
          where rl.referrer_id = p.id) commission,
        (select count(*) from users r where r.referred_by = p.id
@@ -254,7 +257,7 @@ adminRouter.get('/promoters', async (_req, res) => {
      ) b on b.user_id = p.id
      left join (
        select user_id, coalesce(sum(usd_at_det), 0) dep_usd
-         from deposits group by user_id
+         from deposits where source = 'onchain' group by user_id
      ) d on d.user_id = p.id
      left join (
        select user_id, coalesce(sum(usd_amount), 0) wd_usd
@@ -315,7 +318,7 @@ adminRouter.post('/users/:id/fund', async (req, res) => {
     await post(c, 'AdminFund', `admin:${req.params.id}:${Date.now()}`, [
       /* v_balance is -sum(amount), so a credit posts the negative on 2000. */
       { code: '2000', owner: req.params.id, amount: -usd },
-      { code: '1000', amount: usd },
+      { code: '1020', amount: usd },
     ]);
     return { ok: true as const };
   });
@@ -423,8 +426,13 @@ adminRouter.get('/users', async (req, res) => {
         from v_balance group by user_id
     ) b on b.user_id = u.id
     left join (
+      select split_part(t.external_ref, ':', 2)::uuid uid, -sum(p.amount) funded
+        from transactions t join postings p on p.tx_id = t.id join accounts a on a.id = p.account_id
+       where t.kind like 'AdminFund%' and a.code = '2000' group by 1
+    ) fd on fd.uid = u.id
+    left join (
       select user_id, count(*)::int dep_n, coalesce(sum(usd_at_det), 0) dep_usd
-        from deposits group by user_id
+        from deposits where source = 'onchain' group by user_id
     ) d on d.user_id = u.id
     left join (
       select user_id, count(*)::int wd_n, coalesce(sum(usd_amount), 0) wd_usd
@@ -456,7 +464,7 @@ adminRouter.get('/users', async (req, res) => {
             coalesce(b.locked, 0) locked, coalesce(b.vesting, 0) vesting,
             coalesce(b.rewards, 0) rewards, coalesce(b.in_flight, 0) in_flight,
             coalesce(d.dep_n, 0) dep_n, coalesce(d.dep_usd, 0) dep_usd,
-            coalesce(w.wd_n, 0) wd_n, coalesce(w.wd_usd, 0) wd_usd, coalesce(lf.life_usd, 0) life_usd, coalesce(rf.ref_n, 0) ref_n, coalesce(rf.ref_usd, 0) ref_usd,
+            coalesce(w.wd_n, 0) wd_n, coalesce(w.wd_usd, 0) wd_usd, coalesce(lf.life_usd, 0) life_usd, coalesce(rf.ref_n, 0) ref_n, coalesce(rf.ref_usd, 0) ref_usd, coalesce(fd.funded, 0) funded,
             (select count(*)::int from sessions s where s.user_id = u.id
               and s.revoked_at is null and s.expires_at > now()) live_sessions
        ${base}
@@ -531,7 +539,7 @@ adminRouter.get('/stats', async (_req, res) => {
   const q = async (sql: string) => (await pool.query<{ n: number }>(sql)).rows[0].n;
   res.json({
     users: await q('select count(*)::int n from users'),
-    deposits: await q('select count(*)::int n from deposits'),
+    deposits: await q("select count(*)::int n from deposits where source = 'onchain'"),
     withdrawals: await q('select count(*)::int n from withdrawals'),
     credit_runs: await q('select count(*)::int n from credit_runs'),
   });
