@@ -36,7 +36,7 @@ export async function payReferral(t: Tx, userId: string, depositId: string, usd:
   await ensure(t, referrer);
 
   const txId = await post(t, 'ReferralCommission', `ref:first:${depositId}`, [
-    { code: '2000', owner: referrer, amount: -commission },
+    { code: '2080', owner: referrer, amount: -commission },
     { code: '5010', amount: commission },
   ]);
 

@@ -1,5 +1,5 @@
 (function () {
-  var overlay = null, balEl = null, bal = '0', lockY = 0;
+  var overlay = null, balEl = null, bal = '0', lockY = 0, mode = 'available';
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -42,7 +42,7 @@
   function close() {
     if (!overlay) return;
     overlay.remove();
-    overlay = null; balEl = null;
+    overlay = null; balEl = null; mode = 'available';
     document.body.classList.remove('wd-open');
     setTimeout(function(){ document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }, 0);
     setTimeout(function(){ document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }, 80);
@@ -55,11 +55,19 @@
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) {
         if (!j) return null;
-        bal = j.balance || '0';
+        bal = (mode === 'rewards' ? (j.rewards || '0') : (j.balance || '0'));
         var n = Number(bal) / 1e6;
-        if (balEl) balEl.textContent = n > 0 ? money(bal) + ' available to withdraw' : 'No available balance right now';
+        if (balEl) balEl.textContent = n > 0
+          ? money(bal) + (mode === 'rewards' ? ' in referral rewards' : ' available to withdraw')
+          : (mode === 'rewards' ? 'No referral rewards yet' : 'No available balance right now');
         var all = document.getElementById('wAll');
-        if (all) all.disabled = !(n >= 10);
+        if (all) all.disabled = mode === 'rewards' ? !(n > 0) : !(n >= 10);
+        var min = document.getElementById('minLine');
+        if (min) min.textContent = mode === 'rewards'
+          ? 'No minimum on referral rewards.'
+          : '$10 minimum. Anything under $10 stays until it reaches $10. New addresses are capped.';
+        var cap = document.getElementById('capLine');
+        if (cap && mode === 'rewards') cap.textContent = '';
         return j;
       })
       .catch(function () { return null; });
@@ -76,7 +84,7 @@
     fetch('/wallet/withdraw', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ asset: asset, address: address, usd: String(Math.round(Number(usd) * 1e6)) })
+      body: JSON.stringify({ asset: asset, address: address, usd: String(Math.round(Number(usd) * 1e6)), source: mode })
     })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
@@ -144,7 +152,7 @@
     sheet.appendChild(balEl);
 
     var card = el('div', 'wd-card');
-    card.innerHTML = '<p class="hint">$10 minimum. Anything under $10 stays until it reaches $10. New addresses are capped.</p>'
+    card.innerHTML = '<p class="hint" id="minLine">$10 minimum. Anything under $10 stays until it reaches $10. New addresses are capped.</p>'
       + '<div class="msg" id="wMsg"></div>'
       + '<div class="field"><label for="wAddr">Destination address</label><input id="wAddr" type="text" placeholder="Solana address" spellcheck="false" autocomplete="off"></div>'
       + '<div class="field"><label for="wAsset">Asset</label><select id="wAsset"><option value="SOL">SOL</option><option value="USDC">USDC</option></select></div>'
@@ -169,6 +177,12 @@
   }
 
   function rewards() {
+    mode = 'rewards';
+    if (!overlay) { open(); return; }
+    loadBal();
+  }
+
+  function rewardsLegacy() {
     var addr = document.getElementById('wAddr');
     var mine = (addr && addr.value.trim()) || '';
     if (!mine) { open(); return; }
@@ -196,6 +210,7 @@
 
   function open() {
     if (overlay) return;
+    mode = 'available';
     build();
     loadBal();
     setTimeout(function () { var a = document.getElementById('wAddr'); if (a) { a.focus({ preventScroll: true }); } var s = document.querySelector('.wd-sheet'); if (s) s.scrollTop = 0; }, 60);
