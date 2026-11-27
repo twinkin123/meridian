@@ -120,7 +120,7 @@
             <th>Joined</th>
             <th>Last seen</th>
             <th>Available</th>
-            <th>Reserve</th><th>Locked</th><th>Funded</th><th>Vesting</th><th>Rewards</th><th>Lifetime</th><th>Staked in</th><th>Staked</th><th>Withdrawn</th><th>Actions</th>
+            <th>Reserve</th><th>Locked</th><th>Funded</th><th>Vesting</th><th>Rewards</th><th>Lifetime</th><th>Staked</th><th>Withdrawn</th><th>Actions</th>
           </tr></thead>
           <tbody id="promoters"><tr><td colspan="15" class="empty">Loading...</td></tr></tbody>
         </table>
@@ -574,13 +574,12 @@
             '<span class="sub">' + u.live_sessions + ' session(s)</span></td>' +
           '<td class="num">' + money(u.available) + '</td>' +
           '<td class="num">' + money(u.reserve) + '</td>' +
-          '<td class="num">' + money(u.locked) + '</td>' +
+          '<td class="num">' + money(u.locked) + '<span class="sub">' + u.stake_n + ' stakes</span></td>' +
           '<td class="num">' + money(u.funded) + '</td>' +
           '<td class="num">' + money(u.vesting) + '</td>' +
           '<td class="num">' + money(u.rewards) + '</td>' +
           '<td class="num">' + money(u.life_usd) + '</td>' +
           '<td class="num">' + money(u.ref_usd) + '<span class="sub">' + u.ref_n + ' referred</span></td>' +
-          '<td class="num">' + money(u.locked) + '<span class="sub">' + u.dep_n + ' staked</span></td>' +
           '<td class="num">' + money(u.wd_usd) + '<span class="sub">' + u.wd_n + ' wd</span></td>' +
           '<td class="acts">' + acts + '</td>' +
         '</tr>';

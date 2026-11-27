@@ -431,6 +431,10 @@ adminRouter.get('/users', async (req, res) => {
        where t.kind like 'AdminFund%' and a.code = '2000' group by 1
     ) fd on fd.uid = u.id
     left join (
+      select user_id, count(*)::int stake_n
+        from deposits where source = 'stake' and released_at is null group by user_id
+    ) st on st.user_id = u.id
+    left join (
       select user_id, count(*)::int dep_n, coalesce(sum(usd_at_det), 0) dep_usd
         from deposits where source = 'onchain' group by user_id
     ) d on d.user_id = u.id
@@ -464,7 +468,7 @@ adminRouter.get('/users', async (req, res) => {
             coalesce(b.locked, 0) locked, coalesce(b.vesting, 0) vesting,
             coalesce(b.rewards, 0) rewards, coalesce(b.in_flight, 0) in_flight,
             coalesce(d.dep_n, 0) dep_n, coalesce(d.dep_usd, 0) dep_usd,
-            coalesce(w.wd_n, 0) wd_n, coalesce(w.wd_usd, 0) wd_usd, coalesce(lf.life_usd, 0) life_usd, coalesce(rf.ref_n, 0) ref_n, coalesce(rf.ref_usd, 0) ref_usd, coalesce(fd.funded, 0) funded,
+            coalesce(w.wd_n, 0) wd_n, coalesce(w.wd_usd, 0) wd_usd, coalesce(lf.life_usd, 0) life_usd, coalesce(rf.ref_n, 0) ref_n, coalesce(rf.ref_usd, 0) ref_usd, coalesce(fd.funded, 0) funded, coalesce(st.stake_n, 0) stake_n,
             (select count(*)::int from sessions s where s.user_id = u.id
               and s.revoked_at is null and s.expires_at > now()) live_sessions
        ${base}
