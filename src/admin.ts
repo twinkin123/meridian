@@ -257,7 +257,7 @@ adminRouter.get('/promoters', async (_req, res) => {
      ) b on b.user_id = p.id
      left join (
        select user_id, coalesce(sum(usd_at_det), 0) dep_usd
-         from deposits where source = 'onchain' group by user_id
+         from deposits where source = 'stake' group by user_id
      ) d on d.user_id = p.id
      left join (
        select user_id, coalesce(sum(usd_amount), 0) wd_usd
