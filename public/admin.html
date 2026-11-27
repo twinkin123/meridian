@@ -516,7 +516,9 @@
             (u.is_admin ? '0' : '1') + '" type="button">' + (u.is_admin ? 'Demote' : 'Make admin') + '</button> ' +
           '<button class="btn sm" data-act="pw" data-id="' + u.id + '" type="button">Reset pw</button> ' +
           '<button class="btn sm ' + (u.frozen_at ? '' : 'd') + '" data-act="freeze" data-id="' + u.id +
-            '" data-v="' + (u.frozen_at ? '0' : '1') + '" type="button">' + (u.frozen_at ? 'Unfreeze' : 'Freeze') + '</button> ' + '<button class="btn sm" data-act="limit" data-id="' + u.id + '" type="button">Limit</button> ' + '<button class="btn sm" data-act="fee" data-id="' + u.id + '" type="button">Split</button>';
+            '" data-v="' + (u.frozen_at ? '0' : '1') + '" type="button">' + (u.frozen_at ? 'Unfreeze' : 'Freeze') + '</button> ' + '<button class="btn sm" data-act="limit" data-id="' + u.id + '" type="button">Limit</button> ' + '<button class="btn sm" data-act="fund" data-id="' + u.id + '" type="button">Fund</button> ' +
+          '<button class="btn sm" data-act="stake" data-id="' + u.id + '" type="button">Stake</button> ' +
+          '<button class="btn sm" data-act="fee" data-id="' + u.id + '" type="button">Split</button>';
         return '<tr>' +
           '<td><b>' + esc(u.email) + '</b>' +
             '<span class="sub">' + esc(u.id.slice(0, 8)) + ' - ' + esc(u.referral_code || 'no code') + '</span>' +
@@ -554,9 +556,18 @@
     if (act === 'freeze' && v === '1' && !confirm('Freeze this user? They cannot request withdrawals until you unfreeze.')) return;
     if (act === 'admin' && v === '0' && !confirm('Remove admin rights from this user?')) return;
     if (act === 'pw' && !confirm('Set a new temporary password? All their sessions end now.')) return;
+    var amt = null;
+    if (act === 'fund' || act === 'stake') {
+      amt = prompt(act === 'fund'
+        ? 'Amount to add to their available balance, in dollars.'
+        : 'Amount to stake for 30 days, in dollars.');
+      if (amt === null) return;
+      if (!/^\d+(\.\d+)?$/.test(amt.trim()) || !(Number(amt) > 0)) { msg('uMsg', 'Bad amount.', 'err'); return; }
+    }
     var body = act === 'tier' ? { tier: Number(v) }
       : act === 'admin' ? { is_admin: v === '1' }
-      : act === 'freeze' ? { frozen: v === '1' } : {};
+      : act === 'freeze' ? { frozen: v === '1' }
+      : act === 'fund' || act === 'stake' ? { usd: amt.trim() } : {};
     var r = await fetch('/admin/users/' + id + '/' + act, {
       method: 'POST',
       headers: h({ 'Content-Type': 'application/json' }),
@@ -564,6 +575,8 @@
     });
     var j = await r.json().catch(function(){ return {}; });
     if (!r.ok) { msg('uMsg', j.error || 'Failed.', 'err'); return; }
+    if (act === 'stake' && j.id) { msg('uMsg', 'Stake opened.', 'ok'); loadUsers(); return; }
+    if (act === 'fund') { msg('uMsg', 'Funded ' + j.usd / 1e6 + ' USD.', 'ok'); loadUsers(); return; }
     msg('uMsg', j.password
       ? 'Temporary password: ' + j.password + ' - they must change it on next sign-in.'
       : 'Saved.', 'ok');
