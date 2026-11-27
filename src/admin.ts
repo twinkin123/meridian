@@ -232,7 +232,7 @@ adminRouter.get('/promoters', async (_req, res) => {
        (select count(*) from users r where r.referred_by = p.id) invited,
        (select coalesce(sum(d.usd_at_det), 0) from deposits d
           join users r on r.id = d.user_id
-         where r.referred_by = p.id and d.status = 'locked' and d.source = 'onchain') brought,
+         where r.referred_by = p.id and d.source = 'stake') brought,
        (select coalesce(sum(rl.commission_usd), 0) from referral_ledger rl
          where rl.referrer_id = p.id) commission,
        (select count(*) from users r where r.referred_by = p.id
