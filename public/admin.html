@@ -149,6 +149,7 @@
             <th><button data-sort="available" type="button">Available</button></th>
             <th><button data-sort="reserve" type="button">Reserve</button></th>
             <th><button data-sort="locked" type="button">Locked</button></th>
+            <th>Funded</th>
             <th>Vesting</th>
             <th>Rewards</th>
             <th><button data-sort="lifetime" type="button">TOTAL BROUGHT IN</button></th>
@@ -580,6 +581,7 @@
           '<td class="num">' + money(u.available) + '</td>' +
           '<td class="num">' + money(u.reserve) + '</td>' +
           '<td class="num">' + money(u.locked) + '<span class="sub">' + u.stake_n + ' stakes</span></td>' +
+          '<td class="num">' + money(u.funded) + '</td>' +
           '<td class="num">' + money(u.funded) + '</td>' +
           '<td class="num">' + money(u.vesting) + '</td>' +
           '<td class="num">' + money(u.rewards) + '</td>' +
