@@ -57,9 +57,26 @@
         if (!j) return null;
         bal = (mode === 'rewards' ? (j.rewards || '0') : (j.balance || '0'));
         var n = Number(bal) / 1e6;
-        if (balEl) balEl.textContent = n > 0
-          ? money(bal) + (mode === 'rewards' ? ' in referral rewards' : ' available to withdraw')
-          : (mode === 'rewards' ? 'No referral rewards yet' : 'No available balance right now');
+        var other = mode === 'rewards' ? (j.balance || '0') : (j.rewards || '0');
+        var on = Number(other) / 1e6;
+        if (balEl) {
+          var main = n > 0
+            ? money(bal) + (mode === 'rewards' ? ' in referral rewards' : ' available to withdraw')
+            : (mode === 'rewards' ? 'No referral rewards yet' : 'No available balance right now');
+          balEl.textContent = '';
+          balEl.appendChild(document.createTextNode(main));
+          var subTxt = mode === 'rewards'
+            ? (on > 0 ? money(other) + ' available to withdraw' : '')
+            : (on > 0 ? money(other) + ' in referral rewards' : '');
+          if (subTxt) {
+            var sp = document.createElement('div');
+            sp.textContent = subTxt;
+            sp.style.opacity = '0.7';
+            sp.style.fontSize = '0.85em';
+            sp.style.marginTop = '4px';
+            balEl.appendChild(sp);
+          }
+        }
         var all = document.getElementById('wAll');
         if (all) all.disabled = mode === 'rewards' ? !(n > 0) : !(n >= 10);
         var min = document.getElementById('minLine');
