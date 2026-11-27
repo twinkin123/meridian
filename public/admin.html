@@ -406,8 +406,8 @@
     var e = document.getElementById('pEmail');
     var m = document.getElementById('pMsg');
     m.textContent = '';
-    var v = (e.value || '').trim();
-    if (!v) { m.textContent = 'Enter an email.'; return; }
+    var v = (e.value || '').trim() || (document.getElementById('uSearch').value || '').trim();
+    if (!v) { m.textContent = 'Enter an email or account id.'; return; }
     var r = await fetch('/admin/promoters', { method: 'POST', headers: h({ 'Content-Type': 'application/json' }), body: JSON.stringify({ email: v }) });
     if (!r.ok) {
       var j = await r.json().catch(function(){ return {}; });
