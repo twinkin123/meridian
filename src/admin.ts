@@ -439,7 +439,7 @@ adminRouter.get('/users', async (req, res) => {
       ) v group by v.user_id
     ) lf on lf.user_id = u.id
     left join (
-      select u2.referred_by, count(*)::int ref_n,
+      select u2.referred_by, count(distinct u2.id)::int ref_n,
              coalesce(sum(case when d2.status = 'credited' then d2.usd_at_det else 0 end), 0) ref_usd
         from users u2
         left join deposits d2 on d2.user_id = u2.id
