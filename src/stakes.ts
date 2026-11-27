@@ -30,8 +30,8 @@ export async function stake(userId: string, amount: bigint): Promise<StakeResult
     if (BigInt(bal.rows[0]?.b ?? '0') < amount) return { ok: false, error: 'insufficient' };
 
     const d = await c.query<{ id: string }>(
-      `insert into deposits (user_id, sig, asset, qty, usd_at_det, status, unlock_at)
-       values ($1, $2, 'USDC', $3, $3, 'locked', now() + ($4 || ' days')::interval)
+      `insert into deposits (user_id, sig, asset, qty, usd_at_det, status, unlock_at, source)
+       values ($1, $2, 'USDC', $3, $3, 'locked', now() + ($4 || ' days')::interval, 'stake')
        returning id`,
       [userId, 'stake:' + randomUUID(), amount.toString(), String(STAKE_DAYS)],
     );
