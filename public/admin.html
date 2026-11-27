@@ -335,6 +335,11 @@
     loadClaims();
   }
 
+  function sweepQty(a, raw){
+    var d = a === 'SOL' ? 9 : 6;
+    return (Number(raw || 0) / Math.pow(10, d)).toFixed(d === 9 ? 6 : 2);
+  }
+
   async function loadSweeps(){
     var el = document.getElementById('sweeps');
     try {
@@ -343,7 +348,11 @@
       var rows = j.sweeps || [];
       el.innerHTML = rows.length
         ? rows.map(function(s){
-            return '<li><div>' + s.deposit_address + '<span class="sub">' + s.asset + ' ' + s.amount_raw + '</span></div><span class="pill">' + s.status + '</span></li>';
+            return '<li><div>' + esc(s.deposit_address.slice(0, 4) + '...' + s.deposit_address.slice(-4)) +
+              '<span class="sub">' + esc(s.asset) + ' ' + sweepQty(s.asset, s.amount_raw) + ' - ' + ago(s.created_at) +
+              (Number(s.attempts) > 1 ? ' - ' + s.attempts + ' attempts' : '') + '</span>' +
+              (s.error ? '<span class="sub" style="color:#e5484d">' + esc(s.error) + '</span>' : '') +
+              '</div><span class="pill' + (s.status === 'failed' ? ' bad' : '') + '">' + esc(s.status) + '</span></li>';
           }).join('')
         : '<li class="empty">No sweeps.</li>';
     } catch (_) { el.innerHTML = '<li class="empty">Could not load.</li>'; }
