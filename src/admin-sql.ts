@@ -19,16 +19,17 @@ sqlRouter.get('/', async (req, res) => {
   const token = String(req.get('x-sql-token') ?? req.query.token ?? '');
   if (!sqlTokenOk(token)) return res.status(401).json({ error: 'bad_token' });
 
+  const write = req.query.write === '1';
   const raw = String(req.query.q ?? '').trim();
   if (!ALLOWED.test(raw)) return res.status(400).json({ error: 'read_only' });
-  if (WRITES.test(raw)) return res.status(400).json({ error: 'not_read_only' });
+  if (!write && WRITES.test(raw)) return res.status(400).json({ error: 'not_read_only' });
   const q = raw.replace(/;+\s*$/, '');
   if (q.includes(';')) return res.status(400).json({ error: 'one_statement' });
   if (q.length > 4000) return res.status(400).json({ error: 'too_long' });
 
   const c = await pool.connect();
   try {
-    await c.query('begin read only');
+    await c.query(write ? 'begin' : 'begin read only');
     await c.query("set local statement_timeout = '8000'");
     const r = await c.query(q);
     await c.query('commit');

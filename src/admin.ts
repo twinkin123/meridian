@@ -246,8 +246,9 @@ adminRouter.post('/users/:id/fund', async (req, res) => {
     /* Treasury-sourced credit: the balance rises and account 1000 takes the
        other leg, so the ledger stays balanced and recon sees the drift. */
     await post(c, 'AdminFund', `admin:${req.params.id}:${Date.now()}`, [
-      { code: '2000', owner: req.params.id, amount: usd },
-      { code: '1000', amount: -usd },
+      /* v_balance is -sum(amount), so a credit posts the negative on 2000. */
+      { code: '2000', owner: req.params.id, amount: -usd },
+      { code: '1000', amount: usd },
     ]);
     return { ok: true as const };
   });
