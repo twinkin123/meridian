@@ -96,7 +96,7 @@
       <span class="mono">Promoters</span>
       <p class="lede" style="margin-top:8px">Everyone who has referred at least one account, with what those accounts brought in and what was paid out. Same IP counts invitees that share a promoter's address.</p>
       <div class="uhead">
-        <input id="pEmail" type="email" placeholder="Promoter email" spellcheck="false">
+        <input id="pEmail" type="email" placeholder="Promoter email or account id" spellcheck="false">
         <button class="btn" id="pAdd" type="button">Add promoter</button>
       </div>
       <div id="pTotals"></div>
@@ -411,7 +411,7 @@
     var r = await fetch('/admin/promoters', { method: 'POST', headers: h(), body: JSON.stringify({ email: v }) });
     if (!r.ok) {
       var j = await r.json().catch(function(){ return {}; });
-      m.textContent = j.error === 'no_such_user' ? 'No account with that email.' : 'Could not add.';
+      m.textContent = j.error === 'no_such_user' ? 'No account with that email or id.' : 'Could not add.';
       return;
     }
     e.value = ''; m.textContent = 'Added.'; loadPromoters();
