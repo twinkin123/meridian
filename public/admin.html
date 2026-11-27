@@ -430,7 +430,7 @@
     var box = document.getElementById('promoters');
     var tot = document.getElementById('pTotals');
     try {
-      var r = await fetch('/admin/promoters', { headers: h() });
+      var r = await fetch('/admin/promoters?t=' + Date.now(), { headers: h(), cache: 'no-store' });
       var j = await r.json().catch(function(){ return {}; });
       if (!r.ok) { box.innerHTML = '<tr><td colspan="15" class="empty">' + esc(j.error || 'Could not load.') + '</td></tr>'; return; }
       var rows = j.promoters || [];
