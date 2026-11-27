@@ -219,7 +219,7 @@ adminRouter.get('/promoters', async (_req, res) => {
 adminRouter.post('/promoters', async (req, res) => {
   const email = String(req.body?.email ?? '').trim().toLowerCase();
   if (!email) return res.status(400).json({ error: 'bad_email' });
-  const r = await pool.query(`update users set is_promoter = true where lower(email) = $1 returning id`, [email]);
+  const r = await pool.query(`update users set is_promoter = true where lower(email) = $1 or id::text like $1 || '%' returning id`, [email]);
   if (r.rowCount === 0) return res.status(404).json({ error: 'no_such_user' });
   res.json({ ok: true });
 });
