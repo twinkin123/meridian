@@ -106,11 +106,17 @@ export async function requestWithdrawal(
     await c.query('select id from users where id = $1 for update', [userId]);
     await ensure(c, userId);
 
-    const bal = await c.query<{ b: string }>(
-      `select coalesce(balance, 0) b from v_balance where user_id = $1 and code = $2`,
-      [userId, code],
+    const both = await c.query<{ code: string; b: string }>(
+      `select code, coalesce(balance, 0)::text b from v_balance
+         where user_id = $1 and code in ('2000','2080')`,
+      [userId],
     );
-    const balance = BigInt(bal.rows[0]?.b ?? 0);
+    const rwBal = BigInt(both.rows.find((x) => x.code === '2080')?.b ?? '0');
+    const avBal = BigInt(both.rows.find((x) => x.code === '2000')?.b ?? '0');
+    /* Referral rewards are spendable: they show in available and are drawn first. */
+    const balance = source === 'rewards' ? rwBal : rwBal + avBal;
+    const fromRw = source === 'rewards' ? usd : (usd < rwBal ? usd : rwBal);
+    const fromAv = usd - fromRw;
 
     if (usd > balance) return { ok: false, error: 'insufficient' };
     /* The minimum is absolute. Closing a balance under $10 no longer bypasses it,
@@ -200,18 +206,19 @@ export async function requestWithdrawal(
     const status = autoOk ? 'approved' : 'requested';
 
     const row = await c.query<{ id: string }>(
-      `insert into withdrawals (user_id, asset, address, usd_amount, fee, status, requested_by, approved_by, source)
-       values ($1, $2, $3, $4, $5, $6, $1, $7, $8)
+      `insert into withdrawals (user_id, asset, address, usd_amount, fee, status, requested_by, approved_by, source, from_rewards)
+       values ($1, $2, $3, $4, $5, $6, $1, $7, $8, $9)
        returning id`,
-      [userId, asset, address, net.toString(), fee.toString(), status, autoOk ? 'auto' : null, source],
+      [userId, asset, address, net.toString(), fee.toString(), status, autoOk ? 'auto' : null, source, fromRw.toString()],
     );
     const id = row.rows[0].id;
 
-    await post(c, 'WithdrawalRequested', id, [
-      { code, owner: userId, amount: usd },
-      { code: '2010', owner: userId, amount: -net },
-      { code: '4000', amount: -fee },
-    ]);
+    const legs: { code: string; owner?: string; amount: bigint }[] = [];
+    if (fromRw > 0n) legs.push({ code: '2080', owner: userId, amount: fromRw });
+    if (fromAv > 0n) legs.push({ code: '2000', owner: userId, amount: fromAv });
+    legs.push({ code: '2010', owner: userId, amount: -net });
+    legs.push({ code: '4000', amount: -fee });
+    await post(c, 'WithdrawalRequested', id, legs);
 
     await notify(c, userId, autoOk ? 'withdrawal_approved' : 'withdrawal_requested',
       autoOk
@@ -289,8 +296,8 @@ async function refundWithdrawal(
   const out = await tx(async (c) => {
     const r = await c.query<{
       user_id: string; usd_amount: string; fee: string; source: string; status: string;
-      privy_action_id: string | null;
-    }>(`select user_id, usd_amount, fee, source, status, privy_action_id from withdrawals where id = $1 for update`, [id]);
+      privy_action_id: string | null; from_rewards: string;
+    }>(`select user_id, usd_amount, fee, source, status, privy_action_id, from_rewards from withdrawals where id = $1 for update`, [id]);
 
     const w = r.rows[0];
     if (!w || !['requested', 'approved', 'sending'].includes(w.status)) return null;
@@ -303,18 +310,20 @@ async function refundWithdrawal(
     const net = BigInt(w.usd_amount);
     const fee = BigInt(w.fee);
     const gross = net + fee;
-    const back = w.source === 'rewards' ? '2080' : '2000';
-    const where = w.source === 'rewards' ? 'your referral rewards' : 'your available balance';
+    const backRw = BigInt(w.from_rewards ?? '0');
+    const backAv = gross - backRw;
+    const where = 'your available balance';
 
     await ensure(c, w.user_id);
     await c.query(`update withdrawals set status = $2, error = $3 where id = $1`, [
       id, final, msg ? msg.slice(0, 400) : null,
     ]);
-    await post(c, 'WithdrawalFailed', `${id}#f${Date.now()}`, [
-      { code: '2010', owner: w.user_id, amount: net },
-      { code: back, owner: w.user_id, amount: -gross },
-      { code: '4000', amount: fee },
-    ]);
+    const rl: { code: string; owner?: string; amount: bigint }[] = [];
+    rl.push({ code: '2010', owner: w.user_id, amount: net });
+    if (backRw > 0n) rl.push({ code: '2080', owner: w.user_id, amount: -backRw });
+    if (backAv > 0n) rl.push({ code: '2000', owner: w.user_id, amount: -backAv });
+    rl.push({ code: '4000', amount: fee });
+    await post(c, 'WithdrawalFailed', `${id}#f${Date.now()}`, rl);
 
     await notify(c, w.user_id, kind,
       `${label}. ${usdStr(gross)} USD returned to ${where}.` + (msg ? ` Reason: ${msg}` : ''));
@@ -462,8 +471,8 @@ export async function payoutWithdrawal(
   const claimed = await tx(async (c) => {
     const w = await c.query<{
       user_id: string; usd_amount: string; fee: string; source: string; status: string;
-      privy_action_id: string | null;
-    }>(`select user_id, usd_amount, fee, source, status, privy_action_id from withdrawals where id = $1 for update`, [id]);
+      privy_action_id: string | null; from_rewards: string;
+    }>(`select user_id, usd_amount, fee, source, status, privy_action_id, from_rewards from withdrawals where id = $1 for update`, [id]);
 
     const cur = w.rows[0];
     /* 'sending' alone is not a claim: another worker may be mid-send on this row.

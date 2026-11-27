@@ -23,7 +23,7 @@ wallet.get('/balance', requireUser, async (req, res) => {
   res.json({
     userId: uid,
     email: r.em,
-    balance: r.b,
+    balance: (BigInt(r.b) + BigInt(r.rw)).toString(),
     referralCode: (await one<{ c: string | null }>(`select referral_code c from users where id=$1`, [uid]))?.c ?? null,
     invited: Number((await one<{ n: string }>(`select count(*)::text n from users where referred_by=$1`, [uid]))?.n ?? 0),
     referralEarned: (await one<{ e: string }>(`select coalesce(sum(commission_usd),0)::text e from referral_ledger where referrer_id=$1`, [uid]))?.e ?? '0', lastRateBp: (await one<{ r: number | null }>(`select rate_bp r from credit_runs where day <= (now() at time zone 'utc')::date order by day desc limit 1`))?.r ?? null,
@@ -146,7 +146,7 @@ wallet.post('/withdraw/:id/cancel', requireUser, async (req, res) => {
 wallet.get('/cap', requireUser, async (req, res) => {
   const uid = req.userId!;
   const r = await one<{ b: string }>(
-    `select coalesce(balance,0) b from v_balance where user_id=$1 and code='2000'`,
+    `select coalesce(sum(balance) filter (where code in ('2000','2080')),0) b from v_balance where user_id=$1`,
     [uid],
   );
   const addr = req.query.address as string | undefined;
