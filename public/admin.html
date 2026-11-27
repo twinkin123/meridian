@@ -450,7 +450,7 @@
           '<td class="num">' + Number(x.tier || 0) + '</td>' +
           '<td>' + (x.is_admin ? '<span class="pill ok">admin</span>' : '<span class="pill">user</span>') + '</td>' +
           '<td>' + new Date(x.created_at).toLocaleDateString() + '</td>' +
-          '<td>' + (x.last_polled_at ? ago(x.last_polled_at) : 'never') + '</td>'
+          '<td>' + (x.last_polled_at ? ago(x.last_polled_at) : 'never') + '</td>' +
           '<td class="num">' + money(x.available) + '</td>' +
           '<td class="num">' + money(x.reserve) + '</td>' +
           '<td class="num">' + money(x.locked) + '</td>' +
@@ -460,7 +460,7 @@
           '<td class="num">' + money(x.ref_usd) + '</td>' +
           '<td class="num">' + money(x.dep_usd) + '</td>' +
           '<td class="num">' + money(x.wd_usd) + '</td>' +
-          '<td class="acts">' + acts + '</td>'
+          '<td class="acts">' + acts + '</td>' +
         '</tr>';
       }).join('');
     } catch (_) {
