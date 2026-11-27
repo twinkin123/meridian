@@ -133,3 +133,9 @@ table.tbl{min-width:900px}
 #promoters{min-width:1250px}
 #promoters td.num,#promoters th{white-space:nowrap}
 #promoters td.acts{white-space:nowrap}
+
+/* promoter table: scroll inside the card, keep identity pinned left */
+.tblwrap:has(#promoters){overflow-x:auto}
+.tblwrap:has(#promoters) table{min-width:1250px}
+.tblwrap:has(#promoters) th:first-child,
+.tblwrap:has(#promoters) td:first-child{position:sticky;left:0;background:#0b0b0f;z-index:1}
