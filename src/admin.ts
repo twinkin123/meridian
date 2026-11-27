@@ -208,7 +208,46 @@ adminRouter.get('/promoters', async (_req, res) => {
           and exists (select 1 from referral_ledger rl2
                        where rl2.referrer_id = p.id and rl2.same_ip)) same_ip,
        (select max(r.created_at) from users r where r.referred_by = p.id) last_signup
+       , p.id, p.tier, p.is_admin, p.created_at, p.last_polled_at, p.frozen_at,
+         coalesce(b.available, 0) available, coalesce(b.reserve, 0) reserve,
+         coalesce(b.locked, 0) locked, coalesce(b.vesting, 0) vesting,
+         coalesce(b.rewards, 0) rewards,
+         coalesce(d.dep_usd, 0) dep_usd, coalesce(w.wd_usd, 0) wd_usd,
+         coalesce(lf.life_usd, 0) life_usd, coalesce(rf.ref_usd, 0) ref_usd
      from users p
+     left join (
+       select user_id,
+              coalesce(sum(balance) filter (where code = '2000'), 0) available,
+              coalesce(sum(balance) filter (where code = '2050'), 0) reserve,
+              coalesce(sum(balance) filter (where code = '2070'), 0) locked,
+              coalesce(sum(balance) filter (where code = '2060'), 0) vesting,
+              coalesce(sum(balance) filter (where code = '2080'), 0) rewards
+         from v_balance group by user_id
+     ) b on b.user_id = p.id
+     left join (
+       select user_id, coalesce(sum(usd_at_det), 0) dep_usd
+         from deposits group by user_id
+     ) d on d.user_id = p.id
+     left join (
+       select user_id, coalesce(sum(usd_amount), 0) wd_usd
+         from withdrawals group by user_id
+     ) w on w.user_id = p.id
+     left join (
+       select v.user_id, sum(v.amt) life_usd
+       from (
+         select user_id, amount amt from vesting
+         union all
+         select referrer_id user_id, commission_usd amt from referral_ledger
+       ) v group by v.user_id
+     ) lf on lf.user_id = p.id
+     left join (
+       select u2.referred_by,
+              coalesce(sum(case when d2.status = 'credited' then d2.usd_at_det else 0 end), 0) ref_usd
+         from users u2
+         left join deposits d2 on d2.user_id = u2.id
+        where u2.referred_by is not null
+        group by u2.referred_by
+     ) rf on rf.referred_by = p.id
      where p.is_promoter
      order by brought desc
      limit 200`,

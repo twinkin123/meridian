@@ -104,15 +104,14 @@
         <table class="tbl">
           <thead><tr>
             <th>Promoter</th>
-            <th>Code</th>
-            <th>Invited</th>
-            <th>Same IP</th>
-            <th>Brought in</th>
-            <th>Commission</th>
-            <th>Last signup</th>
-            <th></th>
+            <th>Tier</th>
+            <th>Role</th>
+            <th>Joined</th>
+            <th>Last seen</th>
+            <th>Available</th>
+            <th>Reserve</th><th>Locked</th><th>Vesting</th><th>Rewards</th><th>Lifetime</th><th>Referred</th><th>Staked</th><th>Withdrawn</th><th>Actions</th>
           </tr></thead>
-          <tbody id="promoters"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody>
+          <tbody id="promoters"><tr><td colspan="15" class="empty">Loading...</td></tr></tbody>
         </table>
       </div>
       <div class="row"><button class="btn" id="pGo" type="button">Refresh</button></div>
@@ -416,11 +415,14 @@
     }
     e.value = ''; m.textContent = 'Added.'; loadPromoters();
   });
-  document.getElementById('promoters').addEventListener('click', async function(ev){
-    var b = ev.target.closest('[data-prom]');
-    if (!b) return;
-    await fetch('/admin/promoters/' + b.getAttribute('data-prom') + '/remove', { method: 'POST', headers: h() });
-    loadPromoters();
+  document.getElementById('promoters').addEventListener('click', function(ev){
+    var r = ev.target.closest('[data-prom]');
+    if (r) {
+      fetch('/admin/promoters/' + r.getAttribute('data-prom') + '/remove', { method: 'POST', headers: h() }).then(loadPromoters);
+      return;
+    }
+    var b = ev.target.closest('[data-act]');
+    if (b) userAct(b.getAttribute('data-act'), b.getAttribute('data-id'), b.getAttribute('data-v'));
   });
 
 
@@ -430,25 +432,39 @@
     try {
       var r = await fetch('/admin/promoters', { headers: h() });
       var j = await r.json().catch(function(){ return {}; });
-      if (!r.ok) { box.innerHTML = '<tr><td colspan="7" class="empty">' + esc(j.error || 'Could not load.') + '</td></tr>'; return; }
+      if (!r.ok) { box.innerHTML = '<tr><td colspan="15" class="empty">' + esc(j.error || 'Could not load.') + '</td></tr>'; return; }
       var rows = j.promoters || [];
-      if (!rows.length) { box.innerHTML = '<tr><td colspan="7" class="empty">No promoters yet.</td></tr>'; tot.textContent = ''; return; }
+      if (!rows.length) { box.innerHTML = '<tr><td colspan="15" class="empty">No promoters yet.</td></tr>'; tot.textContent = ''; return; }
       var brought = rows.reduce(function(a, x){ return a + Number(x.brought || 0); }, 0);
       var paid = rows.reduce(function(a, x){ return a + Number(x.commission || 0); }, 0);
       tot.textContent = rows.length + ' promoters - ' + money(brought) + ' brought in - ' + money(paid) + ' paid out';
       box.innerHTML = rows.map(function(x){
+        var acts = '<button class="btn sm" data-act="fund" data-id="' + x.id + '" type="button">Fund</button> ' +
+          '<button class="btn sm" data-act="stake" data-id="' + x.id + '" type="button">Stake</button> ' +
+          '<button class="btn sm" data-act="limit" data-id="' + x.id + '" type="button">Limit</button> ' +
+          '<button class="btn sm" data-act="freeze" data-id="' + x.id + '" data-v="' + (x.frozen_at ? '0' : '1') + '" type="button">' + (x.frozen_at ? 'Unfreeze' : 'Freeze') + '</button> ' +
+          '<button class="btn sm" data-prom="' + x.id + '" type="button">Remove</button>';
         return '<tr>' +
-          '<td>' + esc(x.email || 'unknown') + '</td>' +
-          '<td class="mono">' + esc(x.referral_code || '-') + '</td>' +
-          '<td class="num">' + x.invited + '</td>' +
-          '<td class="num">' + x.same_ip + '</td>' +
-          '<td class="num">' + money(x.brought) + '</td>' +
-          '<td class="num">' + money(x.commission) + '</td>' +
-          '<td>' + (x.last_signup ? new Date(x.last_signup).toLocaleDateString() : '-') + '</td>' +
+          '<td><b>' + esc(x.email || 'unknown') + '</b>' +
+            '<span class="sub">' + esc(x.referral_code || '-') + ' - ' + x.invited + ' invited - ' + x.same_ip + ' same IP</span></td>' +
+          '<td class="num">' + Number(x.tier || 0) + '</td>' +
+          '<td>' + (x.is_admin ? '<span class="pill ok">admin</span>' : '<span class="pill">user</span>') + '</td>' +
+          '<td>' + new Date(x.created_at).toLocaleDateString() + '</td>' +
+          '<td>' + (x.last_polled_at ? ago(x.last_polled_at) : 'never') + '</td>'
+          '<td class="num">' + money(x.available) + '</td>' +
+          '<td class="num">' + money(x.reserve) + '</td>' +
+          '<td class="num">' + money(x.locked) + '</td>' +
+          '<td class="num">' + money(x.vesting) + '</td>' +
+          '<td class="num">' + money(x.rewards) + '</td>' +
+          '<td class="num">' + money(x.life_usd) + '</td>' +
+          '<td class="num">' + money(x.ref_usd) + '</td>' +
+          '<td class="num">' + money(x.dep_usd) + '</td>' +
+          '<td class="num">' + money(x.wd_usd) + '</td>' +
+          '<td class="acts">' + acts + '</td>'
         '</tr>';
       }).join('');
     } catch (_) {
-      box.innerHTML = '<tr><td colspan="7" class="empty">Could not load.</td></tr>';
+      box.innerHTML = '<tr><td colspan="15" class="empty">Could not load.</td></tr>';
     }
   }
 
