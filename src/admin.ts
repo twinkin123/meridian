@@ -468,7 +468,10 @@ adminRouter.get('/users', async (req, res) => {
             coalesce(b.locked, 0) locked, coalesce(b.vesting, 0) vesting,
             coalesce(b.rewards, 0) rewards, coalesce(b.in_flight, 0) in_flight,
             coalesce(d.dep_n, 0) dep_n, coalesce(d.dep_usd, 0) dep_usd,
-            coalesce(w.wd_n, 0) wd_n, coalesce(w.wd_usd, 0) wd_usd, coalesce(lf.life_usd, 0) life_usd, coalesce(rf.ref_n, 0) ref_n, coalesce(rf.ref_usd, 0) ref_usd, coalesce(fd.funded, 0) funded, coalesce(st.stake_n, 0) stake_n,
+            coalesce(w.wd_n, 0) wd_n, coalesce(w.wd_usd, 0) wd_usd, coalesce(lf.life_usd, 0) life_usd, coalesce(rf.ref_n, 0) ref_n, coalesce(rf.ref_usd, 0) ref_usd,
+            (select coalesce(sum(d3.usd_at_det), 0) from deposits d3
+               join users r3 on r3.id = d3.user_id
+              where r3.referred_by = u.id and d3.source = 'stake') brought, coalesce(fd.funded, 0) funded, coalesce(st.stake_n, 0) stake_n,
             (select count(*)::int from sessions s where s.user_id = u.id
               and s.revoked_at is null and s.expires_at > now()) live_sessions
        ${base}
