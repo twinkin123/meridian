@@ -128,3 +128,8 @@ table.tbl{min-width:900px}
 #promoters th:first-child,#promoters td:first-child{min-width:250px}
 #promoters td:first-child .sub{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}
 #promoters td,#promoters th{padding-left:8px;padding-right:8px}
+
+/* promoter table: fixed floor so columns keep their width and the wrapper scrolls */
+#promoters{min-width:1250px}
+#promoters td.num,#promoters th{white-space:nowrap}
+#promoters td.acts{white-space:nowrap}
