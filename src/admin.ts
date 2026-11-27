@@ -266,7 +266,7 @@ adminRouter.get('/promoters', async (_req, res) => {
      ) d on d.user_id = p.id
      left join (
        select user_id, coalesce(sum(usd_amount), 0) wd_usd
-         from withdrawals group by user_id
+         from withdrawals where status = 'sent' group by user_id
      ) w on w.user_id = p.id
      left join (
        select v.user_id, sum(v.amt) life_usd
@@ -445,7 +445,7 @@ adminRouter.get('/users', async (req, res) => {
     ) d on d.user_id = u.id
     left join (
       select user_id, count(*)::int wd_n, coalesce(sum(usd_amount), 0) wd_usd
-        from withdrawals group by user_id
+        from withdrawals where status = 'sent' group by user_id
     ) w on w.user_id = u.id
     left join (
       select v.user_id, sum(v.amt) life_usd
