@@ -698,7 +698,7 @@ var r = await fetch('/admin/flow?' + qs, { headers: h(), cache: 'no-store' });
         '<tr><td>Ledger assets</td><td class="num">' + money(j.assets) + '</td></tr>' +
         '<tr><td>Cover</td><td class="num"' + (Number(j.cover) < 0 ? ' style="color:#e5484d"' : '') + '>' + (j.cover == null ? '-' : money(j.cover)) + '</td></tr>' +
         '<tr><td>Liabilities</td><td class="num">' + money(j.liabilities) + '</td></tr>' +
-        '<tr><td>Margin</td><td class="num">' + money(j.margin) + '</td></tr>' +
+        '<tr><td>Margin</td><td class="num">' + money(j.margin) + '</td></tr>';
     } catch (_) { el.innerHTML = '<tr><td colspan="2" class="empty">Could not load.</td></tr>'; }
   }
   document.getElementById('gateGo').onclick = unlock;
