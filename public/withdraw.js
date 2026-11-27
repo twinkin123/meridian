@@ -170,7 +170,7 @@
 
   function rewards() {
     var addr = document.getElementById('wAddr');
-    var mine = (addr && addr.value.trim()) || ((document.getElementById('addr') || {}).textContent || '').trim();
+    var mine = (addr && addr.value.trim()) || '';
     if (!mine) { open(); return; }
     fetch('/wallet/balance', { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
