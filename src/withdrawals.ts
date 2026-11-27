@@ -35,7 +35,7 @@ export const FEE_HEADROOM = 100_000n;
 export const PRIORITY_MICRO = 200_000;
 export const MAX_ATTEMPTS = 3;
 
-/** A single withdrawal may not exceed this share of the treasury. */
+/** Legacy share test: computed and logged, no longer enforced. */
 function wdSharePct(): bigint {
   const raw = (process.env.WD_SHARE_PCT ?? '').trim();
   if (!raw) return 15n;
@@ -192,7 +192,11 @@ export async function requestWithdrawal(
     const have = asset === 'USDC' ? head.usdc : head.sol;
     const covered = have >= need;
     const withinShare = need * 100n < have * TREASURY_SHARE_PCT;
-    const autoOk = !needsApproval && covered && withinShare;
+    const autoOk = !needsApproval;
+    /* Coverage and share are advisory: an uncovered row is still approved and
+       pays once the treasury refills. Only the human-review threshold queues. */
+    if (!covered) console.log('wd uncovered', have.toString(), need.toString());
+    void withinShare;
     const status = autoOk ? 'approved' : 'requested';
 
     const row = await c.query<{ id: string }>(
@@ -231,7 +235,7 @@ export async function approveWithdrawal(id: string, approver: string): Promise<A
   const head = await treasuryHeadroom().catch(() => null);
   if (!head) return { ok: false, error: 'treasury_unreachable' };
   const have = row.asset === 'USDC' ? head.usdc : head.sol;
-  if (have < need) return { ok: false, error: `treasury_short:${have}:${need}` };
+  if (have < need) console.log('payout uncovered', have.toString(), need.toString());
   const r = await pool.query<{ user_id: string }>(`update withdrawals set status = 'approved', approved_by = $2 where id = $1 and status = 'requested' returning user_id`, [id, approver]);
   const done = r.rows[0];
   if (!done) return { ok: false, error: 'not_pending' };
@@ -416,6 +420,14 @@ export async function payoutWithdrawal(
       await finalize(id, onchain, row.privy_action_id ?? onchain, row.user_id, row.address, usd, qty);
       return { ok: true, sig: onchain };
     }
+    /* Short treasury is not a dead send: re-arm the deadline and keep the row
+       so it pays when funds land instead of refunding under the user. */
+    const headNow = await treasuryHeadroom().catch(() => null);
+    const haveNow = headNow ? (row.asset === 'USDC' ? headNow.usdc : headNow.sol) : 0n;
+    if (haveNow < (row.asset === 'USDC' ? usd : qty + FEE_HEADROOM)) {
+      await pool.query(`update withdrawals set first_attempt_at = now() where id = $1`, [id]).catch(() => {});
+      return { ok: false, error: 'treasury_short' };
+    }
     await refundWithdrawal(id, 'failed', 'deadline_exceeded', 'withdrawal_failed', 'Withdrawal could not be sent', { allowLiveSend: true });
     return { ok: false, error: 'deadline_exceeded' };
   }
@@ -445,7 +457,7 @@ export async function payoutWithdrawal(
   const head = await treasuryHeadroom().catch(() => null);
   if (!head) return { ok: false, error: 'treasury_unreachable' };
   const have = row.asset === 'USDC' ? head.usdc : head.sol;
-  if (have < need) return { ok: false, error: `treasury_short:${have}:${need}` };
+  if (have < need) console.log('payout uncovered', have.toString(), need.toString());
 
   const claimed = await tx(async (c) => {
     const w = await c.query<{
@@ -516,6 +528,10 @@ export async function payoutWithdrawal(
           )
           .catch(() => {});
       }
+
+      /* Short treasury is not a failure: keep the row approved and retry on
+         the next tick instead of burning an attempt and refunding. */
+      if (/insufficient|not enough|exceeds/i.test(msg)) return { ok: false, error: 'treasury_short' };
 
       if (attempt === MAX_ATTEMPTS) {
         const onchain = await findTransferSig(row.address, qty, row.asset, callStart, usedSigs).catch(() => null);

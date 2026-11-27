@@ -9,7 +9,8 @@ export type ResumeResult = { found: number; ok: number; failed: number };
 /**
  * Resumes withdrawals stranded in 'sending' after a Privy action timed out.
  * payoutWithdrawal resolves the in-flight action from privy_action_id, and
- * falls back to a refund once its attempt budget is spent.
+ * falls back to a refund once its attempt budget is spent, except when the treasury
+ * is short, where it leaves the row for the next tick.
  */
 export async function resumeStuckWithdrawals(limit = 20): Promise<ResumeResult> {
   const { rows } = await pool.query<{ id: string }>(
