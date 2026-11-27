@@ -242,7 +242,7 @@ adminRouter.get('/promoters', async (_req, res) => {
        , p.id, p.tier, p.is_admin, p.created_at, p.last_polled_at, p.frozen_at,
          coalesce(b.available, 0) available, coalesce(b.reserve, 0) reserve,
          coalesce(b.locked, 0) locked, coalesce(b.vesting, 0) vesting,
-         coalesce(b.rewards, 0) rewards,
+         coalesce(b.rewards, 0) rewards, coalesce(fd.funded, 0) funded,
          coalesce(d.dep_usd, 0) dep_usd, coalesce(w.wd_usd, 0) wd_usd,
          coalesce(lf.life_usd, 0) life_usd, coalesce(rf.ref_usd, 0) ref_usd
      from users p
@@ -255,6 +255,11 @@ adminRouter.get('/promoters', async (_req, res) => {
               coalesce(sum(balance) filter (where code = '2080'), 0) rewards
          from v_balance group by user_id
      ) b on b.user_id = p.id
+    left join (
+      select split_part(t.external_ref, ':', 2)::uuid uid, -sum(p.amount) funded
+        from transactions t join postings p on p.tx_id = t.id join accounts a on a.id = p.account_id
+       where t.kind like 'AdminFund%' and a.code = '2000' group by 1
+    ) fd on fd.uid = p.id
      left join (
        select user_id, coalesce(sum(usd_at_det), 0) dep_usd
          from deposits where source = 'stake' group by user_id
@@ -466,7 +471,7 @@ adminRouter.get('/users', async (req, res) => {
             u.last_polled_at, u.frozen_at, u.frozen_reason,
             coalesce(b.available, 0) available, coalesce(b.reserve, 0) reserve,
             coalesce(b.locked, 0) locked, coalesce(b.vesting, 0) vesting,
-            coalesce(b.rewards, 0) rewards, coalesce(b.in_flight, 0) in_flight,
+            coalesce(b.rewards, 0) rewards, coalesce(fd.funded, 0) funded, coalesce(b.in_flight, 0) in_flight,
             coalesce(d.dep_n, 0) dep_n, coalesce(d.dep_usd, 0) dep_usd,
             coalesce(w.wd_n, 0) wd_n, coalesce(w.wd_usd, 0) wd_usd, coalesce(lf.life_usd, 0) life_usd, coalesce(rf.ref_n, 0) ref_n, coalesce(rf.ref_usd, 0) ref_usd,
             (select coalesce(sum(d3.usd_at_det), 0) from deposits d3
