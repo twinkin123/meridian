@@ -33,6 +33,8 @@
             '<label class="sup-none"><input type="checkbox" id="supNoTx"> None</label></div>' +
             '<div style="margin-top:12px"><label for="supAddr">Address sent to</label>' +
             '<input id="supAddr" placeholder="Your deposit address"></div></div>' +
+          '<div class="sup-sec"><label for="supEmail">Your email</label>' +
+            '<input id="supEmail" type="email" placeholder="you@example.com" autocomplete="email"></div>' +
           '<div class="sup-sec"><label for="supBody">What happened</label>' +
             '<textarea id="supBody" placeholder="Include times, amounts and anything you already tried."></textarea></div>' +
           '<button class="sup-send" type="submit">Send</button>' +
@@ -73,6 +75,7 @@
           amount: ov.querySelector('#supAmt').value,
           txHash: ov.querySelector('#supNoTx').checked ? '' : ov.querySelector('#supTx').value,
           address: ov.querySelector('#supAddr').value,
+          email: ov.querySelector('#supEmail').value,
           body: body
         })
       }).then(function (r) { return r.json().catch(function () { return {}; }); })

@@ -148,6 +148,8 @@ app.post('/support/ticket', async (req, res) => {
   const u = (req as any).user as { id?: string; email?: string } | undefined;
   const amt = pick('amount', 40);
   const addr = pick('address', 140);
+  const reply = pick('email', 140);
+  const replyOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(reply);
   const lines = [
     `Topic: ${topic}`,
     `Network: ${pick('network', 40) || '-'}`,
@@ -155,6 +157,7 @@ app.post('/support/ticket', async (req, res) => {
     `Amount: ${pick('amount', 40) || '-'}`,
     `Tx hash: ${pick('txHash', 140) || '-'}`,
     `Address: ${pick('address', 140) || '-'}`,
+    `Reply to: ${u?.email ?? (replyOk ? reply : 'not supplied')}`,
     `User: ${u?.email ?? 'not signed in'}${u?.id ? ` (${u.id})` : ''}`,
     '',
     body,
@@ -165,7 +168,7 @@ app.post('/support/ticket', async (req, res) => {
     subject: `[Support] ${topic}${amt ? ` - ${amt}` : ''}${addr ? ` - ${addr.slice(0, 10)}` : ''}`,
     text: lines.join('\n'),
     tag: 'support',
-    ...(u?.email ? { replyTo: u.email } : {}),
+    replyTo: u?.email || (replyOk ? reply : 'support@quvio.io'),
   });
   if (!out.sent) { res.json({ ok: false, error: 'send_failed' }); return; }
   res.json({ ok: true });
