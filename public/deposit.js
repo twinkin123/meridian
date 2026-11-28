@@ -3,6 +3,7 @@
   var warnEl = null, quoteEl = null, selected = null;
   var routes = [], addresses = {}, min = {};
   var lastDep;
+  var startedAt = Date.now();
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -255,7 +256,7 @@
         var l = j.latest;
         if (!l) return;
         if (l.id !== lastDep) {
-          var fresh = lastDep !== undefined || l.status !== 'credited';
+          var fresh = lastDep !== undefined || (l.createdAt && Date.parse(l.createdAt) > startedAt - 60000);
           lastDep = l.id;
           if (fresh && window.track) track('deposit', { asset: l.asset });
         }

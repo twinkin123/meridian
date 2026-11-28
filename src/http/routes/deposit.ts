@@ -68,8 +68,8 @@ deposit.get('/address', async (req, res) => {
     addresses.push({ family, address, qr: await QRCode.toDataURL(address, QR) });
   }
 
-  const { rows } = await pool.query<{ id: string; usd: string; status: string; asset: string }>(
-    `select id, usd_at_det usd, status, asset from deposits
+  const { rows } = await pool.query<{ id: string; usd: string; status: string; asset: string; created_at: string }>(
+    `select id, usd_at_det usd, status, asset, created_at from deposits
       where user_id = $1 order by created_at desc limit 5`,
     [userId],
   );
@@ -79,7 +79,7 @@ deposit.get('/address', async (req, res) => {
     qr: addresses.find((a) => a.family === 'sol')?.qr ?? null,
     addresses,
     latest: rows[0]
-      ? { id: rows[0].id, asset: rows[0].asset, usd: rows[0].usd, status: rows[0].status }
+      ? { id: rows[0].id, asset: rows[0].asset, usd: rows[0].usd, status: rows[0].status, createdAt: rows[0].created_at }
       : null,
   });
 });
