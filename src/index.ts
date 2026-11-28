@@ -32,6 +32,7 @@ import { watchDeposits } from './jobs/deposit-watch.js';
 import { watchEvmDeposits } from './jobs/evm-watch.js';
 import { refreshRoutes } from './deposit-routes.js';
 import { runSweep, assertSweepDestination } from './sweeps.js';
+import { watchSweepStalls } from './jobs/sweep-watch.js';
 import { one, close } from './db.js';
 import { market } from './market.js';
 import { swap } from './http/routes/swap.js';
@@ -276,6 +277,7 @@ const server = app.listen(port, () => {
   every(2 * 60 * 1000, pollDeposits, 'deposits');
   every(3 * 60 * 1000, () => runSweep({ dryRun: false, limit: 200 }), 'sweep');
   every(10 * 60 * 1000, watchDeposits, 'deposit-watch');
+  every(15 * 60 * 1000, watchSweepStalls, 'sweep-watch');
   every(15 * 60 * 1000, watchEvmDeposits, 'evm-watch');
   every(5 * 60 * 1000, resumeStuckWithdrawals, 'resume');
   every(60 * 1000, payApproved, 'payout');

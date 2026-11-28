@@ -135,6 +135,13 @@ async function submitPrivy(
     );
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
+    /* Record the attempt. Without this a rejected transfer exists only as a return
+       value, so an address that keeps failing leaves no trace anywhere. */
+    await pool.query(
+      `insert into sweeps (deposit_address, asset, amount_raw, destination, status, error, submitted_at)
+       values ($1, $2, $3, $4, 'failed', $5, now())`,
+      [address, asset, amountRaw.toString(), destination, `submit: ${msg.slice(0, 180)}`],
+    ).catch(() => {});
     return { address, asset, status: 'failed', reason: msg.slice(0, 200) };
   }
 
