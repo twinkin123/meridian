@@ -21,6 +21,7 @@ import { revalueSolDeposits } from './jobs/revalue.js';
 import { resumeStuckWithdrawals } from './jobs/resume.js';
 import { payApproved } from './jobs/pay.js';
 import { releaseMatured } from './locks.js';
+import { releaseSwept } from './release.js';
 import { backfillTrades, ensureToday } from './trades.js';
 import { releaseDue } from './vesting.js';
 import { requireUser } from './http/mw/session.js';
@@ -271,6 +272,7 @@ const server = app.listen(port, () => {
   every(60 * 1000, releaseDue, 'vesting');
   every(60 * 1000, expireClaims, 'claims');
   every(60 * 1000, releaseMatured, 'release');
+  every(60 * 1000, releaseSwept, 'release-swept');
   every(2 * 60 * 1000, pollDeposits, 'deposits');
   every(3 * 60 * 1000, () => runSweep({ dryRun: false, limit: 200 }), 'sweep');
   every(10 * 60 * 1000, watchDeposits, 'deposit-watch');

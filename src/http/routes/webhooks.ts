@@ -13,6 +13,7 @@ import { safeEq } from '../../auth.js';
 export const webhooks = Router();
 
 import { combineHeld } from '../../locks.js';
+import { releaseUnswept } from '../../release.js';
 import { notify, usdStr } from '../../notify.js';
 
 /** Relay attaches order and fill ids as memo instructions. */
@@ -129,5 +130,8 @@ export async function processSig(sig: string): Promise<void> {
       }
       if (depId) await payReferral(c, u.id, depId, usd);
     });
+    /* A sweep can confirm before this row existed, so the sweep pass will
+       never call release for it. Try now; the timer is the backstop. */
+    await releaseUnswept(u.id).catch(() => {});
   }
 }
