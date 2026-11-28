@@ -7,8 +7,8 @@ import { post } from './ledger/post.js';
  * Called once their address has actually been swept to the treasury, so nothing
  * becomes spendable before the coins are ours.
  *
- * A row only clears when the confirmed sweep volume on the address covers every
- * deposit recorded against it. That comparison is cumulative, so it no longer
+ * A row only clears when the confirmed sweep volume on the address covers the deposit and
+ * everything before it. That comparison is cumulative, so it no longer
  * matters whether the sweep or the deposit row is written first - a sweep that
  * confirmed before the webhook landed used to strand the row in reserve for good.
  */
@@ -84,3 +84,5 @@ export async function releaseSwept(): Promise<void> {
     );
   }
 }
+
+
