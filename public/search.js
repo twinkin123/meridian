@@ -12,7 +12,7 @@
   var FALLBACK = [
     ['What Quvio is', 'what-is-quvio'], ['The ledger', 'ledger'], ['Deposits', 'deposits'],
     ['The 30-day lock', 'lock'], ['Daily credit', 'credit'], ['Withdrawals', 'withdrawals'],
-    ['Referrals', 'referrals'], ['Perps', 'perps'], ['Swap', 'swap'],
+    ['Referrals', 'referrals'], ['Swap', 'swap'],
     ['Security', 'security'], ['Risk', 'risk'], ['Risk disclosures', 'legal'], ['FAQ', 'faq']
   ];
 
@@ -48,6 +48,7 @@
           var doc = new DOMParser().parseFromString(html, 'text/html');
           Array.prototype.forEach.call(doc.querySelectorAll('main section[id]'), function (s) {
             var h = s.querySelector('h2, h3');
+            if (s.hasAttribute('data-off')) return;
             if (!h) return;
             out.push({
               label: (h.textContent || '').trim(),

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Docs | Quvio</title>
 <meta name="description" content="How Quvio works: deposits, the 30-day lock, daily credit, withdrawals, referrals and the ledger behind them.">
-<link rel="stylesheet" href="/docs.css?v=4">
+<link rel="stylesheet" href="/docs.css?v=4"><style>#perps,.grid a[href="#perps"]{display:none!important}</style>
 <link rel="icon" href="/img/quvio-mark.png"><link rel="apple-touch-icon" href="/img/quvio-mark.png"></head>
 <body>
 <header class="head">
@@ -106,7 +106,7 @@
     <p>One payment per person, credited to your balance as it clears. Direct referrals only, subject to eligibility and anti-abuse checks.</p>
   </section>
 
-  <section id="perps">
+  <section id="perps" data-off>
     <span class="eyebrow mono">Trading</span>
     <h2>Perps</h2>
     <p>Perpetual futures sit beside the credit account. A position is collateralised from available balance and its result posts to the same ledger, so a win and a loss both show up in the same place as a deposit or a credit.</p>
@@ -285,7 +285,7 @@ main section[hidden],main .grid a[hidden]{display:none}
     term = (term || '').trim().toLowerCase();
     if (!term) { bar.className = ''; bar.textContent = ''; return; }
 
-    var sections = Array.prototype.slice.call(main.querySelectorAll('section[id]'));
+    var sections = Array.prototype.slice.call(main.querySelectorAll('section[id]:not([data-off])'));
     var cards = Array.prototype.slice.call(main.querySelectorAll('.grid a'));
     var hits = [];
 
