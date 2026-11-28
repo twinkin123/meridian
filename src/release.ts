@@ -23,7 +23,8 @@ export async function releaseUnswept(userId: string): Promise<bigint> {
                          where s.deposit_address = u.privy_address
                            and s.asset = d.asset and s.status = 'confirmed'), 0)
               >= (select coalesce(sum(x.qty), 0) from deposits x
-                   where x.user_id = d.user_id and x.asset = d.asset and x.source = 'onchain')
+                   where x.user_id = d.user_id and x.asset = d.asset and x.source = 'onchain'
+                     and (x.created_at, x.id) <= (d.created_at, d.id))
         order by d.created_at
         for update of d`,
       [userId],
@@ -73,7 +74,8 @@ export async function releaseSwept(): Promise<void> {
                        where s.deposit_address = u.privy_address
                          and s.asset = d.asset and s.status = 'confirmed'), 0)
             >= (select coalesce(sum(x.qty), 0) from deposits x
-                 where x.user_id = d.user_id and x.asset = d.asset and x.source = 'onchain')
+                 where x.user_id = d.user_id and x.asset = d.asset and x.source = 'onchain'
+                   and (x.created_at, x.id) <= (d.created_at, d.id))
       limit 100`,
   );
   for (const r of rows) {
