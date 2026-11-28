@@ -139,6 +139,7 @@
       }
 
       if (mode === 'login') { location.href = '/app.html'; return; }
+      if (window.track) track('signup');
 
       var address = data.depositAddress || data.deposit_addr || '';
       if (address) {

@@ -2,6 +2,7 @@
   var overlay = null, timer = null, addrEl = null, statusEl = null, qrEl = null, rowLg = null;
   var warnEl = null, quoteEl = null, selected = null;
   var routes = [], addresses = {}, min = {};
+  var lastDep;
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -253,6 +254,10 @@
         var j = await r.json();
         var l = j.latest;
         if (!l) return;
+        if (l.id !== lastDep) {
+          if (lastDep !== undefined && window.track) track('deposit', { asset: l.asset });
+          lastDep = l.id;
+        }
         if (l.status === 'detected' || l.status === 'pending' || l.status === 'credited') {
           setStatus('Received ' + Number(l.usd).toFixed(2) + ' USD worth of ' + l.asset + '.', true);
         }
