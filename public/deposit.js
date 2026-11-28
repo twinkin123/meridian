@@ -255,8 +255,9 @@
         var l = j.latest;
         if (!l) return;
         if (l.id !== lastDep) {
-          if (lastDep !== undefined && window.track) track('deposit', { asset: l.asset });
+          var fresh = lastDep !== undefined || l.status !== 'credited';
           lastDep = l.id;
+          if (fresh && window.track) track('deposit', { asset: l.asset });
         }
         if (l.status === 'detected' || l.status === 'pending' || l.status === 'credited') {
           setStatus('Received ' + Number(l.usd).toFixed(2) + ' USD worth of ' + l.asset + '.', true);
@@ -269,9 +270,9 @@
     if (overlay) return;
     build();
     await load();
-    poll();
   }
 
+  poll();
   window.openDeposit = open;
   document.addEventListener('click', function (e) {
     var t = e.target.closest('[data-deposit], [data-goto="p-deposit"], a[href="#deposit"]');
